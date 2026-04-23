@@ -95,11 +95,16 @@
     <div class="version">Version 0.1 — Foundation</div>
   </div>
   <script>
+    // Register service worker for offline mode
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('/sw.js')
         .then(() => console.log('Service Worker registered'))
         .catch(err => console.log('SW registration failed:', err));
     }
+    // Redirect to login page after 2 seconds
+    setTimeout(() => {
+      window.location.href = 'login.html';
+    }, 2000);
   </script>
 </body>
 </html>
