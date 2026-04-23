@@ -5,7 +5,7 @@ const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
   '/manifest.json',
-  '/icons/logo_copfy.png',
+  '/icons/logo copfy.png',
   '/offline.html'
 ];
 
@@ -106,8 +106,8 @@ self.addEventListener('push', event => {
   const title = data.title || 'Sparkals Tasks';
   const options = {
     body: data.body || 'You have a new notification',
-    icon: '/icons/logo_copfy.png',
-    badge: '/icons/logo_copfy.png',
+    icon: '/icons/logo copfy.png',
+    badge: '/icons/logo copfy.png',
     vibrate: [200, 100, 200],
     data: { url: data.url || '/' }
   };
