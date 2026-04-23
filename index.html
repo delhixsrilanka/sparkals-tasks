@@ -3,38 +3,44 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#6C63FF" />
+  <meta name="theme-color" content="#1a1a2e" />
   <title>Sparkals Tasks</title>
   <link rel="manifest" href="manifest.json" />
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       font-family: 'Segoe UI', sans-serif;
-      background: linear-gradient(135deg, #6C63FF 0%, #3B37C8 100%);
+      background: #1a1a2e;
       min-height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
     }
     .card {
-      background: white;
+      background: #ffffff;
       border-radius: 24px;
       padding: 48px 36px;
       text-align: center;
       max-width: 360px;
       width: 90%;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.4);
     }
-    .logo {
-      width: 80px;
-      height: 80px;
-      background: linear-gradient(135deg, #6C63FF, #3B37C8);
-      border-radius: 20px;
+    .logo-wrapper {
+      width: 100px;
+      height: 100px;
+      background: #1a1a2e;
+      border-radius: 24px;
       margin: 0 auto 24px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 36px;
+      padding: 10px;
+    }
+    .logo-wrapper img {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      object-fit: cover;
     }
     h1 {
       color: #1a1a2e;
@@ -58,6 +64,15 @@
       font-weight: 600;
       margin-bottom: 16px;
     }
+    .coming-soon {
+      background: #f8f8ff;
+      border: 1.5px solid #c7c7ff;
+      border-radius: 12px;
+      padding: 14px 20px;
+      color: #3b37c8;
+      font-size: 13px;
+      line-height: 1.6;
+    }
     .version {
       color: #aaa;
       font-size: 12px;
@@ -67,13 +82,16 @@
 </head>
 <body>
   <div class="card">
-    <div class="logo">⚡</div>
+    <div class="logo-wrapper">
+      <img src="icons/F_1_REZ_1.jpg" alt="Sparkals Tasks Logo" />
+    </div>
     <h1>Sparkals Tasks</h1>
     <p>Your staff management app is being built. Big things coming!</p>
     <div class="status">✅ App is live and running</div>
-    <p style="font-size:13px; color:#888; margin-bottom:0;">
-      Staff login, tasks, attendance, GPS tracking and more — launching soon.
-    </p>
+    <div class="coming-soon">
+      🔐 Staff login &nbsp;·&nbsp; ✅ Tasks &nbsp;·&nbsp; 📍 GPS tracking<br/>
+      📊 Reports &nbsp;·&nbsp; 💬 Team chat &nbsp;·&nbsp; 🕐 Attendance
+    </div>
     <div class="version">Version 0.1 — Foundation</div>
   </div>
   <script>
@@ -84,4 +102,4 @@
     }
   </script>
 </body>
-</html>Add hompage
+</html>
