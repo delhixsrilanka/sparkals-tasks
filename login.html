@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#1a1a2e" />
+  <title>Sparkals Tasks — Login</title>
+  <link rel="manifest" href="manifest.json" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #1a1a2e;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .login-card {
+      background: #ffffff;
+      border-radius: 28px;
+      padding: 40px 32px;
+      width: 100%;
+      max-width: 380px;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.4);
+    }
+
+    /* Logo */
+    .logo-wrapper {
+      width: 90px;
+      height: 90px;
+      background: #1a1a2e;
+      border-radius: 22px;
+      margin: 0 auto 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px;
+    }
+    .logo-wrapper img {
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
+    /* Welcome text */
+    .welcome-title {
+      text-align: center;
+      font-size: 22px;
+      font-weight: 700;
+      color: #1a1a2e;
+      margin-bottom: 6px;
+    }
+    .welcome-subtitle {
+      text-align: center;
+      font-size: 14px;
+      color: #888;
+      margin-bottom: 32px;
+      line-height: 1.5;
+    }
+
+    /* Step indicators */
+    .steps {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 28px;
+    }
+    .step-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #ddd;
+      transition: all 0.3s;
+    }
+    .step-dot.active {
+      background: #1a1a2e;
+      width: 24px;
+      border-radius: 4px;
+    }
+
+    /* Form */
+    .form-group {
+      margin-bottom: 16px;
+    }
+    .form-label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: #444;
+      margin-bottom: 8px;
+    }
+
+    .phone-input-wrapper {
+      display: flex;
+      gap: 8px;
+    }
+    .country-code {
+      background: #f5f5f5;
+      border: 2px solid #e8e8e8;
+      border-radius: 12px;
+      padding: 14px 12px;
+      font-size: 15px;
+      font-weight: 600;
+      color: #1a1a2e;
+      width: 72px;
+      text-align: center;
+    }
+
+    input[type="tel"],
+    input[type="text"] {
+      width: 100%;
+      padding: 14px 16px;
+      border: 2px solid #e8e8e8;
+      border-radius: 12px;
+      font-size: 16px;
+      color: #1a1a2e;
+      background: #f5f5f5;
+      transition: border-color 0.2s;
+      outline: none;
+    }
+    input[type="tel"]:focus,
+    input[type="text"]:focus {
+      border-color: #1a1a2e;
+      background: #fff;
+    }
+
+    /* OTP boxes */
+    .otp-wrapper {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+    }
+    .otp-box {
+      width: 48px;
+      height: 56px;
+      border: 2px solid #e8e8e8;
+      border-radius: 12px;
+      font-size: 22px;
+      font-weight: 700;
+      color: #1a1a2e;
+      text-align: center;
+      background: #f5f5f5;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .otp-box:focus {
+      border-color: #1a1a2e;
+      background: #fff;
+    }
+
+    /* Buttons */
+    .btn-primary {
+      width: 100%;
+      padding: 16px;
+      background: #1a1a2e;
+      color: white;
+      border: none;
+      border-radius: 14px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 8px;
+      transition: opacity 0.2s;
+      letter-spacing: 0.3px;
+    }
+    .btn-primary:active { opacity: 0.85; }
+    .btn-primary:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .btn-secondary {
+      width: 100%;
+      padding: 13px;
+      background: transparent;
+      color: #1a1a2e;
+      border: 2px solid #e8e8e8;
+      border-radius: 14px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: border-color 0.2s;
+    }
+    .btn-secondary:active { opacity: 0.7; }
+
+    /* Messages */
+    .error-msg {
+      background: #fff0f0;
+      border: 1.5px solid #fca5a5;
+      border-radius: 10px;
+      padding: 12px 14px;
+      color: #dc2626;
+      font-size: 13px;
+      margin-top: 12px;
+      display: none;
+    }
+    .success-msg {
+      background: #f0fdf4;
+      border: 1.5px solid #86efac;
+      border-radius: 10px;
+      padding: 12px 14px;
+      color: #15803d;
+      font-size: 13px;
+      margin-top: 12px;
+      display: none;
+    }
+
+    /* Loading spinner */
+    .spinner {
+      display: inline-block;
+      width: 18px;
+      height: 18px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      vertical-align: middle;
+      margin-right: 8px;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Timer */
+    .resend-timer {
+      text-align: center;
+      font-size: 13px;
+      color: #888;
+      margin-top: 14px;
+    }
+    .resend-link {
+      color: #1a1a2e;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: underline;
+    }
+
+    /* Hidden sections */
+    .screen { display: none; }
+    .screen.active { display: block; }
+
+    /* reCAPTCHA container */
+    #recaptcha-container {
+      display: flex;
+      justify-content: center;
+      margin: 12px 0;
+    }
+
+    .footer-note {
+      text-align: center;
+      font-size: 12px;
+      color: #bbb;
+      margin-top: 24px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="login-card">
+
+  <!-- Logo + Welcome -->
+  <div class="logo-wrapper">
+    <img src="icons/logo_copfy.png" alt="Sparkals Tasks" />
+  </div>
+  <div class="welcome-title">Welcome to Sparkals Tasks</div>
+  <div class="welcome-subtitle">Your smart staff management app.<br/>Sign in to get started.</div>
+
+  <!-- Step dots -->
+  <div class="steps">
+    <div class="step-dot active" id="dot1"></div>
+    <div class="step-dot" id="dot2"></div>
+  </div>
+
+  <!-- SCREEN 1: Phone number entry -->
+  <div class="screen active" id="screen-phone">
+    <div class="form-group">
+      <label class="form-label">Your Mobile Number</label>
+      <div class="phone-input-wrapper">
+        <div class="country-code">🇮🇳 +91</div>
+        <input
+          type="tel"
+          id="phone-input"
+          placeholder="98765 43210"
+          maxlength="10"
+          pattern="[0-9]{10}"
+        />
+      </div>
+    </div>
+
+    <div id="recaptcha-container"></div>
+
+    <button class="btn-primary" id="send-otp-btn" onclick="sendOTP()">
+      Send OTP →
+    </button>
+
+    <div class="error-msg" id="phone-error"></div>
+    <div class="success-msg" id="phone-success"></div>
+
+    <div class="footer-note">
+      🔐 A 6-digit code will be sent to your WhatsApp / SMS
+    </div>
+  </div>
+
+  <!-- SCREEN 2: OTP verification -->
+  <div class="screen" id="screen-otp">
+    <div class="form-group">
+      <label class="form-label" style="text-align:center; display:block;">
+        Enter the 6-digit code sent to<br/>
+        <strong id="display-phone"></strong>
+      </label>
+      <div class="otp-wrapper" style="margin-top:16px;">
+        <input class="otp-box" type="text" maxlength="1" id="otp1" oninput="otpInput(this, null, 'otp2')" />
+        <input class="otp-box" type="text" maxlength="1" id="otp2" oninput="otpInput(this, 'otp1', 'otp3')" />
+        <input class="otp-box" type="text" maxlength="1" id="otp3" oninput="otpInput(this, 'otp2', 'otp4')" />
+        <input class="otp-box" type="text" maxlength="1" id="otp4" oninput="otpInput(this, 'otp3', 'otp5')" />
+        <input class="otp-box" type="text" maxlength="1" id="otp5" oninput="otpInput(this, 'otp4', 'otp6')" />
+        <input class="otp-box" type="text" maxlength="1" id="otp6" oninput="otpInput(this, 'otp5', null)" />
+      </div>
+    </div>
+
+    <button class="btn-primary" id="verify-otp-btn" onclick="verifyOTP()">
+      Verify & Sign In ✓
+    </button>
+
+    <button class="btn-secondary" onclick="goBack()">
+      ← Change Number
+    </button>
+
+    <div class="error-msg" id="otp-error"></div>
+    <div class="success-msg" id="otp-success"></div>
+
+    <div class="resend-timer" id="resend-area">
+      Resend code in <span id="timer">30</span>s
+    </div>
+  </div>
+
+</div>
+
+<!-- Firebase SDK -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+  import {
+    getAuth,
+    RecaptchaVerifier,
+    signInWithPhoneNumber
+  } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+  import {
+    getFirestore,
+    doc,
+    getDoc
+  } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDNwQYXcwZrAh4cTfRyhOVk_pRod9p4CRM",
+    authDomain: "sparkals-tasks-app.firebaseapp.com",
+    projectId: "sparkals-tasks-app",
+    storageBucket: "sparkals-tasks-app.firebasestorage.app",
+    messagingSenderId: "147179987231",
+    appId: "1:147179987231:web:c6ffa484f33a2ca420d02a"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  let confirmationResult = null;
+  let timerInterval = null;
+
+  // Setup invisible reCAPTCHA — security check hidden from user
+  function setupRecaptcha() {
+    if (!window.recaptchaVerifier) {
+      window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+        size: 'invisible',
+        callback: () => {}
+      });
+    }
+  }
+
+  // Send OTP to phone number
+  window.sendOTP = async function() {
+    const phoneInput = document.getElementById('phone-input').value.trim();
+    const errorDiv = document.getElementById('phone-error');
+    const successDiv = document.getElementById('phone-success');
+    const btn = document.getElementById('send-otp-btn');
+
+    // Hide previous messages
+    errorDiv.style.display = 'none';
+    successDiv.style.display = 'none';
+
+    // Validate phone number
+    if (phoneInput.length !== 10 || !/^[6-9]\d{9}$/.test(phoneInput)) {
+      errorDiv.textContent = '⚠️ Please enter a valid 10-digit Indian mobile number';
+      errorDiv.style.display = 'block';
+      return;
+    }
+
+    // Show loading
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span>Sending OTP...';
+
+    try {
+      setupRecaptcha();
+      const fullPhone = '+91' + phoneInput;
+      confirmationResult = await signInWithPhoneNumber(auth, fullPhone, window.recaptchaVerifier);
+
+      // Show OTP screen
+      document.getElementById('display-phone').textContent = '+91 ' + phoneInput;
+      document.getElementById('screen-phone').classList.remove('active');
+      document.getElementById('screen-otp').classList.add('active');
+      document.getElementById('dot1').classList.remove('active');
+      document.getElementById('dot2').classList.add('active');
+      document.getElementById('otp1').focus();
+
+      // Start 30 second resend timer
+      startResendTimer();
+
+    } catch (error) {
+      console.error('OTP send failed:', error);
+      errorDiv.textContent = '⚠️ Could not send OTP. Please check your number and try again.';
+      errorDiv.style.display = 'block';
+      btn.disabled = false;
+      btn.innerHTML = 'Send OTP →';
+
+      // Reset reCAPTCHA on error
+      if (window.recaptchaVerifier) {
+        window.recaptchaVerifier.clear();
+        window.recaptchaVerifier = null;
+      }
+    }
+  };
+
+  // Verify OTP entered by staff
+  window.verifyOTP = async function() {
+    const otp = ['otp1','otp2','otp3','otp4','otp5','otp6']
+      .map(id => document.getElementById(id).value)
+      .join('');
+
+    const errorDiv = document.getElementById('otp-error');
+    const successDiv = document.getElementById('otp-success');
+    const btn = document.getElementById('verify-otp-btn');
+
+    errorDiv.style.display = 'none';
+    successDiv.style.display = 'none';
+
+    if (otp.length !== 6) {
+      errorDiv.textContent = '⚠️ Please enter all 6 digits';
+      errorDiv.style.display = 'block';
+      return;
+    }
+
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span>Verifying...';
+
+    try {
+      const result = await confirmationResult.confirm(otp);
+      const user = result.user;
+
+      // Check if this phone number is a registered staff member
+      const userDoc = await getDoc(doc(db, 'users', user.uid));
+
+      successDiv.textContent = '✅ Verified! Taking you to your dashboard...';
+      successDiv.style.display = 'block';
+
+      // Short delay then redirect
+      setTimeout(() => {
+        if (userDoc.exists() && userDoc.data().role === 'admin') {
+          window.location.href = 'admin.html';
+        } else {
+          window.location.href = 'dashboard.html';
+        }
+      }, 1500);
+
+    } catch (error) {
+      console.error('OTP verify failed:', error);
+      errorDiv.textContent = '⚠️ Incorrect code. Please check and try again.';
+      errorDiv.style.display = 'block';
+      btn.disabled = false;
+      btn.innerHTML = 'Verify & Sign In ✓';
+    }
+  };
+
+  // Go back to phone screen
+  window.goBack = function() {
+    document.getElementById('screen-otp').classList.remove('active');
+    document.getElementById('screen-phone').classList.add('active');
+    document.getElementById('dot2').classList.remove('active');
+    document.getElementById('dot1').classList.add('active');
+    document.getElementById('send-otp-btn').disabled = false;
+    document.getElementById('send-otp-btn').innerHTML = 'Send OTP →';
+    if (timerInterval) clearInterval(timerInterval);
+    if (window.recaptchaVerifier) {
+      window.recaptchaVerifier.clear();
+      window.recaptchaVerifier = null;
+    }
+  };
+
+  // OTP box auto-advance when typing
+  window.otpInput = function(current, prevId, nextId) {
+    if (current.value.length === 1 && nextId) {
+      document.getElementById(nextId).focus();
+    }
+    if (current.value === '' && prevId) {
+      document.getElementById(prevId).focus();
+    }
+    // Auto verify when all 6 digits entered
+    const otp = ['otp1','otp2','otp3','otp4','otp5','otp6']
+      .map(id => document.getElementById(id).value).join('');
+    if (otp.length === 6) verifyOTP();
+  };
+
+  // 30 second countdown for resend
+  function startResendTimer() {
+    let seconds = 30;
+    const timerEl = document.getElementById('timer');
+    const resendArea = document.getElementById('resend-area');
+    resendArea.innerHTML = `Resend code in <span id="timer">${seconds}</span>s`;
+
+    timerInterval = setInterval(() => {
+      seconds--;
+      document.getElementById('timer').textContent = seconds;
+      if (seconds <= 0) {
+        clearInterval(timerInterval);
+        resendArea.innerHTML = `Didn't get a code? <span class="resend-link" onclick="resendOTP()">Resend OTP</span>`;
+      }
+    }, 1000);
+  }
+
+  // Resend OTP
+  window.resendOTP = function() {
+    document.getElementById('screen-otp').classList.remove('active');
+    document.getElementById('screen-phone').classList.add('active');
+    document.getElementById('dot2').classList.remove('active');
+    document.getElementById('dot1').classList.add('active');
+    document.getElementById('send-otp-btn').disabled = false;
+    document.getElementById('send-otp-btn').innerHTML = 'Send OTP →';
+    if (window.recaptchaVerifier) {
+      window.recaptchaVerifier.clear();
+      window.recaptchaVerifier = null;
+    }
+  };
+
+</script>
+
+</body>
+</html>
