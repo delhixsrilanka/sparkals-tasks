@@ -1,4 +1,4 @@
-const CACHE_NAME = 'sparkals-tasks-v1';
+const CACHE_NAME = 'sparkals-tasks-v2';
 const OFFLINE_URL = '/offline.html';
 
 const ASSETS_TO_CACHE = [
@@ -14,8 +14,13 @@ self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => {
-        console.log('Sparkals Tasks: Saving app files to phone');
-        return cache.addAll(ASSETS_TO_CACHE);
+        return Promise.allSettled(
+          ASSETS_TO_CACHE.map(url =>
+            cache.add(url).catch(err => {
+              console.log('Could not cache:', url, err);
+            })
+          )
+        );
       })
       .then(() => self.skipWaiting())
   );
@@ -28,7 +33,10 @@ self.addEventListener('activate', event => {
       return Promise.all(
         cacheNames
           .filter(name => name !== CACHE_NAME)
-          .map(name => caches.delete(name))
+          .map(name => {
+            console.log('Removing old cache:', name);
+            return caches.delete(name);
+          })
       );
     }).then(() => self.clients.claim())
   );
@@ -36,31 +44,47 @@ self.addEventListener('activate', event => {
 
 // Fetch — serve from phone storage when no internet
 self.addEventListener('fetch', event => {
-  if (event.request.mode === 'navigate') {
-    event.respondWith(
-      fetch(event.request)
-        .catch(() => caches.match(OFFLINE_URL))
-    );
-    return;
-  }
+  // Only handle GET requests
+  if (event.request.method !== 'GET') return;
+
+  // Skip chrome extensions and non-http requests
+  if (!event.request.url.startsWith('http')) return;
 
   event.respondWith(
     caches.match(event.request)
       .then(cachedResponse => {
+        // Return cached version if available
         if (cachedResponse) {
           return cachedResponse;
         }
+
+        // Try network
         return fetch(event.request)
           .then(response => {
-            if (!response || response.status !== 200) {
+            // Don't cache bad responses
+            if (!response || response.status !== 200 || response.type === 'opaque') {
               return response;
             }
+
+            // Save a copy to cache
             const responseToCache = response.clone();
             caches.open(CACHE_NAME)
               .then(cache => cache.put(event.request, responseToCache));
+
             return response;
           })
-          .catch(() => caches.match('/index.html'));
+          .catch(() => {
+            // No internet — show offline page for navigation
+            if (event.request.mode === 'navigate') {
+              return caches.match(OFFLINE_URL)
+                .then(offlineResponse => {
+                  return offlineResponse || new Response(
+                    '<h1>Sparkals Tasks — You are offline</h1>',
+                    { headers: { 'Content-Type': 'text/html' } }
+                  );
+                });
+            }
+          });
       })
   );
 });
