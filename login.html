@@ -28,7 +28,6 @@
       box-shadow: 0 24px 64px rgba(0,0,0,0.4);
     }
 
-    /* Logo */
     .logo-wrapper {
       width: 90px;
       height: 90px;
@@ -47,7 +46,6 @@
       object-fit: cover;
     }
 
-    /* Welcome text */
     .welcome-title {
       text-align: center;
       font-size: 22px;
@@ -63,27 +61,6 @@
       line-height: 1.5;
     }
 
-    /* Step indicators */
-    .steps {
-      display: flex;
-      justify-content: center;
-      gap: 8px;
-      margin-bottom: 28px;
-    }
-    .step-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: #ddd;
-      transition: all 0.3s;
-    }
-    .step-dot.active {
-      background: #1a1a2e;
-      width: 24px;
-      border-radius: 4px;
-    }
-
-    /* Form */
     .form-group {
       margin-bottom: 16px;
     }
@@ -95,24 +72,8 @@
       margin-bottom: 8px;
     }
 
-    .phone-input-wrapper {
-      display: flex;
-      gap: 8px;
-    }
-    .country-code {
-      background: #f5f5f5;
-      border: 2px solid #e8e8e8;
-      border-radius: 12px;
-      padding: 14px 12px;
-      font-size: 15px;
-      font-weight: 600;
-      color: #1a1a2e;
-      width: 72px;
-      text-align: center;
-    }
-
-    input[type="tel"],
-    input[type="text"] {
+    input[type="email"],
+    input[type="password"] {
       width: 100%;
       padding: 14px 16px;
       border: 2px solid #e8e8e8;
@@ -123,37 +84,31 @@
       transition: border-color 0.2s;
       outline: none;
     }
-    input[type="tel"]:focus,
-    input[type="text"]:focus {
+    input[type="email"]:focus,
+    input[type="password"]:focus {
       border-color: #1a1a2e;
       background: #fff;
     }
 
-    /* OTP boxes */
-    .otp-wrapper {
-      display: flex;
-      gap: 10px;
-      justify-content: center;
+    .password-wrapper {
+      position: relative;
     }
-    .otp-box {
-      width: 48px;
-      height: 56px;
-      border: 2px solid #e8e8e8;
-      border-radius: 12px;
-      font-size: 22px;
-      font-weight: 700;
-      color: #1a1a2e;
-      text-align: center;
-      background: #f5f5f5;
-      outline: none;
-      transition: border-color 0.2s;
+    .password-wrapper input {
+      padding-right: 48px;
     }
-    .otp-box:focus {
-      border-color: #1a1a2e;
-      background: #fff;
+    .toggle-password {
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      cursor: pointer;
+      font-size: 18px;
+      color: #888;
+      background: none;
+      border: none;
+      padding: 0;
     }
 
-    /* Buttons */
     .btn-primary {
       width: 100%;
       padding: 16px;
@@ -166,7 +121,6 @@
       cursor: pointer;
       margin-top: 8px;
       transition: opacity 0.2s;
-      letter-spacing: 0.3px;
     }
     .btn-primary:active { opacity: 0.85; }
     .btn-primary:disabled {
@@ -174,22 +128,19 @@
       cursor: not-allowed;
     }
 
-    .btn-secondary {
-      width: 100%;
-      padding: 13px;
-      background: transparent;
+    .forgot-password {
+      text-align: center;
+      margin-top: 16px;
+      font-size: 13px;
+      color: #888;
+    }
+    .forgot-link {
       color: #1a1a2e;
-      border: 2px solid #e8e8e8;
-      border-radius: 14px;
-      font-size: 14px;
       font-weight: 600;
       cursor: pointer;
-      margin-top: 10px;
-      transition: border-color 0.2s;
+      text-decoration: underline;
     }
-    .btn-secondary:active { opacity: 0.7; }
 
-    /* Messages */
     .error-msg {
       background: #fff0f0;
       border: 1.5px solid #fca5a5;
@@ -211,7 +162,6 @@
       display: none;
     }
 
-    /* Loading spinner */
     .spinner {
       display: inline-block;
       width: 18px;
@@ -223,34 +173,7 @@
       vertical-align: middle;
       margin-right: 8px;
     }
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-
-    /* Timer */
-    .resend-timer {
-      text-align: center;
-      font-size: 13px;
-      color: #888;
-      margin-top: 14px;
-    }
-    .resend-link {
-      color: #1a1a2e;
-      font-weight: 600;
-      cursor: pointer;
-      text-decoration: underline;
-    }
-
-    /* Hidden sections */
-    .screen { display: none; }
-    .screen.active { display: block; }
-
-    /* reCAPTCHA container */
-    #recaptcha-container {
-      display: flex;
-      justify-content: center;
-      margin: 12px 0;
-    }
+    @keyframes spin { to { transform: rotate(360deg); } }
 
     .footer-note {
       text-align: center;
@@ -258,97 +181,106 @@
       color: #bbb;
       margin-top: 24px;
     }
+
+    /* Forgot password screen */
+    .screen { display: none; }
+    .screen.active { display: block; }
+
+    .back-btn {
+      background: none;
+      border: none;
+      color: #888;
+      font-size: 13px;
+      cursor: pointer;
+      margin-bottom: 20px;
+      padding: 0;
+    }
+    .back-btn:hover { color: #1a1a2e; }
   </style>
 </head>
 <body>
 
 <div class="login-card">
 
-  <!-- Logo + Welcome -->
   <div class="logo-wrapper">
-    <img src="/icons/logo copfy.png" alt="Sparkals Tasks" />
+    <img src="/icons/logo_copfy.png" alt="Sparkals Tasks"
+      onerror="this.style.display='none'; this.parentElement.innerHTML='⚡';" />
   </div>
   <div class="welcome-title">Welcome to Sparkals Tasks</div>
   <div class="welcome-subtitle">Your smart staff management app.<br/>Sign in to get started.</div>
 
-  <!-- Step dots -->
-  <div class="steps">
-    <div class="step-dot active" id="dot1"></div>
-    <div class="step-dot" id="dot2"></div>
-  </div>
-
-  <!-- SCREEN 1: Phone number entry -->
-  <div class="screen active" id="screen-phone">
+  <!-- SCREEN 1: Login -->
+  <div class="screen active" id="screen-login">
     <div class="form-group">
-      <label class="form-label">Your Mobile Number</label>
-      <div class="phone-input-wrapper">
-        <div class="country-code">🇮🇳 +91</div>
+      <label class="form-label">Work Email Address</label>
+      <input
+        type="email"
+        id="email-input"
+        placeholder="yourname@sparkals.com"
+        autocomplete="email"
+      />
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Password</label>
+      <div class="password-wrapper">
         <input
-          type="tel"
-          id="phone-input"
-          placeholder="98765 43210"
-          maxlength="10"
-          pattern="[0-9]{10}"
+          type="password"
+          id="password-input"
+          placeholder="Enter your password"
+          autocomplete="current-password"
+          onkeydown="if(event.key==='Enter') loginStaff()"
         />
+        <button class="toggle-password" onclick="togglePassword()" type="button">👁️</button>
       </div>
     </div>
 
-    <div id="recaptcha-container"></div>
-
-    <button class="btn-primary" id="send-otp-btn" onclick="sendOTP()">
-      Send OTP →
+    <button class="btn-primary" id="login-btn" onclick="loginStaff()">
+      Sign In →
     </button>
 
-    <div class="error-msg" id="phone-error"></div>
-    <div class="success-msg" id="phone-success"></div>
+    <div class="error-msg" id="login-error"></div>
+    <div class="success-msg" id="login-success"></div>
 
-    <div class="footer-note">
-      🔐 A 6-digit code will be sent to your WhatsApp / SMS
+    <div class="forgot-password">
+      Forgot your password?
+      <span class="forgot-link" onclick="showForgotScreen()">Reset it here</span>
     </div>
+
+    <div class="footer-note">🔐 Secured by Firebase Authentication</div>
   </div>
 
-  <!-- SCREEN 2: OTP verification -->
-  <div class="screen" id="screen-otp">
+  <!-- SCREEN 2: Forgot Password -->
+  <div class="screen" id="screen-forgot">
+    <button class="back-btn" onclick="showLoginScreen()">← Back to login</button>
+
     <div class="form-group">
-      <label class="form-label" style="text-align:center; display:block;">
-        Enter the 6-digit code sent to<br/>
-        <strong id="display-phone"></strong>
-      </label>
-      <div class="otp-wrapper" style="margin-top:16px;">
-        <input class="otp-box" type="text" maxlength="1" id="otp1" oninput="otpInput(this, null, 'otp2')" />
-        <input class="otp-box" type="text" maxlength="1" id="otp2" oninput="otpInput(this, 'otp1', 'otp3')" />
-        <input class="otp-box" type="text" maxlength="1" id="otp3" oninput="otpInput(this, 'otp2', 'otp4')" />
-        <input class="otp-box" type="text" maxlength="1" id="otp4" oninput="otpInput(this, 'otp3', 'otp5')" />
-        <input class="otp-box" type="text" maxlength="1" id="otp5" oninput="otpInput(this, 'otp4', 'otp6')" />
-        <input class="otp-box" type="text" maxlength="1" id="otp6" oninput="otpInput(this, 'otp5', null)" />
-      </div>
+      <label class="form-label">Enter your work email to reset password</label>
+      <input
+        type="email"
+        id="reset-email-input"
+        placeholder="yourname@sparkals.com"
+        autocomplete="email"
+      />
     </div>
 
-    <button class="btn-primary" id="verify-otp-btn" onclick="verifyOTP()">
-      Verify & Sign In ✓
+    <button class="btn-primary" id="reset-btn" onclick="resetPassword()">
+      Send Reset Link →
     </button>
 
-    <button class="btn-secondary" onclick="goBack()">
-      ← Change Number
-    </button>
-
-    <div class="error-msg" id="otp-error"></div>
-    <div class="success-msg" id="otp-success"></div>
-
-    <div class="resend-timer" id="resend-area">
-      Resend code in <span id="timer">30</span>s
-    </div>
+    <div class="error-msg" id="reset-error"></div>
+    <div class="success-msg" id="reset-success"></div>
   </div>
 
 </div>
 
-<!-- Firebase SDK -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
   import {
     getAuth,
-    RecaptchaVerifier,
-    signInWithPhoneNumber
+    signInWithEmailAndPassword,
+    sendPasswordResetEmail,
+    onAuthStateChanged
   } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
   import {
     getFirestore,
@@ -369,119 +301,66 @@
   const auth = getAuth(app);
   const db = getFirestore(app);
 
-  let confirmationResult = null;
-  let timerInterval = null;
-
-  // Setup invisible reCAPTCHA — security check hidden from user
-  function setupRecaptcha() {
-    // Clear any existing reCAPTCHA completely before creating new one
-    if (window.recaptchaVerifier) {
+  // Check if already logged in — skip login screen
+  onAuthStateChanged(auth, async (user) => {
+    if (user) {
       try {
-        window.recaptchaVerifier.clear();
-      } catch(e) {}
-      window.recaptchaVerifier = null;
-    }
-    // Clear the container div completely
-    document.getElementById('recaptcha-container').innerHTML = '';
-
-    // Create fresh reCAPTCHA
-    window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
-      size: 'invisible',
-      callback: () => {},
-      'expired-callback': () => {
-        window.recaptchaVerifier = null;
+        const userDoc = await getDoc(doc(db, 'users', user.uid));
+        if (userDoc.exists()) {
+          const role = userDoc.data().role;
+          if (role === 'admin' || role === 'manager') {
+            window.location.href = 'admin.html';
+          } else {
+            window.location.href = 'dashboard.html';
+          }
+        } else {
+          window.location.href = 'dashboard.html';
+        }
+      } catch(e) {
+        window.location.href = 'dashboard.html';
       }
-    });
-  }
+    }
+  });
 
-  // Send OTP to phone number
-  window.sendOTP = async function() {
-    const phoneInput = document.getElementById('phone-input').value.trim();
-    const errorDiv = document.getElementById('phone-error');
-    const successDiv = document.getElementById('phone-success');
-    const btn = document.getElementById('send-otp-btn');
+  // Login function
+  window.loginStaff = async function() {
+    const email = document.getElementById('email-input').value.trim();
+    const password = document.getElementById('password-input').value;
+    const errorDiv = document.getElementById('login-error');
+    const successDiv = document.getElementById('login-success');
+    const btn = document.getElementById('login-btn');
 
-    // Hide previous messages
     errorDiv.style.display = 'none';
     successDiv.style.display = 'none';
 
-    // Validate phone number
-    if (phoneInput.length !== 10 || !/^[6-9]\d{9}$/.test(phoneInput)) {
-      errorDiv.textContent = '⚠️ Please enter a valid 10-digit Indian mobile number';
+    // Validate inputs
+    if (!email || !email.includes('@')) {
+      errorDiv.textContent = '⚠️ Please enter a valid email address';
+      errorDiv.style.display = 'block';
+      return;
+    }
+    if (!password || password.length < 6) {
+      errorDiv.textContent = '⚠️ Please enter your password';
       errorDiv.style.display = 'block';
       return;
     }
 
     // Show loading
     btn.disabled = true;
-    btn.innerHTML = '<span class="spinner"></span>Sending OTP...';
+    btn.innerHTML = '<span class="spinner"></span>Signing in...';
 
     try {
-      setupRecaptcha();
-      const fullPhone = '+91' + phoneInput;
-      confirmationResult = await signInWithPhoneNumber(auth, fullPhone, window.recaptchaVerifier);
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
 
-      // Show OTP screen
-      document.getElementById('display-phone').textContent = '+91 ' + phoneInput;
-      document.getElementById('screen-phone').classList.remove('active');
-      document.getElementById('screen-otp').classList.add('active');
-      document.getElementById('dot1').classList.remove('active');
-      document.getElementById('dot2').classList.add('active');
-      document.getElementById('otp1').focus();
-
-      // Start 30 second resend timer
-      startResendTimer();
-
-    } catch (error) {
-      console.error('OTP send failed:', error);
-      errorDiv.textContent = '⚠️ Could not send OTP. Please check your number and try again.';
-      errorDiv.style.display = 'block';
-      btn.disabled = false;
-      btn.innerHTML = 'Send OTP →';
-
-      // Reset reCAPTCHA on error
-      if (window.recaptchaVerifier) {
-        window.recaptchaVerifier.clear();
-        window.recaptchaVerifier = null;
-      }
-    }
-  };
-
-  // Verify OTP entered by staff
-  window.verifyOTP = async function() {
-    const otp = ['otp1','otp2','otp3','otp4','otp5','otp6']
-      .map(id => document.getElementById(id).value)
-      .join('');
-
-    const errorDiv = document.getElementById('otp-error');
-    const successDiv = document.getElementById('otp-success');
-    const btn = document.getElementById('verify-otp-btn');
-
-    errorDiv.style.display = 'none';
-    successDiv.style.display = 'none';
-
-    if (otp.length !== 6) {
-      errorDiv.textContent = '⚠️ Please enter all 6 digits';
-      errorDiv.style.display = 'block';
-      return;
-    }
-
-    btn.disabled = true;
-    btn.innerHTML = '<span class="spinner"></span>Verifying...';
-
-    try {
-      const result = await confirmationResult.confirm(otp);
-      const user = result.user;
-
-      // Check if this phone number is a registered staff member
-      const userDoc = await getDoc(doc(db, 'users', user.uid));
-
-      successDiv.textContent = '✅ Verified! Taking you to your dashboard...';
+      successDiv.textContent = '✅ Login successful! Loading your dashboard...';
       successDiv.style.display = 'block';
 
-      // Short delay then redirect
+      // Get user role from database
+      const userDoc = await getDoc(doc(db, 'users', user.uid));
+
       setTimeout(() => {
-        if (userDoc.exists() && userDoc.data().role === 'admin') {
+        if (userDoc.exists() && (userDoc.data().role === 'admin' || userDoc.data().role === 'manager')) {
           window.location.href = 'admin.html';
         } else {
           window.location.href = 'dashboard.html';
@@ -489,72 +368,71 @@
       }, 1500);
 
     } catch (error) {
-      console.error('OTP verify failed:', error);
-      errorDiv.textContent = '⚠️ Incorrect code. Please check and try again.';
+      btn.disabled = false;
+      btn.innerHTML = 'Sign In →';
+
+      // Show friendly error messages
+      if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
+        errorDiv.textContent = '⚠️ Incorrect email or password. Please try again.';
+      } else if (error.code === 'auth/too-many-requests') {
+        errorDiv.textContent = '⚠️ Too many failed attempts. Please try again in a few minutes.';
+      } else if (error.code === 'auth/network-request-failed') {
+        errorDiv.textContent = '⚠️ No internet connection. Please check your network.';
+      } else {
+        errorDiv.textContent = '⚠️ Login failed. Please try again.';
+      }
+      errorDiv.style.display = 'block';
+    }
+  };
+
+  // Reset password function
+  window.resetPassword = async function() {
+    const email = document.getElementById('reset-email-input').value.trim();
+    const errorDiv = document.getElementById('reset-error');
+    const successDiv = document.getElementById('reset-success');
+    const btn = document.getElementById('reset-btn');
+
+    errorDiv.style.display = 'none';
+    successDiv.style.display = 'none';
+
+    if (!email || !email.includes('@')) {
+      errorDiv.textContent = '⚠️ Please enter your email address';
+      errorDiv.style.display = 'block';
+      return;
+    }
+
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span>Sending...';
+
+    try {
+      await sendPasswordResetEmail(auth, email);
+      successDiv.textContent = '✅ Password reset link sent! Check your email inbox.';
+      successDiv.style.display = 'block';
+      btn.innerHTML = 'Send Reset Link →';
+      btn.disabled = false;
+    } catch (error) {
+      errorDiv.textContent = '⚠️ Could not send reset email. Please check the address.';
       errorDiv.style.display = 'block';
       btn.disabled = false;
-      btn.innerHTML = 'Verify & Sign In ✓';
+      btn.innerHTML = 'Send Reset Link →';
     }
   };
 
-  // Go back to phone screen
-  window.goBack = function() {
-    document.getElementById('screen-otp').classList.remove('active');
-    document.getElementById('screen-phone').classList.add('active');
-    document.getElementById('dot2').classList.remove('active');
-    document.getElementById('dot1').classList.add('active');
-    document.getElementById('send-otp-btn').disabled = false;
-    document.getElementById('send-otp-btn').innerHTML = 'Send OTP →';
-    if (timerInterval) clearInterval(timerInterval);
-    if (window.recaptchaVerifier) {
-      window.recaptchaVerifier.clear();
-      window.recaptchaVerifier = null;
-    }
+  // Toggle password visibility
+  window.togglePassword = function() {
+    const input = document.getElementById('password-input');
+    input.type = input.type === 'password' ? 'text' : 'password';
   };
 
-  // OTP box auto-advance when typing
-  window.otpInput = function(current, prevId, nextId) {
-    if (current.value.length === 1 && nextId) {
-      document.getElementById(nextId).focus();
-    }
-    if (current.value === '' && prevId) {
-      document.getElementById(prevId).focus();
-    }
-    // Auto verify when all 6 digits entered
-    const otp = ['otp1','otp2','otp3','otp4','otp5','otp6']
-      .map(id => document.getElementById(id).value).join('');
-    if (otp.length === 6) verifyOTP();
+  // Switch between screens
+  window.showForgotScreen = function() {
+    document.getElementById('screen-login').classList.remove('active');
+    document.getElementById('screen-forgot').classList.add('active');
   };
 
-  // 30 second countdown for resend
-  function startResendTimer() {
-    let seconds = 30;
-    const timerEl = document.getElementById('timer');
-    const resendArea = document.getElementById('resend-area');
-    resendArea.innerHTML = `Resend code in <span id="timer">${seconds}</span>s`;
-
-    timerInterval = setInterval(() => {
-      seconds--;
-      document.getElementById('timer').textContent = seconds;
-      if (seconds <= 0) {
-        clearInterval(timerInterval);
-        resendArea.innerHTML = `Didn't get a code? <span class="resend-link" onclick="resendOTP()">Resend OTP</span>`;
-      }
-    }, 1000);
-  }
-
-  // Resend OTP
-  window.resendOTP = function() {
-    document.getElementById('screen-otp').classList.remove('active');
-    document.getElementById('screen-phone').classList.add('active');
-    document.getElementById('dot2').classList.remove('active');
-    document.getElementById('dot1').classList.add('active');
-    document.getElementById('send-otp-btn').disabled = false;
-    document.getElementById('send-otp-btn').innerHTML = 'Send OTP →';
-    if (window.recaptchaVerifier) {
-      window.recaptchaVerifier.clear();
-      window.recaptchaVerifier = null;
-    }
+  window.showLoginScreen = function() {
+    document.getElementById('screen-forgot').classList.remove('active');
+    document.getElementById('screen-login').classList.add('active');
   };
 
 </script>
