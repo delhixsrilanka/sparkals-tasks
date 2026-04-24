@@ -374,12 +374,24 @@
 
   // Setup invisible reCAPTCHA — security check hidden from user
   function setupRecaptcha() {
-    if (!window.recaptchaVerifier) {
-      window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
-        size: 'invisible',
-        callback: () => {}
-      });
+    // Clear any existing reCAPTCHA completely before creating new one
+    if (window.recaptchaVerifier) {
+      try {
+        window.recaptchaVerifier.clear();
+      } catch(e) {}
+      window.recaptchaVerifier = null;
     }
+    // Clear the container div completely
+    document.getElementById('recaptcha-container').innerHTML = '';
+
+    // Create fresh reCAPTCHA
+    window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+      size: 'invisible',
+      callback: () => {},
+      'expired-callback': () => {
+        window.recaptchaVerifier = null;
+      }
+    });
   }
 
   // Send OTP to phone number
