@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#1a1a2e" />
+  <title>Sparkals Tasks — Dashboard</title>
+  <link rel="manifest" href="manifest.json" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f0f2f5;
+      min-height: 100vh;
+      padding-bottom: 80px;
+    }
+
+    /* ── TOP HEADER ── */
+    .header {
+      background: #1a1a2e;
+      padding: 20px 20px 28px;
+      position: relative;
+    }
+    .header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+    .logo-small {
+      width: 38px;
+      height: 38px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 4px;
+    }
+    .logo-small img {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+    .header-icons {
+      display: flex;
+      gap: 12px;
+    }
+    .icon-btn {
+      width: 38px;
+      height: 38px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 18px;
+      text-decoration: none;
+      border: none;
+      color: white;
+    }
+    .notif-badge {
+      position: relative;
+    }
+    .notif-badge::after {
+      content: '';
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      width: 8px;
+      height: 8px;
+      background: #ff4444;
+      border-radius: 50%;
+      border: 1.5px solid #1a1a2e;
+    }
+
+    /* Welcome section */
+    .welcome-section {
+      color: white;
+    }
+    .welcome-greeting {
+      font-size: 13px;
+      color: rgba(255,255,255,0.6);
+      margin-bottom: 4px;
+    }
+    .welcome-name {
+      font-size: 22px;
+      font-weight: 700;
+      color: white;
+      margin-bottom: 4px;
+    }
+    .welcome-message {
+      font-size: 13px;
+      color: rgba(255,255,255,0.75);
+      margin-bottom: 12px;
+    }
+    .welcome-meta {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .meta-chip {
+      background: rgba(255,255,255,0.12);
+      border-radius: 20px;
+      padding: 5px 12px;
+      font-size: 12px;
+      color: rgba(255,255,255,0.85);
+    }
+
+    /* ── CLOCK IN CARD ── */
+    .main-content {
+      padding: 0 16px;
+      margin-top: -12px;
+    }
+
+    .clock-card {
+      background: white;
+      border-radius: 20px;
+      padding: 20px;
+      margin-bottom: 16px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .clock-info h3 {
+      font-size: 15px;
+      font-weight: 700;
+      color: #1a1a2e;
+      margin-bottom: 4px;
+    }
+    .clock-info p {
+      font-size: 13px;
+      color: #888;
+    }
+    .clock-time {
+      font-size: 22px;
+      font-weight: 700;
+      color: #1a1a2e;
+      font-variant-numeric: tabular-nums;
+    }
+    .clock-btn {
+      padding: 12px 20px;
+      border-radius: 12px;
+      border: none;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .clock-btn.clock-in {
+      background: #22c55e;
+      color: white;
+    }
+    .clock-btn.clock-out {
+      background: #ef4444;
+      color: white;
+    }
+    .clock-btn:active { opacity: 0.85; transform: scale(0.97); }
+
+    /* ── STAT CARDS ── */
+    .section-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: #1a1a2e;
+      margin-bottom: 12px;
+      margin-top: 4px;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .stat-card {
+      border-radius: 16px;
+      padding: 16px;
+      color: white;
+      position: relative;
+      overflow: hidden;
+      min-height: 100px;
+    }
+    .stat-card::after {
+      content: '';
+      position: absolute;
+      right: -10px;
+      bottom: -10px;
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.1);
+    }
+    .stat-card.blue { background: linear-gradient(135deg, #3b82f6, #1d4ed8); }
+    .stat-card.green { background: linear-gradient(135deg, #22c55e, #15803d); }
+    .stat-card.orange { background: linear-gradient(135deg, #f97316, #c2410c); }
+    .stat-card.purple { background: linear-gradient(135deg, #a855f7, #7e22ce); }
+
+    .stat-icon { font-size: 24px; margin-bottom: 8px; }
+    .stat-number {
+      font-size: 28px;
+      font-weight: 700;
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+    .stat-label {
+      font-size: 12px;
+      opacity: 0.85;
+    }
+
+    /* ── TASKS SECTION ── */
+    .tasks-card {
+      background: white;
+      border-radius: 20px;
+      padding: 20px;
+      margin-bottom: 16px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    }
+    .tasks-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+    .view-all-link {
+      font-size: 13px;
+      color: #3b82f6;
+      font-weight: 600;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .task-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid #f0f0f0;
+      cursor: pointer;
+    }
+    .task-item:last-child { border-bottom: none; }
+
+    .task-priority {
+      width: 4px;
+      height: 40px;
+      border-radius: 2px;
+      flex-shrink: 0;
+    }
+    .priority-urgent { background: #ef4444; }
+    .priority-high { background: #f97316; }
+    .priority-normal { background: #3b82f6; }
+    .priority-low { background: #94a3b8; }
+
+    .task-content { flex: 1; min-width: 0; }
+    .task-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: #1a1a2e;
+      margin-bottom: 3px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .task-meta {
+      font-size: 12px;
+      color: #888;
+    }
+
+    .task-badge {
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+      flex-shrink: 0;
+    }
+    .badge-overdue { background: #fee2e2; color: #dc2626; }
+    .badge-today { background: #fef3c7; color: #d97706; }
+    .badge-upcoming { background: #dcfce7; color: #16a34a; }
+
+    .empty-tasks {
+      text-align: center;
+      padding: 24px;
+      color: #888;
+      font-size: 14px;
+    }
+
+    /* ── QUICK ACTIONS ── */
+    .quick-actions {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .quick-action {
+      background: white;
+      border-radius: 16px;
+      padding: 14px 8px;
+      text-align: center;
+      cursor: pointer;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+      text-decoration: none;
+      transition: transform 0.2s;
+    }
+    .quick-action:active { transform: scale(0.95); }
+    .qa-icon { font-size: 24px; margin-bottom: 6px; }
+    .qa-label {
+      font-size: 11px;
+      color: #444;
+      font-weight: 600;
+      line-height: 1.3;
+    }
+
+    /* ── ANNOUNCEMENTS ── */
+    .announce-card {
+      background: linear-gradient(135deg, #1a1a2e, #2d2d5e);
+      border-radius: 20px;
+      padding: 20px;
+      margin-bottom: 16px;
+      color: white;
+    }
+    .announce-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: rgba(255,255,255,0.6);
+      margin-bottom: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .announce-item {
+      background: rgba(255,255,255,0.08);
+      border-radius: 12px;
+      padding: 12px 14px;
+      margin-bottom: 8px;
+    }
+    .announce-item:last-child { margin-bottom: 0; }
+    .announce-text {
+      font-size: 14px;
+      color: white;
+      margin-bottom: 4px;
+      line-height: 1.4;
+    }
+    .announce-time {
+      font-size: 11px;
+      color: rgba(255,255,255,0.5);
+    }
+    .no-announce {
+      font-size: 13px;
+      color: rgba(255,255,255,0.5);
+      text-align: center;
+      padding: 12px;
+    }
+
+    /* ── BOTTOM NAV ── */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: white;
+      border-top: 1px solid #f0f0f0;
+      display: flex;
+      justify-content: space-around;
+      padding: 10px 0 16px;
+      box-shadow: 0 -4px 20px rgba(0,0,0,0.08);
+      z-index: 100;
+    }
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+      text-decoration: none;
+      padding: 4px 16px;
+      border-radius: 12px;
+      transition: background 0.2s;
+    }
+    .nav-item.active { background: #f0f2ff; }
+    .nav-icon { font-size: 22px; }
+    .nav-label {
+      font-size: 10px;
+      font-weight: 600;
+      color: #888;
+    }
+    .nav-item.active .nav-label { color: #1a1a2e; }
+
+    /* Loading shimmer */
+    .shimmer {
+      background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+      border-radius: 8px;
+      height: 16px;
+      margin-bottom: 8px;
+    }
+    @keyframes shimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    /* Toast notification */
+    .toast {
+      position: fixed;
+      bottom: 90px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #1a1a2e;
+      color: white;
+      padding: 12px 24px;
+      border-radius: 24px;
+      font-size: 14px;
+      font-weight: 600;
+      z-index: 999;
+      opacity: 0;
+      transition: opacity 0.3s;
+      white-space: nowrap;
+    }
+    .toast.show { opacity: 1; }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-top">
+    <div class="logo-small">
+      <img src="/icons/logo%20copfy.png" alt="Sparkals" />
+    </div>
+    <div class="header-icons">
+      <button class="icon-btn notif-badge" onclick="showToast('Notifications coming soon!')" title="Notifications">🔔</button>
+      <button class="icon-btn" onclick="showProfile()" title="Profile">👤</button>
+    </div>
+  </div>
+  <div class="welcome-section">
+    <div class="welcome-greeting" id="greeting-text">Good Morning ☀️</div>
+    <div class="welcome-name" id="staff-name">Loading...</div>
+    <div class="welcome-message">Welcome back! Your team needs you today! 💪</div>
+    <div class="welcome-meta">
+      <span class="meta-chip" id="today-date">📅 Loading...</span>
+      <span class="meta-chip" id="dept-chip">🏢 Loading...</span>
+      <span class="meta-chip" id="tasks-chip">✅ 0 tasks today</span>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="main-content">
+
+  <!-- Clock In/Out Card -->
+  <div class="clock-card">
+    <div class="clock-info">
+      <h3 id="clock-status-text">Not clocked in</h3>
+      <p id="clock-status-sub">Tap to mark attendance</p>
+    </div>
+    <div style="text-align:right;">
+      <div class="clock-time" id="live-clock">--:--</div>
+      <button class="clock-btn clock-in" id="clock-btn" onclick="handleClockAction()">
+        Clock In
+      </button>
+    </div>
+  </div>
+
+  <!-- Stats Grid -->
+  <div class="section-title">Today's Overview</div>
+  <div class="stats-grid">
+    <div class="stat-card blue">
+      <div class="stat-icon">📋</div>
+      <div class="stat-number" id="stat-total">0</div>
+      <div class="stat-label">Total Tasks</div>
+    </div>
+    <div class="stat-card orange">
+      <div class="stat-icon">⏰</div>
+      <div class="stat-number" id="stat-pending">0</div>
+      <div class="stat-label">Pending</div>
+    </div>
+    <div class="stat-card green">
+      <div class="stat-icon">✅</div>
+      <div class="stat-number" id="stat-done">0</div>
+      <div class="stat-label">Completed</div>
+    </div>
+    <div class="stat-card purple">
+      <div class="stat-icon">🕐</div>
+      <div class="stat-number" id="stat-hours">0h</div>
+      <div class="stat-label">Hours Today</div>
+    </div>
+  </div>
+
+  <!-- Quick Actions -->
+  <div class="section-title">Quick Actions</div>
+  <div class="quick-actions">
+    <a class="quick-action" href="tasks.html">
+      <div class="qa-icon">📋</div>
+      <div class="qa-label">My Tasks</div>
+    </a>
+    <a class="quick-action" href="attendance.html">
+      <div class="qa-icon">📅</div>
+      <div class="qa-label">Attendance</div>
+    </a>
+    <a class="quick-action" href="chat.html">
+      <div class="qa-icon">💬</div>
+      <div class="qa-label">Team Chat</div>
+    </a>
+    <a class="quick-action" href="profile.html">
+      <div class="qa-icon">👤</div>
+      <div class="qa-label">My Profile</div>
+    </a>
+  </div>
+
+  <!-- Today's Tasks -->
+  <div class="tasks-card">
+    <div class="tasks-header">
+      <div class="section-title" style="margin:0;">Today's Tasks</div>
+      <a class="view-all-link" href="tasks.html">View all →</a>
+    </div>
+    <div id="tasks-list">
+      <div class="empty-tasks">⏳ Loading your tasks...</div>
+    </div>
+  </div>
+
+  <!-- Announcements -->
+  <div class="announce-card">
+    <div class="announce-title">📢 Team Announcements</div>
+    <div id="announcements-list">
+      <div class="no-announce">No announcements yet</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- BOTTOM NAV -->
+<div class="bottom-nav">
+  <a class="nav-item active" href="dashboard.html">
+    <span class="nav-icon">🏠</span>
+    <span class="nav-label">Home</span>
+  </a>
+  <a class="nav-item" href="tasks.html">
+    <span class="nav-icon">📋</span>
+    <span class="nav-label">Tasks</span>
+  </a>
+  <a class="nav-item" href="chat.html">
+    <span class="nav-icon">💬</span>
+    <span class="nav-label">Chat</span>
+  </a>
+  <a class="nav-item" href="attendance.html">
+    <span class="nav-icon">📅</span>
+    <span class="nav-label">Attendance</span>
+  </a>
+  <a class="nav-item" href="profile.html">
+    <span class="nav-icon">👤</span>
+    <span class="nav-label">Profile</span>
+  </a>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+  import {
+    getFirestore, doc, getDoc, collection,
+    query, where, getDocs, addDoc, updateDoc,
+    serverTimestamp, orderBy, limit
+  } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDNwQYXcwZrAh4cTfRyhOVk_pRod9p4CRM",
+    authDomain: "sparkals-tasks-app.firebaseapp.com",
+    projectId: "sparkals-tasks-app",
+    storageBucket: "sparkals-tasks-app.firebasestorage.app",
+    messagingSenderId: "147179987231",
+    appId: "1:147179987231:web:c6ffa484f33a2ca420d02a"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  let currentUser = null;
+  let userProfile = null;
+  let isClockedIn = false;
+  let clockInTime = null;
+
+  // ── LIVE CLOCK ──
+  function updateClock() {
+    const now = new Date();
+    const h = String(now.getHours()).padStart(2,'0');
+    const m = String(now.getMinutes()).padStart(2,'0');
+    document.getElementById('live-clock').textContent = `${h}:${m}`;
+  }
+  setInterval(updateClock, 1000);
+  updateClock();
+
+  // ── GREETING ──
+  function setGreeting() {
+    const hour = new Date().getHours();
+    let greeting = '';
+    if (hour < 12) greeting = 'Good Morning ☀️';
+    else if (hour < 17) greeting = 'Good Afternoon 🌤️';
+    else greeting = 'Good Evening 🌙';
+    document.getElementById('greeting-text').textContent = greeting;
+  }
+  setGreeting();
+
+  // ── DATE ──
+  function setDate() {
+    const now = new Date();
+    const options = { weekday: 'long', day: 'numeric', month: 'long' };
+    const dateStr = now.toLocaleDateString('en-IN', options);
+    document.getElementById('today-date').textContent = `📅 ${dateStr}`;
+  }
+  setDate();
+
+  // ── AUTH CHECK ──
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) {
+      window.location.href = 'login.html';
+      return;
+    }
+    currentUser = user;
+    await loadUserProfile(user.uid);
+    await loadTodaysTasks(user.uid);
+    await loadAttendanceStatus(user.uid);
+    await loadAnnouncements();
+  });
+
+  // ── LOAD USER PROFILE ──
+  async function loadUserProfile(uid) {
+    try {
+      const userDoc = await getDoc(doc(db, 'users', uid));
+      if (userDoc.exists()) {
+        userProfile = userDoc.data();
+        document.getElementById('staff-name').textContent =
+          userProfile.name || 'Team Member';
+        document.getElementById('dept-chip').textContent =
+          `🏢 ${userProfile.department || 'Sparkals Tasks'}`;
+      } else {
+        document.getElementById('staff-name').textContent = 'Team Member';
+        document.getElementById('dept-chip').textContent = '🏢 Sparkals Tasks';
+      }
+    } catch(e) {
+      document.getElementById('staff-name').textContent = 'Team Member';
+    }
+  }
+
+  // ── LOAD TODAY'S TASKS ──
+  async function loadTodaysTasks(uid) {
+    try {
+      const today = new Date().toISOString().split('T')[0];
+      const q = query(
+        collection(db, 'tasks'),
+        where('assignedTo', '==', uid)
+      );
+      const snapshot = await getDocs(q);
+      const tasks = [];
+      snapshot.forEach(d => tasks.push({ id: d.id, ...d.data() }));
+
+      // Update stat cards
+      const pending = tasks.filter(t => t.status !== 'completed').length;
+      const done = tasks.filter(t => t.status === 'completed').length;
+      document.getElementById('stat-total').textContent = tasks.length;
+      document.getElementById('stat-pending').textContent = pending;
+      document.getElementById('stat-done').textContent = done;
+      document.getElementById('tasks-chip').textContent =
+        `✅ ${tasks.length} task${tasks.length !== 1 ? 's' : ''} today`;
+
+      // Render task list
+      const tasksList = document.getElementById('tasks-list');
+      if (tasks.length === 0) {
+        tasksList.innerHTML = `<div class="empty-tasks">🎉 No tasks assigned yet!<br/><small>Your manager will assign tasks soon.</small></div>`;
+        return;
+      }
+
+      tasksList.innerHTML = tasks.slice(0, 5).map(task => {
+        const priority = task.priority || 'normal';
+        const deadline = task.deadline || '';
+        const today2 = new Date().toISOString().split('T')[0];
+        let badgeClass = 'badge-upcoming';
+        let badgeText = 'Upcoming';
+        if (deadline < today2) { badgeClass = 'badge-overdue'; badgeText = 'Overdue'; }
+        else if (deadline === today2) { badgeClass = 'badge-today'; badgeText = 'Due Today'; }
+
+        return `
+          <div class="task-item" onclick="showToast('Task details coming soon!')">
+            <div class="task-priority priority-${priority}"></div>
+            <div class="task-content">
+              <div class="task-name">${task.title || task.name || 'Untitled Task'}</div>
+              <div class="task-meta">${deadline ? '📅 ' + deadline : 'No deadline'} · ${priority}</div>
+            </div>
+            <span class="task-badge ${badgeClass}">${badgeText}</span>
+          </div>
+        `;
+      }).join('');
+
+    } catch(e) {
+      document.getElementById('tasks-list').innerHTML =
+        `<div class="empty-tasks">Could not load tasks. Check your connection.</div>`;
+    }
+  }
+
+  // ── LOAD ATTENDANCE STATUS ──
+  async function loadAttendanceStatus(uid) {
+    try {
+      const today = new Date().toISOString().split('T')[0];
+      const q = query(
+        collection(db, 'attendance'),
+        where('userId', '==', uid),
+        where('date', '==', today)
+      );
+      const snapshot = await getDocs(q);
+
+      if (!snapshot.empty) {
+        const att = snapshot.docs[0].data();
+        if (att.clockIn && att.clockIn !== 'none') {
+          isClockedIn = !att.clockOut || att.clockOut === 'none';
+          clockInTime = att.clockIn;
+
+          if (isClockedIn) {
+            document.getElementById('clock-status-text').textContent = '✅ Clocked In';
+            document.getElementById('clock-status-sub').textContent =
+              `Since ${att.clockIn}`;
+            const btn = document.getElementById('clock-btn');
+            btn.textContent = 'Clock Out';
+            btn.className = 'clock-btn clock-out';
+
+            // Calculate hours
+            updateHoursWorked(att.clockIn);
+          } else {
+            document.getElementById('clock-status-text').textContent = '🏁 Day Complete';
+            document.getElementById('clock-status-sub').textContent =
+              `Clocked out at ${att.clockOut}`;
+            document.getElementById('clock-btn').style.display = 'none';
+          }
+        }
+      }
+    } catch(e) {
+      console.log('Attendance load error:', e);
+    }
+  }
+
+  // Calculate hours worked
+  function updateHoursWorked(clockInStr) {
+    const now = new Date();
+    const [h, m] = clockInStr.split(':');
+    const clockIn = new Date();
+    clockIn.setHours(parseInt(h), parseInt(m), 0);
+    const diff = Math.floor((now - clockIn) / 3600000);
+    document.getElementById('stat-hours').textContent = `${diff}h`;
+  }
+
+  // ── CLOCK IN / OUT ──
+  window.handleClockAction = async function() {
+    if (!currentUser) return;
+    const btn = document.getElementById('clock-btn');
+    btn.disabled = true;
+
+    const now = new Date();
+    const timeStr = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+    const today = now.toISOString().split('T')[0];
+
+    try {
+      if (!isClockedIn) {
+        // CLOCK IN
+        await addDoc(collection(db, 'attendance'), {
+          userId: currentUser.uid,
+          userName: userProfile?.name || 'Staff',
+          date: today,
+          clockIn: timeStr,
+          clockOut: 'none',
+          isLate: now.getHours() >= 9 && now.getMinutes() > 15,
+          gpsLocation: '0,0',
+          selfieUrl: 'none',
+          managerId: userProfile?.managerId || 'none'
+        });
+
+        isClockedIn = true;
+        document.getElementById('clock-status-text').textContent = '✅ Clocked In';
+        document.getElementById('clock-status-sub').textContent = `Since ${timeStr}`;
+        btn.textContent = 'Clock Out';
+        btn.className = 'clock-btn clock-out';
+        showToast(`✅ Clocked in at ${timeStr}`);
+
+      } else {
+        // CLOCK OUT
+        const q = query(
+          collection(db, 'attendance'),
+          where('userId', '==', currentUser.uid),
+          where('date', '==', today)
+        );
+        const snapshot = await getDocs(q);
+        if (!snapshot.empty) {
+          await updateDoc(doc(db, 'attendance', snapshot.docs[0].id), {
+            clockOut: timeStr
+          });
+        }
+
+        isClockedIn = false;
+        document.getElementById('clock-status-text').textContent = '🏁 Day Complete';
+        document.getElementById('clock-status-sub').textContent = `Clocked out at ${timeStr}`;
+        btn.style.display = 'none';
+        showToast(`👋 Clocked out at ${timeStr}. Great work today!`);
+      }
+    } catch(e) {
+      showToast('❌ Could not save attendance. Try again.');
+      btn.disabled = false;
+    }
+    btn.disabled = false;
+  };
+
+  // ── LOAD ANNOUNCEMENTS ──
+  async function loadAnnouncements() {
+    try {
+      const q = query(
+        collection(db, 'notifications'),
+        where('type', '==', 'announcement'),
+        orderBy('createdAt', 'desc'),
+        limit(3)
+      );
+      const snapshot = await getDocs(q);
+
+      if (snapshot.empty) return;
+
+      const list = document.getElementById('announcements-list');
+      list.innerHTML = '';
+      snapshot.forEach(d => {
+        const data = d.data();
+        const time = data.createdAt?.toDate
+          ? data.createdAt.toDate().toLocaleDateString('en-IN')
+          : 'Recently';
+        list.innerHTML += `
+          <div class="announce-item">
+            <div class="announce-text">${data.message || data.title || 'Announcement'}</div>
+            <div class="announce-time">${time}</div>
+          </div>
+        `;
+      });
+    } catch(e) {
+      console.log('Announcements load error:', e);
+    }
+  }
+
+  // ── SHOW PROFILE ──
+  window.showProfile = function() {
+    if (confirm('Sign out of Sparkals Tasks?')) {
+      signOut(auth).then(() => {
+        window.location.href = 'login.html';
+      });
+    }
+  };
+
+  // ── TOAST ──
+  window.showToast = function(message) {
+    const toast = document.getElementById('toast');
+    toast.textContent = message;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 3000);
+  };
+
+</script>
+</body>
+</html>
