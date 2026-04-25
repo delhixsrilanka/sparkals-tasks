@@ -247,7 +247,8 @@
     if (!email || !email.includes('@')) { errorDiv.textContent = '⚠️ Please enter a valid email address'; errorDiv.style.display = 'block'; return; }
     if (!phone || phone.length < 10) { errorDiv.textContent = '⚠️ Please enter a valid 10-digit mobile number'; errorDiv.style.display = 'block'; return; }
     if (!department) { errorDiv.textContent = '⚠️ Please select your department'; errorDiv.style.display = 'block'; return; }
-
+    if (!aadhaar || aadhaar.length !== 12) { errorDiv.textContent = '⚠️ Please enter a valid 12-digit Aadhaar number'; errorDiv.style.display = 'block'; return; }
+    
     btn.disabled = true;
     btn.innerHTML = '<span class="spinner"></span>Submitting...';
 
