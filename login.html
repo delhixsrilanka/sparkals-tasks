@@ -283,7 +283,8 @@
     onAuthStateChanged
   } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
   import {
-    getFirestore,
+    initializeFirestore,
+    persistentLocalCache,
     doc,
     getDoc
   } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
@@ -299,32 +300,31 @@
 
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
-  const db = getFirestore(app);
-  // Force connect to asia-south1 database
-  db._settings = { ...db._settings, host: 'firestore.googleapis.com' };
+  const db = initializeFirestore(app, {
+    localCache: persistentLocalCache()
+  });
 
   // Check if already logged in — skip login screen
   onAuthStateChanged(auth, async (user) => {
     if (user) {
       try {
-        console.log('User already logged in:', user.uid);
-        const userDoc = await getDoc(doc(db, 'users', user.uid));
+        console.log('Checking role for:', user.uid);
+        const userRef = doc(db, 'users', user.uid);
+        const userDoc = await getDoc(userRef);
         if (userDoc.exists()) {
           const data = userDoc.data();
-          console.log('Role found:', data.role);
+          console.log('Role:', data.role);
           if (data.role === 'admin' || data.role === 'manager') {
-            console.log('Going to admin...');
             window.location.replace('admin.html');
           } else {
-            console.log('Going to dashboard...');
             window.location.replace('dashboard.html');
           }
         } else {
-          console.log('No profile found — going to dashboard');
+          console.log('No profile — going dashboard');
           window.location.replace('dashboard.html');
         }
       } catch(e) {
-        console.error('Role check error:', e);
+        console.error('Error:', e.message);
         window.location.replace('dashboard.html');
       }
     }
@@ -341,7 +341,6 @@
     errorDiv.style.display = 'none';
     successDiv.style.display = 'none';
 
-    // Validate inputs
     if (!email || !email.includes('@')) {
       errorDiv.textContent = '⚠️ Please enter a valid email address';
       errorDiv.style.display = 'block';
@@ -353,7 +352,6 @@
       return;
     }
 
-    // Show loading
     btn.disabled = true;
     btn.innerHTML = '<span class="spinner"></span>Signing in...';
 
@@ -364,13 +362,13 @@
       successDiv.textContent = '✅ Login successful! Loading your dashboard...';
       successDiv.style.display = 'block';
 
-     // Get user role from database
-      const userDoc = await getDoc(doc(db, 'users', user.uid));
+      const userRef = doc(db, 'users', user.uid);
+      const userDoc = await getDoc(userRef);
 
-     setTimeout(() => {
+      setTimeout(() => {
         if (userDoc.exists()) {
           const role = userDoc.data().role;
-          console.log('Login successful, role:', role);
+          console.log('Login role:', role);
           if (role === 'admin' || role === 'manager') {
             window.location.replace('admin.html');
           } else {
@@ -384,22 +382,20 @@
     } catch (error) {
       btn.disabled = false;
       btn.innerHTML = 'Sign In →';
-
-      // Show friendly error messages
       if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
         errorDiv.textContent = '⚠️ Incorrect email or password. Please try again.';
       } else if (error.code === 'auth/too-many-requests') {
-        errorDiv.textContent = '⚠️ Too many failed attempts. Please try again in a few minutes.';
+        errorDiv.textContent = '⚠️ Too many attempts. Please try again in a few minutes.';
       } else if (error.code === 'auth/network-request-failed') {
         errorDiv.textContent = '⚠️ No internet connection. Please check your network.';
       } else {
-        errorDiv.textContent = '⚠️ Login failed. Please try again.';
+        errorDiv.textContent = '⚠️ Login failed: ' + error.message;
       }
       errorDiv.style.display = 'block';
     }
   };
 
-  // Reset password function
+  // Reset password
   window.resetPassword = async function() {
     const email = document.getElementById('reset-email-input').value.trim();
     const errorDiv = document.getElementById('reset-error');
@@ -432,13 +428,11 @@
     }
   };
 
-  // Toggle password visibility
   window.togglePassword = function() {
     const input = document.getElementById('password-input');
     input.type = input.type === 'password' ? 'text' : 'password';
   };
 
-  // Switch between screens
   window.showForgotScreen = function() {
     document.getElementById('screen-login').classList.remove('active');
     document.getElementById('screen-forgot').classList.add('active');
@@ -448,8 +442,4 @@
     document.getElementById('screen-forgot').classList.remove('active');
     document.getElementById('screen-login').classList.add('active');
   };
-
 </script>
-
-</body>
-</html>
