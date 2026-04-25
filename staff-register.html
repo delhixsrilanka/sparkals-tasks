@@ -259,6 +259,7 @@
         phone,
         department,
         jobtitle: jobtitle || 'Staff',
+        aadhaar: aadhaar,
         role: 'staff',
         status: 'pending',
         submittedAt: serverTimestamp(),
@@ -274,6 +275,12 @@
       btn.disabled = false;
       btn.innerHTML = 'Submit Registration →';
     }
+  };
+window.formatAadhaar = function(input) {
+    let value = input.value.replace(/\D/g, '');
+    if (value.length > 4) value = value.slice(0,4) + ' ' + value.slice(4);
+    if (value.length > 9) value = value.slice(0,9) + ' ' + value.slice(9);
+    input.value = value.slice(0,14);
   };
 </script>
 </body>
