@@ -305,19 +305,25 @@
   onAuthStateChanged(auth, async (user) => {
     if (user) {
       try {
+        console.log('User already logged in:', user.uid);
         const userDoc = await getDoc(doc(db, 'users', user.uid));
         if (userDoc.exists()) {
-          const role = userDoc.data().role;
-          if (role === 'admin' || role === 'manager') {
-            window.location.href = 'admin.html';
+          const data = userDoc.data();
+          console.log('Role found:', data.role);
+          if (data.role === 'admin' || data.role === 'manager') {
+            console.log('Going to admin...');
+            window.location.replace('admin.html');
           } else {
-            window.location.href = 'dashboard.html';
+            console.log('Going to dashboard...');
+            window.location.replace('dashboard.html');
           }
         } else {
-          window.location.href = 'dashboard.html';
+          console.log('No profile found — going to dashboard');
+          window.location.replace('dashboard.html');
         }
       } catch(e) {
-        window.location.href = 'dashboard.html';
+        console.error('Role check error:', e);
+        window.location.replace('dashboard.html');
       }
     }
   });
@@ -359,18 +365,17 @@
      // Get user role from database
       const userDoc = await getDoc(doc(db, 'users', user.uid));
 
-      setTimeout(async () => {
+     setTimeout(() => {
         if (userDoc.exists()) {
           const role = userDoc.data().role;
-          console.log('User role found:', role);
+          console.log('Login successful, role:', role);
           if (role === 'admin' || role === 'manager') {
-            window.location.href = 'admin.html';
+            window.location.replace('admin.html');
           } else {
-            window.location.href = 'dashboard.html';
+            window.location.replace('dashboard.html');
           }
         } else {
-          console.log('No user profile found in Firestore — going to dashboard');
-          window.location.href = 'dashboard.html';
+          window.location.replace('dashboard.html');
         }
       }, 1500);
 
