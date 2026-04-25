@@ -356,13 +356,20 @@
       successDiv.textContent = '✅ Login successful! Loading your dashboard...';
       successDiv.style.display = 'block';
 
-      // Get user role from database
+     // Get user role from database
       const userDoc = await getDoc(doc(db, 'users', user.uid));
 
-      setTimeout(() => {
-        if (userDoc.exists() && (userDoc.data().role === 'admin' || userDoc.data().role === 'manager')) {
-          window.location.href = 'admin.html';
+      setTimeout(async () => {
+        if (userDoc.exists()) {
+          const role = userDoc.data().role;
+          console.log('User role found:', role);
+          if (role === 'admin' || role === 'manager') {
+            window.location.href = 'admin.html';
+          } else {
+            window.location.href = 'dashboard.html';
+          }
         } else {
+          console.log('No user profile found in Firestore — going to dashboard');
           window.location.href = 'dashboard.html';
         }
       }, 1500);
