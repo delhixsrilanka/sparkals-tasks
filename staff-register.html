@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#1a1a2e" />
+  <title>Join Sparkals Tasks</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #1a1a2e;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .card {
+      background: white;
+      border-radius: 28px;
+      padding: 36px 28px;
+      width: 100%;
+      max-width: 400px;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.4);
+    }
+    .logo-wrapper {
+      width: 80px;
+      height: 80px;
+      background: #1a1a2e;
+      border-radius: 20px;
+      margin: 0 auto 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 8px;
+    }
+    .logo-wrapper img {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+    h1 {
+      text-align: center;
+      font-size: 20px;
+      font-weight: 700;
+      color: #1a1a2e;
+      margin-bottom: 4px;
+    }
+    .subtitle {
+      text-align: center;
+      font-size: 13px;
+      color: #888;
+      margin-bottom: 28px;
+      line-height: 1.5;
+    }
+    .form-group { margin-bottom: 14px; }
+    .form-label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: #444;
+      margin-bottom: 6px;
+    }
+    input, select {
+      width: 100%;
+      padding: 13px 14px;
+      border: 2px solid #e8e8e8;
+      border-radius: 12px;
+      font-size: 15px;
+      color: #1a1a2e;
+      background: #f5f5f5;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    input:focus, select:focus {
+      border-color: #1a1a2e;
+      background: #fff;
+    }
+    .btn {
+      width: 100%;
+      padding: 15px;
+      background: #1a1a2e;
+      color: white;
+      border: none;
+      border-radius: 14px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 8px;
+    }
+    .btn:disabled { opacity: 0.5; }
+    .error-msg {
+      background: #fff0f0;
+      border: 1.5px solid #fca5a5;
+      border-radius: 10px;
+      padding: 12px;
+      color: #dc2626;
+      font-size: 13px;
+      margin-top: 12px;
+      display: none;
+    }
+    .success-screen {
+      text-align: center;
+      display: none;
+    }
+    .success-icon {
+      font-size: 64px;
+      margin-bottom: 16px;
+    }
+    .success-title {
+      font-size: 22px;
+      font-weight: 700;
+      color: #1a1a2e;
+      margin-bottom: 8px;
+    }
+    .success-msg {
+      font-size: 14px;
+      color: #666;
+      line-height: 1.6;
+    }
+    .spinner {
+      display: inline-block;
+      width: 18px;
+      height: 18px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      vertical-align: middle;
+      margin-right: 8px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .required { color: #ef4444; }
+    .footer-note {
+      text-align: center;
+      font-size: 11px;
+      color: #bbb;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+<div class="card">
+
+  <!-- Registration Form -->
+  <div id="form-screen">
+    <div class="logo-wrapper">
+      <img src="/icons/logo%20copfy.png" alt="Sparkals Tasks"
+        onerror="this.style.display='none'; this.parentElement.innerHTML='⚡';" />
+    </div>
+    <h1>Join Sparkals Tasks</h1>
+    <p class="subtitle">Fill in your details to get started.<br/>Your manager will approve your account.</p>
+
+    <div class="form-group">
+      <label class="form-label">Full Name <span class="required">*</span></label>
+      <input type="text" id="name" placeholder="Your full name" />
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Work Email Address <span class="required">*</span></label>
+      <input type="email" id="email" placeholder="yourname@email.com" />
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Mobile Number <span class="required">*</span></label>
+      <input type="tel" id="phone" placeholder="98765 43210" maxlength="10" />
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Department <span class="required">*</span></label>
+      <select id="department">
+        <option value="">Select your department</option>
+        <option value="Sales & Marketing">Sales & Marketing</option>
+        <option value="Operations">Operations</option>
+        <option value="Accounts & Finance">Accounts & Finance</option>
+        <option value="Logistics & Delivery">Logistics & Delivery</option>
+        <option value="IT & Technology">IT & Technology</option>
+        <option value="Customer Support">Customer Support</option>
+        <option value="Field / Site Work">Field / Site Work</option>
+        <option value="Management">Management</option>
+        <option value="Production & Manufacturing">Production & Manufacturing</option>
+        <option value="Purchase">Purchase</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Job Title</label>
+      <input type="text" id="jobtitle" placeholder="e.g. Sales Executive" />
+    </div>
+
+    <button class="btn" id="submit-btn" onclick="submitRegistration()">
+      Submit Registration →
+    </button>
+
+    <div class="error-msg" id="error-msg"></div>
+    <div class="footer-note">🔐 Your details are safe and secure</div>
+  </div>
+
+  <!-- Success Screen -->
+  <div class="success-screen" id="success-screen">
+    <div class="success-icon">🎉</div>
+    <div class="success-title">Registration Submitted!</div>
+    <p class="success-msg">
+      Your details have been sent to the admin for approval.<br/><br/>
+      You will receive an email with your login link once approved.<br/><br/>
+      <strong>Welcome to the Sparkals Tasks team!</strong>
+    </p>
+  </div>
+
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+  import {
+    getFirestore,
+    collection,
+    addDoc,
+    serverTimestamp
+  } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDNwQYXcwZrAh4cTfRyhOVk_pRod9p4CRM",
+    authDomain: "sparkals-tasks-app.firebaseapp.com",
+    projectId: "sparkals-tasks-app",
+    storageBucket: "sparkals-tasks-app.firebasestorage.app",
+    messagingSenderId: "147179987231",
+    appId: "1:147179987231:web:c6ffa484f33a2ca420d02a"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  window.submitRegistration = async function() {
+    const name = document.getElementById('name').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const phone = document.getElementById('phone').value.trim();
+    const department = document.getElementById('department').value;
+    const jobtitle = document.getElementById('jobtitle').value.trim();
+    const errorDiv = document.getElementById('error-msg');
+    const btn = document.getElementById('submit-btn');
+
+    errorDiv.style.display = 'none';
+
+    if (!name) { errorDiv.textContent = '⚠️ Please enter your full name'; errorDiv.style.display = 'block'; return; }
+    if (!email || !email.includes('@')) { errorDiv.textContent = '⚠️ Please enter a valid email address'; errorDiv.style.display = 'block'; return; }
+    if (!phone || phone.length < 10) { errorDiv.textContent = '⚠️ Please enter a valid 10-digit mobile number'; errorDiv.style.display = 'block'; return; }
+    if (!department) { errorDiv.textContent = '⚠️ Please select your department'; errorDiv.style.display = 'block'; return; }
+
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span>Submitting...';
+
+    try {
+      await addDoc(collection(db, 'pendingStaff'), {
+        name,
+        email,
+        phone,
+        department,
+        jobtitle: jobtitle || 'Staff',
+        role: 'staff',
+        status: 'pending',
+        submittedAt: serverTimestamp(),
+        companyName: 'Sparkals Tasks'
+      });
+
+      document.getElementById('form-screen').style.display = 'none';
+      document.getElementById('success-screen').style.display = 'block';
+
+    } catch(e) {
+      errorDiv.textContent = '⚠️ Could not submit. Please try again.';
+      errorDiv.style.display = 'block';
+      btn.disabled = false;
+      btn.innerHTML = 'Submit Registration →';
+    }
+  };
+</script>
+</body>
+</html>
