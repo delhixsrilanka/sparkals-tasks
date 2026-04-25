@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#1a1a2e" />
+  <title>Staff Approval — Sparkals Tasks</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f0f2f5;
+      min-height: 100vh;
+      padding-bottom: 80px;
+    }
+    .header {
+      background: #1a1a2e;
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .back-btn {
+      color: white;
+      background: rgba(255,255,255,0.1);
+      border: none;
+      border-radius: 10px;
+      padding: 8px 14px;
+      font-size: 14px;
+      cursor: pointer;
+      text-decoration: none;
+    }
+    .header-title {
+      color: white;
+      font-size: 18px;
+      font-weight: 700;
+    }
+    .header-sub {
+      color: rgba(255,255,255,0.6);
+      font-size: 12px;
+    }
+    .main { padding: 16px; }
+    .section-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: #1a1a2e;
+      margin-bottom: 12px;
+      margin-top: 8px;
+    }
+    .pending-card {
+      background: white;
+      border-radius: 20px;
+      padding: 18px;
+      margin-bottom: 12px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+      border-left: 4px solid #f59e0b;
+    }
+    .approved-card {
+      background: white;
+      border-radius: 20px;
+      padding: 18px;
+      margin-bottom: 12px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+      border-left: 4px solid #22c55e;
+    }
+    .rejected-card {
+      background: white;
+      border-radius: 20px;
+      padding: 18px;
+      margin-bottom: 12px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+      border-left: 4px solid #ef4444;
+    }
+    .staff-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    .staff-avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
+      background: #1a1a2e;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+    .staff-name {
+      font-size: 16px;
+      font-weight: 700;
+      color: #1a1a2e;
+      margin-bottom: 2px;
+    }
+    .staff-dept {
+      font-size: 13px;
+      color: #888;
+    }
+    .staff-details {
+      background: #f8f8f8;
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 14px;
+    }
+    .detail-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 5px 0;
+      border-bottom: 1px solid #eee;
+      font-size: 13px;
+    }
+    .detail-row:last-child { border-bottom: none; }
+    .detail-label { color: #888; font-weight: 500; }
+    .detail-value { color: #1a1a2e; font-weight: 600; }
+    .action-buttons {
+      display: flex;
+      gap: 10px;
+    }
+    .btn-approve {
+      flex: 1;
+      padding: 12px;
+      background: #22c55e;
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    .btn-reject {
+      flex: 1;
+      padding: 12px;
+      background: #ef4444;
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    .btn-approve:active, .btn-reject:active { opacity: 0.8; }
+    .btn-approve:disabled, .btn-reject:disabled { opacity: 0.5; cursor: not-allowed; }
+    .status-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .badge-approved { background: #dcfce7; color: #15803d; }
+    .badge-rejected { background: #fee2e2; color: #dc2626; }
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: #888;
+      font-size: 14px;
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+    }
+    .empty-icon { font-size: 48px; margin-bottom: 12px; }
+    .spinner {
+      display: inline-block;
+      width: 16px; height: 16px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      vertical-align: middle;
+      margin-right: 6px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .toast {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #1a1a2e;
+      color: white;
+      padding: 12px 24px;
+      border-radius: 24px;
+      font-size: 14px;
+      font-weight: 600;
+      z-index: 999;
+      opacity: 0;
+      transition: opacity 0.3s;
+      white-space: nowrap;
+    }
+    .toast.show { opacity: 1; }
+    .tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    .tab {
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      border: 2px solid #e8e8e8;
+      background: white;
+      color: #888;
+      transition: all 0.2s;
+    }
+    .tab.active {
+      background: #1a1a2e;
+      color: white;
+      border-color: #1a1a2e;
+    }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <a href="admin.html" class="back-btn">← Back</a>
+  <div>
+    <div class="header-title">Staff Approval</div>
+    <div class="header-sub">Review and approve staff registrations</div>
+  </div>
+</div>
+
+<div class="main">
+
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab('pending')">
+      ⏳ Pending <span id="pending-count"></span>
+    </div>
+    <div class="tab" onclick="switchTab('approved')">
+      ✅ Approved
+    </div>
+    <div class="tab" onclick="switchTab('rejected')">
+      ❌ Rejected
+    </div>
+  </div>
+
+  <div class="tab-content active" id="tab-pending">
+    <div id="pending-list">
+      <div class="empty-state">
+        <div class="empty-icon">⏳</div>
+        Loading pending registrations...
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-content" id="tab-approved">
+    <div id="approved-list">
+      <div class="empty-state">
+        <div class="empty-icon">✅</div>
+        Loading approved staff...
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-content" id="tab-rejected">
+    <div id="rejected-list">
+      <div class="empty-state">
+        <div class="empty-icon">❌</div>
+        Loading rejected registrations...
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+  import {
+    getFirestore, collection, getDocs, doc,
+    updateDoc, setDoc, deleteDoc, serverTimestamp, query, where
+  } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDNwQYXcwZrAh4cTfRyhOVk_pRod9p4CRM",
+    authDomain: "sparkals-tasks-app.firebaseapp.com",
+    projectId: "sparkals-tasks-app",
+    storageBucket: "sparkals-tasks-app.firebasestorage.app",
+    messagingSenderId: "147179987231",
+    appId: "1:147179987231:web:c6ffa484f33a2ca420d02a"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  const ADMIN_EMAILS = [
+    'sandeepgemologist@gmail.com',
+    'sparkals.design@gmail.com'
+  ];
+
+  // Auth check
+  onAuthStateChanged(auth, (user) => {
+    if (!user || !ADMIN_EMAILS.includes(user.email)) {
+      window.location.replace('login.html');
+      return;
+    }
+    loadAllStaff();
+  });
+
+  // Load all staff
+  async function loadAllStaff() {
+    try {
+      const snapshot = await getDocs(collection(db, 'pendingStaff'));
+      const pending = [];
+      const approved = [];
+      const rejected = [];
+
+      snapshot.forEach(d => {
+        const data = { id: d.id, ...d.data() };
+        if (data.status === 'pending') pending.push(data);
+        else if (data.status === 'approved') approved.push(data);
+        else if (data.status === 'rejected') rejected.push(data);
+      });
+
+      // Update pending count
+      document.getElementById('pending-count').textContent =
+        pending.length > 0 ? `(${pending.length})` : '';
+
+      renderPending(pending);
+      renderApproved(approved);
+      renderRejected(rejected);
+
+    } catch(e) {
+      console.error('Load error:', e);
+    }
+  }
+
+  // Render pending
+  function renderPending(list) {
+    const container = document.getElementById('pending-list');
+    if (list.length === 0) {
+      container.innerHTML = `<div class="empty-state"><div class="empty-icon">🎉</div>No pending registrations!</div>`;
+      return;
+    }
+    container.innerHTML = list.map(s => `
+      <div class="pending-card" id="card-${s.id}">
+        <div class="staff-header">
+          <div class="staff-avatar">${(s.name || 'S').charAt(0).toUpperCase()}</div>
+          <div>
+            <div class="staff-name">${s.name || 'Unknown'}</div>
+            <div class="staff-dept">${s.department || 'No dept'} · ${s.jobtitle || 'Staff'}</div>
+          </div>
+        </div>
+        <div class="staff-details">
+          <div class="detail-row">
+            <span class="detail-label">📧 Email</span>
+            <span class="detail-value">${s.email || '—'}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">📱 Mobile</span>
+            <span class="detail-value">${s.phone || '—'}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">🪪 Aadhaar</span>
+            <span class="detail-value">${formatAadhaar(s.aadhaar) || '—'}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">📅 Applied</span>
+            <span class="detail-value">${s.submittedAt?.toDate ? s.submittedAt.toDate().toLocaleDateString('en-IN') : 'Just now'}</span>
+          </div>
+        </div>
+        <div class="action-buttons">
+          <button class="btn-approve" id="approve-${s.id}" onclick="approveStaff('${s.id}', '${s.name}', '${s.email}', '${s.department}', '${s.phone}', '${s.jobtitle}', '${s.aadhaar}')">
+            ✅ Approve
+          </button>
+          <button class="btn-reject" id="reject-${s.id}" onclick="rejectStaff('${s.id}', '${s.name}')">
+            ❌ Reject
+          </button>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  // Render approved
+  function renderApproved(list) {
+    const container = document.getElementById('approved-list');
+    if (list.length === 0) {
+      container.innerHTML = `<div class="empty-state"><div class="empty-icon">👥</div>No approved staff yet.</div>`;
+      return;
+    }
+    container.innerHTML = list.map(s => `
+      <div class="approved-card">
+        <div class="staff-header">
+          <div class="staff-avatar" style="background:#22c55e;">${(s.name||'S').charAt(0).toUpperCase()}</div>
+          <div style="flex:1;">
+            <div class="staff-name">${s.name || 'Unknown'}</div>
+            <div class="staff-dept">${s.department || ''} · ${s.jobtitle || 'Staff'}</div>
+          </div>
+          <span class="status-badge badge-approved">✅ Approved</span>
+        </div>
+        <div class="staff-details">
+          <div class="detail-row">
+            <span class="detail-label">📧 Email</span>
+            <span class="detail-value">${s.email || '—'}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">📱 Mobile</span>
+            <span class="detail-value">${s.phone || '—'}</span>
+          </div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  // Render rejected
+  function renderRejected(list) {
+    const container = document.getElementById('rejected-list');
+    if (list.length === 0) {
+      container.innerHTML = `<div class="empty-state"><div class="empty-icon">📋</div>No rejected registrations.</div>`;
+      return;
+    }
+    container.innerHTML = list.map(s => `
+      <div class="rejected-card">
+        <div class="staff-header">
+          <div class="staff-avatar" style="background:#ef4444;">${(s.name||'S').charAt(0).toUpperCase()}</div>
+          <div style="flex:1;">
+            <div class="staff-name">${s.name || 'Unknown'}</div>
+            <div class="staff-dept">${s.department || ''}</div>
+          </div>
+          <span class="status-badge badge-rejected">❌ Rejected</span>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  // Approve staff
+  window.approveStaff = async function(id, name, email, department, phone, jobtitle, aadhaar) {
+    const approveBtn = document.getElementById(`approve-${id}`);
+    const rejectBtn = document.getElementById(`reject-${id}`);
+    approveBtn.disabled = true;
+    rejectBtn.disabled = true;
+    approveBtn.innerHTML = '<span class="spinner"></span>Approving...';
+
+    try {
+      // Update status in pendingStaff
+      await updateDoc(doc(db, 'pendingStaff', id), {
+        status: 'approved',
+        approvedAt: serverTimestamp()
+      });
+
+      // Create user profile in users collection
+      await setDoc(doc(db, 'users', id), {
+        name,
+        email,
+        department,
+        phone,
+        jobtitle: jobtitle || 'Staff',
+        aadhaar,
+        role: 'staff',
+        status: 'active',
+        joinDate: new Date().toISOString().split('T')[0],
+        companyName: 'Sparkals Tasks',
+        createdAt: serverTimestamp()
+      });
+
+      showToast(`✅ ${name} approved successfully!`);
+
+      // Remove card with animation
+      const card = document.getElementById(`card-${id}`);
+      card.style.opacity = '0';
+      card.style.transition = 'opacity 0.3s';
+      setTimeout(() => { card.remove(); loadAllStaff(); }, 300);
+
+    } catch(e) {
+      showToast('❌ Could not approve. Try again.');
+      approveBtn.disabled = false;
+      rejectBtn.disabled = false;
+      approveBtn.innerHTML = '✅ Approve';
+    }
+  };
+
+  // Reject staff
+  window.rejectStaff = async function(id, name) {
+    if (!confirm(`Reject ${name}'s registration?`)) return;
+
+    const rejectBtn = document.getElementById(`reject-${id}`);
+    rejectBtn.disabled = true;
+    rejectBtn.innerHTML = '<span class="spinner"></span>Rejecting...';
+
+    try {
+      await updateDoc(doc(db, 'pendingStaff', id), {
+        status: 'rejected',
+        rejectedAt: serverTimestamp()
+      });
+
+      showToast(`❌ ${name} rejected.`);
+      const card = document.getElementById(`card-${id}`);
+      card.style.opacity = '0';
+      card.style.transition = 'opacity 0.3s';
+      setTimeout(() => { card.remove(); loadAllStaff(); }, 300);
+
+    } catch(e) {
+      showToast('Could not reject. Try again.');
+      rejectBtn.disabled = false;
+      rejectBtn.innerHTML = '❌ Reject';
+    }
+  };
+
+  // Format Aadhaar display
+  function formatAadhaar(num) {
+    if (!num) return '—';
+    const n = num.replace(/\D/g,'');
+    return n.slice(0,4) + ' ' + n.slice(4,8) + ' ' + n.slice(8,12);
+  }
+
+  // Switch tabs
+  window.switchTab = function(tab) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+    event.target.classList.add('active');
+    document.getElementById(`tab-${tab}`).classList.add('active');
+  };
+
+  // Toast
+  window.showToast = function(message) {
+    const toast = document.getElementById('toast');
+    toast.textContent = message;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 3000);
+  };
+
+</script>
+</body>
+</html>
