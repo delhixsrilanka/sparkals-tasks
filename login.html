@@ -8,7 +8,6 @@
   <link rel="manifest" href="manifest.json" />
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-
     body {
       font-family: 'Segoe UI', sans-serif;
       background: #1a1a2e;
@@ -18,7 +17,6 @@
       justify-content: center;
       padding: 20px;
     }
-
     .login-card {
       background: #ffffff;
       border-radius: 28px;
@@ -27,7 +25,6 @@
       max-width: 380px;
       box-shadow: 0 24px 64px rgba(0,0,0,0.4);
     }
-
     .logo-wrapper {
       width: 90px;
       height: 90px;
@@ -45,7 +42,6 @@
       border-radius: 50%;
       object-fit: cover;
     }
-
     .welcome-title {
       text-align: center;
       font-size: 22px;
@@ -60,10 +56,7 @@
       margin-bottom: 32px;
       line-height: 1.5;
     }
-
-    .form-group {
-      margin-bottom: 16px;
-    }
+    .form-group { margin-bottom: 16px; }
     .form-label {
       display: block;
       font-size: 13px;
@@ -71,7 +64,6 @@
       color: #444;
       margin-bottom: 8px;
     }
-
     input[type="email"],
     input[type="password"] {
       width: 100%;
@@ -89,13 +81,8 @@
       border-color: #1a1a2e;
       background: #fff;
     }
-
-    .password-wrapper {
-      position: relative;
-    }
-    .password-wrapper input {
-      padding-right: 48px;
-    }
+    .password-wrapper { position: relative; }
+    .password-wrapper input { padding-right: 48px; }
     .toggle-password {
       position: absolute;
       right: 14px;
@@ -108,7 +95,6 @@
       border: none;
       padding: 0;
     }
-
     .btn-primary {
       width: 100%;
       padding: 16px;
@@ -123,11 +109,7 @@
       transition: opacity 0.2s;
     }
     .btn-primary:active { opacity: 0.85; }
-    .btn-primary:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
     .forgot-password {
       text-align: center;
       margin-top: 16px;
@@ -140,7 +122,6 @@
       cursor: pointer;
       text-decoration: underline;
     }
-
     .error-msg {
       background: #fff0f0;
       border: 1.5px solid #fca5a5;
@@ -161,7 +142,6 @@
       margin-top: 12px;
       display: none;
     }
-
     .spinner {
       display: inline-block;
       width: 18px;
@@ -174,18 +154,14 @@
       margin-right: 8px;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
-
     .footer-note {
       text-align: center;
       font-size: 12px;
       color: #bbb;
       margin-top: 24px;
     }
-
-    /* Forgot password screen */
     .screen { display: none; }
     .screen.active { display: block; }
-
     .back-btn {
       background: none;
       border: none;
@@ -195,13 +171,11 @@
       margin-bottom: 20px;
       padding: 0;
     }
-    .back-btn:hover { color: #1a1a2e; }
   </style>
 </head>
 <body>
 
 <div class="login-card">
-
   <div class="logo-wrapper">
     <img src="/icons/logo%20copfy.png" alt="Sparkals Tasks"
       onerror="this.style.display='none'; this.parentElement.innerHTML='⚡';" />
@@ -209,69 +183,40 @@
   <div class="welcome-title">Welcome to Sparkals Tasks</div>
   <div class="welcome-subtitle">Your smart staff management app.<br/>Sign in to get started.</div>
 
-  <!-- SCREEN 1: Login -->
   <div class="screen active" id="screen-login">
     <div class="form-group">
       <label class="form-label">Work Email Address</label>
-      <input
-        type="email"
-        id="email-input"
-        placeholder="yourname@sparkals.com"
-        autocomplete="email"
-      />
+      <input type="email" id="email-input" placeholder="yourname@company.com" autocomplete="email" />
     </div>
-
     <div class="form-group">
       <label class="form-label">Password</label>
       <div class="password-wrapper">
-        <input
-          type="password"
-          id="password-input"
-          placeholder="Enter your password"
+        <input type="password" id="password-input" placeholder="Enter your password"
           autocomplete="current-password"
-          onkeydown="if(event.key==='Enter') loginStaff()"
-        />
+          onkeydown="if(event.key==='Enter') loginStaff()" />
         <button class="toggle-password" onclick="togglePassword()" type="button">👁️</button>
       </div>
     </div>
-
-    <button class="btn-primary" id="login-btn" onclick="loginStaff()">
-      Sign In →
-    </button>
-
+    <button class="btn-primary" id="login-btn" onclick="loginStaff()">Sign In →</button>
     <div class="error-msg" id="login-error"></div>
     <div class="success-msg" id="login-success"></div>
-
     <div class="forgot-password">
       Forgot your password?
       <span class="forgot-link" onclick="showForgotScreen()">Reset it here</span>
     </div>
-
     <div class="footer-note">🔐 Secured by Firebase Authentication</div>
   </div>
 
-  <!-- SCREEN 2: Forgot Password -->
   <div class="screen" id="screen-forgot">
     <button class="back-btn" onclick="showLoginScreen()">← Back to login</button>
-
     <div class="form-group">
       <label class="form-label">Enter your work email to reset password</label>
-      <input
-        type="email"
-        id="reset-email-input"
-        placeholder="yourname@sparkals.com"
-        autocomplete="email"
-      />
+      <input type="email" id="reset-email-input" placeholder="yourname@company.com" />
     </div>
-
-    <button class="btn-primary" id="reset-btn" onclick="resetPassword()">
-      Send Reset Link →
-    </button>
-
+    <button class="btn-primary" id="reset-btn" onclick="resetPassword()">Send Reset Link →</button>
     <div class="error-msg" id="reset-error"></div>
     <div class="success-msg" id="reset-success"></div>
   </div>
-
 </div>
 
 <script type="module">
@@ -282,12 +227,6 @@
     sendPasswordResetEmail,
     onAuthStateChanged
   } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-  import {
-    initializeFirestore,
-    persistentLocalCache,
-    doc,
-    getDoc
-  } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyDNwQYXcwZrAh4cTfRyhOVk_pRod9p4CRM",
@@ -300,39 +239,35 @@
 
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
-  const db = initializeFirestore(app, {
-    localCache: persistentLocalCache()
-  });
 
-  // Check if already logged in — skip login screen
-  onAuthStateChanged(auth, async (user) => {
+  // YOUR ADMIN EMAIL ADDRESSES
+  const ADMIN_EMAILS = [
+    'sandeepgemologist@gmail.com',
+    'sparkals.design@gmail.com'
+  ];
+
+  function isAdmin(email) {
+    if (!email) return false;
+    return ADMIN_EMAILS.includes(email.toLowerCase().trim());
+  }
+
+  // If already logged in — skip login screen
+  onAuthStateChanged(auth, (user) => {
     if (user) {
-      try {
-        console.log('Checking role for:', user.uid);
-        const userRef = doc(db, 'users', user.uid);
-        const userDoc = await getDoc(userRef);
-        if (userDoc.exists()) {
-          const data = userDoc.data();
-          console.log('Role:', data.role);
-          if (data.role === 'admin' || data.role === 'manager') {
-            window.location.replace('admin.html');
-          } else {
-            window.location.replace('dashboard.html');
-          }
-        } else {
-          console.log('No profile — going dashboard');
-          window.location.replace('dashboard.html');
-        }
-      } catch(e) {
-        console.error('Error:', e.message);
+      console.log('Already logged in:', user.email);
+      if (isAdmin(user.email)) {
+        console.log('✅ Admin — going to admin.html');
+        window.location.replace('admin.html');
+      } else {
+        console.log('Staff — going to dashboard.html');
         window.location.replace('dashboard.html');
       }
     }
   });
 
-  // Login function
+  // Login
   window.loginStaff = async function() {
-    const email = document.getElementById('email-input').value.trim();
+    const email = document.getElementById('email-input').value.trim().toLowerCase();
     const password = document.getElementById('password-input').value;
     const errorDiv = document.getElementById('login-error');
     const successDiv = document.getElementById('login-success');
@@ -358,23 +293,17 @@
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
+      console.log('Logged in as:', user.email);
 
       successDiv.textContent = '✅ Login successful! Loading your dashboard...';
       successDiv.style.display = 'block';
 
-      const userRef = doc(db, 'users', user.uid);
-      const userDoc = await getDoc(userRef);
-
       setTimeout(() => {
-        if (userDoc.exists()) {
-          const role = userDoc.data().role;
-          console.log('Login role:', role);
-          if (role === 'admin' || role === 'manager') {
-            window.location.replace('admin.html');
-          } else {
-            window.location.replace('dashboard.html');
-          }
+        if (isAdmin(user.email)) {
+          console.log('✅ Admin redirect → admin.html');
+          window.location.replace('admin.html');
         } else {
+          console.log('Staff redirect → dashboard.html');
           window.location.replace('dashboard.html');
         }
       }, 1500);
@@ -382,14 +311,14 @@
     } catch (error) {
       btn.disabled = false;
       btn.innerHTML = 'Sign In →';
-      if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
+      if (error.code === 'auth/user-not-found' ||
+          error.code === 'auth/wrong-password' ||
+          error.code === 'auth/invalid-credential') {
         errorDiv.textContent = '⚠️ Incorrect email or password. Please try again.';
       } else if (error.code === 'auth/too-many-requests') {
         errorDiv.textContent = '⚠️ Too many attempts. Please try again in a few minutes.';
-      } else if (error.code === 'auth/network-request-failed') {
-        errorDiv.textContent = '⚠️ No internet connection. Please check your network.';
       } else {
-        errorDiv.textContent = '⚠️ Login failed: ' + error.message;
+        errorDiv.textContent = '⚠️ Login failed. Please try again.';
       }
       errorDiv.style.display = 'block';
     }
@@ -401,27 +330,23 @@
     const errorDiv = document.getElementById('reset-error');
     const successDiv = document.getElementById('reset-success');
     const btn = document.getElementById('reset-btn');
-
     errorDiv.style.display = 'none';
     successDiv.style.display = 'none';
-
     if (!email || !email.includes('@')) {
       errorDiv.textContent = '⚠️ Please enter your email address';
       errorDiv.style.display = 'block';
       return;
     }
-
     btn.disabled = true;
     btn.innerHTML = '<span class="spinner"></span>Sending...';
-
     try {
       await sendPasswordResetEmail(auth, email);
-      successDiv.textContent = '✅ Password reset link sent! Check your email inbox.';
+      successDiv.textContent = '✅ Reset link sent! Check your email inbox.';
       successDiv.style.display = 'block';
       btn.innerHTML = 'Send Reset Link →';
       btn.disabled = false;
     } catch (error) {
-      errorDiv.textContent = '⚠️ Could not send reset email. Please check the address.';
+      errorDiv.textContent = '⚠️ Could not send reset email.';
       errorDiv.style.display = 'block';
       btn.disabled = false;
       btn.innerHTML = 'Send Reset Link →';
@@ -432,14 +357,14 @@
     const input = document.getElementById('password-input');
     input.type = input.type === 'password' ? 'text' : 'password';
   };
-
   window.showForgotScreen = function() {
     document.getElementById('screen-login').classList.remove('active');
     document.getElementById('screen-forgot').classList.add('active');
   };
-
   window.showLoginScreen = function() {
     document.getElementById('screen-forgot').classList.remove('active');
     document.getElementById('screen-login').classList.add('active');
   };
 </script>
+</body>
+</html>
