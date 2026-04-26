@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Leave — Sparkals</title>
+<link rel="manifest" href="/manifest.json">
+<link rel="icon" href="/icons/logo%20copfy.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#0f0f1a;--surface:#1a1a2e;--surface2:#22223a;--surface3:#2a2a45;
+    --border:rgba(255,255,255,0.08);--text:#f0f0f8;--text2:#9090b0;--text3:#5a5a7a;
+    --accent:#7c6fff;--accent2:#a78bfa;--green:#10b981;--amber:#f59e0b;--red:#ef4444;--blue:#3b82f6;
+    --radius:16px;--radius-sm:10px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:90px}
+
+  /* TOP BAR */
+  .topbar{position:sticky;top:0;z-index:100;background:rgba(15,15,26,0.95);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:14px 16px 10px}
+  .topbar-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+  .topbar-title{font-size:20px;font-weight:700}
+  .topbar-title span{color:var(--accent2)}
+  .btn-apply{display:flex;align-items:center;gap:6px;background:var(--accent);color:#fff;border:none;border-radius:10px;padding:8px 14px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s}
+  .btn-apply:active{transform:scale(.96)}
+
+  /* TABS */
+  .tab-row{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none}
+  .tab-row::-webkit-scrollbar{display:none}
+  .tab{flex-shrink:0;padding:6px 14px;border-radius:20px;font-size:13px;font-weight:500;border:1.5px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;transition:all .2s;white-space:nowrap}
+  .tab.active{background:var(--accent);border-color:var(--accent);color:#fff}
+
+  /* SUMMARY CARDS */
+  .summary-row{display:flex;gap:8px;padding:14px 16px 0;overflow-x:auto;scrollbar-width:none}
+  .summary-row::-webkit-scrollbar{display:none}
+  .summary-card{flex-shrink:0;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 16px;min-width:100px;text-align:center}
+  .summary-num{font-size:24px;font-weight:700;font-family:'Space Mono',monospace}
+  .summary-num.green{color:var(--green)}.summary-num.amber{color:var(--amber)}.summary-num.red{color:var(--red)}.summary-num.blue{color:var(--blue)}
+  .summary-label{font-size:10px;color:var(--text3);margin-top:3px;text-transform:uppercase;letter-spacing:.5px}
+
+  /* LEAVE LIST */
+  .leave-list{padding:14px 16px;display:flex;flex-direction:column;gap:10px}
+
+  /* LEAVE CARD */
+  .leave-card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);padding:14px;position:relative;overflow:hidden}
+  .leave-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px}
+  .leave-card.pending::before{background:var(--amber)}
+  .leave-card.approved::before{background:var(--green)}
+  .leave-card.rejected::before{background:var(--red)}
+
+  .leave-card-header{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:8px}
+  .leave-staff-name{font-size:15px;font-weight:700}
+  .leave-dept{font-size:11px;color:var(--text2);margin-top:2px}
+  .status-badge{flex-shrink:0;font-size:11px;font-weight:700;padding:4px 10px;border-radius:6px;font-family:'Space Mono',monospace;text-transform:uppercase}
+  .status-badge.pending{background:rgba(245,158,11,.15);color:var(--amber)}
+  .status-badge.approved{background:rgba(16,185,129,.15);color:var(--green)}
+  .status-badge.rejected{background:rgba(239,68,68,.15);color:var(--red)}
+
+  .leave-meta{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px}
+  .leave-meta-item{display:flex;align-items:center;gap:4px;font-size:12px;color:var(--text2)}
+
+  .leave-reason{font-size:13px;color:var(--text2);background:var(--surface2);border-radius:8px;padding:10px 12px;margin-bottom:10px;line-height:1.5}
+
+  .leave-type-chip{display:inline-block;font-size:11px;font-weight:600;padding:3px 10px;border-radius:6px;margin-bottom:8px}
+  .leave-type-chip.paid{background:rgba(16,185,129,.12);color:var(--green)}
+  .leave-type-chip.lop{background:rgba(239,68,68,.12);color:var(--red)}
+  .leave-type-chip.pending{background:rgba(245,158,11,.12);color:var(--amber)}
+
+  /* ADMIN ACTION BUTTONS */
+  .admin-actions{display:flex;gap:8px;margin-top:4px;flex-wrap:wrap}
+  .btn-leave-action{flex:1;min-width:100px;padding:10px;border-radius:var(--radius-sm);border:1.5px solid var(--border);background:var(--surface2);color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;text-align:center;transition:all .2s}
+  .btn-leave-action.approve{background:rgba(16,185,129,.15);border-color:var(--green);color:var(--green)}
+  .btn-leave-action.reject{background:rgba(239,68,68,.1);border-color:rgba(239,68,68,.3);color:var(--red)}
+  .btn-leave-action:active{transform:scale(.97)}
+
+  .admin-note{font-size:12px;color:var(--text3);margin-top:6px;font-style:italic}
+
+  /* EMPTY STATE */
+  .empty-state{text-align:center;padding:60px 20px;color:var(--text3)}
+  .empty-state .emoji{font-size:48px;margin-bottom:16px}
+
+  /* MODAL */
+  .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(6px);z-index:200;display:none;align-items:flex-end;justify-content:center}
+  .modal-overlay.open{display:flex}
+  .modal-sheet{background:var(--surface);border-radius:24px 24px 0 0;width:100%;max-width:600px;max-height:92vh;overflow-y:auto;padding:0 0 40px;animation:slideUp .3s cubic-bezier(.34,1.56,.64,1)}
+  @keyframes slideUp{from{transform:translateY(100%);opacity:0}to{transform:translateY(0);opacity:1}}
+  .modal-handle{width:40px;height:4px;background:var(--surface3);border-radius:2px;margin:12px auto 0}
+  .modal-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border)}
+  .modal-title{font-size:18px;font-weight:700}
+  .btn-close{width:32px;height:32px;border-radius:50%;background:var(--surface2);border:none;color:var(--text2);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+  .modal-body{padding:20px;display:flex;flex-direction:column;gap:16px}
+
+  .form-group{display:flex;flex-direction:column;gap:6px}
+  .form-label{font-size:12px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.8px}
+  .form-input,.form-select,.form-textarea{background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:11px 14px;font-family:'DM Sans',sans-serif;font-size:15px;color:var(--text);outline:none;width:100%;transition:border-color .2s}
+  .form-input:focus,.form-select:focus,.form-textarea:focus{border-color:var(--accent)}
+  .form-select{appearance:none;cursor:pointer}
+  .form-select option{background:var(--surface2)}
+  .form-textarea{resize:none;min-height:90px}
+
+  /* Day type toggle */
+  .day-type-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .day-type-btn{padding:12px;border-radius:var(--radius-sm);border:1.5px solid var(--border);background:transparent;color:var(--text2);font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;text-align:center;transition:all .2s}
+  .day-type-btn.selected{background:rgba(124,111,255,.15);border-color:var(--accent);color:var(--accent2)}
+
+  .btn-submit{width:100%;padding:15px;background:var(--accent);color:#fff;border:none;border-radius:var(--radius-sm);font-family:'DM Sans',sans-serif;font-size:16px;font-weight:700;cursor:pointer;transition:all .2s;margin-top:4px}
+  .btn-submit:active{transform:scale(.98);opacity:.9}
+  .btn-submit:disabled{opacity:.5;cursor:not-allowed}
+
+  /* APPROVE MODAL */
+  .approve-modal{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(6px);z-index:300;display:none;align-items:center;justify-content:center;padding:20px}
+  .approve-modal.open{display:flex}
+  .approve-sheet{background:var(--surface);border-radius:var(--radius);width:100%;max-width:400px;padding:24px}
+  .approve-title{font-size:18px;font-weight:700;margin-bottom:16px}
+  .approve-btn-row{display:flex;gap:8px;margin-top:16px}
+  .approve-btn{flex:1;padding:13px;border-radius:var(--radius-sm);border:none;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s}
+  .approve-btn.confirm-paid{background:var(--green);color:#fff}
+  .approve-btn.confirm-lop{background:var(--red);color:#fff}
+  .approve-btn.cancel{background:var(--surface2);color:var(--text2)}
+  .approve-btn:active{transform:scale(.97)}
+
+  /* BOTTOM NAV */
+  .bottom-nav{position:fixed;bottom:0;left:0;right:0;background:rgba(26,26,46,.97);backdrop-filter:blur(20px);border-top:1px solid var(--border);display:flex;padding:10px 0 max(10px,env(safe-area-inset-bottom));z-index:100}
+  .nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;text-decoration:none;color:var(--text3);font-size:10px;font-weight:500;cursor:pointer;border:none;background:none;padding:4px 0;transition:color .2s}
+  .nav-item .nav-icon{font-size:22px}
+  .nav-item.active{color:var(--accent2)}
+
+  /* TOAST */
+  .toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(20px);background:#1e1e3a;border:1px solid var(--accent);color:var(--text);padding:12px 20px;border-radius:12px;font-size:14px;font-weight:500;z-index:999;opacity:0;transition:all .3s;white-space:nowrap;pointer-events:none;max-width:90vw;text-align:center}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+  /* LOADING */
+  .loading-overlay{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:500;flex-direction:column;gap:16px}
+  .spinner{width:40px;height:40px;border:3px solid var(--surface3);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .loading-text{font-size:14px;color:var(--text2)}
+</style>
+</head>
+<body>
+
+<div class="loading-overlay" id="loadingOverlay"><div class="spinner"></div><div class="loading-text">Loading leave requests…</div></div>
+<div class="toast" id="toast"></div>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="topbar-row">
+    <div class="topbar-title">🏖 <span>Leave</span></div>
+    <button class="btn-apply" onclick="openApplyModal()">＋ Apply</button>
+  </div>
+  <div class="tab-row" id="tabRow">
+    <button class="tab active" data-tab="all" onclick="setTab('all',this)">All</button>
+    <button class="tab" data-tab="pending" onclick="setTab('pending',this)">⏳ Pending</button>
+    <button class="tab" data-tab="approved" onclick="setTab('approved',this)">✅ Approved</button>
+    <button class="tab" data-tab="rejected" onclick="setTab('rejected',this)">❌ Rejected</button>
+    <button class="tab" id="allStaffTab" data-tab="team" onclick="setTab('team',this)" style="display:none">👥 All Staff</button>
+  </div>
+</div>
+
+<!-- SUMMARY -->
+<div class="summary-row" id="summaryRow">
+  <div class="summary-card"><div class="summary-num amber" id="sPending">0</div><div class="summary-label">Pending</div></div>
+  <div class="summary-card"><div class="summary-num green" id="sApproved">0</div><div class="summary-label">Approved</div></div>
+  <div class="summary-card"><div class="summary-num red" id="sRejected">0</div><div class="summary-label">Rejected</div></div>
+  <div class="summary-card"><div class="summary-num blue" id="sLOP">0</div><div class="summary-label">LOP Days</div></div>
+</div>
+
+<!-- LEAVE LIST -->
+<div class="leave-list" id="leaveList"></div>
+
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav">
+  <a href="dashboard.html" class="nav-item"><span class="nav-icon">🏠</span>Home</a>
+  <a href="tasks.html" class="nav-item"><span class="nav-icon">✅</span>Tasks</a>
+  <a href="attendance.html" class="nav-item"><span class="nav-icon">🕐</span>Attend.</a>
+  <button class="nav-item active"><span class="nav-icon">🏖</span>Leave</button>
+  <a href="admin.html" class="nav-item" id="adminNavLink" style="display:none"><span class="nav-icon">⚙️</span>Admin</a>
+</nav>
+
+<!-- APPLY LEAVE MODAL -->
+<div class="modal-overlay" id="applyModal">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <div class="modal-title">Apply for Leave</div>
+      <button class="btn-close" onclick="closeApplyModal()">✕</button>
+    </div>
+    <div class="modal-body">
+
+      <div class="form-group">
+        <label class="form-label">Leave Type</label>
+        <select class="form-select" id="leaveType">
+          <option value="Casual Leave">Casual Leave (CL)</option>
+          <option value="Sick Leave">Sick Leave (SL)</option>
+          <option value="Earned Leave">Earned Leave (EL)</option>
+          <option value="Personal">Personal</option>
+          <option value="Emergency">Emergency</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Duration</label>
+        <div class="day-type-grid">
+          <button class="day-type-btn selected" data-dtype="full" onclick="selectDayType('full',this)">📅 Full Day</button>
+          <button class="day-type-btn" data-dtype="half" onclick="selectDayType('half',this)">🕐 Half Day</button>
+        </div>
+      </div>
+
+      <div id="halfDaySession" style="display:none">
+        <div class="form-group">
+          <label class="form-label">Which Half?</label>
+          <select class="form-select" id="halfSession">
+            <option value="Morning">Morning (First Half)</option>
+            <option value="Afternoon">Afternoon (Second Half)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">From Date</label>
+        <input class="form-input" type="date" id="leaveFrom">
+      </div>
+
+      <div id="toDateGroup" class="form-group">
+        <label class="form-label">To Date</label>
+        <input class="form-input" type="date" id="leaveTo">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Reason</label>
+        <textarea class="form-textarea" id="leaveReason" placeholder="Briefly explain the reason for your leave…"></textarea>
+      </div>
+
+      <button class="btn-submit" id="submitLeaveBtn" onclick="submitLeave()">Submit Leave Request</button>
+    </div>
+  </div>
+</div>
+
+<!-- APPROVE DECISION MODAL -->
+<div class="approve-modal" id="approveModal">
+  <div class="approve-sheet">
+    <div class="approve-title" id="approveModalTitle">Approve Leave</div>
+    <div class="form-group">
+      <label class="form-label">Admin Note (optional)</label>
+      <textarea class="form-textarea" id="adminNoteInput" placeholder="Add a note for the staff member…" style="min-height:70px"></textarea>
+    </div>
+    <div style="margin-top:12px">
+      <label class="form-label" style="margin-bottom:8px;display:block">Leave Payment</label>
+      <div class="approve-btn-row" style="margin-top:0">
+        <button class="approve-btn confirm-paid" onclick="confirmApprove('paid')">✅ Approve — Paid</button>
+        <button class="approve-btn confirm-lop" onclick="confirmApprove('lop')">❌ Approve — LOP</button>
+      </div>
+      <p style="font-size:11px;color:var(--text3);margin-top:8px">Paid = no salary deduction. LOP = salary deducted for absent days.</p>
+    </div>
+    <div class="approve-btn-row">
+      <button class="approve-btn cancel" onclick="closeApproveModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import {
+  getFirestore, collection, addDoc, getDocs, doc, updateDoc,
+  query, where, orderBy, serverTimestamp, Timestamp, onSnapshot
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+// ── REPLACE WITH YOUR REAL FIREBASE CONFIG ──
+const firebaseConfig = {
+  apiKey: "AIzaSyDemoKeyReplaceWithYours",
+  authDomain: "sparkals-tasks-app.firebaseapp.com",
+  projectId: "sparkals-tasks-app",
+  storageBucket: "sparkals-tasks-app.appspot.com",
+  messagingSenderId: "000000000000",
+  appId: "1:000000000000:web:0000000000000000"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
+
+const ADMIN_EMAILS = ['sandeepgemologist@gmail.com','sparkals.design@gmail.com'];
+
+let currentUser = null, currentUserData = null;
+let allLeaves = [], currentTab = 'all';
+let currentActionLeaveId = null;
+let selectedDayType = 'full';
+let isAdminUser = false;
+
+// Expose globals
+window.setTab = setTab;
+window.openApplyModal = openApplyModal;
+window.closeApplyModal = closeApplyModal;
+window.selectDayType = selectDayType;
+window.submitLeave = submitLeave;
+window.openApproveModal = openApproveModal;
+window.closeApproveModal = closeApproveModal;
+window.confirmApprove = confirmApprove;
+window.rejectLeave = rejectLeave;
+
+// ── INIT ──
+onAuthStateChanged(auth, async (user) => {
+  if (!user) { window.location.href = 'login.html'; return; }
+  currentUser = user;
+  await loadUserData();
+  isAdminUser = ADMIN_EMAILS.includes(currentUser.email) || currentUserData?.role === 'admin';
+  setupAdminUI();
+  subscribeLeaves();
+  setDefaultDates();
+  document.getElementById('loadingOverlay').style.display = 'none';
+});
+
+async function loadUserData() {
+  try {
+    const q = query(collection(db,'pendingStaff'), where('email','==',currentUser.email));
+    const snap = await getDocs(q);
+    if (!snap.empty) currentUserData = { id: snap.docs[0].id, ...snap.docs[0].data() };
+  } catch(e) { console.error(e); }
+}
+
+function setupAdminUI() {
+  if (isAdminUser) {
+    document.getElementById('adminNavLink').style.display = 'flex';
+    document.getElementById('allStaffTab').style.display = 'block';
+  }
+}
+
+function setDefaultDates() {
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('leaveFrom').value = today;
+  document.getElementById('leaveTo').value = today;
+  document.getElementById('leaveFrom').min = today;
+  document.getElementById('leaveTo').min = today;
+}
+
+// ── REAL TIME LEAVES ──
+function subscribeLeaves() {
+  const leavesRef = collection(db, 'leaves');
+  onSnapshot(leavesRef, (snap) => {
+    allLeaves = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    updateSummary();
+    renderLeaves();
+  });
+}
+
+function setTab(tab, el) {
+  currentTab = tab;
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  renderLeaves();
+}
+
+// ── SUMMARY ──
+function updateSummary() {
+  const myLeaves = isAdminUser ? allLeaves : allLeaves.filter(l => l.userId === currentUser.uid || l.userEmail === currentUser.email);
+  document.getElementById('sPending').textContent = myLeaves.filter(l => l.status === 'pending').length;
+  document.getElementById('sApproved').textContent = myLeaves.filter(l => l.status === 'approved').length;
+  document.getElementById('sRejected').textContent = myLeaves.filter(l => l.status === 'rejected').length;
+  const lopDays = myLeaves.filter(l => l.status === 'approved' && l.payType === 'lop').reduce((s,l) => s + (l.totalDays || 0), 0);
+  document.getElementById('sLOP').textContent = lopDays;
+}
+
+// ── RENDER LEAVES ──
+function renderLeaves() {
+  const container = document.getElementById('leaveList');
+  let leaves = [...allLeaves];
+
+  // Filter by tab
+  if (currentTab === 'pending') leaves = leaves.filter(l => l.status === 'pending');
+  else if (currentTab === 'approved') leaves = leaves.filter(l => l.status === 'approved');
+  else if (currentTab === 'rejected') leaves = leaves.filter(l => l.status === 'rejected');
+  else if (currentTab === 'team') {
+    // Admin sees all
+  } else {
+    // 'all' — show only own unless admin
+    if (!isAdminUser) leaves = leaves.filter(l => l.userId === currentUser.uid || l.userEmail === currentUser.email);
+  }
+
+  // Sort newest first
+  leaves.sort((a,b) => {
+    const ta = a.createdAt?.toDate?.() || new Date(0);
+    const tb = b.createdAt?.toDate?.() || new Date(0);
+    return tb - ta;
+  });
+
+  if (leaves.length === 0) {
+    container.innerHTML = `<div class="empty-state"><div class="emoji">🏖</div><p>No leave requests found.<br>Tap <strong>+ Apply</strong> to submit one.</p></div>`;
+    return;
+  }
+
+  container.innerHTML = leaves.map(leave => {
+    const status = leave.status || 'pending';
+    const isOwn = leave.userId === currentUser.uid || leave.userEmail === currentUser.email;
+    const canAdminAct = isAdminUser && status === 'pending';
+
+    const fromDate = leave.fromDate ? new Date(leave.fromDate).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}) : '—';
+    const toDate = leave.toDate ? new Date(leave.toDate).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}) : '—';
+    const appliedOn = leave.createdAt ? leave.createdAt.toDate().toLocaleDateString('en-IN',{day:'numeric',month:'short'}) : '—';
+
+    const daysText = leave.dayType === 'half' ? `½ day (${leave.halfSession||'Morning'})` : `${leave.totalDays || 1} day${(leave.totalDays||1)>1?'s':''}`;
+
+    let payChip = '';
+    if (status === 'approved') {
+      payChip = `<span class="leave-type-chip ${leave.payType==='lop'?'lop':'paid'}">${leave.payType==='lop'?'Loss of Pay':'Paid Leave'}</span>`;
+    } else {
+      payChip = `<span class="leave-type-chip pending">Awaiting Decision</span>`;
+    }
+
+    return `
+    <div class="leave-card ${status}">
+      <div class="leave-card-header">
+        <div>
+          <div class="leave-staff-name">${esc(leave.userName || 'Staff')}</div>
+          <div class="leave-dept">${esc(leave.department || '—')} · ${esc(leave.leaveType || 'Leave')}</div>
+        </div>
+        <div class="status-badge ${status}">${status.toUpperCase()}</div>
+      </div>
+
+      ${payChip}
+
+      <div class="leave-meta">
+        <div class="leave-meta-item">📅 ${fromDate}${leave.fromDate !== leave.toDate ? ' → ' + toDate : ''}</div>
+        <div class="leave-meta-item">⏱ ${daysText}</div>
+        <div class="leave-meta-item">📝 Applied: ${appliedOn}</div>
+      </div>
+
+      <div class="leave-reason">${esc(leave.reason || 'No reason provided.')}</div>
+
+      ${leave.adminNote ? `<div class="admin-note">💬 Admin: "${esc(leave.adminNote)}"</div>` : ''}
+
+      ${canAdminAct ? `
+        <div class="admin-actions">
+          <button class="btn-leave-action approve" onclick="openApproveModal('${leave.id}','${esc(leave.userName||'Staff')}')">✅ Approve</button>
+          <button class="btn-leave-action reject" onclick="rejectLeave('${leave.id}')">❌ Reject</button>
+        </div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+// ── APPLY LEAVE ──
+function openApplyModal() {
+  document.getElementById('applyModal').classList.add('open');
+}
+function closeApplyModal() {
+  document.getElementById('applyModal').classList.remove('open');
+}
+
+function selectDayType(type, el) {
+  selectedDayType = type;
+  document.querySelectorAll('.day-type-btn').forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected');
+  document.getElementById('halfDaySession').style.display = type === 'half' ? 'block' : 'none';
+  document.getElementById('toDateGroup').style.display = type === 'half' ? 'none' : 'block';
+}
+
+async function submitLeave() {
+  const leaveType = document.getElementById('leaveType').value;
+  const fromDate = document.getElementById('leaveFrom').value;
+  const toDate = selectedDayType === 'half' ? fromDate : document.getElementById('leaveTo').value;
+  const reason = document.getElementById('leaveReason').value.trim();
+  const halfSession = document.getElementById('halfSession').value;
+
+  if (!fromDate) { showToast('Please select a date'); return; }
+  if (!reason) { showToast('Please enter a reason'); return; }
+  if (selectedDayType === 'full' && toDate < fromDate) { showToast('To date cannot be before From date'); return; }
+
+  // Calculate total days (Mon–Sat only, exclude Sundays)
+  let totalDays = 0;
+  if (selectedDayType === 'half') {
+    totalDays = 0.5;
+  } else {
+    const from = new Date(fromDate), to = new Date(toDate);
+    for (let d = new Date(from); d <= to; d.setDate(d.getDate()+1)) {
+      if (d.getDay() !== 0) totalDays++; // exclude Sundays
+    }
+  }
+
+  const btn = document.getElementById('submitLeaveBtn');
+  btn.disabled = true; btn.textContent = 'Submitting…';
+
+  try {
+    await addDoc(collection(db,'leaves'), {
+      userId: currentUser.uid,
+      userEmail: currentUser.email,
+      userName: currentUserData?.name || currentUser.email.split('@')[0],
+      department: currentUserData?.department || '',
+      leaveType, fromDate, toDate,
+      dayType: selectedDayType,
+      halfSession: selectedDayType === 'half' ? halfSession : null,
+      totalDays,
+      reason,
+      status: 'pending',
+      payType: null,
+      adminNote: null,
+      createdAt: serverTimestamp()
+    });
+    showToast('✅ Leave request submitted!');
+    closeApplyModal();
+    document.getElementById('leaveReason').value = '';
+  } catch(e) {
+    console.error(e);
+    showToast('Error submitting. Try again.');
+  } finally {
+    btn.disabled = false; btn.textContent = 'Submit Leave Request';
+  }
+}
+
+// ── APPROVE ──
+function openApproveModal(leaveId, staffName) {
+  currentActionLeaveId = leaveId;
+  document.getElementById('approveModalTitle').textContent = `Approve Leave — ${staffName}`;
+  document.getElementById('adminNoteInput').value = '';
+  document.getElementById('approveModal').classList.add('open');
+}
+function closeApproveModal() {
+  document.getElementById('approveModal').classList.remove('open');
+  currentActionLeaveId = null;
+}
+
+async function confirmApprove(payType) {
+  if (!currentActionLeaveId) return;
+  const note = document.getElementById('adminNoteInput').value.trim();
+  try {
+    await updateDoc(doc(db,'leaves',currentActionLeaveId), {
+      status: 'approved',
+      payType,
+      adminNote: note || null,
+      approvedBy: currentUser.email,
+      approvedAt: serverTimestamp()
+    });
+    showToast(payType === 'paid' ? '✅ Leave approved — Paid' : '✅ Leave approved — Loss of Pay');
+    closeApproveModal();
+  } catch(e) { showToast('Error. Try again.'); }
+}
+
+async function rejectLeave(leaveId) {
+  const note = prompt('Reason for rejection (optional):') || '';
+  try {
+    await updateDoc(doc(db,'leaves',leaveId), {
+      status: 'rejected',
+      adminNote: note || null,
+      rejectedBy: currentUser.email,
+      rejectedAt: serverTimestamp()
+    });
+    showToast('❌ Leave rejected');
+  } catch(e) { showToast('Error. Try again.'); }
+}
+
+function esc(str) {
+  return String(str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3500);
+}
+</script>
+</body>
+</html>
