@@ -992,7 +992,7 @@ async function loadCurrentUserData() {
 
 async function loadStaff() {
   try {
-    const snap = await getDocs(query(collection(db,'users'), where('status','==','approved')));
+    const snap = await getDocs(query(collection(db,'pendingStaff'), where('status','==','approved')));
     allStaff = snap.docs.map(d => ({ id: d.id, ...d.data() }));
     populateAssigneeDropdown();
   } catch(e) { console.error(e); }
