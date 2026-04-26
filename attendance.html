@@ -575,13 +575,34 @@ async function generateSalaryReport() {
     }
   } catch(e) { console.error(e); }
 
+  // Fetch LOP approved leaves for this staff this month
+  let lopDays = 0;
+  try {
+    const leaveSnap = await getDocs(query(
+      collection(db,'leaves'),
+      where('userEmail','==',staffEmail),
+      where('status','==','approved'),
+      where('payType','==','lop')
+    ));
+    leaveSnap.docs.forEach(d => {
+      const l = d.data();
+      // Check if leave falls in this month
+      if (l.fromDate && l.fromDate.startsWith(`${year}-${String(month).padStart(2,'0')}`)) {
+        lopDays += (l.totalDays || 1);
+      }
+    });
+  } catch(e) { console.error('LOP fetch error',e); }
+
   const daysPresent=Object.keys(records).length;
   const daysAbsent=totalWorkingDays-daysPresent;
   const lateCount=Object.values(records).filter(r=>r.isLate).length;
   const totalHours=Object.values(records).reduce((s,r)=>s+(r.totalHours||0),0);
   const avgHours=daysPresent>0?totalHours/daysPresent:0;
   const perDay=grossSalary/SALARY_DIVISOR;
-  const deduction=daysAbsent*perDay;
+  // Deduction = absent days + LOP approved leave days
+  const absentDeduction=daysAbsent*perDay;
+  const lopDeduction=lopDays*perDay;
+  const deduction=absentDeduction+lopDeduction;
   const netSalary=Math.max(0,grossSalary-deduction);
   const periodLabel=new Date(year,month-1,1).toLocaleDateString('en-IN',{month:'long',year:'numeric'});
 
@@ -595,7 +616,7 @@ async function generateSalaryReport() {
   document.getElementById('rAvgHours').textContent=avgHours.toFixed(1)+'h';
   document.getElementById('rGross').textContent='₹'+grossSalary.toLocaleString('en-IN');
   document.getElementById('rPerDay').textContent='₹'+perDay.toFixed(0);
-  document.getElementById('rDeduction').textContent='−₹'+deduction.toFixed(0);
+  document.getElementById('rDeduction').textContent=`−₹${absentDeduction.toFixed(0)} absent + −₹${lopDeduction.toFixed(0)} LOP`;
   document.getElementById('rLateNote').textContent=lateCount+' day(s) — no deduction';
   document.getElementById('rNet').textContent='₹'+netSalary.toFixed(0);
   document.getElementById('salaryResult').classList.add('show');
