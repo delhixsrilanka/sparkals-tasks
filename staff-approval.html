@@ -11,7 +11,7 @@
       font-family: 'Segoe UI', sans-serif;
       background: #f0f2f5;
       min-height: 100vh;
-      padding-bottom: 80px;
+      padding-bottom: 40px;
     }
     .header {
       background: #1a1a2e;
@@ -30,170 +30,11 @@
       cursor: pointer;
       text-decoration: none;
     }
-    .header-title {
-      color: white;
-      font-size: 18px;
-      font-weight: 700;
-    }
-    .header-sub {
-      color: rgba(255,255,255,0.6);
-      font-size: 12px;
-    }
+    .header-title { color: white; font-size: 18px; font-weight: 700; }
+    .header-sub { color: rgba(255,255,255,0.6); font-size: 12px; }
     .main { padding: 16px; }
-    .section-title {
-      font-size: 15px;
-      font-weight: 700;
-      color: #1a1a2e;
-      margin-bottom: 12px;
-      margin-top: 8px;
-    }
-    .pending-card {
-      background: white;
-      border-radius: 20px;
-      padding: 18px;
-      margin-bottom: 12px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-      border-left: 4px solid #f59e0b;
-    }
-    .approved-card {
-      background: white;
-      border-radius: 20px;
-      padding: 18px;
-      margin-bottom: 12px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-      border-left: 4px solid #22c55e;
-    }
-    .rejected-card {
-      background: white;
-      border-radius: 20px;
-      padding: 18px;
-      margin-bottom: 12px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-      border-left: 4px solid #ef4444;
-    }
-    .staff-header {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 12px;
-    }
-    .staff-avatar {
-      width: 48px;
-      height: 48px;
-      border-radius: 14px;
-      background: #1a1a2e;
-      color: white;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 20px;
-      font-weight: 700;
-      flex-shrink: 0;
-    }
-    .staff-name {
-      font-size: 16px;
-      font-weight: 700;
-      color: #1a1a2e;
-      margin-bottom: 2px;
-    }
-    .staff-dept {
-      font-size: 13px;
-      color: #888;
-    }
-    .staff-details {
-      background: #f8f8f8;
-      border-radius: 12px;
-      padding: 12px;
-      margin-bottom: 14px;
-    }
-    .detail-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 5px 0;
-      border-bottom: 1px solid #eee;
-      font-size: 13px;
-    }
-    .detail-row:last-child { border-bottom: none; }
-    .detail-label { color: #888; font-weight: 500; }
-    .detail-value { color: #1a1a2e; font-weight: 600; }
-    .action-buttons {
-      display: flex;
-      gap: 10px;
-    }
-    .btn-approve {
-      flex: 1;
-      padding: 12px;
-      background: #22c55e;
-      color: white;
-      border: none;
-      border-radius: 12px;
-      font-size: 14px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: opacity 0.2s;
-    }
-    .btn-reject {
-      flex: 1;
-      padding: 12px;
-      background: #ef4444;
-      color: white;
-      border: none;
-      border-radius: 12px;
-      font-size: 14px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: opacity 0.2s;
-    }
-    .btn-approve:active, .btn-reject:active { opacity: 0.8; }
-    .btn-approve:disabled, .btn-reject:disabled { opacity: 0.5; cursor: not-allowed; }
-    .status-badge {
-      display: inline-block;
-      padding: 4px 12px;
-      border-radius: 20px;
-      font-size: 12px;
-      font-weight: 700;
-    }
-    .badge-approved { background: #dcfce7; color: #15803d; }
-    .badge-rejected { background: #fee2e2; color: #dc2626; }
-    .empty-state {
-      text-align: center;
-      padding: 40px 20px;
-      color: #888;
-      font-size: 14px;
-      background: white;
-      border-radius: 20px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-    }
-    .empty-icon { font-size: 48px; margin-bottom: 12px; }
-    .spinner {
-      display: inline-block;
-      width: 16px; height: 16px;
-      border: 2px solid rgba(255,255,255,0.3);
-      border-top-color: white;
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-      vertical-align: middle;
-      margin-right: 6px;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    .toast {
-      position: fixed;
-      bottom: 30px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: #1a1a2e;
-      color: white;
-      padding: 12px 24px;
-      border-radius: 24px;
-      font-size: 14px;
-      font-weight: 600;
-      z-index: 999;
-      opacity: 0;
-      transition: opacity 0.3s;
-      white-space: nowrap;
-    }
-    .toast.show { opacity: 1; }
+
+    /* Tabs */
     .tabs {
       display: flex;
       gap: 8px;
@@ -208,7 +49,6 @@
       border: 2px solid #e8e8e8;
       background: white;
       color: #888;
-      transition: all 0.2s;
     }
     .tab.active {
       background: #1a1a2e;
@@ -217,6 +57,160 @@
     }
     .tab-content { display: none; }
     .tab-content.active { display: block; }
+
+    /* Cards */
+    .staff-card {
+      background: white;
+      border-radius: 20px;
+      padding: 18px;
+      margin-bottom: 12px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+    }
+    .pending-card { border-left: 4px solid #f59e0b; }
+    .approved-card { border-left: 4px solid #22c55e; }
+    .rejected-card { border-left: 4px solid #ef4444; }
+
+    .card-top {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+    .avatar {
+      width: 52px;
+      height: 52px;
+      border-radius: 14px;
+      background: #1a1a2e;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+    .avatar.green { background: #22c55e; }
+    .avatar.red { background: #ef4444; }
+    .staff-name { font-size: 16px; font-weight: 700; color: #1a1a2e; margin-bottom: 3px; }
+    .staff-sub { font-size: 13px; color: #888; }
+
+    /* Key info — only what matters */
+    .key-info {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+    .info-box {
+      background: #f8f8f8;
+      border-radius: 12px;
+      padding: 10px 12px;
+    }
+    .info-label { font-size: 11px; color: #888; font-weight: 500; margin-bottom: 3px; }
+    .info-value { font-size: 14px; font-weight: 700; color: #1a1a2e; }
+    .info-box.full { grid-column: 1 / -1; }
+
+    /* Edit fields */
+    .edit-section {
+      background: #f0f2ff;
+      border: 1.5px solid #c7c7ff;
+      border-radius: 14px;
+      padding: 14px;
+      margin-bottom: 14px;
+      display: none;
+    }
+    .edit-section.open { display: block; }
+    .edit-group { margin-bottom: 10px; }
+    .edit-label { font-size: 12px; font-weight: 600; color: #444; margin-bottom: 4px; display: block; }
+    .edit-input, .edit-select {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1.5px solid #c7c7ff;
+      border-radius: 10px;
+      font-size: 14px;
+      color: #1a1a2e;
+      background: white;
+      outline: none;
+    }
+    .save-edit-btn {
+      width: 100%;
+      padding: 10px;
+      background: #3b37c8;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 4px;
+    }
+
+    /* Action buttons */
+    .action-row { display: flex; gap: 8px; flex-direction: column; }
+    .edit-btn {
+      width: 100%;
+      padding: 10px;
+      background: #f0f2ff;
+      color: #1a1a2e;
+      border: 2px solid #c7c7ff;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .approve-reject-row { display: flex; gap: 8px; }
+    .btn-approve {
+      flex: 1; padding: 12px;
+      background: #22c55e; color: white;
+      border: none; border-radius: 12px;
+      font-size: 14px; font-weight: 700; cursor: pointer;
+    }
+    .btn-reject {
+      flex: 1; padding: 12px;
+      background: #ef4444; color: white;
+      border: none; border-radius: 12px;
+      font-size: 14px; font-weight: 700; cursor: pointer;
+    }
+    .btn-approve:disabled, .btn-reject:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .status-badge {
+      padding: 4px 12px; border-radius: 20px;
+      font-size: 12px; font-weight: 700;
+    }
+    .badge-approved { background: #dcfce7; color: #15803d; }
+    .badge-rejected { background: #fee2e2; color: #dc2626; }
+
+    .empty-state {
+      text-align: center; padding: 40px 20px;
+      color: #888; font-size: 14px;
+      background: white; border-radius: 20px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+    }
+    .empty-icon { font-size: 48px; margin-bottom: 12px; }
+
+    .spinner {
+      display: inline-block; width: 16px; height: 16px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: white; border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      vertical-align: middle; margin-right: 6px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .toast {
+      position: fixed; bottom: 30px; left: 50%;
+      transform: translateX(-50%);
+      background: #1a1a2e; color: white;
+      padding: 12px 24px; border-radius: 24px;
+      font-size: 14px; font-weight: 600;
+      z-index: 999; opacity: 0; transition: opacity 0.3s;
+      white-space: nowrap;
+    }
+    .toast.show { opacity: 1; }
+
+    .access-denied {
+      text-align: center; padding: 60px 20px;
+    }
   </style>
 </head>
 <body>
@@ -225,61 +219,54 @@
   <a href="admin.html" class="back-btn">← Back</a>
   <div>
     <div class="header-title">Staff Approval</div>
-    <div class="header-sub">Review and approve staff registrations</div>
+    <div class="header-sub" id="header-sub">Loading...</div>
   </div>
 </div>
 
 <div class="main">
-
   <div class="tabs">
-    <div class="tab active" onclick="switchTab('pending')">
+    <div class="tab active" id="tab-btn-pending" onclick="switchTab('pending', this)">
       ⏳ Pending <span id="pending-count"></span>
     </div>
-    <div class="tab" onclick="switchTab('approved')">
+    <div class="tab" id="tab-btn-approved" onclick="switchTab('approved', this)">
       ✅ Approved
     </div>
-    <div class="tab" onclick="switchTab('rejected')">
+    <div class="tab" id="tab-btn-rejected" onclick="switchTab('rejected', this)">
       ❌ Rejected
     </div>
   </div>
 
   <div class="tab-content active" id="tab-pending">
     <div id="pending-list">
-      <div class="empty-state">
-        <div class="empty-icon">⏳</div>
-        Loading pending registrations...
-      </div>
+      <div class="empty-state"><div class="empty-icon">⏳</div>Loading...</div>
     </div>
   </div>
 
   <div class="tab-content" id="tab-approved">
     <div id="approved-list">
-      <div class="empty-state">
-        <div class="empty-icon">✅</div>
-        Loading approved staff...
-      </div>
+      <div class="empty-state"><div class="empty-icon">✅</div>Loading...</div>
     </div>
   </div>
 
   <div class="tab-content" id="tab-rejected">
     <div id="rejected-list">
-      <div class="empty-state">
-        <div class="empty-icon">❌</div>
-        Loading rejected registrations...
-      </div>
+      <div class="empty-state"><div class="empty-icon">❌</div>Loading...</div>
     </div>
   </div>
-
 </div>
 
 <div class="toast" id="toast"></div>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
   import {
-    getFirestore, collection, getDocs, doc,
-    updateDoc, setDoc, deleteDoc, serverTimestamp, query, where
+    getAuth, onAuthStateChanged,
+    createUserWithEmailAndPassword,
+    sendPasswordResetEmail
+  } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+  import {
+    getFirestore, collection, getDocs,
+    doc, updateDoc, setDoc, serverTimestamp
   } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
   const firebaseConfig = {
@@ -300,22 +287,21 @@
     'sparkals.design@gmail.com'
   ];
 
-  // Auth check
+  // Auth check — admin only
   onAuthStateChanged(auth, (user) => {
-    if (!user || !ADMIN_EMAILS.includes(user.email)) {
+    if (!user || !ADMIN_EMAILS.includes(user.email.toLowerCase())) {
       window.location.replace('login.html');
       return;
     }
+    document.getElementById('header-sub').textContent = `Logged in as ${user.email}`;
     loadAllStaff();
   });
 
-  // Load all staff
+  // Load all staff from pendingStaff collection
   async function loadAllStaff() {
     try {
       const snapshot = await getDocs(collection(db, 'pendingStaff'));
-      const pending = [];
-      const approved = [];
-      const rejected = [];
+      const pending = [], approved = [], rejected = [];
 
       snapshot.forEach(d => {
         const data = { id: d.id, ...d.data() };
@@ -324,7 +310,6 @@
         else if (data.status === 'rejected') rejected.push(data);
       });
 
-      // Update pending count
       document.getElementById('pending-count').textContent =
         pending.length > 0 ? `(${pending.length})` : '';
 
@@ -333,11 +318,12 @@
       renderRejected(rejected);
 
     } catch(e) {
-      console.error('Load error:', e);
+      console.error(e);
+      showToast('❌ Could not load staff. Check connection.');
     }
   }
 
-  // Render pending
+  // Render pending staff — shows Name, Department, Phone only
   function renderPending(list) {
     const container = document.getElementById('pending-list');
     if (list.length === 0) {
@@ -345,39 +331,86 @@
       return;
     }
     container.innerHTML = list.map(s => `
-      <div class="pending-card" id="card-${s.id}">
-        <div class="staff-header">
-          <div class="staff-avatar">${(s.name || 'S').charAt(0).toUpperCase()}</div>
+      <div class="staff-card pending-card" id="card-${s.id}">
+        <div class="card-top">
+          <div class="avatar">${(s.name||'S').charAt(0).toUpperCase()}</div>
           <div>
             <div class="staff-name">${s.name || 'Unknown'}</div>
-            <div class="staff-dept">${s.department || 'No dept'} · ${s.jobtitle || 'Staff'}</div>
+            <div class="staff-sub">Applied ${s.submittedAt?.toDate ? s.submittedAt.toDate().toLocaleDateString('en-IN') : 'recently'}</div>
           </div>
         </div>
-        <div class="staff-details">
-          <div class="detail-row">
-            <span class="detail-label">📧 Email</span>
-            <span class="detail-value">${s.email || '—'}</span>
+
+        <!-- Key info: Name, Department, Phone -->
+        <div class="key-info">
+          <div class="info-box full">
+            <div class="info-label">👤 Full Name</div>
+            <div class="info-value" id="display-name-${s.id}">${s.name || '—'}</div>
           </div>
-          <div class="detail-row">
-            <span class="detail-label">📱 Mobile</span>
-            <span class="detail-value">${s.phone || '—'}</span>
+          <div class="info-box">
+            <div class="info-label">🏢 Department</div>
+            <div class="info-value" id="display-dept-${s.id}">${s.department || '—'}</div>
           </div>
-          <div class="detail-row">
-            <span class="detail-label">🪪 Aadhaar</span>
-            <span class="detail-value">${formatAadhaar(s.aadhaar) || '—'}</span>
+          <div class="info-box">
+            <div class="info-label">📱 Phone</div>
+            <div class="info-value" id="display-phone-${s.id}">${s.phone || '—'}</div>
           </div>
-          <div class="detail-row">
-            <span class="detail-label">📅 Applied</span>
-            <span class="detail-value">${s.submittedAt?.toDate ? s.submittedAt.toDate().toLocaleDateString('en-IN') : 'Just now'}</span>
+          <div class="info-box">
+            <div class="info-label">📧 Email</div>
+            <div class="info-value" style="font-size:12px;" id="display-email-${s.id}">${s.email || '—'}</div>
+          </div>
+          <div class="info-box">
+            <div class="info-label">💼 Job Title</div>
+            <div class="info-value" id="display-job-${s.id}">${s.jobtitle || '—'}</div>
           </div>
         </div>
-        <div class="action-buttons">
-          <button class="btn-approve" id="approve-${s.id}" onclick="approveStaff('${s.id}', '${s.name}', '${s.email}', '${s.department}', '${s.phone}', '${s.jobtitle}', '${s.aadhaar}')">
-            ✅ Approve
+
+        <!-- Edit section (hidden by default) -->
+        <div class="edit-section" id="edit-section-${s.id}">
+          <div class="edit-group">
+            <label class="edit-label">Full Name</label>
+            <input class="edit-input" id="edit-name-${s.id}" value="${s.name || ''}" />
+          </div>
+          <div class="edit-group">
+            <label class="edit-label">Department</label>
+            <select class="edit-select" id="edit-dept-${s.id}">
+              <option value="Sales & Marketing" ${s.department==='Sales & Marketing'?'selected':''}>Sales & Marketing</option>
+              <option value="Operations" ${s.department==='Operations'?'selected':''}>Operations</option>
+              <option value="Accounts & Finance" ${s.department==='Accounts & Finance'?'selected':''}>Accounts & Finance</option>
+              <option value="Logistics & Delivery" ${s.department==='Logistics & Delivery'?'selected':''}>Logistics & Delivery</option>
+              <option value="IT & Technology" ${s.department==='IT & Technology'?'selected':''}>IT & Technology</option>
+              <option value="Customer Support" ${s.department==='Customer Support'?'selected':''}>Customer Support</option>
+              <option value="Field / Site Work" ${s.department==='Field / Site Work'?'selected':''}>Field / Site Work</option>
+              <option value="Management" ${s.department==='Management'?'selected':''}>Management</option>
+              <option value="Production & Manufacturing" ${s.department==='Production & Manufacturing'?'selected':''}>Production & Manufacturing</option>
+              <option value="Purchase" ${s.department==='Purchase'?'selected':''}>Purchase</option>
+            </select>
+          </div>
+          <div class="edit-group">
+            <label class="edit-label">Phone</label>
+            <input class="edit-input" id="edit-phone-${s.id}" value="${s.phone || ''}" maxlength="10" />
+          </div>
+          <div class="edit-group">
+            <label class="edit-label">Job Title</label>
+            <input class="edit-input" id="edit-job-${s.id}" value="${s.jobtitle || ''}" />
+          </div>
+          <button class="save-edit-btn" onclick="saveEdits('${s.id}')">💾 Save Changes</button>
+        </div>
+
+        <!-- Action buttons -->
+        <div class="action-row">
+          <button class="edit-btn" onclick="toggleEdit('${s.id}')">
+            ✏️ Edit Details Before Approving
           </button>
-          <button class="btn-reject" id="reject-${s.id}" onclick="rejectStaff('${s.id}', '${s.name}')">
-            ❌ Reject
-          </button>
+          <div class="approve-reject-row">
+            <button class="btn-approve" id="approve-btn-${s.id}"
+              onclick="approveStaff('${s.id}')">
+              ✅ Approve
+            </button>
+            <button class="btn-reject" id="reject-btn-${s.id}"
+              onclick="rejectStaff('${s.id}')">
+              ❌ Reject
+            </button>
+          </div>
         </div>
       </div>
     `).join('');
@@ -391,24 +424,18 @@
       return;
     }
     container.innerHTML = list.map(s => `
-      <div class="approved-card">
-        <div class="staff-header">
-          <div class="staff-avatar" style="background:#22c55e;">${(s.name||'S').charAt(0).toUpperCase()}</div>
+      <div class="staff-card approved-card">
+        <div class="card-top">
+          <div class="avatar green">${(s.name||'S').charAt(0).toUpperCase()}</div>
           <div style="flex:1;">
             <div class="staff-name">${s.name || 'Unknown'}</div>
-            <div class="staff-dept">${s.department || ''} · ${s.jobtitle || 'Staff'}</div>
+            <div class="staff-sub">${s.department || ''} · ${s.phone || ''}</div>
           </div>
           <span class="status-badge badge-approved">✅ Approved</span>
         </div>
-        <div class="staff-details">
-          <div class="detail-row">
-            <span class="detail-label">📧 Email</span>
-            <span class="detail-value">${s.email || '—'}</span>
-          </div>
-          <div class="detail-row">
-            <span class="detail-label">📱 Mobile</span>
-            <span class="detail-value">${s.phone || '—'}</span>
-          </div>
+        <div class="key-info">
+          <div class="info-box"><div class="info-label">📧 Email</div><div class="info-value" style="font-size:12px;">${s.email||'—'}</div></div>
+          <div class="info-box"><div class="info-label">💼 Job Title</div><div class="info-value">${s.jobtitle||'—'}</div></div>
         </div>
       </div>
     `).join('');
@@ -422,12 +449,12 @@
       return;
     }
     container.innerHTML = list.map(s => `
-      <div class="rejected-card">
-        <div class="staff-header">
-          <div class="staff-avatar" style="background:#ef4444;">${(s.name||'S').charAt(0).toUpperCase()}</div>
+      <div class="staff-card rejected-card">
+        <div class="card-top">
+          <div class="avatar red">${(s.name||'S').charAt(0).toUpperCase()}</div>
           <div style="flex:1;">
             <div class="staff-name">${s.name || 'Unknown'}</div>
-            <div class="staff-dept">${s.department || ''}</div>
+            <div class="staff-sub">${s.department || ''} · ${s.phone || ''}</div>
           </div>
           <span class="status-badge badge-rejected">❌ Rejected</span>
         </div>
@@ -435,102 +462,153 @@
     `).join('');
   }
 
+  // Toggle edit section
+  window.toggleEdit = function(id) {
+    const section = document.getElementById(`edit-section-${id}`);
+    section.classList.toggle('open');
+  };
+
+  // Save edits
+  window.saveEdits = async function(id) {
+    const name = document.getElementById(`edit-name-${id}`).value.trim();
+    const dept = document.getElementById(`edit-dept-${id}`).value;
+    const phone = document.getElementById(`edit-phone-${id}`).value.trim();
+    const job = document.getElementById(`edit-job-${id}`).value.trim();
+
+    try {
+      await updateDoc(doc(db, 'pendingStaff', id), {
+        name, department: dept, phone, jobtitle: job, editedAt: serverTimestamp()
+      });
+
+      // Update display values instantly
+      document.getElementById(`display-name-${id}`).textContent = name;
+      document.getElementById(`display-dept-${id}`).textContent = dept;
+      document.getElementById(`display-phone-${id}`).textContent = phone;
+      document.getElementById(`display-job-${id}`).textContent = job;
+
+      // Close edit section
+      document.getElementById(`edit-section-${id}`).classList.remove('open');
+      showToast('✅ Details updated!');
+
+    } catch(e) {
+      showToast('❌ Could not save. Try again.');
+    }
+  };
+
   // Approve staff
-  window.approveStaff = async function(id, name, email, department, phone, jobtitle, aadhaar) {
-    const approveBtn = document.getElementById(`approve-${id}`);
-    const rejectBtn = document.getElementById(`reject-${id}`);
+  window.approveStaff = async function(id) {
+    const approveBtn = document.getElementById(`approve-btn-${id}`);
+    const rejectBtn = document.getElementById(`reject-btn-${id}`);
+
+    // Get latest data from display fields
+    const name = document.getElementById(`display-name-${id}`)?.textContent || '';
+    const email = document.getElementById(`display-email-${id}`)?.textContent || '';
+    const dept = document.getElementById(`display-dept-${id}`)?.textContent || '';
+    const phone = document.getElementById(`display-phone-${id}`)?.textContent || '';
+    const job = document.getElementById(`display-job-${id}`)?.textContent || '';
+
+    if (!email || email === '—') {
+      showToast('❌ No email found. Edit details first.');
+      return;
+    }
+
     approveBtn.disabled = true;
     rejectBtn.disabled = true;
     approveBtn.innerHTML = '<span class="spinner"></span>Approving...';
 
     try {
-      // Update status in pendingStaff
+      // Create Firebase Auth account
+      const tempPassword = 'Sparkals@' + Math.random().toString(36).slice(2,8);
+      const userCredential = await createUserWithEmailAndPassword(auth, email, tempPassword);
+      const newUid = userCredential.user.uid;
+
+      // Send password reset email
+      await sendPasswordResetEmail(auth, email);
+
+      // Update pendingStaff status
       await updateDoc(doc(db, 'pendingStaff', id), {
         status: 'approved',
-        approvedAt: serverTimestamp()
+        approvedAt: serverTimestamp(),
+        uid: newUid
       });
 
-      // Create user profile in users collection
-      await setDoc(doc(db, 'users', id), {
-        name,
-        email,
-        department,
-        phone,
-        jobtitle: jobtitle || 'Staff',
-        aadhaar,
-        role: 'staff',
-        status: 'active',
+      // Create user profile
+      await setDoc(doc(db, 'users', newUid), {
+        name, email, department: dept, phone,
+        jobtitle: job || 'Staff',
+        role: 'staff', status: 'active',
         joinDate: new Date().toISOString().split('T')[0],
         companyName: 'Sparkals Tasks',
         createdAt: serverTimestamp()
       });
 
-      showToast(`✅ ${name} approved successfully!`);
+      showToast(`✅ ${name} approved! Tell them to check their email to set password.`);
 
-      // Remove card with animation
       const card = document.getElementById(`card-${id}`);
       card.style.opacity = '0';
       card.style.transition = 'opacity 0.3s';
       setTimeout(() => { card.remove(); loadAllStaff(); }, 300);
 
     } catch(e) {
-      showToast('❌ Could not approve. Try again.');
-      approveBtn.disabled = false;
-      rejectBtn.disabled = false;
-      approveBtn.innerHTML = '✅ Approve';
+      if (e.code === 'auth/email-already-in-use') {
+        // Already has account — just approve
+        await updateDoc(doc(db, 'pendingStaff', id), {
+          status: 'approved', approvedAt: serverTimestamp()
+        });
+        showToast(`✅ ${name} approved!`);
+        const card = document.getElementById(`card-${id}`);
+        card.style.opacity = '0';
+        setTimeout(() => { card.remove(); loadAllStaff(); }, 300);
+      } else {
+        console.error(e);
+        showToast('❌ Could not approve. Try again.');
+        approveBtn.disabled = false;
+        rejectBtn.disabled = false;
+        approveBtn.innerHTML = '✅ Approve';
+      }
     }
   };
 
   // Reject staff
-  window.rejectStaff = async function(id, name) {
-    if (!confirm(`Reject ${name}'s registration?`)) return;
+  window.rejectStaff = async function(id) {
+    const name = document.getElementById(`display-name-${id}`)?.textContent || 'this staff';
+    if (!confirm(`Reject ${name}'s registration? Record will be kept as log.`)) return;
 
-    const rejectBtn = document.getElementById(`reject-${id}`);
+    const rejectBtn = document.getElementById(`reject-btn-${id}`);
     rejectBtn.disabled = true;
-    rejectBtn.innerHTML = '<span class="spinner"></span>Rejecting...';
+    rejectBtn.innerHTML = '<span class="spinner"></span>';
 
     try {
       await updateDoc(doc(db, 'pendingStaff', id), {
-        status: 'rejected',
-        rejectedAt: serverTimestamp()
+        status: 'rejected', rejectedAt: serverTimestamp()
       });
-
-      showToast(`❌ ${name} rejected.`);
+      showToast(`❌ ${name} rejected. Record kept in log.`);
       const card = document.getElementById(`card-${id}`);
       card.style.opacity = '0';
       card.style.transition = 'opacity 0.3s';
       setTimeout(() => { card.remove(); loadAllStaff(); }, 300);
-
     } catch(e) {
-      showToast('Could not reject. Try again.');
+      showToast('❌ Could not reject. Try again.');
       rejectBtn.disabled = false;
       rejectBtn.innerHTML = '❌ Reject';
     }
   };
 
-  // Format Aadhaar display
-  function formatAadhaar(num) {
-    if (!num) return '—';
-    const n = num.replace(/\D/g,'');
-    return n.slice(0,4) + ' ' + n.slice(4,8) + ' ' + n.slice(8,12);
-  }
-
   // Switch tabs
-  window.switchTab = function(tab) {
+  window.switchTab = function(tab, el) {
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
     document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-    event.target.classList.add('active');
+    el.classList.add('active');
     document.getElementById(`tab-${tab}`).classList.add('active');
   };
 
   // Toast
-  window.showToast = function(message) {
-    const toast = document.getElementById('toast');
-    toast.textContent = message;
-    toast.classList.add('show');
-    setTimeout(() => toast.classList.remove('show'), 3000);
+  window.showToast = function(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 3500);
   };
-
 </script>
 </body>
 </html>
