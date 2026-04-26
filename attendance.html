@@ -603,7 +603,7 @@ async function generateSalaryReport() {
   showToast('✅ Salary report ready!');
 }
 
-window.downloadSalaryExcel=function() {
+window._dlExcel=function() {
   if (!currentReportData) return;
   const d=currentReportData;
   const summary=[
@@ -636,7 +636,7 @@ window.downloadSalaryExcel=function() {
   showToast('📊 Excel downloaded!');
 };
 
-window.downloadSalaryPDF=function() {
+window._dlPDF=function() {
   if (!currentReportData) return;
   const d=currentReportData;
   const html=`<html><head><title>Salary — ${d.staffName}</title><style>body{font-family:Arial,sans-serif;padding:40px;color:#1a1a2e}h1{font-size:22px;margin-bottom:4px}h2{font-size:14px;color:#666;margin-bottom:24px;font-weight:normal}.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:24px}.card{border:1px solid #ddd;border-radius:8px;padding:12px}.cl{font-size:11px;color:#888;text-transform:uppercase}.cv{font-size:22px;font-weight:700;margin-top:4px}.g{color:#10b981}.r{color:#ef4444}.a{color:#f59e0b}.p{color:#7c6fff}table{width:100%;border-collapse:collapse;margin-bottom:24px}th{background:#1a1a2e;color:#fff;padding:10px;text-align:left;font-size:12px}td{padding:8px 10px;border-bottom:1px solid #eee;font-size:12px}tr:nth-child(even){background:#f9f9f9}.tr{font-weight:700;font-size:15px;border-top:2px solid #1a1a2e}.ft{margin-top:40px;font-size:11px;color:#aaa;text-align:center}</style></head><body>
