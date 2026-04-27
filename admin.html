@@ -3,896 +3,859 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#1a1a2e" />
-  <title>Sparkals Tasks — Admin</title>
-  <link rel="manifest" href="manifest.json" />
+  <title>Admin Dashboard — Sparkals Tasks</title>
+  <link rel="manifest" href="/manifest.json" />
+  <link rel="icon" href="/icons/logo%20copfy.png" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0f0f1a;
+      --card: #1a1a2e;
+      --card2: #16213e;
+      --accent: #7c3aed;
+      --accent2: #a78bfa;
+      --green: #10b981;
+      --red: #ef4444;
+      --amber: #f59e0b;
+      --blue: #3b82f6;
+      --text: #f1f5f9;
+      --muted: #94a3b8;
+      --border: #2d2d44;
+    }
     body {
-      font-family: 'Segoe UI', sans-serif;
-      background: #f0f2f5;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
       min-height: 100vh;
-      padding-bottom: 80px;
     }
 
-    /* ── HEADER ── */
-    .header {
-      background: #1a1a2e;
-      padding: 20px 20px 32px;
-    }
-    .header-top {
+    /* TOP NAV */
+    .topnav {
+      background: var(--card);
+      padding: 14px 20px;
       display: flex;
+      align-items: center;
       justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-    }
-    .logo-area {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    .logo-small {
-      width: 38px;
-      height: 38px;
-      background: rgba(255,255,255,0.1);
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 4px;
-    }
-    .logo-small img {
-      width: 30px;
-      height: 30px;
-      border-radius: 50%;
-      object-fit: cover;
-    }
-    .app-name {
-      color: white;
-      font-size: 16px;
-      font-weight: 700;
-    }
-    .admin-badge {
-      background: #f59e0b;
-      color: #1a1a2e;
-      font-size: 10px;
-      font-weight: 700;
-      padding: 2px 8px;
-      border-radius: 20px;
-      margin-left: 6px;
-    }
-    .header-icons {
-      display: flex;
-      gap: 10px;
-    }
-    .icon-btn {
-      width: 38px;
-      height: 38px;
-      background: rgba(255,255,255,0.1);
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      font-size: 18px;
-      border: none;
-      color: white;
-    }
-
-    .admin-welcome {
-      color: white;
-    }
-    .admin-greeting {
-      font-size: 13px;
-      color: rgba(255,255,255,0.6);
-      margin-bottom: 4px;
-    }
-    .admin-name {
-      font-size: 22px;
-      font-weight: 700;
-      margin-bottom: 4px;
-    }
-    .admin-subtitle {
-      font-size: 13px;
-      color: rgba(255,255,255,0.7);
-      margin-bottom: 12px;
-    }
-    .admin-meta {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-    .meta-chip {
-      background: rgba(255,255,255,0.12);
-      border-radius: 20px;
-      padding: 5px 12px;
-      font-size: 12px;
-      color: rgba(255,255,255,0.85);
-    }
-    .meta-chip.alert {
-      background: rgba(239,68,68,0.3);
-      color: #fca5a5;
-    }
-
-    /* ── MAIN ── */
-    .main {
-      padding: 0 16px;
-      margin-top: -14px;
-    }
-
-    /* ── STAT CARDS ── */
-    .stats-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-      margin-bottom: 16px;
-    }
-    .stat-card {
-      border-radius: 16px;
-      padding: 16px;
-      color: white;
-      position: relative;
-      overflow: hidden;
-      cursor: pointer;
-      transition: transform 0.2s;
-    }
-    .stat-card:active { transform: scale(0.97); }
-    .stat-card::after {
-      content: '';
-      position: absolute;
-      right: -10px;
-      bottom: -10px;
-      width: 70px;
-      height: 70px;
-      border-radius: 50%;
-      background: rgba(255,255,255,0.1);
-    }
-    .stat-card.blue { background: linear-gradient(135deg, #3b82f6, #1d4ed8); }
-    .stat-card.green { background: linear-gradient(135deg, #22c55e, #15803d); }
-    .stat-card.orange { background: linear-gradient(135deg, #f97316, #c2410c); }
-    .stat-card.red { background: linear-gradient(135deg, #ef4444, #991b1b); }
-    .stat-icon { font-size: 24px; margin-bottom: 8px; }
-    .stat-number { font-size: 32px; font-weight: 700; line-height: 1; margin-bottom: 4px; }
-    .stat-label { font-size: 12px; opacity: 0.85; }
-    .stat-sub { font-size: 11px; opacity: 0.7; margin-top: 2px; }
-
-    /* ── SECTION ── */
-    .section-title {
-      font-size: 15px;
-      font-weight: 700;
-      color: #1a1a2e;
-      margin-bottom: 12px;
-    }
-
-    /* ── STAFF STATUS ── */
-    .staff-card {
-      background: white;
-      border-radius: 20px;
-      padding: 20px;
-      margin-bottom: 16px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-    }
-    .staff-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 16px;
-    }
-    .add-staff-btn {
-      background: #1a1a2e;
-      color: white;
-      border: none;
-      border-radius: 10px;
-      padding: 8px 14px;
-      font-size: 13px;
-      font-weight: 600;
-      cursor: pointer;
-    }
-
-    .staff-item {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 10px 0;
-      border-bottom: 1px solid #f5f5f5;
-      cursor: pointer;
-    }
-    .staff-item:last-child { border-bottom: none; }
-
-    .staff-avatar {
-      width: 42px;
-      height: 42px;
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 18px;
-      font-weight: 700;
-      color: white;
-      flex-shrink: 0;
-    }
-    .staff-info { flex: 1; min-width: 0; }
-    .staff-name {
-      font-size: 14px;
-      font-weight: 600;
-      color: #1a1a2e;
-      margin-bottom: 2px;
-    }
-    .staff-dept {
-      font-size: 12px;
-      color: #888;
-    }
-    .staff-status {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-end;
-      gap: 4px;
-    }
-    .status-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-    }
-    .status-dot.in { background: #22c55e; }
-    .status-dot.out { background: #94a3b8; }
-    .status-dot.late { background: #f59e0b; }
-    .status-label {
-      font-size: 11px;
-      font-weight: 600;
-    }
-    .status-label.in { color: #22c55e; }
-    .status-label.out { color: #94a3b8; }
-    .status-label.late { color: #f59e0b; }
-
-    /* ── ALERTS ── */
-    .alerts-card {
-      background: white;
-      border-radius: 20px;
-      padding: 20px;
-      margin-bottom: 16px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-    }
-    .alert-item {
-      display: flex;
-      gap: 12px;
-      align-items: flex-start;
-      padding: 10px 0;
-      border-bottom: 1px solid #f5f5f5;
-    }
-    .alert-item:last-child { border-bottom: none; }
-    .alert-icon {
-      width: 36px;
-      height: 36px;
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 18px;
-      flex-shrink: 0;
-    }
-    .alert-icon.red { background: #fee2e2; }
-    .alert-icon.orange { background: #fef3c7; }
-    .alert-icon.blue { background: #dbeafe; }
-    .alert-content { flex: 1; }
-    .alert-title {
-      font-size: 13px;
-      font-weight: 600;
-      color: #1a1a2e;
-      margin-bottom: 2px;
-    }
-    .alert-sub {
-      font-size: 12px;
-      color: #888;
-    }
-    .no-alerts {
-      text-align: center;
-      padding: 20px;
-      color: #888;
-      font-size: 14px;
-    }
-
-    /* ── QUICK ADMIN ACTIONS ── */
-    .admin-actions {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-      margin-bottom: 16px;
-    }
-    .admin-action-btn {
-      background: white;
-      border-radius: 16px;
-      padding: 16px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      cursor: pointer;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-      border: none;
-      text-align: left;
-      transition: transform 0.2s;
-      text-decoration: none;
-    }
-    .admin-action-btn:active { transform: scale(0.97); }
-    .action-icon {
-      width: 44px;
-      height: 44px;
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 22px;
-      flex-shrink: 0;
-    }
-    .action-icon.blue { background: #dbeafe; }
-    .action-icon.green { background: #dcfce7; }
-    .action-icon.orange { background: #fef3c7; }
-    .action-icon.purple { background: #f3e8ff; }
-    .action-icon.red { background: #fee2e2; }
-    .action-icon.teal { background: #ccfbf1; }
-    .action-text h4 {
-      font-size: 13px;
-      font-weight: 700;
-      color: #1a1a2e;
-      margin-bottom: 2px;
-    }
-    .action-text p {
-      font-size: 11px;
-      color: #888;
-    }
-
-    /* ── TASKS OVERVIEW ── */
-    .tasks-overview {
-      background: white;
-      border-radius: 20px;
-      padding: 20px;
-      margin-bottom: 16px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-    }
-    .task-row {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 10px 0;
-      border-bottom: 1px solid #f5f5f5;
-    }
-    .task-row:last-child { border-bottom: none; }
-    .task-priority-bar {
-      width: 4px;
-      height: 36px;
-      border-radius: 2px;
-      flex-shrink: 0;
-    }
-    .priority-urgent { background: #ef4444; }
-    .priority-high { background: #f97316; }
-    .priority-normal { background: #3b82f6; }
-    .task-row-content { flex: 1; min-width: 0; }
-    .task-row-name {
-      font-size: 13px;
-      font-weight: 600;
-      color: #1a1a2e;
-      margin-bottom: 2px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .task-row-meta { font-size: 11px; color: #888; }
-    .task-row-badge {
-      padding: 4px 10px;
-      border-radius: 20px;
-      font-size: 11px;
-      font-weight: 600;
-    }
-    .badge-overdue { background: #fee2e2; color: #dc2626; }
-    .badge-today { background: #fef3c7; color: #d97706; }
-    .badge-progress { background: #dbeafe; color: #1d4ed8; }
-
-    /* ── BOTTOM NAV ── */
-    .bottom-nav {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: white;
-      border-top: 1px solid #f0f0f0;
-      display: flex;
-      justify-content: space-around;
-      padding: 10px 0 16px;
-      box-shadow: 0 -4px 20px rgba(0,0,0,0.08);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
       z-index: 100;
     }
-    .nav-item {
+    .topnav-left { display: flex; align-items: center; gap: 12px; }
+    .topnav img { width: 36px; height: 36px; border-radius: 8px; }
+    .topnav-title { font-family: 'Space Mono', monospace; font-size: 15px; font-weight: 700; color: var(--accent2); }
+    .topnav-sub { font-size: 11px; color: var(--muted); margin-top: 1px; }
+    .topnav-right { display: flex; align-items: center; gap: 10px; }
+    .live-badge {
+      background: #10b98122;
+      border: 1px solid var(--green);
+      color: var(--green);
+      font-size: 11px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 20px;
       display: flex;
-      flex-direction: column;
       align-items: center;
-      gap: 4px;
-      cursor: pointer;
-      text-decoration: none;
-      padding: 4px 12px;
-      border-radius: 12px;
+      gap: 5px;
     }
-    .nav-item.active { background: #f0f2ff; }
-    .nav-icon { font-size: 22px; }
-    .nav-label { font-size: 10px; font-weight: 600; color: #888; }
-    .nav-item.active .nav-label { color: #1a1a2e; }
+    .live-dot {
+      width: 7px; height: 7px;
+      background: var(--green);
+      border-radius: 50%;
+      animation: pulse 1.5s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+    .btn-logout {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: 6px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 13px;
+      font-family: 'DM Sans', sans-serif;
+    }
+    .btn-logout:hover { border-color: var(--red); color: var(--red); }
 
-    /* Toast */
-    .toast {
-      position: fixed;
-      bottom: 90px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: #1a1a2e;
+    /* NAV TABS */
+    .nav-tabs {
+      background: var(--card);
+      display: flex;
+      overflow-x: auto;
+      border-bottom: 1px solid var(--border);
+      scrollbar-width: none;
+    }
+    .nav-tabs::-webkit-scrollbar { display: none; }
+    .nav-tab {
+      padding: 12px 18px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--muted);
+      cursor: pointer;
+      white-space: nowrap;
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s;
+    }
+    .nav-tab.active { color: var(--accent2); border-bottom-color: var(--accent2); }
+    .nav-tab:hover { color: var(--text); }
+
+    /* MAIN CONTENT */
+    .main { padding: 20px 16px; max-width: 900px; margin: 0 auto; }
+
+    /* STAT CARDS */
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+    .stat-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .stat-icon {
+      width: 44px; height: 44px;
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+    .stat-icon.green { background: #10b98120; }
+    .stat-icon.red { background: #ef444420; }
+    .stat-icon.amber { background: #f59e0b20; }
+    .stat-icon.blue { background: #3b82f620; }
+    .stat-num {
+      font-family: 'Space Mono', monospace;
+      font-size: 26px;
+      font-weight: 700;
+      line-height: 1;
+    }
+    .stat-num.green { color: var(--green); }
+    .stat-num.red { color: var(--red); }
+    .stat-num.amber { color: var(--amber); }
+    .stat-num.blue { color: var(--blue); }
+    .stat-label { font-size: 12px; color: var(--muted); margin-top: 3px; }
+
+    /* SECTION HEADER */
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+    .section-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text);
+    }
+    .section-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
+    .refresh-btn {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: 6px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 12px;
+      font-family: 'DM Sans', sans-serif;
+    }
+    .refresh-btn:hover { color: var(--accent2); border-color: var(--accent2); }
+
+    /* FILTER BAR */
+    .filter-bar {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 14px;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .filter-bar::-webkit-scrollbar { display: none; }
+    .filter-chip {
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      white-space: nowrap;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      background: transparent;
+      font-family: 'DM Sans', sans-serif;
+      transition: all 0.2s;
+    }
+    .filter-chip.active-all { background: var(--accent); border-color: var(--accent); color: white; }
+    .filter-chip.active-present { background: #10b98120; border-color: var(--green); color: var(--green); }
+    .filter-chip.active-absent { background: #ef444420; border-color: var(--red); color: var(--red); }
+    .filter-chip.active-late { background: #f59e0b20; border-color: var(--amber); color: var(--amber); }
+    .filter-chip.active-leave { background: #3b82f620; border-color: var(--blue); color: var(--blue); }
+
+    /* STAFF LIST */
+    .staff-list { display: flex; flex-direction: column; gap: 10px; }
+    .staff-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      transition: border-color 0.2s;
+    }
+    .staff-card:hover { border-color: var(--accent); }
+    .staff-avatar {
+      width: 42px; height: 42px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700;
+      font-size: 16px;
+      flex-shrink: 0;
+      position: relative;
+    }
+    .status-dot {
+      width: 11px; height: 11px;
+      border-radius: 50%;
+      border: 2px solid var(--bg);
+      position: absolute;
+      bottom: 0; right: 0;
+    }
+    .staff-info { flex: 1; min-width: 0; }
+    .staff-name { font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .staff-dept { font-size: 12px; color: var(--muted); margin-top: 2px; }
+    .staff-time { font-family: 'Space Mono', monospace; font-size: 11px; color: var(--muted); margin-top: 3px; }
+    .staff-actions { display: flex; gap: 8px; flex-shrink: 0; }
+    .btn-manual {
+      background: #10b98115;
+      border: 1px solid var(--green);
+      color: var(--green);
+      padding: 6px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 600;
+      font-family: 'DM Sans', sans-serif;
+      white-space: nowrap;
+    }
+    .btn-manual:hover { background: #10b98130; }
+    .btn-view {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: 6px 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 12px;
+      font-family: 'DM Sans', sans-serif;
+    }
+    .btn-view:hover { color: var(--accent2); border-color: var(--accent2); }
+
+    /* STATUS BADGE */
+    .status-badge {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 9px;
+      border-radius: 20px;
+    }
+    .badge-present { background: #10b98120; color: var(--green); }
+    .badge-absent { background: #ef444420; color: var(--red); }
+    .badge-late { background: #f59e0b20; color: var(--amber); }
+    .badge-leave { background: #3b82f620; color: var(--blue); }
+    .badge-lunch { background: #f59e0b20; color: var(--amber); }
+
+    /* EMPTY STATE */
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--muted);
+    }
+    .empty-state .emoji { font-size: 40px; margin-bottom: 12px; }
+    .empty-state p { font-size: 14px; }
+
+    /* LOADING */
+    .loading-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .spinner {
+      width: 32px; height: 32px;
+      border: 3px solid var(--border);
+      border-top-color: var(--accent2);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 12px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* LAST UPDATED */
+    .last-updated {
+      text-align: center;
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 16px;
+      padding-bottom: 30px;
+    }
+
+    /* MODAL */
+    .modal-overlay {
+      position: fixed; inset: 0;
+      background: #000000bb;
+      display: flex; align-items: center; justify-content: center;
+      z-index: 200;
+      padding: 20px;
+    }
+    .modal-overlay.hidden { display: none; }
+    .modal {
+      background: var(--card2);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 24px;
+      width: 100%;
+      max-width: 380px;
+    }
+    .modal-title { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
+    .modal-sub { font-size: 13px; color: var(--muted); margin-bottom: 20px; }
+    .modal-input {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 12px 14px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-family: 'DM Sans', sans-serif;
+      margin-bottom: 10px;
+    }
+    .modal-input:focus { outline: none; border-color: var(--accent2); }
+    .modal-note {
+      font-size: 12px;
+      color: var(--muted);
+      background: #f59e0b10;
+      border: 1px solid #f59e0b30;
+      border-radius: 8px;
+      padding: 10px 12px;
+      margin-bottom: 16px;
+    }
+    .modal-actions { display: flex; gap: 10px; }
+    .btn-confirm {
+      flex: 1;
+      background: var(--green);
       color: white;
-      padding: 12px 24px;
-      border-radius: 24px;
+      border: none;
+      padding: 12px;
+      border-radius: 10px;
       font-size: 14px;
       font-weight: 600;
-      z-index: 999;
+      cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+    }
+    .btn-cancel {
+      flex: 1;
+      background: transparent;
+      color: var(--muted);
+      border: 1px solid var(--border);
+      padding: 12px;
+      border-radius: 10px;
+      font-size: 14px;
+      cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+    }
+
+    /* TOAST */
+    .toast {
+      position: fixed;
+      bottom: 24px; left: 50%;
+      transform: translateX(-50%);
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 12px 20px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 500;
+      z-index: 300;
       opacity: 0;
       transition: opacity 0.3s;
       white-space: nowrap;
     }
     .toast.show { opacity: 1; }
+    .toast.success { border-color: var(--green); color: var(--green); }
+    .toast.error { border-color: var(--red); color: var(--red); }
 
-    /* Avatar colours */
-    .av-blue { background: #3b82f6; }
-    .av-green { background: #22c55e; }
-    .av-orange { background: #f97316; }
-    .av-purple { background: #a855f7; }
-    .av-red { background: #ef4444; }
-    .av-teal { background: #14b8a6; }
-    .av-pink { background: #ec4899; }
-    .av-indigo { background: #6366f1; }
+    /* LATE ALERTS PANEL */
+    .alert-panel {
+      background: #ef444410;
+      border: 1px solid #ef444440;
+      border-radius: 14px;
+      padding: 16px;
+      margin-bottom: 20px;
+    }
+    .alert-panel-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--red);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .alert-item {
+      font-size: 13px;
+      color: var(--text);
+      padding: 6px 0;
+      border-bottom: 1px solid #ef444420;
+      display: flex;
+      justify-content: space-between;
+    }
+    .alert-item:last-child { border-bottom: none; }
+
+    @media (min-width: 600px) {
+      .stat-grid { grid-template-columns: repeat(4, 1fr); }
+    }
   </style>
 </head>
 <body>
 
-<!-- HEADER -->
-<div class="header">
-  <div class="header-top">
-    <div class="logo-area">
-      <div class="logo-small">
-        <img src="/icons/logo%20copfy.png" alt="Sparkals" />
-      </div>
-      <div>
-        <span class="app-name">Sparkals Tasks</span>
-        <span class="admin-badge">ADMIN</span>
-      </div>
-    </div>
-    <div class="header-icons">
-      <button class="icon-btn" onclick="showToast('Notifications coming soon!')" title="Alerts">🔔</button>
-      <button class="icon-btn" onclick="confirmLogout()" title="Logout">🚪</button>
+<!-- TOP NAV -->
+<div class="topnav">
+  <div class="topnav-left">
+    <img src="/icons/logo%20copfy.png" alt="Sparkals" />
+    <div>
+      <div class="topnav-title">Sparkals Tasks</div>
+      <div class="topnav-sub">Admin Dashboard</div>
     </div>
   </div>
-  <div class="admin-welcome">
-    <div class="admin-greeting" id="greeting-text">Good Morning ☀️</div>
-    <div class="admin-name">Sandeep 👋</div>
-    <div class="admin-subtitle">Here's your company overview for today</div>
-    <div class="admin-meta">
-      <span class="meta-chip" id="today-date">📅 Loading...</span>
-      <span class="meta-chip" id="staff-online-chip">👥 0 staff in</span>
-      <span class="meta-chip alert" id="alerts-chip" style="display:none">⚠️ 0 alerts</span>
-    </div>
+  <div class="topnav-right">
+    <div class="live-badge"><div class="live-dot"></div>LIVE</div>
+    <button class="btn-logout" onclick="handleLogout()">Logout</button>
   </div>
+</div>
+
+<!-- NAV TABS -->
+<div class="nav-tabs">
+  <div class="nav-tab active" onclick="showTab('staff')">👥 Staff Status</div>
+  <div class="nav-tab" onclick="window.location.href='tasks.html'">✅ Tasks</div>
+  <div class="nav-tab" onclick="window.location.href='attendance.html'">📅 Attendance</div>
+  <div class="nav-tab" onclick="window.location.href='leave.html'">🌴 Leaves</div>
+  <div class="nav-tab" onclick="window.location.href='staff-approval.html'">🆕 New Staff</div>
 </div>
 
 <!-- MAIN -->
 <div class="main">
 
-  <!-- Stat Cards -->
-  <div class="stats-grid">
-    <div class="stat-card blue" onclick="window.location.href='staff-list.html'">
-      <div class="stat-icon">👥</div>
-      <div class="stat-number" id="stat-staff">0</div>
-      <div class="stat-label">Total Staff</div>
-      <div class="stat-sub" id="stat-staff-in">0 clocked in</div>
+  <!-- STAT CARDS -->
+  <div class="stat-grid">
+    <div class="stat-card">
+      <div class="stat-icon green">✅</div>
+      <div>
+        <div class="stat-num green" id="countPresent">—</div>
+        <div class="stat-label">Present</div>
+      </div>
     </div>
-    <div class="stat-card green" onclick="window.location.href='tasks.html'">
-      <div class="stat-icon">✅</div>
-      <div class="stat-number" id="stat-tasks-done">0</div>
-      <div class="stat-label">Tasks Done Today</div>
-      <div class="stat-sub" id="stat-tasks-total">of 0 total</div>
+    <div class="stat-card">
+      <div class="stat-icon red">🔴</div>
+      <div>
+        <div class="stat-num red" id="countAbsent">—</div>
+        <div class="stat-label">Not In Yet</div>
+      </div>
     </div>
-    <div class="stat-card orange" onclick="showToast('Overdue tasks filter coming soon!')">
-      <div class="stat-icon">⏰</div>
-      <div class="stat-number" id="stat-overdue">0</div>
-      <div class="stat-label">Overdue Tasks</div>
-      <div class="stat-sub">Needs attention</div>
+    <div class="stat-card">
+      <div class="stat-icon amber">⏰</div>
+      <div>
+        <div class="stat-num amber" id="countLate">—</div>
+        <div class="stat-label">Late Today</div>
+      </div>
     </div>
-    <div class="stat-card red" onclick="showToast('Absent staff list coming soon!')">
-      <div class="stat-icon">🚨</div>
-      <div class="stat-number" id="stat-absent">0</div>
-      <div class="stat-label">Not Clocked In</div>
-      <div class="stat-sub" id="stat-time">As of now</div>
-    </div>
-  </div>
-
-  <!-- Quick Admin Actions -->
-  <div class="section-title">Admin Actions</div>
-  <div class="admin-actions">
-    <button class="admin-action-btn" onclick="showAddStaffModal()">
-      <div class="action-icon blue">➕</div>
-      <div class="action-text">
-        <h4>Add Staff</h4>
-        <p>Add new team member</p>
-      </div>
-    </button>
-    <a class="admin-action-btn" href="tasks.html">
-      <div class="action-icon green">📋</div>
-      <div class="action-text">
-        <h4>Assign Task</h4>
-        <p>Create & assign tasks</p>
-      </div>
-    </a>
-    <button class="admin-action-btn" onclick="showToast('Broadcast coming in Step 42!')">
-      <div class="action-icon orange">📢</div>
-      <div class="action-text">
-        <h4>Broadcast</h4>
-        <p>Message all staff</p>
-      </div>
-    </button>
-    <button class="admin-action-btn" onclick="showToast('Reports coming in Step 49!')">
-      <div class="action-icon purple">📊</div>
-      <div class="action-text">
-        <h4>Reports</h4>
-        <p>View performance</p>
-      </div>
-    </button>
-    <a class="admin-action-btn" href="attendance.html">
-      <div class="action-icon teal">📅</div>
-      <div class="action-text">
-        <h4>Attendance</h4>
-        <p>View all records</p>
-      </div>
-    </a>
-    <button class="admin-action-btn" onclick="showToast('GPS map coming in Step 34!')">
-      <div class="action-icon red">📍</div>
-      <div class="action-text">
-        <h4>Live GPS</h4>
-        <p>Track field staff</p>
-      </div>
-    </button>
-  </div>
-
-  <!-- Staff Status -->
-  <div class="staff-card">
-    <div class="staff-header">
-      <div class="section-title" style="margin:0;">Staff Status Today</div>
-      <button class="add-staff-btn" onclick="showAddStaffModal()">+ Add Staff</button>
-    </div>
-    <div id="staff-list">
-      <div style="text-align:center; padding:20px; color:#888; font-size:14px;">
-        ⏳ Loading staff...
+    <div class="stat-card">
+      <div class="stat-icon blue">🌴</div>
+      <div>
+        <div class="stat-num blue" id="countLeave">—</div>
+        <div class="stat-label">On Leave</div>
       </div>
     </div>
   </div>
 
-  <!-- Alerts -->
-  <div class="alerts-card">
-    <div class="section-title">⚠️ Alerts & Actions Needed</div>
-    <div id="alerts-list">
-      <div class="no-alerts">✅ No alerts right now — all good!</div>
+  <!-- LATE ALERT PANEL (shows only if someone is late) -->
+  <div class="alert-panel" id="latePanel" style="display:none;">
+    <div class="alert-panel-title">⚠️ Late Arrivals Today</div>
+    <div id="lateList"></div>
+  </div>
+
+  <!-- STAFF STATUS LIST -->
+  <div class="section-header">
+    <div>
+      <div class="section-title">Staff Status — Today</div>
+      <div class="section-sub" id="dateLabel">Loading...</div>
+    </div>
+    <button class="refresh-btn" onclick="loadDashboard()">↻ Refresh</button>
+  </div>
+
+  <!-- FILTER CHIPS -->
+  <div class="filter-bar">
+    <button class="filter-chip active-all" id="chip-all" onclick="setFilter('all')">All</button>
+    <button class="filter-chip" id="chip-present" onclick="setFilter('present')">✅ Present</button>
+    <button class="filter-chip" id="chip-absent" onclick="setFilter('absent')">🔴 Not In</button>
+    <button class="filter-chip" id="chip-late" onclick="setFilter('late')">⏰ Late</button>
+    <button class="filter-chip" id="chip-leave" onclick="setFilter('leave')">🌴 Leave</button>
+  </div>
+
+  <!-- STAFF LIST -->
+  <div class="staff-list" id="staffList">
+    <div class="loading-state">
+      <div class="spinner"></div>
+      Loading staff status...
     </div>
   </div>
 
-  <!-- Recent Tasks -->
-  <div class="tasks-overview">
-    <div class="staff-header">
-      <div class="section-title" style="margin:0;">Recent Tasks</div>
-      <a href="tasks.html" style="font-size:13px; color:#3b82f6; font-weight:600; text-decoration:none;">View all →</a>
-    </div>
-    <div id="tasks-list">
-      <div style="text-align:center; padding:20px; color:#888; font-size:14px;">
-        ⏳ Loading tasks...
-      </div>
-    </div>
-  </div>
-
+  <div class="last-updated" id="lastUpdated"></div>
 </div>
 
-<!-- BOTTOM NAV -->
-<div class="bottom-nav">
-  <a class="nav-item active" href="admin.html">
-    <span class="nav-icon">🏠</span>
-    <span class="nav-label">Dashboard</span>
-  </a>
-  <a class="nav-item" href="tasks.html">
-    <span class="nav-icon">📋</span>
-    <span class="nav-label">Tasks</span>
-  </a>
-  <a class="nav-item" href="chat.html">
-    <span class="nav-icon">💬</span>
-    <span class="nav-label">Chat</span>
-  </a>
-  <a class="nav-item" href="staff-list.html">
-    <span class="nav-icon">👥</span>
-    <span class="nav-label">Staff</span>
-  </a>
-  <a class="nav-item" href="reports.html">
-    <span class="nav-icon">📊</span>
-    <span class="nav-label">Reports</span>
-  </a>
+<!-- MANUAL CLOCK-IN MODAL -->
+<div class="modal-overlay hidden" id="manualModal">
+  <div class="modal">
+    <div class="modal-title">Manual Clock-In</div>
+    <div class="modal-sub" id="modalStaffName">Recording for: —</div>
+    <input type="time" class="modal-input" id="manualTime" />
+    <input type="text" class="modal-input" id="manualReason" placeholder="Reason (e.g. App issue, Network problem)" />
+    <div class="modal-note">⚠️ This will be logged in the audit trail with your name as the admin who recorded it.</div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+      <button class="btn-confirm" onclick="confirmManualClockIn()">✅ Clock In</button>
+    </div>
+  </div>
 </div>
 
+<!-- TOAST -->
 <div class="toast" id="toast"></div>
 
+<!-- FIREBASE -->
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-  import {
-    getFirestore, doc, getDoc, setDoc,
-    collection, query, where, getDocs,
-    orderBy, limit, serverTimestamp
-  } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import { getFirestore, collection, doc, getDoc, getDocs, setDoc, query, where, serverTimestamp, Timestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics.js";
 
+  // ── CONFIG ──────────────────────────────────────────────
   const firebaseConfig = {
-    apiKey: "AIzaSyDNwQYXcwZrAh4cTfRyhOVk_pRod9p4CRM",
+    apiKey: "AIzaSyDRpBkhiEVJxRHXioRAhEiqFPKm-8GrBwY",
     authDomain: "sparkals-tasks-app.firebaseapp.com",
     projectId: "sparkals-tasks-app",
     storageBucket: "sparkals-tasks-app.firebasestorage.app",
-    messagingSenderId: "147179987231",
-    appId: "1:147179987231:web:c6ffa484f33a2ca420d02a"
+    messagingSenderId: "262987150490",
+    appId: "1:262987150490:web:48dfa0e6bb19c59c1e1a5e",
+    measurementId: "G-FWXDTVSPCD"
   };
 
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
   const db = getFirestore(app);
 
-  const AVATAR_COLORS = [
-    'av-blue','av-green','av-orange','av-purple',
-    'av-red','av-teal','av-pink','av-indigo'
-  ];
+  // ── GLOBALS ──────────────────────────────────────────────
+  let allStaffData = [];
+  let currentFilter = 'all';
+  let manualTargetUid = null;
+  let manualTargetName = null;
+  let autoRefreshTimer = null;
 
-  // ── GREETING + DATE ──
-  function setGreetingAndDate() {
-    const hour = new Date().getHours();
-    let greeting = hour < 12 ? 'Good Morning ☀️' : hour < 17 ? 'Good Afternoon 🌤️' : 'Good Evening 🌙';
-    document.getElementById('greeting-text').textContent = greeting;
-    const now = new Date();
-    const dateStr = now.toLocaleDateString('en-IN', { weekday:'long', day:'numeric', month:'long' });
-    document.getElementById('today-date').textContent = `📅 ${dateStr}`;
-    document.getElementById('stat-time').textContent = `As of ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
-  }
-  setGreetingAndDate();
-
-  // ── AUTH CHECK — admin only ──
+  // ── AUTH GUARD ───────────────────────────────────────────
   onAuthStateChanged(auth, async (user) => {
-    if (!user) { window.location.href = 'login.html'; return; }
+    if (!user) { window.location.href = '/login.html'; return; }
     const userDoc = await getDoc(doc(db, 'users', user.uid));
-    if (!userDoc.exists() || !['admin','manager'].includes(userDoc.data().role)) {
-      window.location.href = 'dashboard.html';
-      return;
+    if (!userDoc.exists() || userDoc.data().role !== 'admin') {
+      window.location.href = '/dashboard.html'; return;
     }
-    await loadDashboardData();
+    loadDashboard();
+    // Auto-refresh every 60 seconds
+    autoRefreshTimer = setInterval(loadDashboard, 60000);
   });
 
-  // ── LOAD ALL DASHBOARD DATA ──
-  async function loadDashboardData() {
-    await Promise.all([
-      loadStaffList(),
-      loadTasksOverview(),
-      loadAlerts()
-    ]);
-  }
+  // ── MAIN LOADER ──────────────────────────────────────────
+  window.loadDashboard = async function() {
+    const today = getTodayKey(); // e.g. "2025-07-15"
+    const now = new Date();
 
-  // ── LOAD STAFF LIST ──
-  async function loadStaffList() {
+    // Set date label
+    document.getElementById('dateLabel').textContent =
+      now.toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+
     try {
-      const snapshot = await getDocs(collection(db, 'users'));
-      const staff = [];
-      snapshot.forEach(d => staff.push({ id: d.id, ...d.data() }));
-
-      document.getElementById('stat-staff').textContent = staff.length;
-
-      // Load today's attendance
-      const today = new Date().toISOString().split('T')[0];
-      const attSnap = await getDocs(
-        query(collection(db, 'attendance'), where('date','==', today))
-      );
-      const attendanceMap = {};
-      attSnap.forEach(d => {
+      // 1. Get all approved staff
+      const usersSnap = await getDocs(query(collection(db, 'users')));
+      const staffList = [];
+      usersSnap.forEach(d => {
         const data = d.data();
-        attendanceMap[data.userId] = data;
+        if (data.status === 'approved' || data.role === 'admin') {
+          staffList.push({ uid: d.id, ...data });
+        }
       });
 
-      let clockedIn = 0;
-      const staffHtml = staff.map((s, i) => {
-        const att = attendanceMap[s.id];
-        let statusClass = 'out';
-        let statusText = 'Not In';
-        if (att && att.clockIn && att.clockIn !== 'none') {
-          if (!att.clockOut || att.clockOut === 'none') {
-            statusClass = att.isLate ? 'late' : 'in';
-            statusText = att.isLate ? `Late ${att.clockIn}` : `In ${att.clockIn}`;
-            clockedIn++;
+      // 2. Get today's attendance records
+      const attSnap = await getDocs(query(
+        collection(db, 'attendance'),
+        where('date', '==', today)
+      ));
+      const attMap = {};
+      attSnap.forEach(d => { attMap[d.data().uid] = d.data(); });
+
+      // 3. Get today's approved leaves
+      const leaveSnap = await getDocs(query(
+        collection(db, 'leaves'),
+        where('status', '==', 'approved'),
+        where('startDate', '<=', today),
+        where('endDate', '>=', today)
+      ));
+      const leaveMap = {};
+      leaveSnap.forEach(d => { leaveMap[d.data().uid] = d.data(); });
+
+      // 4. Build staff status objects
+      const LATE_THRESHOLD = '09:15';
+      allStaffData = staffList.map(staff => {
+        const att = attMap[staff.uid];
+        const onLeave = !!leaveMap[staff.uid];
+        let status, clockInTime = null, clockOutTime = null, isLate = false;
+
+        if (onLeave) {
+          status = 'leave';
+        } else if (att) {
+          clockInTime = att.clockIn || null;
+          clockOutTime = att.clockOut || null;
+          isLate = clockInTime && clockInTime > LATE_THRESHOLD;
+          if (att.onLunch) {
+            status = 'lunch';
+          } else if (clockOutTime) {
+            status = 'left';
           } else {
-            statusClass = 'out';
-            statusText = `Out ${att.clockOut}`;
+            status = isLate ? 'late' : 'present';
           }
+        } else {
+          status = 'absent';
         }
 
-        const initials = (s.name || 'S').charAt(0).toUpperCase();
-        const colorClass = AVATAR_COLORS[i % AVATAR_COLORS.length];
+        return { ...staff, status, clockInTime, clockOutTime, isLate, leaveData: leaveMap[staff.uid] || null };
+      });
 
-        return `
-          <div class="staff-item" onclick="showToast('Staff profile coming soon!')">
-            <div class="staff-avatar ${colorClass}">${initials}</div>
-            <div class="staff-info">
-              <div class="staff-name">${s.name || 'Staff Member'}</div>
-              <div class="staff-dept">${s.department || 'No department'} · ${s.role || 'staff'}</div>
-            </div>
-            <div class="staff-status">
-              <div class="status-dot ${statusClass}"></div>
-              <div class="status-label ${statusClass}">${statusText}</div>
-            </div>
-          </div>
-        `;
-      }).join('');
+      // 5. Sort by clock-in time (earliest first), absent/leave at bottom
+      allStaffData.sort((a, b) => {
+        if (a.clockInTime && b.clockInTime) return a.clockInTime.localeCompare(b.clockInTime);
+        if (a.clockInTime) return -1;
+        if (b.clockInTime) return 1;
+        return 0;
+      });
 
-      document.getElementById('staff-list').innerHTML = staffHtml ||
-        '<div style="text-align:center;padding:20px;color:#888;">No staff added yet. Click "+ Add Staff" to begin!</div>';
+      // 6. Update counts
+      const counts = { present: 0, absent: 0, late: 0, leave: 0 };
+      allStaffData.forEach(s => {
+        if (s.status === 'present' || s.status === 'lunch' || s.status === 'left') counts.present++;
+        else if (s.status === 'absent') counts.absent++;
+        else if (s.status === 'late') { counts.present++; counts.late++; }
+        else if (s.status === 'leave') counts.leave++;
+      });
+      document.getElementById('countPresent').textContent = counts.present;
+      document.getElementById('countAbsent').textContent = counts.absent;
+      document.getElementById('countLate').textContent = counts.late;
+      document.getElementById('countLeave').textContent = counts.leave;
 
-      document.getElementById('stat-staff-in').textContent = `${clockedIn} clocked in`;
-      document.getElementById('staff-online-chip').textContent = `👥 ${clockedIn} staff in`;
-
-      const absent = staff.length - clockedIn;
-      document.getElementById('stat-absent').textContent = absent;
-
-    } catch(e) {
-      console.error('Staff load error:', e);
-      document.getElementById('staff-list').innerHTML =
-        '<div style="text-align:center;padding:20px;color:#888;">Could not load staff list.</div>';
-    }
-  }
-
-  // ── LOAD TASKS ──
-  async function loadTasksOverview() {
-    try {
-      const snapshot = await getDocs(collection(db, 'tasks'));
-      const tasks = [];
-      snapshot.forEach(d => tasks.push({ id: d.id, ...d.data() }));
-
-      const today = new Date().toISOString().split('T')[0];
-      const done = tasks.filter(t => t.status === 'completed').length;
-      const overdue = tasks.filter(t => t.deadline && t.deadline < today && t.status !== 'completed').length;
-
-      document.getElementById('stat-tasks-done').textContent = done;
-      document.getElementById('stat-tasks-total').textContent = `of ${tasks.length} total`;
-      document.getElementById('stat-overdue').textContent = overdue;
-
-      if (overdue > 0) {
-        const alertsChip = document.getElementById('alerts-chip');
-        alertsChip.textContent = `⚠️ ${overdue} overdue`;
-        alertsChip.style.display = 'block';
+      // 7. Late alert panel
+      const lateStaff = allStaffData.filter(s => s.isLate);
+      const latePanel = document.getElementById('latePanel');
+      const lateList = document.getElementById('lateList');
+      if (lateStaff.length > 0) {
+        latePanel.style.display = 'block';
+        lateList.innerHTML = lateStaff.map(s =>
+          `<div class="alert-item">
+            <span>${s.name || s.email}</span>
+            <span style="color:var(--amber)">${s.clockInTime} (${minutesLate(s.clockInTime)} min late)</span>
+          </div>`
+        ).join('');
+      } else {
+        latePanel.style.display = 'none';
       }
 
-      // Show recent tasks
-      const recent = tasks.slice(0, 5);
-      const tasksHtml = recent.map(t => {
-        const priority = t.priority || 'normal';
-        const deadline = t.deadline || '';
-        let badgeClass = 'badge-progress';
-        let badgeText = 'In Progress';
-        if (deadline < today && t.status !== 'completed') {
-          badgeClass = 'badge-overdue'; badgeText = 'Overdue';
-        } else if (deadline === today) {
-          badgeClass = 'badge-today'; badgeText = 'Due Today';
-        }
+      // 8. Render list
+      renderList();
 
-        return `
-          <div class="task-row" onclick="showToast('Task details coming in Step 17!')">
-            <div class="task-priority-bar priority-${priority}"></div>
-            <div class="task-row-content">
-              <div class="task-row-name">${t.title || t.name || 'Untitled Task'}</div>
-              <div class="task-row-meta">
-                👤 ${t.assignedToName || 'Unassigned'} · 📅 ${deadline || 'No deadline'}
-              </div>
-            </div>
-            <span class="task-row-badge ${badgeClass}">${badgeText}</span>
-          </div>
-        `;
-      }).join('');
+      // 9. Last updated
+      document.getElementById('lastUpdated').textContent =
+        'Last updated: ' + now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
 
-      document.getElementById('tasks-list').innerHTML = tasksHtml ||
-        '<div style="text-align:center;padding:20px;color:#888;">No tasks yet. Create your first task!</div>';
-
-    } catch(e) {
-      console.error('Tasks load error:', e);
+    } catch (err) {
+      console.error(err);
+      document.getElementById('staffList').innerHTML =
+        `<div class="empty-state"><div class="emoji">⚠️</div><p>Could not load staff data.<br>Check your internet and try again.</p></div>`;
     }
+  };
+
+  // ── RENDER LIST ──────────────────────────────────────────
+  function renderList() {
+    const list = document.getElementById('staffList');
+    let filtered = allStaffData;
+
+    if (currentFilter === 'present') filtered = allStaffData.filter(s => s.status === 'present' || s.status === 'lunch' || s.status === 'left' || s.status === 'late');
+    else if (currentFilter === 'absent') filtered = allStaffData.filter(s => s.status === 'absent');
+    else if (currentFilter === 'late') filtered = allStaffData.filter(s => s.isLate);
+    else if (currentFilter === 'leave') filtered = allStaffData.filter(s => s.status === 'leave');
+
+    if (filtered.length === 0) {
+      list.innerHTML = `<div class="empty-state"><div class="emoji">🎉</div><p>No staff in this category today.</p></div>`;
+      return;
+    }
+
+    list.innerHTML = filtered.map(s => buildStaffCard(s)).join('');
   }
 
-  // ── LOAD ALERTS ──
-  async function loadAlerts() {
-    try {
-      const today = new Date().toISOString().split('T')[0];
-      const alerts = [];
+  function buildStaffCard(s) {
+    const initials = (s.name || s.email || '?').split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+    const colors = ['#7c3aed','#0891b2','#059669','#d97706','#dc2626','#7c3aed'];
+    const color = colors[(s.name || '').charCodeAt(0) % colors.length] || '#7c3aed';
 
-      // Check overdue tasks
-      const taskSnap = await getDocs(collection(db, 'tasks'));
-      taskSnap.forEach(d => {
-        const t = d.data();
-        if (t.deadline && t.deadline < today && t.status !== 'completed') {
-          alerts.push({
-            icon: '⏰',
-            iconClass: 'red',
-            title: `Overdue: ${t.title || 'Task'}`,
-            sub: `Assigned to ${t.assignedToName || 'staff'} · Due ${t.deadline}`
-          });
-        }
-      });
+    let statusClass = '', badgeClass = '', badgeText = '', dotColor = '';
+    if (s.status === 'present') { badgeClass = 'badge-present'; badgeText = 'Present'; dotColor = '#10b981'; }
+    else if (s.status === 'late') { badgeClass = 'badge-late'; badgeText = 'Late'; dotColor = '#f59e0b'; }
+    else if (s.status === 'lunch') { badgeClass = 'badge-lunch'; badgeText = 'Lunch'; dotColor = '#f59e0b'; }
+    else if (s.status === 'left') { badgeClass = 'badge-present'; badgeText = 'Left'; dotColor = '#64748b'; }
+    else if (s.status === 'absent') { badgeClass = 'badge-absent'; badgeText = 'Not In'; dotColor = '#ef4444'; }
+    else if (s.status === 'leave') { badgeClass = 'badge-leave'; badgeText = 'On Leave'; dotColor = '#3b82f6'; }
 
-      if (alerts.length === 0) return;
+    let timeInfo = '';
+    if (s.clockInTime) {
+      timeInfo = `Clocked in: ${s.clockInTime}`;
+      if (s.clockOutTime) timeInfo += ` · Left: ${s.clockOutTime}`;
+      if (s.isLate) timeInfo += ` · <span style="color:var(--amber)">${minutesLate(s.clockInTime)} min late</span>`;
+    } else if (s.status === 'leave') {
+      timeInfo = s.leaveData ? `${s.leaveData.leaveType || 'Leave'} — ${s.leaveData.payType === 'lop' ? 'LOP' : 'Paid'}` : 'Approved leave';
+    } else {
+      timeInfo = 'Not clocked in yet';
+    }
 
-      const alertsHtml = alerts.slice(0, 5).map(a => `
-        <div class="alert-item">
-          <div class="alert-icon ${a.iconClass}">${a.icon}</div>
-          <div class="alert-content">
-            <div class="alert-title">${a.title}</div>
-            <div class="alert-sub">${a.sub}</div>
-          </div>
+    const showManual = s.status === 'absent';
+
+    return `
+      <div class="staff-card">
+        <div class="staff-avatar" style="background:${color}22; color:${color}">
+          ${initials}
+          <div class="status-dot" style="background:${dotColor}"></div>
         </div>
-      `).join('');
-
-      document.getElementById('alerts-list').innerHTML = alertsHtml;
-
-    } catch(e) {
-      console.error('Alerts load error:', e);
-    }
+        <div class="staff-info">
+          <div class="staff-name">${s.name || s.email}</div>
+          <div class="staff-dept">${s.department || '—'} · ${s.jobTitle || s.role || ''}</div>
+          <div class="staff-time">${timeInfo}</div>
+        </div>
+        <div class="staff-actions">
+          <span class="status-badge ${badgeClass}">${badgeText}</span>
+          ${showManual ? `<button class="btn-manual" onclick="openManual('${s.uid}','${(s.name||s.email).replace(/'/g,"\\'")}')">Clock In</button>` : ''}
+        </div>
+      </div>`;
   }
 
-  // ── ADD STAFF MODAL ──
-  window.showAddStaffModal = function() {
-    const name = prompt('Staff member full name:');
-    if (!name) return;
-    const email = prompt('Their work email address:');
-    if (!email) return;
-    const dept = prompt('Their department:\n(Sales & Marketing / Operations / Accounts & Finance / Logistics & Delivery / IT & Technology / Customer Support / Field / Management / Production / Purchase)');
-    if (!dept) return;
-    const role = prompt('Their role:\n(staff / manager / field)') || 'staff';
-
-    addStaffMember(name, email, dept, role);
+  // ── FILTER ───────────────────────────────────────────────
+  window.setFilter = function(filter) {
+    currentFilter = filter;
+    const chips = { all: 'active-all', present: 'active-present', absent: 'active-absent', late: 'active-late', leave: 'active-leave' };
+    Object.keys(chips).forEach(k => {
+      const el = document.getElementById('chip-' + k);
+      el.className = 'filter-chip';
+      if (k === filter) el.classList.add(chips[k]);
+    });
+    renderList();
   };
 
-  async function addStaffMember(name, email, dept, role) {
+  // ── MANUAL CLOCK-IN ──────────────────────────────────────
+  window.openManual = function(uid, name) {
+    manualTargetUid = uid;
+    manualTargetName = name;
+    document.getElementById('modalStaffName').textContent = 'Recording for: ' + name;
+    const now = new Date();
+    document.getElementById('manualTime').value = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+    document.getElementById('manualReason').value = '';
+    document.getElementById('manualModal').classList.remove('hidden');
+  };
+
+  window.closeModal = function() {
+    document.getElementById('manualModal').classList.add('hidden');
+    manualTargetUid = null;
+  };
+
+  window.confirmManualClockIn = async function() {
+    const time = document.getElementById('manualTime').value;
+    const reason = document.getElementById('manualReason').value.trim();
+    if (!time) { showToast('Please set a clock-in time', 'error'); return; }
+    if (!reason) { showToast('Please enter a reason', 'error'); return; }
+
+    const today = getTodayKey();
+    const adminUser = auth.currentUser;
+
     try {
-      const tempId = 'staff_' + Date.now();
-      await setDoc(doc(db, 'users', tempId), {
-        name,
-        email,
-        department: dept,
-        role,
-        status: 'active',
-        joinDate: new Date().toISOString().split('T')[0],
-        companyName: 'Sparkals Tasks',
-        createdAt: serverTimestamp(),
-        createdBy: 'admin'
+      // Write attendance record
+      await setDoc(doc(db, 'attendance', `${manualTargetUid}_${today}`), {
+        uid: manualTargetUid,
+        date: today,
+        clockIn: time,
+        clockOut: null,
+        manualEntry: true,
+        manualReason: reason,
+        recordedBy: adminUser.email,
+        recordedAt: serverTimestamp()
       });
 
-      showToast(`✅ ${name} added successfully!`);
-      await loadStaffList();
+      // Write audit log
+      await setDoc(doc(collection(db, 'auditLogs')), {
+        action: 'MANUAL_CLOCK_IN',
+        targetUid: manualTargetUid,
+        targetName: manualTargetName,
+        performedBy: adminUser.email,
+        reason: reason,
+        clockInTime: time,
+        date: today,
+        timestamp: serverTimestamp()
+      });
 
-    } catch(e) {
-      showToast('❌ Could not add staff. Try again.');
-      console.error(e);
+      closeModal();
+      showToast(`✅ ${manualTargetName} clocked in at ${time}`, 'success');
+      loadDashboard();
+    } catch (err) {
+      console.error(err);
+      showToast('Error saving. Try again.', 'error');
     }
+  };
+
+  // ── HELPERS ──────────────────────────────────────────────
+  function getTodayKey() {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
   }
 
-  // ── LOGOUT ──
-  window.confirmLogout = function() {
-    if (confirm('Sign out of Sparkals Tasks?')) {
-      signOut(auth).then(() => window.location.href = 'login.html');
-    }
+  function minutesLate(timeStr) {
+    if (!timeStr) return 0;
+    const [h, m] = timeStr.split(':').map(Number);
+    return Math.max(0, (h * 60 + m) - (9 * 60 + 15));
+  }
+
+  function showToast(msg, type = '') {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'toast show ' + type;
+    setTimeout(() => { t.className = 'toast'; }, 3500);
+  }
+
+  window.showTab = function(tab) {
+    document.querySelectorAll('.nav-tab').forEach((el, i) => el.classList.remove('active'));
+    document.querySelector('.nav-tab').classList.add('active');
   };
 
-  // ── TOAST ──
-  window.showToast = function(message) {
-    const toast = document.getElementById('toast');
-    toast.textContent = message;
-    toast.classList.add('show');
-    setTimeout(() => toast.classList.remove('show'), 3000);
+  window.handleLogout = async function() {
+    clearInterval(autoRefreshTimer);
+    await signOut(auth);
+    window.location.href = '/login.html';
   };
-
 </script>
 </body>
 </html>
