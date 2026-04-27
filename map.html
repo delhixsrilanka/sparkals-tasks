@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Live Staff Map — Sparkals Tasks</title>
+  <link rel="manifest" href="/manifest.json" />
+  <link rel="icon" href="/icons/logo%20copfy.png" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0f0f1a;
+      --card: #1a1a2e;
+      --accent: #7c3aed;
+      --accent2: #a78bfa;
+      --green: #10b981;
+      --red: #ef4444;
+      --amber: #f59e0b;
+      --blue: #3b82f6;
+      --orange: #f97316;
+      --text: #f1f5f9;
+      --muted: #94a3b8;
+      --border: #2d2d44;
+    }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* TOP NAV */
+    .topnav {
+      background: var(--card);
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+      z-index: 100;
+    }
+    .topnav-left { display: flex; align-items: center; gap: 10px; }
+    .topnav img { width: 32px; height: 32px; border-radius: 8px; }
+    .topnav-title { font-family: 'Space Mono', monospace; font-size: 14px; font-weight: 700; color: var(--accent2); }
+    .topnav-sub { font-size: 11px; color: var(--muted); }
+    .topnav-right { display: flex; align-items: center; gap: 8px; }
+    .live-badge {
+      background: #10b98122;
+      border: 1px solid var(--green);
+      color: var(--green);
+      font-size: 11px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .live-dot {
+      width: 7px; height: 7px;
+      background: var(--green);
+      border-radius: 50%;
+      animation: pulse 1.5s infinite;
+    }
+    @keyframes pulse { 0%,100%{opacity:1}50%{opacity:0.3} }
+    .btn-back {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: 6px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 12px;
+      font-family: 'DM Sans', sans-serif;
+      text-decoration: none;
+    }
+    .btn-back:hover { color: var(--accent2); border-color: var(--accent2); }
+
+    /* STATS BAR */
+    .stats-bar {
+      background: var(--card);
+      padding: 10px 16px;
+      display: flex;
+      gap: 16px;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .stats-bar::-webkit-scrollbar { display: none; }
+    .stat-item { display: flex; align-items: center; gap: 6px; white-space: nowrap; }
+    .stat-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+    .stat-text { font-size: 12px; color: var(--muted); }
+    .stat-num { font-family: 'Space Mono', monospace; font-size: 12px; font-weight: 700; }
+
+    /* MAP CONTAINER */
+    #map {
+      flex: 1;
+      width: 100%;
+    }
+
+    /* STAFF PANEL (slides up from bottom) */
+    .staff-panel {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      background: var(--card);
+      border-top: 1px solid var(--border);
+      border-radius: 20px 20px 0 0;
+      padding: 16px;
+      z-index: 200;
+      transform: translateY(100%);
+      transition: transform 0.3s ease;
+      max-height: 60vh;
+      overflow-y: auto;
+    }
+    .staff-panel.open { transform: translateY(0); }
+    .panel-handle {
+      width: 40px; height: 4px;
+      background: var(--border);
+      border-radius: 2px;
+      margin: 0 auto 16px;
+    }
+    .panel-name { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+    .panel-dept { font-size: 13px; color: var(--muted); margin-bottom: 12px; }
+    .panel-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .panel-item {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 12px;
+    }
+    .panel-item-label { font-size: 11px; color: var(--muted); margin-bottom: 3px; }
+    .panel-item-value { font-size: 13px; font-weight: 600; }
+    .panel-close {
+      width: 100%;
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: 10px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 13px;
+      font-family: 'DM Sans', sans-serif;
+    }
+
+    /* REFRESH BUTTON */
+    .refresh-fab {
+      position: fixed;
+      bottom: 20px;
+      right: 16px;
+      background: var(--accent);
+      color: white;
+      border: none;
+      width: 48px; height: 48px;
+      border-radius: 50%;
+      font-size: 20px;
+      cursor: pointer;
+      box-shadow: 0 4px 20px #7c3aed55;
+      z-index: 150;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* NO LOCATION NOTICE */
+    .no-location {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+      text-align: center;
+      z-index: 150;
+      width: 280px;
+    }
+    .no-location.hidden { display: none; }
+    .no-location .emoji { font-size: 36px; margin-bottom: 10px; }
+    .no-location p { font-size: 13px; color: var(--muted); line-height: 1.5; }
+
+    /* LAST UPDATED */
+    .last-updated-bar {
+      position: fixed;
+      top: 110px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #000000cc;
+      color: var(--muted);
+      font-size: 11px;
+      padding: 4px 12px;
+      border-radius: 20px;
+      z-index: 150;
+      white-space: nowrap;
+    }
+  </style>
+</head>
+<body>
+
+<!-- TOP NAV -->
+<div class="topnav">
+  <div class="topnav-left">
+    <img src="/icons/logo%20copfy.png" alt="Sparkals" />
+    <div>
+      <div class="topnav-title">Live Staff Map</div>
+      <div class="topnav-sub">Sparkals Tasks</div>
+    </div>
+  </div>
+  <div class="topnav-right">
+    <div class="live-badge"><div class="live-dot"></div>LIVE</div>
+    <a class="btn-back" href="/admin.html">← Admin</a>
+  </div>
+</div>
+
+<!-- STATS BAR -->
+<div class="stats-bar">
+  <div class="stat-item">
+    <div class="stat-dot" style="background:#f97316"></div>
+    <span class="stat-text">Field Staff:</span>
+    <span class="stat-num" id="countField" style="color:#f97316">0</span>
+  </div>
+  <div class="stat-item">
+    <div class="stat-dot" style="background:#a78bfa"></div>
+    <span class="stat-text">Office Staff:</span>
+    <span class="stat-num" id="countOffice" style="color:#a78bfa">0</span>
+  </div>
+  <div class="stat-item">
+    <div class="stat-dot" style="background:#10b981"></div>
+    <span class="stat-text">Located:</span>
+    <span class="stat-num" id="countLocated" style="color:#10b981">0</span>
+  </div>
+  <div class="stat-item">
+    <div class="stat-dot" style="background:#ef4444"></div>
+    <span class="stat-text">No GPS:</span>
+    <span class="stat-num" id="countNoGps" style="color:#ef4444">0</span>
+  </div>
+</div>
+
+<!-- MAP -->
+<div id="map"></div>
+
+<!-- LAST UPDATED -->
+<div class="last-updated-bar" id="lastUpdated">Loading locations...</div>
+
+<!-- NO LOCATION NOTICE -->
+<div class="no-location hidden" id="noLocationNotice">
+  <div class="emoji">📍</div>
+  <p>No staff locations found yet.<br><br>Locations appear here when staff clock in or open the app during work hours (9am–6pm).</p>
+</div>
+
+<!-- STAFF DETAIL PANEL -->
+<div class="staff-panel" id="staffPanel">
+  <div class="panel-handle"></div>
+  <div class="panel-name" id="panelName">—</div>
+  <div class="panel-dept" id="panelDept">—</div>
+  <div class="panel-grid">
+    <div class="panel-item">
+      <div class="panel-item-label">Status</div>
+      <div class="panel-item-value" id="panelStatus">—</div>
+    </div>
+    <div class="panel-item">
+      <div class="panel-item-label">Department Type</div>
+      <div class="panel-item-value" id="panelType">—</div>
+    </div>
+    <div class="panel-item">
+      <div class="panel-item-label">Last Seen</div>
+      <div class="panel-item-value" id="panelTime">—</div>
+    </div>
+    <div class="panel-item">
+      <div class="panel-item-label">Clock In</div>
+      <div class="panel-item-value" id="panelClockIn">—</div>
+    </div>
+  </div>
+  <button class="panel-close" onclick="closePanel()">Close</button>
+</div>
+
+<!-- REFRESH FAB -->
+<button class="refresh-fab" onclick="loadLocations()" title="Refresh locations">↻</button>
+
+<!-- FIREBASE -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import { getFirestore, collection, doc, getDoc, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDNwQYXcwZrAh4cTfRyhOVk_pRod9p4CRM",
+    authDomain: "sparkals-tasks-app.firebaseapp.com",
+    projectId: "sparkals-tasks-app",
+    storageBucket: "sparkals-tasks-app.firebasestorage.app",
+    messagingSenderId: "147179987231",
+    appId: "1:147179987231:web:c6ffa484f33a2ca420d02a",
+    measurementId: "G-9QF8EWRW3E"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  // Field departments — orange pins
+  const FIELD_DEPTS = ['Field / Site Work', 'Logistics & Delivery', 'Sales & Marketing'];
+
+  // Office location — T. Nagar Chennai
+  const OFFICE = { lat: 13.0405, lng: 80.2337 };
+
+  let map, markers = [], autoTimer = null;
+  let allStaff = [];
+
+  // ── AUTH GUARD ───────────────────────────────────────────
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) { window.location.href = '/login.html'; return; }
+    const userDoc = await getDoc(doc(db, 'users', user.uid));
+    if (!userDoc.exists() || (userDoc.data().role || '').toLowerCase() !== 'admin') {
+      window.location.href = '/dashboard.html'; return;
+    }
+    // Load staff list first
+    await loadStaffList();
+  });
+
+  // ── LOAD ALL STAFF ───────────────────────────────────────
+  async function loadStaffList() {
+    const snap = await getDocs(collection(db, 'users'));
+    allStaff = [];
+    snap.forEach(d => {
+      const data = d.data();
+      if (data.status === 'approved' || data.role === 'admin') {
+        allStaff.push({ uid: d.id, ...data });
+      }
+    });
+  }
+
+  // ── GOOGLE MAPS INIT ─────────────────────────────────────
+  window.initMap = async function() {
+    map = new google.maps.Map(document.getElementById('map'), {
+      center: OFFICE,
+      zoom: 13,
+      mapTypeId: 'roadmap',
+      styles: [
+        { elementType: 'geometry', stylers: [{ color: '#1a1a2e' }] },
+        { elementType: 'labels.text.fill', stylers: [{ color: '#94a3b8' }] },
+        { elementType: 'labels.text.stroke', stylers: [{ color: '#0f0f1a' }] },
+        { featureType: 'road', elementType: 'geometry', stylers: [{ color: '#2d2d44' }] },
+        { featureType: 'road', elementType: 'geometry.stroke', stylers: [{ color: '#0f0f1a' }] },
+        { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#0f0f1a' }] },
+        { featureType: 'poi', stylers: [{ visibility: 'off' }] },
+        { featureType: 'transit', stylers: [{ visibility: 'off' }] }
+      ],
+      disableDefaultUI: true,
+      zoomControl: true,
+    });
+
+    // Office marker
+    new google.maps.Marker({
+      position: OFFICE,
+      map,
+      title: 'Sparkals Office — T. Nagar',
+      icon: {
+        path: google.maps.SymbolPath.CIRCLE,
+        scale: 14,
+        fillColor: '#3b82f6',
+        fillOpacity: 1,
+        strokeColor: '#ffffff',
+        strokeWeight: 3
+      },
+      zIndex: 999
+    });
+
+    // Add office label
+    new google.maps.InfoWindow({
+      content: '<div style="font-family:DM Sans,sans-serif;font-size:12px;font-weight:600;color:#1a1a2e;padding:2px 4px">🏢 Sparkals Office</div>',
+      position: OFFICE
+    }).open(map);
+
+    // Load staff locations
+    await loadLocations();
+
+    // Auto refresh every 5 minutes
+    autoTimer = setInterval(loadLocations, 300000);
+  };
+
+  // ── LOAD LOCATIONS ───────────────────────────────────────
+  window.loadLocations = async function() {
+    document.getElementById('lastUpdated').textContent = 'Updating...';
+
+    try {
+      const today = getTodayKey();
+
+      // Get today's attendance (has clock-in GPS)
+      const attSnap = await getDocs(collection(db, 'attendance'));
+      const attMap = {};
+      attSnap.forEach(d => {
+        const data = d.data();
+        if (data.date === today) attMap[data.uid] = data;
+      });
+
+      // Get latest locations from locations collection
+      const locSnap = await getDocs(collection(db, 'locations'));
+      const locMap = {};
+      locSnap.forEach(d => {
+        const data = d.data();
+        if (data.date === today) locMap[data.uid] = data;
+      });
+
+      // Clear old markers (except office)
+      markers.forEach(m => m.setMap(null));
+      markers = [];
+
+      let countField = 0, countOffice = 0, countLocated = 0, countNoGps = 0;
+
+      for (const staff of allStaff) {
+        const isField = FIELD_DEPTS.includes(staff.department);
+        if (isField) countField++; else countOffice++;
+
+        // Try location from locations collection first, then attendance clock-in GPS
+        const loc = locMap[staff.uid];
+        const att = attMap[staff.uid];
+
+        let lat = null, lng = null, lastSeen = null, clockIn = null;
+
+        if (loc && loc.lat && loc.lng) {
+          lat = loc.lat;
+          lng = loc.lng;
+          lastSeen = loc.timestamp;
+        } else if (att && att.clockInLat && att.clockInLng) {
+          lat = att.clockInLat;
+          lng = att.clockInLng;
+          lastSeen = att.clockIn;
+        }
+
+        if (att) clockIn = att.clockIn;
+
+        if (lat && lng) {
+          countLocated++;
+          addStaffMarker(staff, lat, lng, lastSeen, clockIn, isField, att);
+        } else {
+          countNoGps++;
+        }
+      }
+
+      // Update stats
+      document.getElementById('countField').textContent = countField;
+      document.getElementById('countOffice').textContent = countOffice;
+      document.getElementById('countLocated').textContent = countLocated;
+      document.getElementById('countNoGps').textContent = countNoGps;
+
+      // Show no-location notice if nobody has GPS
+      const notice = document.getElementById('noLocationNotice');
+      if (countLocated === 0) {
+        notice.classList.remove('hidden');
+      } else {
+        notice.classList.add('hidden');
+      }
+
+      const now = new Date();
+      document.getElementById('lastUpdated').textContent =
+        'Updated ' + now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+
+    } catch (err) {
+      console.error(err);
+      document.getElementById('lastUpdated').textContent = 'Update failed — tap ↻ to retry';
+    }
+  };
+
+  // ── ADD MARKER ───────────────────────────────────────────
+  function addStaffMarker(staff, lat, lng, lastSeen, clockIn, isField, att) {
+    const color = isField ? '#f97316' : '#a78bfa';
+    const initials = (staff.name || staff.email || '?').split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+
+    const marker = new google.maps.Marker({
+      position: { lat, lng },
+      map,
+      title: staff.name || staff.email,
+      icon: {
+        path: google.maps.SymbolPath.CIRCLE,
+        scale: 16,
+        fillColor: color,
+        fillOpacity: 1,
+        strokeColor: '#ffffff',
+        strokeWeight: 2
+      },
+      label: {
+        text: initials,
+        color: '#ffffff',
+        fontSize: '10px',
+        fontWeight: 'bold'
+      }
+    });
+
+    marker.addListener('click', () => {
+      showPanel(staff, lastSeen, clockIn, isField, att);
+      map.panTo({ lat, lng });
+    });
+
+    markers.push(marker);
+  }
+
+  // ── SHOW STAFF PANEL ─────────────────────────────────────
+  function showPanel(staff, lastSeen, clockIn, isField, att) {
+    document.getElementById('panelName').textContent = staff.name || staff.email;
+    document.getElementById('panelDept').textContent = (staff.department || '—') + ' · ' + (staff.jobTitle || staff.role || '');
+    document.getElementById('panelStatus').textContent = att ? (att.clockOut ? 'Left Office' : 'Working') : 'Clocked Out';
+    document.getElementById('panelType').textContent = isField ? '🟠 Field' : '🟣 Office';
+    document.getElementById('panelTime').textContent = lastSeen ? (typeof lastSeen === 'string' ? lastSeen : new Date(lastSeen.seconds * 1000).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })) : '—';
+    document.getElementById('panelClockIn').textContent = clockIn || 'Not clocked in';
+    document.getElementById('staffPanel').classList.add('open');
+  }
+
+  window.closePanel = function() {
+    document.getElementById('staffPanel').classList.remove('open');
+  };
+
+  // ── HELPERS ──────────────────────────────────────────────
+  function getTodayKey() {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  }
+</script>
+
+<!-- GOOGLE MAPS -->
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDiW9dVgD1aK0CLzK2RYhA95seRZ47QxkA&callback=initMap" async defer></script>
+
+</body>
+</html>
