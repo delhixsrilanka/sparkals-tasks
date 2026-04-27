@@ -326,6 +326,9 @@
     }
     // Load staff list first
     await loadStaffList();
+    // Signal Firebase is ready
+    window._firebaseReady = true;
+    if (window._mapsReady) window._startMap();
   });
 
   // ── LOAD ALL STAFF ───────────────────────────────────────
@@ -341,7 +344,7 @@
   }
 
   // ── GOOGLE MAPS INIT ─────────────────────────────────────
-  window.initMap = async function() {
+  window._startMap = async function() {
     map = new google.maps.Map(document.getElementById('map'), {
       center: OFFICE,
       zoom: 13,
@@ -528,7 +531,13 @@
 </script>
 
 <!-- GOOGLE MAPS -->
+<script>
+  // Bridge: expose initMap globally before Google Maps loads
+  window.initMap = function() {
+    window._mapsReady = true;
+    if (window._firebaseReady) window._startMap();
+  };
+</script>
 <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDiW9dVgD1aK0CLzK2RYhA95seRZ47QxkA&callback=initMap" async defer></script>
-
 </body>
 </html>
