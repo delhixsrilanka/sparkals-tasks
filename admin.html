@@ -569,47 +569,31 @@
   // ── AUTH GUARD ───────────────────────────────────────────
   onAuthStateChanged(auth, async (user) => {
     if (!user) {
-      // Not logged in at all — go to login
       window.location.href = '/login.html';
       return;
     }
 
+    // User is logged in — load dashboard immediately
+    // Then verify role in background
+    loadDashboard();
+    autoRefreshTimer = setInterval(loadDashboard, 60000);
+
+    // Background role check — only redirect if clearly not admin
     try {
       const userDoc = await getDoc(doc(db, 'users', user.uid));
-
-      if (!userDoc.exists()) {
-        // Profile not found — could be timing issue, wait and retry once
-        await new Promise(r => setTimeout(r, 2000));
-        const retryDoc = await getDoc(doc(db, 'users', user.uid));
-        if (!retryDoc.exists()) {
-          window.location.href = '/login.html';
-          return;
-        }
-        const role = (retryDoc.data().role || '').toLowerCase().trim();
-        if (role !== 'admin') {
+      if (userDoc.exists()) {
+        const role = (userDoc.data().role || '').toLowerCase().trim();
+        const status = (userDoc.data().status || '').toLowerCase().trim();
+        // If clearly a regular staff member — redirect
+        if (role === 'staff' || role === 'field') {
+          clearInterval(autoRefreshTimer);
           window.location.href = '/dashboard.html';
-          return;
         }
-        loadDashboard();
-        autoRefreshTimer = setInterval(loadDashboard, 60000);
-        return;
+        // admin, manager, or anything else — stays on admin page
       }
-
-      const role = (userDoc.data().role || '').toLowerCase().trim();
-      if (role !== 'admin') {
-        window.location.href = '/dashboard.html';
-        return;
-      }
-
-      loadDashboard();
-      autoRefreshTimer = setInterval(loadDashboard, 60000);
-
     } catch (err) {
-      console.error('Auth check error:', err);
-      // Don't redirect on error — show error instead
-      document.getElementById('staffList').innerHTML =
-        `<div class="empty-state"><div class="emoji">⚠️</div>
-        <p>Connection error. Please refresh the page.</p></div>`;
+      console.error('Role check failed silently:', err);
+      // Don't redirect — let them stay
     }
   });
 
