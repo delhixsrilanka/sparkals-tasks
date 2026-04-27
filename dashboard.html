@@ -872,7 +872,53 @@
     toast.classList.add('show');
     setTimeout(() => toast.classList.remove('show'), 3000);
   };
+ // ── LOCATION TRACKING ────────────────────────────────────
+function startLocationTracking(uid) {
+  // Only track during work hours 9am–6pm Mon–Sat
+  function isWorkHours() {
+    const now = new Date();
+    const day = now.getDay(); // 0=Sun, 6=Sat
+    const hour = now.getHours();
+    return day >= 1 && day <= 6 && hour >= 9 && hour < 18;
+  }
 
+  function saveLocation() {
+    if (!isWorkHours()) return;
+    if (!navigator.geolocation) return;
+
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        const { latitude, longitude, accuracy } = pos.coords;
+        const now = new Date();
+        const today = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+
+        try {
+          await setDoc(doc(db, 'locations', `${uid}_${today}`), {
+            uid: uid,
+            lat: latitude,
+            lng: longitude,
+            accuracy: accuracy,
+            date: today,
+            timestamp: serverTimestamp()
+          });
+        } catch (err) {
+          console.error('Location save failed:', err);
+        }
+      },
+      (err) => {
+        console.log('Location error:', err.message);
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
+    );
+  }
+
+  // Save immediately on load
+  saveLocation();
+
+  // Then every 5 minutes
+  setInterval(saveLocation, 5 * 60 * 1000);
+}
+  
 </script>
 </body>
 </html>
