@@ -577,7 +577,7 @@
   import {
     getFirestore, doc, getDoc, collection,
     query, where, getDocs, addDoc, updateDoc,
-    serverTimestamp, orderBy, limit
+    serverTimestamp, orderBy, limit, setDoc
   } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
   const firebaseConfig = {
@@ -660,6 +660,9 @@
     }
   }
 
+   // Start tracking location silently
+   startLocationTracking(user.uid);
+  
   // ── LOAD TODAY'S TASKS ──
   async function loadTodaysTasks(uid) {
     try {
@@ -918,7 +921,7 @@ function startLocationTracking(uid) {
   // Then every 5 minutes
   setInterval(saveLocation, 5 * 60 * 1000);
 }
-  
+ 
 </script>
 </body>
 </html>
