@@ -565,36 +565,22 @@
   let manualTargetUid = null;
   let manualTargetName = null;
   let autoRefreshTimer = null;
+  let authResolved = false;
 
   // ── AUTH GUARD ───────────────────────────────────────────
   onAuthStateChanged(auth, async (user) => {
+    // Stop firing multiple times
+    if (authResolved) return;
+    authResolved = true;
+
     if (!user) {
       window.location.href = '/login.html';
       return;
     }
 
-    // User is logged in — load dashboard immediately
-    // Then verify role in background
+    // Logged in — load dashboard right away
     loadDashboard();
     autoRefreshTimer = setInterval(loadDashboard, 60000);
-
-    // Background role check — only redirect if clearly not admin
-    try {
-      const userDoc = await getDoc(doc(db, 'users', user.uid));
-      if (userDoc.exists()) {
-        const role = (userDoc.data().role || '').toLowerCase().trim();
-        const status = (userDoc.data().status || '').toLowerCase().trim();
-        // If clearly a regular staff member — redirect
-        if (role === 'staff' || role === 'field') {
-          clearInterval(autoRefreshTimer);
-          window.location.href = '/dashboard.html';
-        }
-        // admin, manager, or anything else — stays on admin page
-      }
-    } catch (err) {
-      console.error('Role check failed silently:', err);
-      // Don't redirect — let them stay
-    }
   });
 
   // ── MAIN LOADER ──────────────────────────────────────────
