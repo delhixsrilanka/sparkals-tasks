@@ -612,14 +612,19 @@
       attSnap.forEach(d => { attMap[d.data().uid] = d.data(); });
 
       // 3. Get today's approved leaves
+      // 3. Get today's approved leaves (simplified — no index needed)
       const leaveSnap = await getDocs(query(
         collection(db, 'leaves'),
-        where('status', '==', 'approved'),
-        where('startDate', '<=', today),
-        where('endDate', '>=', today)
+        where('status', '==', 'approved')
       ));
       const leaveMap = {};
-      leaveSnap.forEach(d => { leaveMap[d.data().uid] = d.data(); });
+      leaveSnap.forEach(d => {
+        const data = d.data();
+        // Check if today falls within the leave period
+        if (data.startDate <= today && data.endDate >= today) {
+          leaveMap[data.uid] = data;
+        }
+      });
 
       // 4. Build staff status objects
       const LATE_THRESHOLD = '09:15';
