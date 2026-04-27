@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Team Chat — Sparkals Tasks</title>
+  <link rel="manifest" href="/manifest.json" />
+  <link rel="icon" href="/icons/logo%20copfy.png" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0f0f1a;
+      --card: #1a1a2e;
+      --card2: #16213e;
+      --accent: #7c3aed;
+      --accent2: #a78bfa;
+      --green: #10b981;
+      --red: #ef4444;
+      --amber: #f59e0b;
+      --text: #f1f5f9;
+      --muted: #94a3b8;
+      --border: #2d2d44;
+    }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* TOP NAV */
+    .topnav {
+      background: var(--card);
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .topnav-left { display: flex; align-items: center; gap: 10px; }
+    .topnav img { width: 32px; height: 32px; border-radius: 8px; }
+    .topnav-title { font-family: 'Space Mono', monospace; font-size: 14px; font-weight: 700; color: var(--accent2); }
+    .topnav-sub { font-size: 11px; color: var(--muted); }
+    .btn-back { background: transparent; border: 1px solid var(--border); color: var(--muted); padding: 6px 12px; border-radius: 8px; cursor: pointer; font-size: 12px; font-family: 'DM Sans', sans-serif; text-decoration: none; }
+    .btn-back:hover { color: var(--accent2); border-color: var(--accent2); }
+
+    /* CHANNEL LIST */
+    .channel-bar {
+      background: var(--card);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      overflow-x: auto;
+      scrollbar-width: none;
+      flex-shrink: 0;
+    }
+    .channel-bar::-webkit-scrollbar { display: none; }
+    .channel-tab {
+      padding: 10px 16px;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--muted);
+      cursor: pointer;
+      white-space: nowrap;
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s;
+      flex-shrink: 0;
+    }
+    .channel-tab.active { color: var(--accent2); border-bottom-color: var(--accent2); }
+    .channel-tab:hover { color: var(--text); }
+
+    /* CHAT AREA */
+    .chat-area {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .chat-area::-webkit-scrollbar { width: 4px; }
+    .chat-area::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+    /* MESSAGE BUBBLE */
+    .msg-row {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+    }
+    .msg-row.mine { flex-direction: row-reverse; }
+    .msg-avatar {
+      width: 34px; height: 34px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 700;
+      flex-shrink: 0;
+    }
+    .msg-content { max-width: 72%; }
+    .msg-row.mine .msg-content { align-items: flex-end; display: flex; flex-direction: column; }
+    .msg-meta {
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .msg-row.mine .msg-meta { flex-direction: row-reverse; }
+    .msg-name { font-weight: 600; color: var(--text); }
+    .msg-dept {
+      background: var(--card2);
+      border: 1px solid var(--border);
+      padding: 1px 7px;
+      border-radius: 10px;
+      font-size: 10px;
+      color: var(--muted);
+    }
+    .msg-bubble {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 10px 14px;
+      font-size: 14px;
+      line-height: 1.4;
+      position: relative;
+      word-break: break-word;
+    }
+    .msg-row.mine .msg-bubble {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: white;
+    }
+    .msg-time {
+      font-size: 10px;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+    .msg-row.mine .msg-time { text-align: right; }
+    .btn-delete {
+      position: absolute;
+      top: -8px; right: -8px;
+      background: var(--red);
+      border: none;
+      color: white;
+      width: 20px; height: 20px;
+      border-radius: 50%;
+      font-size: 10px;
+      cursor: pointer;
+      display: none;
+      align-items: center;
+      justify-content: center;
+    }
+    .msg-bubble:hover .btn-delete { display: flex; }
+
+    /* DATE DIVIDER */
+    .date-divider {
+      text-align: center;
+      font-size: 11px;
+      color: var(--muted);
+      padding: 8px 0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .date-divider::before, .date-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* EMPTY STATE */
+    .empty-chat {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: var(--muted);
+      text-align: center;
+      padding: 40px;
+    }
+    .empty-chat .emoji { font-size: 40px; margin-bottom: 12px; }
+    .empty-chat p { font-size: 14px; line-height: 1.6; }
+
+    /* INPUT BAR */
+    .input-bar {
+      background: var(--card);
+      border-top: 1px solid var(--border);
+      padding: 12px 16px;
+      display: flex;
+      gap: 10px;
+      align-items: flex-end;
+      flex-shrink: 0;
+    }
+    .msg-input {
+      flex: 1;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 10px 14px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-family: 'DM Sans', sans-serif;
+      resize: none;
+      max-height: 100px;
+      min-height: 42px;
+      line-height: 1.4;
+    }
+    .msg-input:focus { outline: none; border-color: var(--accent2); }
+    .msg-input::placeholder { color: var(--muted); }
+    .btn-send {
+      background: var(--accent);
+      border: none;
+      color: white;
+      width: 42px; height: 42px;
+      border-radius: 12px;
+      font-size: 18px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: background 0.2s;
+    }
+    .btn-send:hover { background: #6d28d9; }
+    .btn-send:disabled { background: var(--border); cursor: not-allowed; }
+
+    /* LOADING */
+    .loading-msgs {
+      text-align: center;
+      padding: 20px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .spinner {
+      width: 24px; height: 24px;
+      border: 2px solid var(--border);
+      border-top-color: var(--accent2);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 8px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* TOAST */
+    .toast {
+      position: fixed;
+      bottom: 80px; left: 50%;
+      transform: translateX(-50%);
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 10px 18px;
+      border-radius: 12px;
+      font-size: 13px;
+      z-index: 300;
+      opacity: 0;
+      transition: opacity 0.3s;
+      white-space: nowrap;
+    }
+    .toast.show { opacity: 1; }
+    .toast.success { border-color: var(--green); color: var(--green); }
+    .toast.error { border-color: var(--red); color: var(--red); }
+  </style>
+</head>
+<body>
+
+<!-- TOP NAV -->
+<div class="topnav">
+  <div class="topnav-left">
+    <img src="/icons/logo%20copfy.png" alt="Sparkals" />
+    <div>
+      <div class="topnav-title" id="channelTitle">Company Chat</div>
+      <div class="topnav-sub" id="channelSub">All staff</div>
+    </div>
+  </div>
+  <a class="btn-back" href="/dashboard.html">← Back</a>
+</div>
+
+<!-- CHANNEL TABS -->
+<div class="channel-bar" id="channelBar">
+  <div class="channel-tab active" onclick="switchChannel('company','🌐 Company','All staff')" id="tab-company">🌐 Company</div>
+  <div class="channel-tab" onclick="switchChannel('sales','💼 Sales & Marketing','Sales & Marketing dept')" id="tab-sales">💼 Sales</div>
+  <div class="channel-tab" onclick="switchChannel('operations','⚙️ Operations','Operations dept')" id="tab-operations">⚙️ Ops</div>
+  <div class="channel-tab" onclick="switchChannel('accounts','💰 Accounts','Accounts & Finance dept')" id="tab-accounts">💰 Accounts</div>
+  <div class="channel-tab" onclick="switchChannel('logistics','🚚 Logistics','Logistics & Delivery dept')" id="tab-logistics">🚚 Logistics</div>
+  <div class="channel-tab" onclick="switchChannel('it','💻 IT & Tech','IT & Technology dept')" id="tab-it">💻 IT</div>
+  <div class="channel-tab" onclick="switchChannel('support','🎧 Support','Customer Support dept')" id="tab-support">🎧 Support</div>
+  <div class="channel-tab" onclick="switchChannel('field','🏗️ Field Work','Field / Site Work dept')" id="tab-field">🏗️ Field</div>
+  <div class="channel-tab" onclick="switchChannel('management','👔 Management','Management dept')" id="tab-management">👔 Mgmt</div>
+  <div class="channel-tab" onclick="switchChannel('production','🏭 Production','Production & Manufacturing dept')" id="tab-production">🏭 Production</div>
+  <div class="channel-tab" onclick="switchChannel('purchase','🛒 Purchase','Purchase dept')" id="tab-purchase">🛒 Purchase</div>
+</div>
+
+<!-- CHAT MESSAGES -->
+<div class="chat-area" id="chatArea">
+  <div class="loading-msgs"><div class="spinner"></div>Loading messages...</div>
+</div>
+
+<!-- INPUT BAR -->
+<div class="input-bar">
+  <textarea class="msg-input" id="msgInput" placeholder="Type a message..." rows="1"
+    onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+  <button class="btn-send" id="sendBtn" onclick="sendMessage()">➤</button>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import { getFirestore, collection, doc, getDoc, addDoc, deleteDoc, query, orderBy, limit, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDNwQYXcwZrAh4cTfRyhOVk_pRod9p4CRM",
+    authDomain: "sparkals-tasks-app.firebaseapp.com",
+    projectId: "sparkals-tasks-app",
+    storageBucket: "sparkals-tasks-app.firebasestorage.app",
+    messagingSenderId: "147179987231",
+    appId: "1:147179987231:web:c6ffa484f33a2ca420d02a"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  let currentUser = null;
+  let currentChannel = 'company';
+  let isAdmin = false;
+  let unsubscribe = null;
+  let avatarColors = {};
+
+  const COLORS = ['#7c3aed','#0891b2','#059669','#d97706','#dc2626','#db2777','#7c3aed','#0284c7'];
+
+  // ── AUTH ─────────────────────────────────────────────────
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) { window.location.href = '/login.html'; return; }
+
+    const userDoc = await getDoc(doc(db, 'users', user.uid));
+    if (!userDoc.exists()) { window.location.href = '/login.html'; return; }
+
+    currentUser = { uid: user.uid, ...userDoc.data() };
+    isAdmin = currentUser.role === 'admin';
+
+    loadChannel('company');
+  });
+
+  // ── LOAD CHANNEL ─────────────────────────────────────────
+  window.switchChannel = function(channelId, title, sub) {
+    currentChannel = channelId;
+    document.getElementById('channelTitle').textContent = title;
+    document.getElementById('channelSub').textContent = sub;
+
+    // Update active tab
+    document.querySelectorAll('.channel-tab').forEach(t => t.classList.remove('active'));
+    const tab = document.getElementById('tab-' + channelId);
+    if (tab) { tab.classList.add('active'); tab.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' }); }
+
+    loadChannel(channelId);
+  };
+
+  function loadChannel(channelId) {
+    // Unsubscribe from previous channel
+    if (unsubscribe) unsubscribe();
+
+    document.getElementById('chatArea').innerHTML =
+      '<div class="loading-msgs"><div class="spinner"></div>Loading messages...</div>';
+
+    const q = query(
+      collection(db, 'chats', channelId, 'messages'),
+      orderBy('timestamp', 'asc'),
+      limit(100)
+    );
+
+    unsubscribe = onSnapshot(q, (snap) => {
+      renderMessages(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+    }, (err) => {
+      console.error(err);
+      document.getElementById('chatArea').innerHTML =
+        '<div class="empty-chat"><div class="emoji">⚠️</div><p>Could not load messages.<br>Check your connection.</p></div>';
+    });
+  }
+
+  // ── RENDER MESSAGES ───────────────────────────────────────
+  function renderMessages(messages) {
+    const area = document.getElementById('chatArea');
+
+    if (messages.length === 0) {
+      area.innerHTML = '<div class="empty-chat"><div class="emoji">💬</div><p>No messages yet.<br>Be the first to say something!</p></div>';
+      return;
+    }
+
+    let html = '';
+    let lastDate = '';
+
+    messages.forEach(msg => {
+      const isMine = msg.uid === currentUser.uid;
+      const ts = msg.timestamp?.toDate?.() || new Date();
+      const dateStr = ts.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+      const timeStr = ts.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+
+      if (dateStr !== lastDate) {
+        html += `<div class="date-divider">${dateStr}</div>`;
+        lastDate = dateStr;
+      }
+
+      const name = msg.senderName || 'Unknown';
+      const initials = name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+      if (!avatarColors[msg.uid]) {
+        avatarColors[msg.uid] = COLORS[Object.keys(avatarColors).length % COLORS.length];
+      }
+      const color = avatarColors[msg.uid];
+
+      const deleteBtn = isAdmin
+        ? `<button class="btn-delete" onclick="deleteMsg('${msg.id}')" title="Delete">✕</button>`
+        : '';
+
+      html += `
+        <div class="msg-row ${isMine ? 'mine' : ''}">
+          <div class="msg-avatar" style="background:${color}22;color:${color}">${initials}</div>
+          <div class="msg-content">
+            <div class="msg-meta">
+              <span class="msg-name">${name}</span>
+              <span class="msg-dept">${msg.senderDept || ''}</span>
+            </div>
+            <div class="msg-bubble">
+              ${escapeHtml(msg.text)}
+              ${deleteBtn}
+            </div>
+            <div class="msg-time">${timeStr}</div>
+          </div>
+        </div>`;
+    });
+
+    area.innerHTML = html;
+    area.scrollTop = area.scrollHeight;
+  }
+
+  // ── SEND MESSAGE ──────────────────────────────────────────
+  window.sendMessage = async function() {
+    const input = document.getElementById('msgInput');
+    const text = input.value.trim();
+    if (!text) return;
+
+    const btn = document.getElementById('sendBtn');
+    btn.disabled = true;
+    input.value = '';
+    input.style.height = 'auto';
+
+    try {
+      await addDoc(collection(db, 'chats', currentChannel, 'messages'), {
+        uid: currentUser.uid,
+        senderName: currentUser.name || currentUser.email,
+        senderDept: currentUser.department || '',
+        text: text,
+        channel: currentChannel,
+        timestamp: serverTimestamp()
+      });
+    } catch (err) {
+      console.error(err);
+      showToast('Could not send message. Try again.', 'error');
+      input.value = text;
+    } finally {
+      btn.disabled = false;
+      input.focus();
+    }
+  };
+
+  // ── DELETE MESSAGE ────────────────────────────────────────
+  window.deleteMsg = async function(msgId) {
+    if (!isAdmin) return;
+    if (!confirm('Delete this message?')) return;
+    try {
+      await deleteDoc(doc(db, 'chats', currentChannel, 'messages', msgId));
+      showToast('Message deleted', 'success');
+    } catch (err) {
+      showToast('Could not delete. Try again.', 'error');
+    }
+  };
+
+  // ── HELPERS ───────────────────────────────────────────────
+  window.handleKey = function(e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  };
+
+  window.autoResize = function(el) {
+    el.style.height = 'auto';
+    el.style.height = Math.min(el.scrollHeight, 100) + 'px';
+  };
+
+  function escapeHtml(text) {
+    return text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+  }
+
+  function showToast(msg, type = '') {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'toast show ' + type;
+    setTimeout(() => { t.className = 'toast'; }, 3000);
+  }
+</script>
+</body>
+</html>
