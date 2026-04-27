@@ -921,7 +921,45 @@ function startLocationTracking(uid) {
   // Then every 5 minutes
   setInterval(saveLocation, 5 * 60 * 1000);
 }
- 
+// Start tracking location silently
+startLocationTracking(user.uid);
+
+// Request notification permission and save token
+setupNotifications(user.uid);
+
+ // ── NOTIFICATIONS SETUP ──────────────────────────────────
+async function setupNotifications(uid) {
+  try {
+    if (!('Notification' in window)) return;
+    if (!('serviceWorker' in navigator)) return;
+
+    const permission = await Notification.requestPermission();
+    if (permission !== 'granted') return;
+
+    const { getMessaging, getToken } = await import(
+      'https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging.js'
+    );
+
+    const messaging = getMessaging();
+
+    const token = await getToken(messaging, {
+      vapidKey: 'YOUR_VAPID_KEY_HERE'
+    });
+
+    if (token) {
+      await setDoc(doc(db, 'fcmTokens', uid), {
+        uid: uid,
+        token: token,
+        updatedAt: serverTimestamp(),
+        device: navigator.userAgent.includes('Mobile') ? 'mobile' : 'desktop'
+      }, { merge: true });
+      console.log('Notification token saved ✅');
+    }
+  } catch (err) {
+    console.log('Notification setup skipped:', err.message);
+  }
+} 
+  
 </script>
 </body>
 </html>
