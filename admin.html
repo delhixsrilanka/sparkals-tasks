@@ -610,8 +610,7 @@
       ));
       const attMap = {};
       attSnap.forEach(d => { attMap[d.data().uid] = d.data(); });
-
-      // 3. Get today's approved leaves
+    
       // 3. Get today's approved leaves (simplified — no index needed)
       const leaveSnap = await getDocs(query(
         collection(db, 'leaves'),
