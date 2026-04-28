@@ -982,6 +982,89 @@ async function loadNotifBadge() {
 loadNotifBadge();
   
 </script>
+<!--
+  ══════════════════════════════════════════════════════
+  SPARKALS AUTO-UPDATE BANNER
+  Paste this entire block into dashboard.html
+  just ABOVE the welcome-overlay.js script tag
+  ══════════════════════════════════════════════════════
+-->
+
+<!-- Auto-update notification banner -->
+<div id="spkUpdateBanner" style="
+  display:none;
+  position:fixed;
+  top:0;left:0;right:0;
+  background:#7c6af7;
+  color:#fff;
+  padding:12px 20px;
+  font-family:'DM Sans',sans-serif;
+  font-size:13px;
+  font-weight:500;
+  z-index:99999;
+  display:none;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  box-shadow:0 2px 12px rgba(124,106,247,0.4);
+">
+  <span>✨ App updated — tap to get the latest version</span>
+  <button onclick="spkApplyUpdate()" style="
+    background:#fff;color:#7c6af7;border:none;
+    padding:6px 14px;border-radius:6px;
+    font-family:'DM Sans',sans-serif;font-size:12px;
+    font-weight:700;cursor:pointer;flex-shrink:0;
+  ">Refresh Now</button>
+</div>
+
+<script>
+// ── SERVICE WORKER REGISTRATION + AUTO-UPDATE ──
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js')
+    .then(reg => {
+      console.log('[App] Service Worker registered, scope:', reg.scope);
+
+      // Check for updates every time page loads
+      reg.update();
+
+      // Listen for a new service worker waiting to activate
+      reg.addEventListener('updatefound', () => {
+        const newWorker = reg.installing;
+        if (!newWorker) return;
+
+        newWorker.addEventListener('statechange', () => {
+          // New version is ready and waiting
+          if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+            console.log('[App] New version ready — showing update banner');
+            const banner = document.getElementById('spkUpdateBanner');
+            if (banner) banner.style.display = 'flex';
+          }
+        });
+      });
+    })
+    .catch(err => console.log('[App] SW registration failed:', err));
+
+  // When new SW activates — reload the page automatically
+  let refreshing = false;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (!refreshing) {
+      refreshing = true;
+      console.log('[App] New SW active — reloading');
+      window.location.reload();
+    }
+  });
+}
+
+// Staff taps "Refresh Now" button
+function spkApplyUpdate() {
+  navigator.serviceWorker.ready.then(reg => {
+    if (reg.waiting) {
+      reg.waiting.postMessage('SKIP_WAITING');
+    }
+  });
+  document.getElementById('spkUpdateBanner').style.display = 'none';
+}
+</script>
 <script src="welcome-overlay.js"></script>
 </body>
 </html>
