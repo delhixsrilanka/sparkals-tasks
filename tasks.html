@@ -1,1483 +1,919 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Tasks — Sparkals</title>
-<link rel="manifest" href="/manifest.json">
-<link rel="icon" href="/icons/logo%20copfy.png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
-
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Sparkals Tasks</title>
+<link rel="manifest" href="manifest.json"/>
+<link rel="icon" href="/icons/logo%20copfy.png"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"/>
 <style>
-  :root {
-    --bg: #0f0f1a;
-    --surface: #1a1a2e;
-    --surface2: #22223a;
-    --surface3: #2a2a45;
-    --border: rgba(255,255,255,0.08);
-    --text: #f0f0f8;
-    --text2: #9090b0;
-    --text3: #5a5a7a;
-    --accent: #7c6fff;
-    --accent2: #a78bfa;
-    --urgent: #ff4d6d;
-    --high: #ff9500;
-    --normal: #3b82f6;
-    --low: #6b7280;
-    --green: #10b981;
-    --amber: #f59e0b;
-    --red: #ef4444;
-    --radius: 16px;
-    --radius-sm: 10px;
-  }
-
-  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-
-  body {
-    font-family: 'DM Sans', sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
-
-  /* ── TOP BAR ── */
-  .topbar {
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    background: rgba(15,15,26,0.95);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border-bottom: 1px solid var(--border);
-    padding: 14px 16px 10px;
-  }
-  .topbar-row1 {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 12px;
-  }
-  .topbar-title {
-    font-size: 20px;
-    font-weight: 700;
-    letter-spacing: -0.3px;
-  }
-  .topbar-title span { color: var(--accent2); }
-  .btn-new-task {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    background: var(--accent);
-    color: #fff;
-    border: none;
-    border-radius: 10px;
-    padding: 8px 14px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-  .btn-new-task:active { transform: scale(0.96); }
-
-  /* ── FILTER TABS ── */
-  .filter-row {
-    display: flex;
-    gap: 8px;
-    overflow-x: auto;
-    padding-bottom: 2px;
-    scrollbar-width: none;
-  }
-  .filter-row::-webkit-scrollbar { display: none; }
-  .filter-tab {
-    flex-shrink: 0;
-    padding: 6px 14px;
-    border-radius: 20px;
-    font-size: 13px;
-    font-weight: 500;
-    border: 1.5px solid var(--border);
-    background: transparent;
-    color: var(--text2);
-    cursor: pointer;
-    transition: all 0.2s;
-    white-space: nowrap;
-  }
-  .filter-tab.active {
-    background: var(--accent);
-    border-color: var(--accent);
-    color: #fff;
-  }
-
-  /* ── SEARCH BAR ── */
-  .search-wrap {
-    padding: 12px 16px 0;
-  }
-  .search-input {
-    width: 100%;
-    background: var(--surface2);
-    border: 1.5px solid var(--border);
-    border-radius: var(--radius-sm);
-    padding: 10px 14px 10px 38px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 14px;
-    color: var(--text);
-    outline: none;
-    transition: border-color 0.2s;
-    position: relative;
-  }
-  .search-input:focus { border-color: var(--accent); }
-  .search-input::placeholder { color: var(--text3); }
-  .search-wrap-inner {
-    position: relative;
-  }
-  .search-icon {
-    position: absolute;
-    left: 12px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: var(--text3);
-    font-size: 16px;
-    pointer-events: none;
-  }
-
-  /* ── TASK LIST ── */
-  .task-list {
-    padding: 12px 16px 100px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-
-  /* ── TASK CARD ── */
-  .task-card {
-    background: var(--surface);
-    border-radius: var(--radius);
-    border: 1.5px solid var(--border);
-    padding: 14px;
-    cursor: pointer;
-    transition: all 0.2s;
-    position: relative;
-    overflow: hidden;
-  }
-  .task-card::before {
-    content: '';
-    position: absolute;
-    left: 0; top: 0; bottom: 0;
-    width: 4px;
-    border-radius: 4px 0 0 4px;
-  }
-  .task-card.overdue::before { background: var(--red); }
-  .task-card.due-today::before { background: var(--amber); }
-  .task-card.on-track::before { background: var(--green); }
-  .task-card:active { transform: scale(0.99); background: var(--surface2); }
-
-  .task-card-header {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 10px;
-    margin-bottom: 8px;
-  }
-  .task-title {
-    font-size: 15px;
-    font-weight: 600;
-    line-height: 1.3;
-    flex: 1;
-  }
-  .priority-badge {
-    flex-shrink: 0;
-    font-size: 11px;
-    font-weight: 700;
-    padding: 3px 8px;
-    border-radius: 6px;
-    font-family: 'Space Mono', monospace;
-    letter-spacing: 0.5px;
-    text-transform: uppercase;
-  }
-  .priority-badge.urgent { background: rgba(255,77,109,0.15); color: var(--urgent); }
-  .priority-badge.high { background: rgba(255,149,0,0.15); color: var(--high); }
-  .priority-badge.normal { background: rgba(59,130,246,0.15); color: var(--normal); }
-  .priority-badge.low { background: rgba(107,114,128,0.15); color: var(--low); }
-
-  .task-meta {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-bottom: 10px;
-  }
-  .task-meta-item {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    font-size: 12px;
-    color: var(--text2);
-  }
-  .task-meta-item .icon { font-size: 13px; }
-
-  /* Stage Progress */
-  .stage-bar {
-    display: flex;
-    gap: 4px;
-    margin-bottom: 8px;
-  }
-  .stage-dot {
-    flex: 1;
-    height: 4px;
-    border-radius: 2px;
-    background: var(--surface3);
-    transition: background 0.3s;
-  }
-  .stage-dot.done { background: var(--accent); }
-  .stage-dot.current { background: var(--accent2); }
-
-  .task-card-footer {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-  .assignee-chip {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 12px;
-    color: var(--text2);
-  }
-  .avatar-mini {
-    width: 22px;
-    height: 22px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 10px;
-    font-weight: 700;
-    color: #fff;
-    flex-shrink: 0;
-  }
-  .deadline-chip {
-    font-size: 11px;
-    font-family: 'Space Mono', monospace;
-    padding: 3px 8px;
-    border-radius: 6px;
-  }
-  .deadline-chip.overdue { background: rgba(239,68,68,0.12); color: var(--red); }
-  .deadline-chip.due-today { background: rgba(245,158,11,0.12); color: var(--amber); }
-  .deadline-chip.on-track { background: rgba(16,185,129,0.12); color: var(--green); }
-
-  /* ── EMPTY STATE ── */
-  .empty-state {
-    text-align: center;
-    padding: 60px 20px;
-    color: var(--text3);
-  }
-  .empty-state .emoji { font-size: 48px; margin-bottom: 16px; }
-  .empty-state p { font-size: 15px; }
-
-  /* ── BOTTOM NAV ── */
-  .bottom-nav {
-    position: fixed;
-    bottom: 0; left: 0; right: 0;
-    background: rgba(26,26,46,0.97);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border-top: 1px solid var(--border);
-    display: flex;
-    padding: 10px 0 max(10px, env(safe-area-inset-bottom));
-    z-index: 100;
-  }
-  .nav-item {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 3px;
-    text-decoration: none;
-    color: var(--text3);
-    font-size: 10px;
-    font-weight: 500;
-    cursor: pointer;
-    border: none;
-    background: none;
-    padding: 4px 0;
-    transition: color 0.2s;
-  }
-  .nav-item .nav-icon { font-size: 22px; }
-  .nav-item.active { color: var(--accent2); }
-
-  /* ══════════════════════════════════════
-     MODAL — CREATE / EDIT TASK
-  ══════════════════════════════════════ */
-  .modal-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.7);
-    backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
-    z-index: 200;
-    display: none;
-    align-items: flex-end;
-    justify-content: center;
-  }
-  .modal-overlay.open { display: flex; }
-
-  .modal-sheet {
-    background: var(--surface);
-    border-radius: 24px 24px 0 0;
-    width: 100%;
-    max-width: 600px;
-    max-height: 92vh;
-    overflow-y: auto;
-    padding: 0 0 40px;
-    animation: slideUp 0.3s cubic-bezier(0.34,1.56,0.64,1);
-  }
-  @keyframes slideUp {
-    from { transform: translateY(100%); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
-  }
-
-  .modal-handle {
-    width: 40px;
-    height: 4px;
-    background: var(--surface3);
-    border-radius: 2px;
-    margin: 12px auto 0;
-  }
-  .modal-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 16px 20px;
-    border-bottom: 1px solid var(--border);
-  }
-  .modal-title {
-    font-size: 18px;
-    font-weight: 700;
-  }
-  .btn-close {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    background: var(--surface2);
-    border: none;
-    color: var(--text2);
-    font-size: 18px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s;
-  }
-  .btn-close:active { transform: scale(0.9); }
-
-  .modal-body { padding: 20px; display: flex; flex-direction: column; gap: 16px; }
-
-  .form-group { display: flex; flex-direction: column; gap: 6px; }
-  .form-label {
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--text2);
-    text-transform: uppercase;
-    letter-spacing: 0.8px;
-  }
-  .form-input, .form-select, .form-textarea {
-    background: var(--surface2);
-    border: 1.5px solid var(--border);
-    border-radius: var(--radius-sm);
-    padding: 11px 14px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 15px;
-    color: var(--text);
-    outline: none;
-    width: 100%;
-    transition: border-color 0.2s;
-  }
-  .form-input:focus, .form-select:focus, .form-textarea:focus { border-color: var(--accent); }
-  .form-input::placeholder, .form-textarea::placeholder { color: var(--text3); }
-  .form-select { appearance: none; -webkit-appearance: none; cursor: pointer; }
-  .form-select option { background: var(--surface2); }
-  .form-textarea { resize: none; min-height: 80px; }
-
-  /* Priority Selector */
-  .priority-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 8px;
-  }
-  .priority-btn {
-    padding: 10px 6px;
-    border-radius: var(--radius-sm);
-    border: 1.5px solid var(--border);
-    background: transparent;
-    color: var(--text2);
-    font-family: 'DM Sans', sans-serif;
-    font-size: 12px;
-    font-weight: 600;
-    cursor: pointer;
-    text-align: center;
-    transition: all 0.2s;
-  }
-  .priority-btn .p-emoji { font-size: 18px; display: block; margin-bottom: 4px; }
-  .priority-btn.selected.urgent { background: rgba(255,77,109,0.15); border-color: var(--urgent); color: var(--urgent); }
-  .priority-btn.selected.high { background: rgba(255,149,0,0.15); border-color: var(--high); color: var(--high); }
-  .priority-btn.selected.normal { background: rgba(59,130,246,0.15); border-color: var(--normal); color: var(--normal); }
-  .priority-btn.selected.low { background: rgba(107,114,128,0.15); border-color: var(--low); color: var(--low); }
-
-  /* Stage selector */
-  .stages-preview {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    margin-top: 4px;
-  }
-  .stage-chip {
-    font-size: 12px;
-    padding: 4px 10px;
-    border-radius: 20px;
-    background: var(--surface3);
-    color: var(--text2);
-    border: 1px solid var(--border);
-  }
-  .stage-chip.first { background: rgba(124,111,255,0.15); color: var(--accent2); border-color: var(--accent); }
-
-  /* Submit btn */
-  .btn-submit {
-    width: 100%;
-    padding: 15px;
-    background: var(--accent);
-    color: #fff;
-    border: none;
-    border-radius: var(--radius-sm);
-    font-family: 'DM Sans', sans-serif;
-    font-size: 16px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all 0.2s;
-    margin-top: 4px;
-  }
-  .btn-submit:active { transform: scale(0.98); opacity: 0.9; }
-  .btn-submit:disabled { opacity: 0.5; cursor: not-allowed; }
-
-  /* ══════════════════════════════════════
-     TASK DETAIL MODAL
-  ══════════════════════════════════════ */
-  .detail-modal {
-    position: fixed;
-    inset: 0;
-    background: var(--bg);
-    z-index: 300;
-    display: none;
-    flex-direction: column;
-    overflow-y: auto;
-  }
-  .detail-modal.open { display: flex; animation: fadeIn 0.25s ease; }
-  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-  .detail-topbar {
-    position: sticky;
-    top: 0;
-    background: rgba(15,15,26,0.95);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border-bottom: 1px solid var(--border);
-    padding: 14px 16px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    z-index: 10;
-  }
-  .btn-back {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    background: var(--surface2);
-    border: none;
-    color: var(--text);
-    font-size: 18px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  .detail-topbar-title { font-size: 16px; font-weight: 700; flex: 1; }
-
-  .detail-body { padding: 20px; flex: 1; }
-
-  .detail-section { margin-bottom: 24px; }
-  .detail-section-title {
-    font-size: 11px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    color: var(--text3);
-    margin-bottom: 10px;
-  }
-
-  /* Stage progress in detail */
-  .stage-progress-row {
-    display: flex;
-    align-items: center;
-    gap: 0;
-    overflow-x: auto;
-    padding-bottom: 4px;
-    scrollbar-width: none;
-  }
-  .stage-progress-row::-webkit-scrollbar { display: none; }
-  .stage-step {
-    display: flex;
-    align-items: center;
-    flex-shrink: 0;
-  }
-  .stage-node {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
-    cursor: pointer;
-  }
-  .stage-node-dot {
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    border: 2px solid var(--border);
-    background: var(--surface2);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 12px;
-    transition: all 0.3s;
-  }
-  .stage-node-dot.done { background: var(--accent); border-color: var(--accent); }
-  .stage-node-dot.current { background: transparent; border-color: var(--accent2); box-shadow: 0 0 0 3px rgba(167,139,250,0.2); }
-  .stage-node-label {
-    font-size: 10px;
-    color: var(--text3);
-    text-align: center;
-    max-width: 56px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  .stage-node.done .stage-node-label { color: var(--accent2); }
-  .stage-node.current .stage-node-label { color: var(--text); font-weight: 600; }
-  .stage-connector {
-    width: 24px;
-    height: 2px;
-    background: var(--surface3);
-    flex-shrink: 0;
-    margin-bottom: 18px;
-  }
-  .stage-connector.done { background: var(--accent); }
-
-  .detail-info-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-  }
-  .detail-info-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    padding: 12px;
-  }
-  .detail-info-label { font-size: 11px; color: var(--text3); margin-bottom: 4px; }
-  .detail-info-value { font-size: 14px; font-weight: 600; }
-
-  /* Comments */
-  .comment-list { display: flex; flex-direction: column; gap: 10px; }
-  .comment-item {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    padding: 12px;
-  }
-  .comment-header { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
-  .comment-author { font-size: 13px; font-weight: 600; }
-  .comment-time { font-size: 11px; color: var(--text3); margin-left: auto; }
-  .comment-text { font-size: 13px; color: var(--text2); line-height: 1.5; }
-
-  .comment-input-row {
-    display: flex;
-    gap: 8px;
-    margin-top: 12px;
-  }
-  .comment-input {
-    flex: 1;
-    background: var(--surface2);
-    border: 1.5px solid var(--border);
-    border-radius: var(--radius-sm);
-    padding: 10px 14px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 14px;
-    color: var(--text);
-    outline: none;
-  }
-  .comment-input:focus { border-color: var(--accent); }
-  .btn-send {
-    width: 42px;
-    height: 42px;
-    border-radius: var(--radius-sm);
-    background: var(--accent);
-    border: none;
-    color: #fff;
-    font-size: 18px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    transition: all 0.2s;
-  }
-  .btn-send:active { transform: scale(0.93); }
-
-  /* Action buttons in detail */
-  .detail-actions { display: flex; gap: 8px; flex-wrap: wrap; }
-  .btn-action {
-    flex: 1;
-    min-width: 120px;
-    padding: 12px;
-    border-radius: var(--radius-sm);
-    border: 1.5px solid var(--border);
-    background: var(--surface2);
-    color: var(--text);
-    font-family: 'DM Sans', sans-serif;
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-    text-align: center;
-    transition: all 0.2s;
-  }
-  .btn-action.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
-  .btn-action.danger { color: var(--red); border-color: rgba(239,68,68,0.3); }
-  .btn-action:active { transform: scale(0.97); }
-
-  /* ── TOAST ── */
-  .toast {
-    position: fixed;
-    bottom: 90px;
-    left: 50%;
-    transform: translateX(-50%) translateY(20px);
-    background: #1e1e3a;
-    border: 1px solid var(--accent);
-    color: var(--text);
-    padding: 12px 20px;
-    border-radius: 12px;
-    font-size: 14px;
-    font-weight: 500;
-    z-index: 999;
-    opacity: 0;
-    transition: all 0.3s;
-    white-space: nowrap;
-    pointer-events: none;
-  }
-  .toast.show {
-    opacity: 1;
-    transform: translateX(-50%) translateY(0);
-  }
-
-  /* ── LOADING ── */
-  .loading-overlay {
-    position: fixed;
-    inset: 0;
-    background: var(--bg);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 500;
-    flex-direction: column;
-    gap: 16px;
-  }
-  .spinner {
-    width: 40px;
-    height: 40px;
-    border: 3px solid var(--surface3);
-    border-top-color: var(--accent);
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-  }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  .loading-text { font-size: 14px; color: var(--text2); }
-
-  /* ── ROLE BADGE ── */
-  .role-admin { color: var(--accent2); }
-
-  /* ── SECTION HEADER ── */
-  .section-label {
-    font-size: 11px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    color: var(--text3);
-    padding: 8px 16px 4px;
-  }
-
-  /* Stats row at top */
-  .stats-row {
-    display: flex;
-    gap: 8px;
-    padding: 12px 16px 0;
-    overflow-x: auto;
-    scrollbar-width: none;
-  }
-  .stats-row::-webkit-scrollbar { display: none; }
-  .stat-mini {
-    flex-shrink: 0;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    padding: 10px 14px;
-    text-align: center;
-    min-width: 80px;
-  }
-  .stat-mini-num { font-size: 20px; font-weight: 700; font-family: 'Space Mono', monospace; }
-  .stat-mini-label { font-size: 10px; color: var(--text3); margin-top: 2px; }
-  .stat-mini-num.red { color: var(--red); }
-  .stat-mini-num.amber { color: var(--amber); }
-  .stat-mini-num.green { color: var(--green); }
-  .stat-mini-num.purple { color: var(--accent2); }
+:root {
+  --bg:#0f0f1a;--surface:#1a1a2e;--surface2:#22223a;--surface3:#2a2a45;--border:#2e2e50;
+  --accent:#7c6af7;--gold:#f0b429;--green:#34d399;--red:#ef4444;--orange:#f97316;--teal:#22d3ee;
+  --text:#f0f0f8;--text2:#9090b8;--text3:#6060a0;
+  --radius:12px;--radius-sm:8px;--shadow:0 4px 24px rgba(0,0,0,0.4);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;}
+.topnav{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+.topnav-left{display:flex;align-items:center;gap:12px;}
+.topnav img{width:36px;height:36px;border-radius:8px;}
+.topnav-title{font-family:'Space Mono',monospace;font-size:15px;color:var(--accent);font-weight:700;}
+.topnav-sub{font-size:11px;color:var(--text2);}
+.topnav-right{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 16px;border-radius:var(--radius-sm);border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;transition:all 0.2s;}
+.btn-primary{background:var(--accent);color:#fff;}.btn-primary:hover{background:#6a58e0;transform:translateY(-1px);}
+.btn-danger{background:var(--red);color:#fff;}.btn-danger:hover{background:#dc2626;}
+.btn-ghost{background:var(--surface3);color:var(--text2);border:1px solid var(--border);}.btn-ghost:hover{background:var(--border);color:var(--text);}
+.btn-green{background:var(--green);color:#0f0f1a;}
+.btn-teal{background:var(--teal);color:#0f0f1a;}.btn-teal:hover{background:#06b6d4;}
+.btn-gold{background:var(--gold);color:#0f0f1a;}.btn-gold:hover{background:#d97706;}
+.btn-sm{padding:6px 12px;font-size:12px;}.btn-xs{padding:4px 9px;font-size:11px;border-radius:6px;}
+.main{max-width:1100px;margin:0 auto;padding:20px 16px 100px;}
+.page-tabs{display:flex;gap:4px;background:var(--surface);border-radius:var(--radius);padding:5px;margin-bottom:20px;border:1px solid var(--border);}
+.page-tab{flex:1;padding:10px 16px;border-radius:var(--radius-sm);border:none;background:transparent;color:var(--text2);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.2s;text-align:center;}
+.page-tab.active{background:var(--accent);color:#fff;}
+.page-tab:hover:not(.active){background:var(--surface3);color:var(--text);}
+.dept-tabs{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:16px;}
+.dept-tab{padding:6px 14px;border-radius:20px;border:1px solid var(--border);background:var(--surface);color:var(--text2);font-size:12px;font-weight:500;cursor:pointer;transition:all 0.2s;}
+.dept-tab.active{background:var(--accent);color:#fff;border-color:var(--accent);}
+.dept-tab:hover:not(.active){border-color:var(--accent);color:var(--text);}
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;}
+.stat-card .label{font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;}
+.stat-card .value{font-size:28px;font-weight:700;font-family:'Space Mono',monospace;}
+.stat-card.c-purple .value{color:var(--accent);}.stat-card.c-green .value{color:var(--green);}
+.stat-card.c-orange .value{color:var(--orange);}.stat-card.c-red .value{color:var(--red);}
+.filter-bar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;background:var(--surface);border-radius:var(--radius);padding:12px 16px;margin-bottom:16px;border:1px solid var(--border);}
+.filter-bar select,.filter-bar input{background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:var(--radius-sm);padding:7px 12px;font-family:'DM Sans',sans-serif;font-size:13px;outline:none;}
+.filter-bar select:focus,.filter-bar input:focus{border-color:var(--accent);}
+.tasks-list{display:flex;flex-direction:column;gap:12px;}
+.task-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;transition:border-color 0.2s,box-shadow 0.2s;}
+.task-card:hover{border-color:var(--accent);box-shadow:0 0 20px rgba(124,106,247,0.12);}
+.task-card.priority-urgent{border-left:3px solid var(--red);}
+.task-card.priority-high{border-left:3px solid var(--orange);}
+.task-card.priority-normal{border-left:3px solid var(--accent);}
+.task-card.priority-low{border-left:3px solid var(--text3);}
+.task-id-chip{font-family:'Space Mono',monospace;font-size:10px;color:var(--gold);background:rgba(240,180,41,0.1);border:1px solid rgba(240,180,41,0.25);padding:2px 8px;border-radius:20px;}
+.task-header{padding:14px 16px;display:flex;align-items:flex-start;gap:12px;cursor:pointer;}
+.task-expand-btn{background:none;border:none;color:var(--text2);cursor:pointer;margin-top:2px;font-size:16px;flex-shrink:0;}
+.task-info{flex:1;min-width:0;}
+.task-name{font-size:15px;font-weight:600;color:var(--text);margin-bottom:5px;}
+.task-meta{display:flex;flex-wrap:wrap;gap:6px;align-items:center;}
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600;}
+.badge-urgent{background:rgba(239,68,68,0.15);color:var(--red);}.badge-high{background:rgba(249,115,22,0.15);color:var(--orange);}
+.badge-normal{background:rgba(124,106,247,0.15);color:var(--accent);}.badge-low{background:rgba(96,96,160,0.15);color:var(--text3);}
+.badge-dept{background:var(--surface3);color:var(--text2);}.badge-assignee{background:rgba(52,211,153,0.12);color:var(--green);}
+.deadline-tag{font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;}
+.deadline-overdue{background:rgba(239,68,68,0.15);color:var(--red);}
+.deadline-today{background:rgba(240,180,41,0.15);color:var(--gold);}
+.deadline-ok{background:rgba(52,211,153,0.12);color:var(--green);}
+.task-actions{display:flex;gap:6px;flex-shrink:0;align-items:flex-start;}
+.task-body{padding:0 16px 16px;display:none;border-top:1px solid var(--border);}
+.task-body.open{display:block;}
+.stage-section{margin-top:14px;}
+.stage-label{font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;}
+.stage-track{display:flex;gap:4px;flex-wrap:wrap;}
+.stage-btn{padding:5px 12px;border-radius:20px;border:1px solid var(--border);background:var(--surface2);color:var(--text2);font-size:12px;font-weight:500;cursor:pointer;transition:all 0.2s;}
+.stage-btn.active{background:var(--accent);color:#fff;border-color:var(--accent);}
+.stage-btn:hover:not(.active){border-color:var(--accent);color:var(--text);}
+.task-desc{margin-top:12px;font-size:13px;color:var(--text2);line-height:1.6;}
+.subtask-section{margin-top:16px;}
+.subtask-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.subtask-title{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--text2);}
+.subtask-add-btns{display:flex;gap:6px;}
+.checklist-items{display:flex;flex-direction:column;gap:6px;margin-bottom:8px;}
+.checklist-item{display:flex;align-items:center;gap:10px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:9px 12px;}
+.checklist-item input[type=checkbox]{width:16px;height:16px;accent-color:var(--accent);cursor:pointer;flex-shrink:0;}
+.checklist-item .cl-text{flex:1;font-size:13px;color:var(--text);}
+.checklist-item .cl-text.done{text-decoration:line-through;color:var(--text3);}
+.checklist-item .cl-delete{background:none;border:none;color:var(--text3);cursor:pointer;font-size:14px;flex-shrink:0;}
+.checklist-item .cl-delete:hover{color:var(--red);}
+.minitask-items{display:flex;flex-direction:column;gap:8px;margin-bottom:8px;}
+.minitask-item{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 14px;}
+.minitask-top{display:flex;align-items:center;gap:8px;margin-bottom:4px;}
+.minitask-name{font-size:13px;font-weight:600;flex:1;color:var(--text);}
+.minitask-status{padding:3px 8px;border-radius:12px;font-size:11px;font-weight:600;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;}
+.minitask-status.todo{background:rgba(96,96,160,0.2);color:var(--text2);}
+.minitask-status.inprogress{background:rgba(240,180,41,0.15);color:var(--gold);}
+.minitask-status.done{background:rgba(52,211,153,0.12);color:var(--green);}
+.minitask-bottom{display:flex;gap:12px;font-size:11px;color:var(--text3);}
+.minitask-delete{background:none;border:none;color:var(--text3);cursor:pointer;font-size:13px;}
+.minitask-delete:hover{color:var(--red);}
+.add-checklist-form,.add-minitask-form{background:var(--surface3);border:1px solid var(--accent);border-radius:var(--radius-sm);padding:12px;display:none;flex-direction:column;gap:8px;margin-top:8px;}
+.add-checklist-form.open,.add-minitask-form.open{display:flex;}
+.form-row{display:flex;gap:8px;flex-wrap:wrap;}
+.form-input{flex:1;background:var(--surface);border:1px solid var(--border);color:var(--text);border-radius:var(--radius-sm);padding:8px 12px;font-family:'DM Sans',sans-serif;font-size:13px;outline:none;min-width:120px;}
+.form-input:focus{border-color:var(--accent);}
+.form-actions{display:flex;gap:6px;}
+.progress-bar-wrap{margin-top:10px;}
+.progress-bar-label{font-size:11px;color:var(--text2);margin-bottom:4px;}
+.progress-bar{height:6px;background:var(--surface3);border-radius:3px;overflow:hidden;}
+.progress-bar-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--teal));border-radius:3px;transition:width 0.4s;}
+.comments-section{margin-top:16px;}
+.comment-list{display:flex;flex-direction:column;gap:8px;margin-bottom:10px;max-height:200px;overflow-y:auto;}
+.comment-item{background:var(--surface2);border-radius:var(--radius-sm);padding:10px 12px;}
+.comment-meta{font-size:11px;color:var(--text3);margin-bottom:4px;}
+.comment-text{font-size:13px;color:var(--text);}
+.comment-input-row{display:flex;gap:8px;}
+.comment-input{flex:1;background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:var(--radius-sm);padding:8px 12px;font-family:'DM Sans',sans-serif;font-size:13px;outline:none;}
+.comment-input:focus{border-color:var(--accent);}
+/* TEMPLATES */
+.templates-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px;}
+.template-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px;transition:all 0.2s;position:relative;overflow:hidden;}
+.template-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--teal),var(--accent));}
+.template-card:hover{border-color:var(--teal);transform:translateY(-2px);}
+.template-card-head{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px;gap:8px;}
+.template-name{font-size:15px;font-weight:700;color:var(--text);flex:1;}
+.template-tag{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;padding:3px 8px;border-radius:20px;background:rgba(34,211,238,0.1);color:var(--teal);border:1px solid rgba(34,211,238,0.2);white-space:nowrap;}
+.template-meta{display:flex;flex-direction:column;gap:5px;margin-bottom:14px;}
+.template-meta-row{display:flex;gap:8px;font-size:12px;color:var(--text2);align-items:center;}
+.template-meta-row span{color:var(--text3);}
+.template-desc{font-size:12px;color:var(--text3);line-height:1.5;margin-bottom:14px;font-style:italic;}
+.template-footer{display:flex;gap:8px;justify-content:space-between;align-items:center;}
+.template-use-count{font-size:11px;color:var(--text3);}
+.template-actions{display:flex;gap:6px;}
+/* MODALS */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:200;display:none;align-items:flex-start;justify-content:center;padding:40px 16px;overflow-y:auto;}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);width:100%;max-width:620px;display:flex;flex-direction:column;box-shadow:var(--shadow);animation:slideDown 0.25s ease;margin:auto;}
+.modal-head{padding:18px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;gap:10px;}
+.modal-head h3{font-size:16px;font-weight:700;flex:1;}
+.modal-id{font-family:'Space Mono',monospace;font-size:11px;color:var(--gold);background:rgba(240,180,41,0.1);padding:3px 10px;border-radius:20px;white-space:nowrap;}
+.modal-close{background:none;border:none;color:var(--text2);cursor:pointer;font-size:22px;flex-shrink:0;}
+.modal-body{padding:20px;overflow-y:auto;display:flex;flex-direction:column;gap:14px;max-height:65vh;}
+.modal-foot{padding:16px 20px;border-top:1px solid var(--border);display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap;flex-shrink:0;}
+.form-group{display:flex;flex-direction:column;gap:5px;}
+.form-group label{font-size:12px;color:var(--text2);font-weight:500;}
+.form-group input,.form-group select,.form-group textarea{background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:var(--radius-sm);padding:9px 12px;font-family:'DM Sans',sans-serif;font-size:13px;outline:none;width:100%;}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--accent);}
+.form-group textarea{resize:vertical;min-height:70px;}
+.form-row-2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+/* BATCH */
+.batch-divider{display:flex;align-items:center;gap:12px;margin:4px 0;}
+.batch-divider::before,.batch-divider::after{content:'';flex:1;height:1px;background:var(--border);}
+.batch-divider span{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;white-space:nowrap;}
+.batch-box{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px;}
+.batch-box-title{font-size:12px;font-weight:700;color:var(--teal);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px;}
+.batch-count-row{display:flex;align-items:center;gap:10px;}
+.batch-count-input{width:80px!important;text-align:center;font-size:18px;font-weight:700;font-family:'Space Mono',monospace;}
+.batch-preview{margin-top:10px;font-size:12px;color:var(--text2);line-height:1.8;}
+.batch-id-chip{font-family:'Space Mono',monospace;font-size:10px;color:var(--gold);background:rgba(240,180,41,0.1);border:1px solid rgba(240,180,41,0.2);padding:1px 6px;border-radius:10px;margin-right:4px;}
+/* BULK DELETE */
+.bulk-panel-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:200;display:none;align-items:flex-start;justify-content:center;padding-top:60px;}
+.bulk-panel-overlay.open{display:flex;}
+.bulk-panel{background:var(--surface);border:1px solid var(--red);border-radius:var(--radius);width:100%;max-width:640px;max-height:80vh;display:flex;flex-direction:column;box-shadow:0 8px 40px rgba(239,68,68,0.2);animation:slideDown 0.25s ease;margin:0 16px;}
+.bulk-panel-head{padding:18px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.bulk-panel-head h3{font-size:16px;font-weight:700;color:var(--red);}
+.bulk-panel-close{background:none;border:none;color:var(--text2);cursor:pointer;font-size:22px;}
+.bulk-panel-body{padding:20px;flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:16px;}
+.bulk-filters{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.bulk-filters .field-full{grid-column:1/-1;}
+.field-label{font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:5px;}
+.field-input{width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:var(--radius-sm);padding:9px 12px;font-family:'DM Sans',sans-serif;font-size:13px;outline:none;}
+.field-input:focus{border-color:var(--red);}
+.bulk-preview-box{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);display:none;}
+.bulk-preview-box.open{display:block;}
+.bulk-preview-summary{padding:12px 16px;border-bottom:1px solid var(--border);font-size:13px;font-weight:600;}
+.bulk-preview-summary span{color:var(--red);}
+.bulk-preview-list{max-height:200px;overflow-y:auto;}
+.bulk-preview-item{padding:10px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;font-size:13px;}
+.bulk-preview-item:last-child{border-bottom:none;}
+.bulk-preview-item .pi-name{color:var(--text);font-weight:500;}
+.bulk-preview-item .pi-id{font-family:'Space Mono',monospace;font-size:10px;color:var(--gold);}
+.bulk-preview-item .pi-meta{font-size:11px;color:var(--text3);}
+.bulk-panel-footer{padding:16px 20px;border-top:1px solid var(--border);display:flex;gap:10px;justify-content:flex-end;}
+.warning-strip{background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:var(--radius-sm);padding:10px 14px;font-size:12px;color:var(--red);display:flex;gap:8px;}
+.empty-state{text-align:center;padding:60px 20px;color:var(--text3);}
+.empty-state .icon{font-size:48px;margin-bottom:12px;opacity:0.5;}
+.empty-state p{font-size:14px;}
+.empty-state .sub{font-size:12px;margin-top:6px;}
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:12px 20px;font-size:13px;font-weight:500;z-index:9999;animation:toastIn 0.3s ease;white-space:nowrap;pointer-events:none;}
+.toast.success{border-color:var(--green);color:var(--green);}
+.toast.error{border-color:var(--red);color:var(--red);}
+.toast.info{border-color:var(--teal);color:var(--teal);}
+@keyframes toastIn{from{opacity:0;transform:translateX(-50%) translateY(10px);}to{opacity:1;transform:translateX(-50%) translateY(0);}}
+@keyframes slideDown{from{transform:translateY(-20px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:1px solid var(--border);display:flex;justify-content:space-around;padding:10px 0 14px;z-index:100;}
+.nav-item{display:flex;flex-direction:column;align-items:center;gap:3px;text-decoration:none;color:var(--text3);cursor:pointer;background:none;border:none;font-family:'DM Sans',sans-serif;}
+.nav-item.active{color:var(--accent);}
+.nav-item span{font-size:20px;}.nav-item small{font-size:10px;font-weight:500;}
+::-webkit-scrollbar{width:4px;height:4px;}::-webkit-scrollbar-track{background:var(--surface);}::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+@media(max-width:600px){.stats-row{grid-template-columns:repeat(2,1fr);}.bulk-filters{grid-template-columns:1fr;}.form-row-2{grid-template-columns:1fr;}.topnav-right{gap:4px;}.btn-sm{padding:5px 9px;font-size:11px;}}
 </style>
 </head>
 <body>
 
-<!-- Loading Overlay -->
-<div class="loading-overlay" id="loadingOverlay">
-  <div class="spinner"></div>
-  <div class="loading-text">Loading tasks…</div>
-</div>
-
-<!-- Toast -->
-<div class="toast" id="toast"></div>
-
-<!-- ══ TOP BAR ══ -->
-<div class="topbar">
-  <div class="topbar-row1">
-    <div class="topbar-title">My <span>Tasks</span></div>
-    <button class="btn-new-task" onclick="openCreateModal()">
-      ＋ New Task
-    </button>
+<nav class="topnav">
+  <div class="topnav-left">
+    <img src="/icons/logo%20copfy.png" alt="Sparkals"/>
+    <div><div class="topnav-title">SPARKALS TASKS</div><div class="topnav-sub" id="userLabel">Loading...</div></div>
   </div>
-  <div class="filter-row" id="filterRow">
-    <button class="filter-tab active" data-filter="all" onclick="setFilter('all',this)">All</button>
-    <button class="filter-tab" data-filter="overdue" onclick="setFilter('overdue',this)">🔴 Overdue</button>
-    <button class="filter-tab" data-filter="due-today" onclick="setFilter('due-today',this)">🟡 Due Today</button>
-    <button class="filter-tab" data-filter="on-track" onclick="setFilter('on-track',this)">🟢 On Track</button>
-    <button class="filter-tab" data-filter="mine" onclick="setFilter('mine',this)">Assigned to Me</button>
-    <button class="filter-tab" data-filter="created" onclick="setFilter('created',this)">Created by Me</button>
+  <div class="topnav-right" id="adminActions" style="display:none">
+    <button class="btn btn-danger btn-sm" onclick="openBulkDelete()">🗑 Bulk Delete</button>
+    <button class="btn btn-primary btn-sm" onclick="openCreateModal()">＋ New Task</button>
   </div>
-</div>
-
-<!-- Stats Row -->
-<div class="stats-row" id="statsRow">
-  <div class="stat-mini"><div class="stat-mini-num purple" id="statTotal">0</div><div class="stat-mini-label">Total</div></div>
-  <div class="stat-mini"><div class="stat-mini-num red" id="statOverdue">0</div><div class="stat-mini-label">Overdue</div></div>
-  <div class="stat-mini"><div class="stat-mini-num amber" id="statToday">0</div><div class="stat-mini-label">Due Today</div></div>
-  <div class="stat-mini"><div class="stat-mini-num green" id="statDone">0</div><div class="stat-mini-label">Completed</div></div>
-</div>
-
-<!-- Search -->
-<div class="search-wrap">
-  <div class="search-wrap-inner">
-    <span class="search-icon">🔍</span>
-    <input class="search-input" type="search" placeholder="Search tasks…" id="searchInput" oninput="renderTasks()">
+  <div class="topnav-right" id="staffActions" style="display:none">
+    <button class="btn btn-primary btn-sm" onclick="openCreateModal()">＋ New Task</button>
   </div>
-</div>
-
-<!-- Task List -->
-<div class="task-list" id="taskList"></div>
-
-<!-- ══ BOTTOM NAV ══ -->
-<nav class="bottom-nav">
-  <a href="dashboard.html" class="nav-item">
-    <span class="nav-icon">🏠</span>Home
-  </a>
-  <button class="nav-item active">
-    <span class="nav-icon">✅</span>Tasks
-  </button>
-  <a href="attendance.html" class="nav-item">
-    <span class="nav-icon">🕐</span>Attend.
-  </a>
-  <a href="#" class="nav-item">
-    <span class="nav-icon">💬</span>Chat
-  </a>
-  <a href="admin.html" class="nav-item" id="adminNavLink" style="display:none">
-    <span class="nav-icon">⚙️</span>Admin
-  </a>
 </nav>
 
-<!-- ══════════════════════════════════════
-     CREATE / EDIT TASK MODAL
-══════════════════════════════════════ -->
+<div class="main">
+  <div class="page-tabs">
+    <button class="page-tab active" id="ptab-tasks" onclick="showTab('tasks')">✅ Tasks</button>
+    <button class="page-tab" id="ptab-templates" onclick="showTab('templates')">📋 Templates</button>
+  </div>
+
+  <!-- TASKS VIEW -->
+  <div id="view-tasks">
+    <div class="stats-row">
+      <div class="stat-card c-purple"><div class="label">Total Tasks</div><div class="value" id="statTotal">0</div></div>
+      <div class="stat-card c-orange"><div class="label">In Progress</div><div class="value" id="statInprogress">0</div></div>
+      <div class="stat-card c-red"><div class="label">Overdue</div><div class="value" id="statOverdue">0</div></div>
+      <div class="stat-card c-green"><div class="label">Completed</div><div class="value" id="statDone">0</div></div>
+    </div>
+    <div class="dept-tabs" id="deptTabs"><button class="dept-tab active" onclick="filterDept('all',this)">All Departments</button></div>
+    <div class="filter-bar">
+      <select id="filterPriority" onchange="applyFilters()"><option value="">All Priorities</option><option value="urgent">🔴 Urgent</option><option value="high">🟠 High</option><option value="normal">🔵 Normal</option><option value="low">⚪ Low</option></select>
+      <select id="filterStatus" onchange="applyFilters()"><option value="">All Stages</option><option value="active">Active</option><option value="completed">Completed</option></select>
+      <input type="text" id="filterSearch" placeholder="🔍 Search tasks or TASK-ID..." oninput="applyFilters()" style="flex:1;min-width:160px"/>
+      <select id="filterAssignee" onchange="applyFilters()"><option value="">All Staff</option></select>
+    </div>
+    <div class="tasks-list" id="tasksList"><div class="empty-state"><div class="icon">📋</div><p>Loading tasks...</p></div></div>
+  </div>
+
+  <!-- TEMPLATES VIEW -->
+  <div id="view-templates" style="display:none">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;gap:12px;flex-wrap:wrap;">
+      <div>
+        <h2 style="font-size:18px;font-weight:700;color:var(--teal)">📋 Task Templates</h2>
+        <p style="font-size:13px;color:var(--text2);margin-top:3px">Pre-filled task forms — run once or create in batches</p>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <select id="tplFilterDept" onchange="renderTemplates()" style="background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:var(--radius-sm);padding:7px 12px;font-family:'DM Sans',sans-serif;font-size:13px;outline:none;"><option value="">All Departments</option></select>
+        <button class="btn btn-teal btn-sm" id="saveTplBtn" style="display:none" onclick="openSaveTemplate()">💾 New Template</button>
+      </div>
+    </div>
+    <div class="templates-grid" id="templatesGrid"><div class="empty-state"><div class="icon">📋</div><p>No templates yet.</p><p class="sub">Open any task and tap 💾 to save it as a template</p></div></div>
+  </div>
+</div>
+
+<nav class="bottom-nav">
+  <a class="nav-item" href="dashboard.html"><span>🏠</span><small>Home</small></a>
+  <a class="nav-item active" href="tasks.html"><span>✅</span><small>Tasks</small></a>
+  <a class="nav-item" href="attendance.html"><span>🕐</span><small>Attendance</small></a>
+  <a class="nav-item" href="chat.html"><span>💬</span><small>Chat</small></a>
+  <a class="nav-item" href="admin.html"><span>⚙️</span><small>Admin</small></a>
+</nav>
+
+<!-- CREATE TASK MODAL -->
 <div class="modal-overlay" id="createModal">
-  <div class="modal-sheet">
-    <div class="modal-handle"></div>
-    <div class="modal-header">
-      <div class="modal-title" id="modalTitle">New Task</div>
-      <button class="btn-close" onclick="closeCreateModal()">✕</button>
-    </div>
+  <div class="modal">
+    <div class="modal-head"><h3>✨ Create New Task</h3><button class="modal-close" onclick="closeCreateModal()">✕</button></div>
     <div class="modal-body">
-
-      <!-- Task Title -->
-      <div class="form-group">
-        <label class="form-label">Task Title *</label>
-        <input class="form-input" type="text" id="taskTitle" placeholder="What needs to be done?">
+      <div class="form-group"><label>Task Name *</label><input type="text" id="newTaskName" placeholder="Enter task name"/></div>
+      <div class="form-group"><label>Department *</label><select id="newTaskDept" onchange="updateStageSelect()"><option value="">Select department</option></select></div>
+      <div class="form-row-2">
+        <div class="form-group"><label>Priority *</label><select id="newTaskPriority"><option value="urgent">🔴 Urgent</option><option value="high">🟠 High</option><option value="normal" selected>🔵 Normal</option><option value="low">⚪ Low</option></select></div>
+        <div class="form-group"><label>Deadline *</label><input type="date" id="newTaskDeadline"/></div>
       </div>
-
-      <!-- Description -->
-      <div class="form-group">
-        <label class="form-label">Description</label>
-        <textarea class="form-textarea" id="taskDesc" placeholder="Add details, instructions, or notes…"></textarea>
-      </div>
-
-      <!-- Department (drives stages) -->
-      <div class="form-group">
-        <label class="form-label">Department</label>
-        <select class="form-select" id="taskDept" onchange="onDeptChange()">
-          <option value="">— Select Department —</option>
-          <option value="Sales & Marketing">Sales &amp; Marketing</option>
-          <option value="Operations">Operations</option>
-          <option value="Accounts & Finance">Accounts &amp; Finance</option>
-          <option value="Logistics & Delivery">Logistics &amp; Delivery</option>
-          <option value="IT & Technology">IT &amp; Technology</option>
-          <option value="Customer Support">Customer Support</option>
-          <option value="Field / Site Work">Field / Site Work</option>
-          <option value="Management">Management</option>
-          <option value="Production & Manufacturing">Production &amp; Manufacturing</option>
-          <option value="Purchase">Purchase</option>
-        </select>
-      </div>
-
-      <!-- Stages preview -->
-      <div class="form-group" id="stagesPreviewGroup" style="display:none">
-        <label class="form-label">Task Stages (auto-set by department)</label>
-        <div class="stages-preview" id="stagesPreview"></div>
-      </div>
-
-      <!-- Assign To -->
-      <div class="form-group">
-        <label class="form-label">Assign To *</label>
-        <select class="form-select" id="taskAssignee">
-          <option value="">— Select Staff Member —</option>
-        </select>
-      </div>
-
-      <!-- Deadline -->
-      <div class="form-group">
-        <label class="form-label">Deadline *</label>
-        <input class="form-input" type="date" id="taskDeadline">
-      </div>
-
-      <!-- Priority -->
-      <div class="form-group">
-        <label class="form-label">Priority *</label>
-        <div class="priority-grid">
-          <button class="priority-btn urgent" data-p="urgent" onclick="selectPriority('urgent')">
-            <span class="p-emoji">🔴</span>Urgent
-          </button>
-          <button class="priority-btn high" data-p="high" onclick="selectPriority('high')">
-            <span class="p-emoji">🟠</span>High
-          </button>
-          <button class="priority-btn normal selected normal" data-p="normal" onclick="selectPriority('normal')">
-            <span class="p-emoji">🔵</span>Normal
-          </button>
-          <button class="priority-btn low" data-p="low" onclick="selectPriority('low')">
-            <span class="p-emoji">⚪</span>Low
-          </button>
+      <div class="form-group"><label>Assign To *</label><select id="newTaskAssignee"><option value="">Select staff member</option></select></div>
+      <div class="form-group"><label>Starting Stage</label><select id="newTaskStage"></select></div>
+      <div class="form-group"><label>Notes / Description</label><textarea id="newTaskNotes" placeholder="Optional task details..."></textarea></div>
+      <div class="batch-divider"><span>Batch Create Option</span></div>
+      <div class="batch-box">
+        <div class="batch-box-title">⚡ Create Multiple Tasks at Once</div>
+        <div style="font-size:12px;color:var(--text2);margin-bottom:10px;">How many tasks to create with this same data? Each gets its own unique TASK-ID.</div>
+        <div class="batch-count-row">
+          <button class="btn btn-ghost btn-sm" onclick="adjustBatch(-1)">−</button>
+          <input class="form-input batch-count-input" type="number" id="batchCount" value="1" min="1" max="50" oninput="updateBatchPreview()"/>
+          <button class="btn btn-ghost btn-sm" onclick="adjustBatch(1)">＋</button>
+          <span style="font-size:13px;color:var(--text2)">task(s)</span>
         </div>
+        <div class="batch-preview" id="batchPreview">Will create <strong style="color:var(--teal)">1</strong> task — ID auto-assigned.</div>
       </div>
-
-      <!-- Submit -->
-      <button class="btn-submit" id="submitTaskBtn" onclick="submitTask()">Create Task</button>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeCreateModal()">Cancel</button>
+      <button class="btn btn-gold" id="saveAsTplBtn" onclick="quickSaveTemplate()" style="display:none">💾 Save as Template</button>
+      <button class="btn btn-primary" onclick="createTask()">Create Task(s)</button>
     </div>
   </div>
 </div>
 
-<!-- ══════════════════════════════════════
-     TASK DETAIL FULL SCREEN
-══════════════════════════════════════ -->
-<div class="detail-modal" id="detailModal">
-  <div class="detail-topbar">
-    <button class="btn-back" onclick="closeDetail()">←</button>
-    <div class="detail-topbar-title" id="detailTopTitle">Task Detail</div>
-    <button class="btn-action" style="flex:none;padding:6px 12px;font-size:12px;" id="editTaskBtn" onclick="editCurrentTask()">Edit</button>
+<!-- SAVE TEMPLATE MODAL -->
+<div class="modal-overlay" id="saveTplModal">
+  <div class="modal" style="max-width:480px;border-color:var(--teal);">
+    <div class="modal-head"><h3 style="color:var(--teal)">💾 Save as Template</h3><button class="modal-close" onclick="document.getElementById('saveTplModal').classList.remove('open')">✕</button></div>
+    <div class="modal-body">
+      <div style="background:rgba(34,211,238,0.07);border:1px solid rgba(34,211,238,0.2);border-radius:var(--radius-sm);padding:12px;font-size:13px;color:var(--text2);line-height:1.6;">A template saves your task form so next time you tap Run — the form opens pre-filled. You only change what is different.</div>
+      <div class="form-group"><label>Template Name *</label><input type="text" id="tplName" placeholder="e.g. Client Follow-up, Monthly Stock Check"/></div>
+      <div class="form-group"><label>Short Description (optional)</label><input type="text" id="tplDesc" placeholder="e.g. Standard follow-up after site visit"/></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="document.getElementById('saveTplModal').classList.remove('open')">Cancel</button>
+      <button class="btn btn-teal" onclick="saveTemplate()">💾 Save Template</button>
+    </div>
   </div>
-  <div class="detail-body" id="detailBody"></div>
 </div>
 
+<!-- RUN TEMPLATE MODAL -->
+<div class="modal-overlay" id="runTplModal">
+  <div class="modal">
+    <div class="modal-head"><h3 id="runTplTitle">▶ Run Template</h3><div class="modal-id">New TASK-ID auto-assigned</div><button class="modal-close" onclick="document.getElementById('runTplModal').classList.remove('open')">✕</button></div>
+    <div class="modal-body">
+      <div style="background:rgba(34,211,238,0.07);border:1px solid rgba(34,211,238,0.2);border-radius:var(--radius-sm);padding:10px 14px;font-size:12px;color:var(--text2);">All fields pre-filled from template. Change only what is different this time.</div>
+      <div class="form-group"><label>Task Name *</label><input type="text" id="runTaskName"/></div>
+      <div class="form-group"><label>Department</label><select id="runTaskDept" onchange="updateRunStageSelect()"><option value="">Select department</option></select></div>
+      <div class="form-row-2">
+        <div class="form-group"><label>Priority</label><select id="runTaskPriority"><option value="urgent">🔴 Urgent</option><option value="high">🟠 High</option><option value="normal">🔵 Normal</option><option value="low">⚪ Low</option></select></div>
+        <div class="form-group"><label>Deadline *</label><input type="date" id="runTaskDeadline"/></div>
+      </div>
+      <div class="form-group"><label>Assign To *</label><select id="runTaskAssignee"><option value="">Select staff member</option></select></div>
+      <div class="form-group"><label>Starting Stage</label><select id="runTaskStage"></select></div>
+      <div class="form-group"><label>Notes</label><textarea id="runTaskNotes"></textarea></div>
+      <div class="batch-divider"><span>Batch Create Option</span></div>
+      <div class="batch-box">
+        <div class="batch-box-title">⚡ Create Multiple Tasks from This Template</div>
+        <div style="font-size:12px;color:var(--text2);margin-bottom:10px;">How many tasks to generate? Each gets a unique TASK-ID automatically.</div>
+        <div class="batch-count-row">
+          <button class="btn btn-ghost btn-sm" onclick="adjustRunBatch(-1)">−</button>
+          <input class="form-input batch-count-input" type="number" id="runBatchCount" value="1" min="1" max="50" oninput="updateRunBatchPreview()"/>
+          <button class="btn btn-ghost btn-sm" onclick="adjustRunBatch(1)">＋</button>
+          <span style="font-size:13px;color:var(--text2)">task(s)</span>
+        </div>
+        <div class="batch-preview" id="runBatchPreview">Will create <strong style="color:var(--teal)">1</strong> task — ID auto-assigned.</div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="document.getElementById('runTplModal').classList.remove('open')">Cancel</button>
+      <button class="btn btn-primary" onclick="runTemplate()">▶ Create Task(s)</button>
+    </div>
+  </div>
+</div>
 
-<!-- ══════════════════════════════════════
-     FIREBASE + APP LOGIC
-══════════════════════════════════════ -->
+<!-- BULK DELETE -->
+<div class="bulk-panel-overlay" id="bulkPanel">
+  <div class="bulk-panel">
+    <div class="bulk-panel-head"><h3>🗑 Bulk Delete Tasks</h3><button class="bulk-panel-close" onclick="closeBulkDelete()">✕</button></div>
+    <div class="bulk-panel-body">
+      <div class="warning-strip">⚠️ <span>Permanently deletes all matching tasks. Cannot be undone. Admin only.</span></div>
+      <div class="bulk-filters">
+        <div class="form-group field-full"><div class="field-label">Department</div><select class="field-input" id="bulkDept"><option value="all">All Departments</option></select></div>
+        <div class="form-group"><div class="field-label">From Date (task created on)</div><input type="date" class="field-input" id="bulkFrom"/></div>
+        <div class="form-group"><div class="field-label">To Date</div><input type="date" class="field-input" id="bulkTo"/></div>
+      </div>
+      <button class="btn btn-ghost" onclick="previewBulkDelete()">🔍 Preview Tasks to Delete</button>
+      <div class="bulk-preview-box" id="bulkPreviewBox">
+        <div class="bulk-preview-summary" id="bulkPreviewSummary"></div>
+        <div class="bulk-preview-list" id="bulkPreviewList"></div>
+      </div>
+    </div>
+    <div class="bulk-panel-footer">
+      <button class="btn btn-ghost" onclick="closeBulkDelete()">Cancel</button>
+      <button class="btn btn-danger" id="confirmDeleteBtn" onclick="executeBulkDelete()" style="display:none">🗑 Delete All Listed Tasks</button>
+    </div>
+  </div>
+</div>
+
+<script src="firebase-config.js"></script>
+<script src="audit.js"></script>
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
 import {
-  getFirestore, collection, addDoc, getDocs, getDoc, doc,
-  updateDoc, query, where, orderBy, serverTimestamp, onSnapshot, arrayUnion
-} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-
-// ── Firebase config (same as your other files) ──
-const firebaseConfig = {
-  apiKey: "AIzaSyDNwQYXcwZrAh4cTfRyhOVk_pRod9p4CRM",
-  authDomain: "sparkals-tasks-app.firebaseapp.com",
-  projectId: "sparkals-tasks-app",
-  storageBucket: "sparkals-tasks-app.firebasestorage.app",
-  messagingSenderId: "147179987231",
-  appId: "1:147179987231:web:c6ffa484f33a2ca420d02a",
-  measurementId: "G-9QF8EWRW3E"
-};
+  getFirestore, collection, doc, getDoc, getDocs, addDoc, updateDoc, deleteDoc,
+  query, where, orderBy, serverTimestamp, Timestamp, runTransaction, increment
+} from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 
 const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
 const auth = getAuth(app);
+const db = getFirestore(app);
 
-// ── Department → Stages map ──
 const DEPT_STAGES = {
-  "Sales & Marketing":        ["Prospect","Meeting","Proposal","Negotiation","Won/Lost"],
-  "Operations":               ["Assigned","Started","Blocked","Completed","Verified"],
-  "Accounts & Finance":       ["Received","Processing","Review","Approved","Closed"],
-  "Logistics & Delivery":     ["Scheduled","Dispatched","In Transit","Delivered","Confirmed"],
-  "IT & Technology":          ["Backlog","In Progress","Testing","Deployed","Done"],
-  "Customer Support":         ["Open","Assigned","In Progress","Resolved","Closed"],
-  "Field / Site Work":        ["Briefed","En Route","On Site","Completed","Reported"],
-  "Management":               ["Planned","Delegated","In Review","Approved","Done"],
+  "Sales & Marketing":["Prospect","Meeting","Proposal","Negotiation","Won","Lost"],
+  "Operations":["Assigned","Started","Blocked","Completed","Verified"],
+  "Accounts & Finance":["Received","Processing","Review","Approved","Closed"],
+  "Logistics & Delivery":["Scheduled","Dispatched","In Transit","Delivered","Confirmed"],
+  "IT & Technology":["Backlog","In Progress","Testing","Deployed","Done"],
+  "Customer Support":["Open","Assigned","In Progress","Resolved","Closed"],
+  "Field / Site Work":["Briefed","En Route","On Site","Completed","Reported"],
+  "Management":["Planned","Delegated","In Review","Approved","Done"],
   "Production & Manufacturing":["Raw Material","In Production","QC Check","Packed","Dispatched"],
-  "Purchase":                 ["Requested","Quoted","Approved","Ordered","Received"]
+  "Purchase":["Requested","Quoted","Approved","Ordered","Received"]
 };
+const DEPTS = Object.keys(DEPT_STAGES);
+const COMPLETED_STAGES = ["Won","Lost","Verified","Closed","Confirmed","Done","Reported","Received","Dispatched"];
 
-// ── State ──
-let currentUser = null;
-let currentUserData = null;
-let allTasks = [];
-let allStaff = [];
-let currentFilter = 'all';
-let currentTaskId = null;
-let editMode = false;
-let selectedPriority = 'normal';
-let unsubscribeTasks = null;
+let currentUser=null,currentRole=null;
+let allTasks=[],allStaff=[],allTemplates=[];
+let activeDept="all",bulkPreviewIds=[],pendingTplData=null,activeRunTpl=null;
 
-// ── Expose functions globally ──
-window.setFilter = setFilter;
-window.openCreateModal = openCreateModal;
-window.closeCreateModal = closeCreateModal;
-window.selectPriority = selectPriority;
-window.onDeptChange = onDeptChange;
-window.submitTask = submitTask;
-window.openDetail = openDetail;
-window.closeDetail = closeDetail;
-window.editCurrentTask = editCurrentTask;
-window.advanceStage = advanceStage;
-window.sendComment = sendComment;
-window.renderTasks = renderTasks;
+// ── UNIQUE TASK ID GENERATOR ──
+// Uses a Firestore counter document so IDs never repeat, even with multiple users creating tasks simultaneously
+async function generateTaskId() {
+  const counterRef = doc(db,"appConfig","taskCounter");
+  let newNum = 1;
+  try {
+    await runTransaction(db, async tx => {
+      const snap = await tx.get(counterRef);
+      newNum = snap.exists() ? (snap.data().count||0)+1 : 1;
+      tx.set(counterRef,{count:newNum},{merge:true});
+    });
+  } catch(e) {
+    newNum = Date.now() % 99999;
+  }
+  return "TASK-" + String(newNum).padStart(4,"0");
+}
 
-// ── INIT ──
-onAuthStateChanged(auth, async (user) => {
-  if (!user) { window.location.href = 'login.html'; return; }
-  currentUser = user;
-  await loadCurrentUserData();
+// ── AUTH ──
+onAuthStateChanged(auth, async user => {
+  if(!user){window.location.href="login.html";return;}
+  currentUser=user;
+  const snap=await getDoc(doc(db,"users",user.uid));
+  if(!snap.exists()){window.location.href="login.html";return;}
+  const data=snap.data();
+  currentRole=data.role;
+  document.getElementById("userLabel").textContent=`${data.name||"Staff"} · ${data.role}`;
+  const isPrivileged=data.role==="admin"||data.role==="manager";
+  if(isPrivileged){
+    document.getElementById("adminActions").style.display="flex";
+    document.getElementById("saveTplBtn").style.display="inline-flex";
+  } else {
+    document.getElementById("staffActions").style.display="flex";
+  }
   await loadStaff();
-  subscribeToTasks();
-  setupAdminNav();
-  document.getElementById('loadingOverlay').style.display = 'none';
+  buildDeptUI();
+  loadTasks();
+  loadTemplates();
 });
 
-async function loadCurrentUserData() {
-  try {
-    const q = query(collection(db,'users'), where('email','==',currentUser.email));
-    const snap = await getDocs(q);
-    if (!snap.empty) currentUserData = { id: snap.docs[0].id, ...snap.docs[0].data() };
-  } catch(e) { console.error(e); }
-}
-
-async function loadStaff() {
-  try {
-    const snap = await getDocs(query(collection(db,'pendingStaff'), where('status','==','approved')));
-    allStaff = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-    populateAssigneeDropdown();
-  } catch(e) { console.error(e); }
-}
-
-function populateAssigneeDropdown() {
-  const sel = document.getElementById('taskAssignee');
-  sel.innerHTML = '<option value="">— Select Staff Member —</option>';
-  allStaff.forEach(s => {
-    const opt = document.createElement('option');
-    opt.value = s.id;
-    opt.textContent = `${s.name} (${s.department || 'No Dept'})`;
-    sel.appendChild(opt);
+async function loadStaff(){
+  const snap=await getDocs(query(collection(db,"users"),where("status","==","approved")));
+  allStaff=snap.docs.map(d=>({id:d.id,...d.data()}));
+  ["newTaskAssignee","runTaskAssignee","filterAssignee"].forEach(sid=>{
+    const sel=document.getElementById(sid);
+    if(sel) allStaff.forEach(s=>sel.innerHTML+=`<option value="${s.id}">${s.name} (${s.department||""})</option>`);
   });
 }
 
-function setupAdminNav() {
-  const adminEmails = ['sandeepgemologist@gmail.com','sparkals.design@gmail.com'];
-  const isAdmin = adminEmails.includes(currentUser.email) ||
-                  (currentUserData && currentUserData.role === 'admin');
-  if (isAdmin) {
-    document.getElementById('adminNavLink').style.display = 'flex';
-  }
-}
-
-// ── REAL-TIME TASK SUBSCRIPTION ──
-function subscribeToTasks() {
-  if (unsubscribeTasks) unsubscribeTasks();
-  const tasksRef = collection(db, 'tasks');
-  unsubscribeTasks = onSnapshot(tasksRef, (snap) => {
-    allTasks = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-    updateStats();
-    renderTasks();
+function buildDeptUI(){
+  const tabs=document.getElementById("deptTabs");
+  DEPTS.forEach(d=>{
+    const btn=document.createElement("button");
+    btn.className="dept-tab";btn.textContent=d;
+    btn.onclick=()=>filterDept(d,btn);tabs.appendChild(btn);
+    ["newTaskDept","runTaskDept","bulkDept","tplFilterDept"].forEach(sid=>{
+      const s=document.getElementById(sid);
+      if(s) s.innerHTML+=`<option value="${d}">${d}</option>`;
+    });
   });
 }
 
-// ── DATE HELPERS ──
-function getDeadlineStatus(deadlineStr) {
-  if (!deadlineStr) return 'on-track';
-  const today = new Date(); today.setHours(0,0,0,0);
-  const dl = new Date(deadlineStr); dl.setHours(0,0,0,0);
-  if (dl < today) return 'overdue';
-  if (dl.getTime() === today.getTime()) return 'due-today';
-  return 'on-track';
+window.showTab=function(tab){
+  document.getElementById("view-tasks").style.display=tab==="tasks"?"block":"none";
+  document.getElementById("view-templates").style.display=tab==="templates"?"block":"none";
+  document.getElementById("ptab-tasks").classList.toggle("active",tab==="tasks");
+  document.getElementById("ptab-templates").classList.toggle("active",tab==="templates");
+};
+
+window.filterDept=function(dept,el){
+  activeDept=dept;
+  document.querySelectorAll(".dept-tab").forEach(t=>t.classList.remove("active"));
+  el.classList.add("active");applyFilters();
+};
+
+async function loadTasks(){
+  let q=currentRole==="admin"
+    ?query(collection(db,"tasks"),orderBy("createdAt","desc"))
+    :query(collection(db,"tasks"),where("assigneeId","==",currentUser.uid),orderBy("createdAt","desc"));
+  const snap=await getDocs(q);
+  allTasks=snap.docs.map(d=>({id:d.id,...d.data()}));
+  updateStats();applyFilters();
 }
 
-function formatDate(dateStr) {
-  if (!dateStr) return '—';
-  const d = new Date(dateStr);
-  return d.toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' });
+function updateStats(){
+  const now=new Date();now.setHours(0,0,0,0);
+  document.getElementById("statTotal").textContent=allTasks.length;
+  document.getElementById("statInprogress").textContent=allTasks.filter(t=>!COMPLETED_STAGES.includes(t.stage)).length;
+  document.getElementById("statOverdue").textContent=allTasks.filter(t=>{
+    if(!t.deadline)return false;
+    const d=t.deadline.toDate?t.deadline.toDate():new Date(t.deadline);
+    return d<now&&!COMPLETED_STAGES.includes(t.stage);
+  }).length;
+  document.getElementById("statDone").textContent=allTasks.filter(t=>COMPLETED_STAGES.includes(t.stage)).length;
 }
 
-function isTaskDone(task) {
-  if (!task.stages || !task.currentStageIndex === undefined) return false;
-  return task.currentStageIndex >= (task.stages.length - 1) && task.status === 'completed';
+window.applyFilters=function(){
+  let list=[...allTasks];
+  if(activeDept!=="all") list=list.filter(t=>t.department===activeDept);
+  const pri=document.getElementById("filterPriority").value;
+  if(pri) list=list.filter(t=>t.priority===pri);
+  const st=document.getElementById("filterStatus").value;
+  if(st==="completed") list=list.filter(t=>COMPLETED_STAGES.includes(t.stage));
+  if(st==="active") list=list.filter(t=>!COMPLETED_STAGES.includes(t.stage));
+  const srch=document.getElementById("filterSearch").value.toLowerCase();
+  if(srch) list=list.filter(t=>(t.name||"").toLowerCase().includes(srch)||(t.taskId||"").toLowerCase().includes(srch));
+  const asgn=document.getElementById("filterAssignee").value;
+  if(asgn) list=list.filter(t=>t.assigneeId===asgn);
+  renderTasks(list);
+};
+
+function deadlineInfo(t){
+  if(!t.deadline)return"";
+  const d=t.deadline.toDate?t.deadline.toDate():new Date(t.deadline);
+  const now=new Date();now.setHours(0,0,0,0);
+  const diff=Math.round((d-now)/86400000);
+  if(diff<0)return`<span class="deadline-tag deadline-overdue">⚠ Overdue ${Math.abs(diff)}d</span>`;
+  if(diff===0)return`<span class="deadline-tag deadline-today">⏰ Due Today</span>`;
+  return`<span class="deadline-tag deadline-ok">📅 ${diff}d left</span>`;
+}
+function priorityBadge(p){
+  const m={urgent:"badge-urgent 🔴 Urgent",high:"badge-high 🟠 High",normal:"badge-normal 🔵 Normal",low:"badge-low ⚪ Low"};
+  const v=m[p]||"badge-normal 🔵 Normal";const[cls,...r]=v.split(" ");
+  return`<span class="badge ${cls}">${r.join(" ")}</span>`;
 }
 
-// ── STATS ──
-function updateStats() {
-  const total = allTasks.length;
-  let overdue = 0, today = 0, done = 0;
-  allTasks.forEach(t => {
-    if (t.status === 'completed') { done++; return; }
-    const s = getDeadlineStatus(t.deadline);
-    if (s === 'overdue') overdue++;
-    else if (s === 'due-today') today++;
-  });
-  document.getElementById('statTotal').textContent = total;
-  document.getElementById('statOverdue').textContent = overdue;
-  document.getElementById('statToday').textContent = today;
-  document.getElementById('statDone').textContent = done;
-}
-
-// ── FILTER ──
-function setFilter(filter, el) {
-  currentFilter = filter;
-  document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
-  el.classList.add('active');
-  renderTasks();
-}
-
-// ── RENDER TASKS ──
-function renderTasks() {
-  const search = document.getElementById('searchInput').value.toLowerCase();
-  let tasks = [...allTasks];
-
-  // Filter
-  tasks = tasks.filter(t => {
-    if (currentFilter === 'overdue') return getDeadlineStatus(t.deadline) === 'overdue' && t.status !== 'completed';
-    if (currentFilter === 'due-today') return getDeadlineStatus(t.deadline) === 'due-today' && t.status !== 'completed';
-    if (currentFilter === 'on-track') return getDeadlineStatus(t.deadline) === 'on-track' && t.status !== 'completed';
-    if (currentFilter === 'mine') return t.assigneeId === currentUser.uid || t.assigneeEmail === currentUser.email;
-    if (currentFilter === 'created') return t.createdBy === currentUser.uid || t.createdByEmail === currentUser.email;
-    return true;
-  });
-
-  // Search
-  if (search) {
-    tasks = tasks.filter(t =>
-      (t.title || '').toLowerCase().includes(search) ||
-      (t.assigneeName || '').toLowerCase().includes(search) ||
-      (t.department || '').toLowerCase().includes(search)
-    );
-  }
-
-  // Sort: overdue first, then due today, then by deadline
-  tasks.sort((a,b) => {
-    const priority = {overdue:0,'due-today':1,'on-track':2};
-    const sa = priority[getDeadlineStatus(a.deadline)] ?? 3;
-    const sb = priority[getDeadlineStatus(b.deadline)] ?? 3;
-    if (sa !== sb) return sa - sb;
-    if (a.deadline && b.deadline) return new Date(a.deadline) - new Date(b.deadline);
-    return 0;
-  });
-
-  const container = document.getElementById('taskList');
-
-  if (tasks.length === 0) {
-    container.innerHTML = `
-      <div class="empty-state">
-        <div class="emoji">📋</div>
-        <p>No tasks found.<br>Tap <strong>+ New Task</strong> to create one.</p>
-      </div>`;
-    return;
-  }
-
-  container.innerHTML = tasks.map(task => {
-    const status = task.status === 'completed' ? 'on-track' : getDeadlineStatus(task.deadline);
-    const stages = task.stages || [];
-    const currentStageIdx = task.currentStageIndex || 0;
-    const priority = task.priority || 'normal';
-
-    const stageDots = stages.map((s,i) => {
-      let cls = '';
-      if (i < currentStageIdx) cls = 'done';
-      else if (i === currentStageIdx) cls = 'current';
-      return `<div class="stage-dot ${cls}" title="${s}"></div>`;
-    }).join('');
-
-    const assigneeInitials = (task.assigneeName || 'S').split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
-
-    const deadlineLabel = task.status === 'completed'
-      ? `✅ Done`
-      : status === 'overdue' ? `⚠ ${formatDate(task.deadline)}`
-      : status === 'due-today' ? `Today`
-      : formatDate(task.deadline);
-
-    return `
-    <div class="task-card ${status}" onclick="openDetail('${task.id}')">
-      <div class="task-card-header">
-        <div class="task-title">${escHtml(task.title || 'Untitled')}</div>
-        <div class="priority-badge ${priority}">${priority.toUpperCase()}</div>
+function buildTaskCard(t){
+  const stages=DEPT_STAGES[t.department]||[];
+  const stagesHtml=stages.map(s=>`<button class="stage-btn ${t.stage===s?'active':''}" onclick="changeStage('${t.id}','${s}',this,event)">${s}</button>`).join("");
+  const aName=(allStaff.find(s=>s.id===t.assigneeId)||{}).name||"Unassigned";
+  const clHtml=(t.checklist||[]).map((item,i)=>`
+    <div class="checklist-item">
+      <input type="checkbox" ${item.done?'checked':''} onchange="toggleChecklist('${t.id}',${i},this)"/>
+      <span class="cl-text ${item.done?'done':''}">${item.text}</span>
+      <button class="cl-delete" onclick="deleteChecklist('${t.id}',${i})">✕</button>
+    </div>`).join("");
+  const mtHtml=(t.minitasks||[]).map((mt,i)=>`
+    <div class="minitask-item">
+      <div class="minitask-top">
+        <span class="minitask-name">${mt.name}</span>
+        <button class="minitask-status ${mt.status}" onclick="cycleMinitask('${t.id}',${i},this)">${mt.status==='todo'?'To Do':mt.status==='inprogress'?'In Progress':'Done'}</button>
+        <button class="minitask-delete" onclick="deleteMinitask('${t.id}',${i})">✕</button>
       </div>
-      <div class="task-meta">
-        <div class="task-meta-item"><span class="icon">🏢</span>${escHtml(task.department || '—')}</div>
-        ${stages.length ? `<div class="task-meta-item"><span class="icon">📍</span>${escHtml(stages[currentStageIdx] || stages[0])}</div>` : ''}
-      </div>
-      ${stages.length > 1 ? `<div class="stage-bar">${stageDots}</div>` : ''}
-      <div class="task-card-footer">
-        <div class="assignee-chip">
-          <div class="avatar-mini">${assigneeInitials}</div>
-          ${escHtml(task.assigneeName || 'Unassigned')}
+      <div class="minitask-bottom">${mt.assignee?`<span>👤 ${mt.assignee}</span>`:''}${mt.deadline?`<span>📅 ${mt.deadline}</span>`:''}</div>
+    </div>`).join("");
+  const tot=(t.checklist||[]).length+(t.minitasks||[]).length;
+  const dn=(t.checklist||[]).filter(c=>c.done).length+(t.minitasks||[]).filter(m=>m.status==='done').length;
+  const pct=tot?Math.round((dn/tot)*100):0;
+  const progHtml=tot?`<div class="progress-bar-wrap"><div class="progress-bar-label">${dn} of ${tot} sub-tasks done (${pct}%)</div><div class="progress-bar"><div class="progress-bar-fill" style="width:${pct}%"></div></div></div>`:"";
+  const cmtHtml=(t.comments||[]).slice(-10).map(c=>`<div class="comment-item"><div class="comment-meta">${c.author} · ${c.time||''}</div><div class="comment-text">${c.text}</div></div>`).join("");
+  const canTpl=currentRole==='admin'||currentRole==='manager';
+  return`
+  <div class="task-card priority-${t.priority||'normal'}" id="card_${t.id}">
+    <div class="task-header" onclick="toggleCard('${t.id}')">
+      <button class="task-expand-btn" id="expand_${t.id}">▶</button>
+      <div class="task-info">
+        <div class="task-name">${t.name||'Untitled Task'}</div>
+        <div class="task-meta">
+          ${t.taskId?`<span class="task-id-chip">${t.taskId}</span>`:''}
+          ${priorityBadge(t.priority)}
+          <span class="badge badge-dept">🏢 ${t.department||''}</span>
+          <span class="badge badge-assignee">👤 ${aName}</span>
+          ${deadlineInfo(t)}
+          <span class="badge badge-dept">📌 ${t.stage||'—'}</span>
         </div>
-        <div class="deadline-chip ${status}">${deadlineLabel}</div>
+      </div>
+      <div class="task-actions" onclick="event.stopPropagation()">
+        ${canTpl?`<button class="btn btn-gold btn-xs" title="Save as Template" onclick="openSaveTemplateFromTask('${t.id}')">💾</button>`:''}
+        ${currentRole==='admin'?`<button class="btn btn-danger btn-xs" onclick="deleteOneTask('${t.id}')">🗑</button>`:''}
+      </div>
+    </div>
+    <div class="task-body" id="body_${t.id}">
+      <div class="stage-section"><div class="stage-label">Stage Progress</div><div class="stage-track">${stagesHtml}</div></div>
+      ${t.notes?`<div class="task-desc">${t.notes}</div>`:''}
+      ${progHtml}
+      <div class="subtask-section">
+        <div class="subtask-header">
+          <div class="subtask-title">Sub-tasks</div>
+          <div class="subtask-add-btns">
+            <button class="btn btn-ghost btn-xs" onclick="toggleAddChecklist('${t.id}')">☑ Checklist</button>
+            <button class="btn btn-ghost btn-xs" onclick="toggleAddMinitask('${t.id}')">📋 Mini Task</button>
+          </div>
+        </div>
+        <div class="checklist-items" id="checklist_${t.id}">${clHtml}</div>
+        <div class="minitask-items" id="minitask_${t.id}">${mtHtml}</div>
+        <div class="add-checklist-form" id="clform_${t.id}">
+          <div class="form-row"><input class="form-input" id="clinput_${t.id}" placeholder="e.g. Call client, Send quote..."/></div>
+          <div class="form-actions"><button class="btn btn-green btn-sm" onclick="addChecklistItem('${t.id}')">Add Item</button><button class="btn btn-ghost btn-sm" onclick="toggleAddChecklist('${t.id}')">Cancel</button></div>
+        </div>
+        <div class="add-minitask-form" id="mtform_${t.id}">
+          <div class="form-row"><input class="form-input" id="mtname_${t.id}" placeholder="Mini task name *"/></div>
+          <div class="form-row"><input class="form-input" id="mtassign_${t.id}" placeholder="Assignee name (optional)"/><input class="form-input" type="date" id="mtdeadline_${t.id}"/></div>
+          <div class="form-actions"><button class="btn btn-green btn-sm" onclick="addMinitask('${t.id}')">Add Mini Task</button><button class="btn btn-ghost btn-sm" onclick="toggleAddMinitask('${t.id}')">Cancel</button></div>
+        </div>
+      </div>
+      <div class="comments-section">
+        <div class="subtask-title" style="margin-bottom:8px">💬 Comments</div>
+        <div class="comment-list">${cmtHtml||'<div style="color:var(--text3);font-size:13px;padding:8px 0">No comments yet.</div>'}</div>
+        <div class="comment-input-row">
+          <input class="comment-input" id="cmtinput_${t.id}" placeholder="Add a comment..." onkeydown="if(event.key==='Enter')addComment('${t.id}')"/>
+          <button class="btn btn-primary btn-sm" onclick="addComment('${t.id}')">Send</button>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderTasks(list){
+  const el=document.getElementById("tasksList");
+  if(!list.length){el.innerHTML=`<div class="empty-state"><div class="icon">📋</div><p>No tasks found.</p></div>`;return;}
+  el.innerHTML=list.map(t=>buildTaskCard(t)).join("");
+}
+
+window.toggleCard=function(id){
+  const body=document.getElementById("body_"+id);
+  const btn=document.getElementById("expand_"+id);
+  btn.textContent=body.classList.toggle("open")?"▼":"▶";
+};
+window.changeStage=async function(id,stage,el,e){
+  e.stopPropagation();
+  await updateDoc(doc(db,"tasks",id),{stage,updatedAt:serverTimestamp()});
+  allTasks=allTasks.map(t=>t.id===id?{...t,stage}:t);
+  el.closest(".stage-track").querySelectorAll(".stage-btn").forEach(b=>b.classList.remove("active"));
+  el.classList.add("active");showToast("Stage → "+stage,"success");
+};
+window.deleteOneTask=async function(id){
+  if(!confirm("Delete this task permanently?"))return;
+  await deleteDoc(doc(db,"tasks",id));
+  allTasks=allTasks.filter(t=>t.id!==id);
+  document.getElementById("card_"+id)?.remove();updateStats();showToast("Task deleted","success");
+};
+window.toggleAddChecklist=id=>document.getElementById("clform_"+id).classList.toggle("open");
+window.addChecklistItem=async function(id){
+  const input=document.getElementById("clinput_"+id);const text=input.value.trim();if(!text)return;
+  const task=allTasks.find(t=>t.id===id);
+  const checklist=[...(task.checklist||[]),{text,done:false}];
+  await updateDoc(doc(db,"tasks",id),{checklist,updatedAt:serverTimestamp()});
+  allTasks=allTasks.map(t=>t.id===id?{...t,checklist}:t);
+  input.value="";document.getElementById("clform_"+id).classList.remove("open");refreshCard(id);showToast("Item added","success");
+};
+window.toggleChecklist=async function(id,idx,el){
+  const task=allTasks.find(t=>t.id===id);const checklist=[...(task.checklist||[])];checklist[idx].done=el.checked;
+  await updateDoc(doc(db,"tasks",id),{checklist,updatedAt:serverTimestamp()});
+  allTasks=allTasks.map(t=>t.id===id?{...t,checklist}:t);
+  el.nextElementSibling.classList.toggle("done",el.checked);refreshProgress(id,checklist,task.minitasks||[]);
+};
+window.deleteChecklist=async function(id,idx){
+  const task=allTasks.find(t=>t.id===id);const checklist=(task.checklist||[]).filter((_,i)=>i!==idx);
+  await updateDoc(doc(db,"tasks",id),{checklist,updatedAt:serverTimestamp()});
+  allTasks=allTasks.map(t=>t.id===id?{...t,checklist}:t);refreshCard(id);
+};
+window.toggleAddMinitask=id=>document.getElementById("mtform_"+id).classList.toggle("open");
+window.addMinitask=async function(id){
+  const name=document.getElementById("mtname_"+id).value.trim();if(!name)return;
+  const assignee=document.getElementById("mtassign_"+id).value.trim();
+  const deadline=document.getElementById("mtdeadline_"+id).value;
+  const task=allTasks.find(t=>t.id===id);
+  const minitasks=[...(task.minitasks||[]),{name,assignee,deadline,status:"todo"}];
+  await updateDoc(doc(db,"tasks",id),{minitasks,updatedAt:serverTimestamp()});
+  allTasks=allTasks.map(t=>t.id===id?{...t,minitasks}:t);
+  document.getElementById("mtform_"+id).classList.remove("open");refreshCard(id);showToast("Mini task added","success");
+};
+window.cycleMinitask=async function(id,idx,el){
+  const task=allTasks.find(t=>t.id===id);const minitasks=[...(task.minitasks||[])];
+  const cycle={todo:"inprogress",inprogress:"done",done:"todo"};
+  minitasks[idx].status=cycle[minitasks[idx].status];
+  await updateDoc(doc(db,"tasks",id),{minitasks,updatedAt:serverTimestamp()});
+  allTasks=allTasks.map(t=>t.id===id?{...t,minitasks}:t);
+  const s=minitasks[idx].status;el.className="minitask-status "+s;
+  el.textContent=s==='todo'?'To Do':s==='inprogress'?'In Progress':'Done';
+  refreshProgress(id,task.checklist||[],minitasks);
+};
+window.deleteMinitask=async function(id,idx){
+  const task=allTasks.find(t=>t.id===id);const minitasks=(task.minitasks||[]).filter((_,i)=>i!==idx);
+  await updateDoc(doc(db,"tasks",id),{minitasks,updatedAt:serverTimestamp()});
+  allTasks=allTasks.map(t=>t.id===id?{...t,minitasks}:t);refreshCard(id);
+};
+function refreshProgress(id,checklist,minitasks){
+  const tot=checklist.length+minitasks.length;const dn=checklist.filter(c=>c.done).length+minitasks.filter(m=>m.status==='done').length;
+  const pct=tot?Math.round((dn/tot)*100):0;
+  const f=document.querySelector(`#card_${id} .progress-bar-fill`);const l=document.querySelector(`#card_${id} .progress-bar-label`);
+  if(f)f.style.width=pct+"%";if(l)l.textContent=`${dn} of ${tot} sub-tasks done (${pct}%)`;
+}
+function refreshCard(id){
+  const task=allTasks.find(t=>t.id===id);if(!task)return;
+  const card=document.getElementById("card_"+id);if(!card)return;
+  const wasOpen=document.getElementById("body_"+id).classList.contains("open");
+  card.outerHTML=buildTaskCard(task);
+  if(wasOpen)setTimeout(()=>{document.getElementById("body_"+id)?.classList.add("open");document.getElementById("expand_"+id).textContent="▼";},10);
+}
+window.addComment=async function(id){
+  const input=document.getElementById("cmtinput_"+id);const text=input.value.trim();if(!text)return;
+  const task=allTasks.find(t=>t.id===id);
+  const user=allStaff.find(s=>s.id===currentUser.uid);
+  const now=new Date();
+  const timeStr=now.toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit"})+" "+now.toLocaleDateString("en-IN");
+  const comments=[...(task.comments||[]),{text,author:user?.name||"Me",time:timeStr}];
+  await updateDoc(doc(db,"tasks",id),{comments,updatedAt:serverTimestamp()});
+  allTasks=allTasks.map(t=>t.id===id?{...t,comments}:t);input.value="";refreshCard(id);
+};
+
+// ── CREATE TASK ──
+window.updateStageSelect=function(){
+  const dept=document.getElementById("newTaskDept").value;
+  const stages=DEPT_STAGES[dept]||[];
+  document.getElementById("newTaskStage").innerHTML=stages.map(s=>`<option value="${s}">${s}</option>`).join("");
+};
+window.openCreateModal=function(){
+  document.getElementById("saveAsTplBtn").style.display=(currentRole==='admin'||currentRole==='manager')?"inline-flex":"none";
+  document.getElementById("batchCount").value=1;updateBatchPreview();
+  document.getElementById("createModal").classList.add("open");
+};
+window.closeCreateModal=()=>document.getElementById("createModal").classList.remove("open");
+window.adjustBatch=function(d){const el=document.getElementById("batchCount");el.value=Math.max(1,Math.min(50,parseInt(el.value||1)+d));updateBatchPreview();};
+window.adjustRunBatch=function(d){const el=document.getElementById("runBatchCount");el.value=Math.max(1,Math.min(50,parseInt(el.value||1)+d));updateRunBatchPreview();};
+window.updateBatchPreview=function(){
+  const n=parseInt(document.getElementById("batchCount").value)||1;
+  const el=document.getElementById("batchPreview");
+  el.innerHTML=n===1?`Will create <strong style="color:var(--teal)">1</strong> task — unique TASK-ID auto-assigned.`
+    :`Will create <strong style="color:var(--teal)">${n}</strong> tasks. Names: "Task Name (1/${n})", "Task Name (2/${n})"... Each gets its own unique TASK-ID.`;
+};
+window.updateRunBatchPreview=function(){
+  const n=parseInt(document.getElementById("runBatchCount").value)||1;
+  const el=document.getElementById("runBatchPreview");
+  el.innerHTML=n===1?`Will create <strong style="color:var(--teal)">1</strong> task — unique TASK-ID auto-assigned.`
+    :`Will create <strong style="color:var(--teal)">${n}</strong> tasks, each with a unique TASK-ID.`;
+};
+
+window.createTask=async function(){
+  const name=document.getElementById("newTaskName").value.trim();
+  const dept=document.getElementById("newTaskDept").value;
+  const priority=document.getElementById("newTaskPriority").value;
+  const deadlineVal=document.getElementById("newTaskDeadline").value;
+  const assigneeId=document.getElementById("newTaskAssignee").value;
+  const stage=document.getElementById("newTaskStage").value;
+  const notes=document.getElementById("newTaskNotes").value.trim();
+  const n=Math.max(1,Math.min(50,parseInt(document.getElementById("batchCount").value)||1));
+  if(!name||!dept||!assigneeId||!deadlineVal){showToast("Please fill all required fields","error");return;}
+  const deadline=Timestamp.fromDate(new Date(deadlineVal));
+  showToast(`Creating ${n} task(s)...`,"info");
+  for(let i=0;i<n;i++){
+    const taskId=await generateTaskId();
+    const taskName=n>1?`${name} (${i+1}/${n})`:name;
+    const ref=await addDoc(collection(db,"tasks"),{taskId,name:taskName,department:dept,priority,deadline,assigneeId,stage,notes,checklist:[],minitasks:[],comments:[],createdAt:serverTimestamp(),updatedAt:serverTimestamp(),createdBy:currentUser.uid});
+    allTasks.unshift({id:ref.id,taskId,name:taskName,department:dept,priority,deadline:{toDate:()=>new Date(deadlineVal)},assigneeId,stage,notes,checklist:[],minitasks:[],comments:[]});
+  }
+  closeCreateModal();applyFilters();updateStats();
+  showToast(`✅ ${n} task(s) created!`,"success");
+  if(typeof logAction==="function")logAction("task_created",{count:n,name});
+};
+
+// ── TEMPLATES ──
+window.openSaveTemplateFromTask=function(taskId){
+  const task=allTasks.find(t=>t.id===taskId);if(!task)return;
+  pendingTplData={name:task.name,department:task.department,priority:task.priority,assigneeId:task.assigneeId,stage:task.stage,notes:task.notes};
+  document.getElementById("tplName").value=task.name;
+  document.getElementById("tplDesc").value="";
+  document.getElementById("saveTplModal").classList.add("open");
+};
+window.openSaveTemplate=function(){
+  pendingTplData=null;
+  document.getElementById("tplName").value="";document.getElementById("tplDesc").value="";
+  document.getElementById("saveTplModal").classList.add("open");
+};
+window.quickSaveTemplate=function(){
+  pendingTplData={name:document.getElementById("newTaskName").value.trim(),department:document.getElementById("newTaskDept").value,priority:document.getElementById("newTaskPriority").value,assigneeId:document.getElementById("newTaskAssignee").value,stage:document.getElementById("newTaskStage").value,notes:document.getElementById("newTaskNotes").value.trim()};
+  document.getElementById("tplName").value=pendingTplData.name;document.getElementById("tplDesc").value="";
+  document.getElementById("saveTplModal").classList.add("open");
+};
+window.saveTemplate=async function(){
+  const tplName=document.getElementById("tplName").value.trim();const tplDesc=document.getElementById("tplDesc").value.trim();
+  if(!tplName){showToast("Template name required","error");return;}
+  const d=pendingTplData||{};
+  await addDoc(collection(db,"taskTemplates"),{name:tplName,description:tplDesc,taskName:d.name||"",department:d.department||"",priority:d.priority||"normal",assigneeId:d.assigneeId||"",stage:d.stage||"",notes:d.notes||"",createdBy:currentUser.uid,usedCount:0,createdAt:serverTimestamp()});
+  document.getElementById("saveTplModal").classList.remove("open");
+  showToast("✅ Template saved!","success");loadTemplates();
+};
+
+async function loadTemplates(){
+  const snap=await getDocs(query(collection(db,"taskTemplates"),orderBy("createdAt","desc")));
+  allTemplates=snap.docs.map(d=>({id:d.id,...d.data()}));
+  renderTemplates();
+}
+window.renderTemplates=function(){
+  const dept=document.getElementById("tplFilterDept").value;
+  const list=dept?allTemplates.filter(t=>t.department===dept):allTemplates;
+  const grid=document.getElementById("templatesGrid");
+  if(!list.length){grid.innerHTML=`<div class="empty-state"><div class="icon">📋</div><p>No templates yet.</p><p class="sub">Open any task → tap 💾 → save as template</p></div>`;return;}
+  grid.innerHTML=list.map(tpl=>{
+    const aName=(allStaff.find(s=>s.id===tpl.assigneeId)||{}).name||"Not set";
+    const canDel=currentRole==='admin';
+    return`
+    <div class="template-card">
+      <div class="template-card-head"><div class="template-name">${tpl.name}</div><div class="template-tag">TEMPLATE</div></div>
+      <div class="template-meta">
+        <div class="template-meta-row"><span>🏢</span>${tpl.department||"Any department"}</div>
+        <div class="template-meta-row"><span>👤</span>${aName}</div>
+        <div class="template-meta-row"><span>🎯</span>Starts at: ${tpl.stage||"First stage"}</div>
+        <div class="template-meta-row"><span>⚡</span>Priority: ${tpl.priority||"normal"}</div>
+      </div>
+      ${tpl.description?`<div class="template-desc">"${tpl.description}"</div>`:''}
+      <div class="template-footer">
+        <div class="template-use-count">Used ${tpl.usedCount||0} time${(tpl.usedCount||0)!==1?'s':''}</div>
+        <div class="template-actions">
+          ${canDel?`<button class="btn btn-ghost btn-xs" onclick="deleteTemplate('${tpl.id}')">🗑</button>`:''}
+          <button class="btn btn-teal btn-sm" onclick="openRunTemplate('${tpl.id}')">▶ Run</button>
+        </div>
       </div>
     </div>`;
-  }).join('');
-}
-
-// ── DETAIL ──
-async function openDetail(taskId) {
-  currentTaskId = taskId;
-  const task = allTasks.find(t => t.id === taskId);
-  if (!task) return;
-
-  document.getElementById('detailTopTitle').textContent = task.title || 'Task';
-  document.getElementById('detailModal').classList.add('open');
-
-  const body = document.getElementById('detailBody');
-  const stages = task.stages || [];
-  const currentStageIdx = task.currentStageIndex || 0;
-  const status = task.status === 'completed' ? 'on-track' : getDeadlineStatus(task.deadline);
-  const priority = task.priority || 'normal';
-
-  // Stage progress nodes
-  const stageHTML = stages.map((s,i) => {
-    let cls = '', icon = '';
-    if (i < currentStageIdx) { cls = 'done'; icon = '✓'; }
-    else if (i === currentStageIdx) { cls = 'current'; icon = '●'; }
-    else { icon = '○'; }
-    const connHTML = i < stages.length-1
-      ? `<div class="stage-connector ${i < currentStageIdx ? 'done' : ''}"></div>`
-      : '';
-    return `
-      <div class="stage-step">
-        <div class="stage-node ${cls}">
-          <div class="stage-node-dot">${icon}</div>
-          <div class="stage-node-label">${escHtml(s)}</div>
-        </div>
-        ${connHTML}
-      </div>`;
-  }).join('');
-
-  // Check if current user can advance stage
-  const adminEmails = ['sandeepgemologist@gmail.com','sparkals.design@gmail.com'];
-  const isAdmin = adminEmails.includes(currentUser.email) || (currentUserData && currentUserData.role==='admin');
-  const isAssignee = task.assigneeId === currentUser.uid || task.assigneeEmail === currentUser.email;
-  const canAdvance = (isAdmin || isAssignee) && currentStageIdx < stages.length - 1 && task.status !== 'completed';
-  const canComplete = (isAdmin || isAssignee) && currentStageIdx >= stages.length - 1 && task.status !== 'completed';
-
-  // Comments
-  const comments = task.comments || [];
-  const commentsHTML = comments.length === 0
-    ? '<p style="color:var(--text3);font-size:13px;">No comments yet. Add the first one!</p>'
-    : comments.map(c => `
-      <div class="comment-item">
-        <div class="comment-header">
-          <div class="avatar-mini" style="width:28px;height:28px;font-size:12px;">${(c.authorName||'U')[0].toUpperCase()}</div>
-          <div class="comment-author">${escHtml(c.authorName||'Unknown')}</div>
-          <div class="comment-time">${c.createdAt ? new Date(c.createdAt.toDate()).toLocaleString('en-IN',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}) : 'Just now'}</div>
-        </div>
-        <div class="comment-text">${escHtml(c.text)}</div>
-      </div>`).join('');
-
-  body.innerHTML = `
-    <!-- Priority + Deadline chips -->
-    <div style="display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap;">
-      <div class="priority-badge ${priority}" style="font-size:13px;padding:6px 12px;">${priority.toUpperCase()} PRIORITY</div>
-      <div class="deadline-chip ${status}" style="font-size:13px;padding:6px 12px;">
-        ${task.status==='completed' ? '✅ Completed' : status==='overdue' ? '⚠ OVERDUE: '+formatDate(task.deadline) : status==='due-today' ? '⏰ Due TODAY' : '📅 '+formatDate(task.deadline)}
-      </div>
-    </div>
-
-    <!-- Description -->
-    ${task.description ? `
-    <div class="detail-section">
-      <div class="detail-section-title">Description</div>
-      <div style="font-size:14px;color:var(--text2);line-height:1.6;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px;">
-        ${escHtml(task.description)}
-      </div>
-    </div>` : ''}
-
-    <!-- Info Grid -->
-    <div class="detail-section">
-      <div class="detail-section-title">Details</div>
-      <div class="detail-info-grid">
-        <div class="detail-info-card">
-          <div class="detail-info-label">Assigned To</div>
-          <div class="detail-info-value">${escHtml(task.assigneeName||'Unassigned')}</div>
-        </div>
-        <div class="detail-info-card">
-          <div class="detail-info-label">Department</div>
-          <div class="detail-info-value">${escHtml(task.department||'—')}</div>
-        </div>
-        <div class="detail-info-card">
-          <div class="detail-info-label">Created By</div>
-          <div class="detail-info-value">${escHtml(task.createdByName||'Admin')}</div>
-        </div>
-        <div class="detail-info-card">
-          <div class="detail-info-label">Created On</div>
-          <div class="detail-info-value">${task.createdAt ? new Date(task.createdAt.toDate()).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}) : '—'}</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Stage Progress -->
-    ${stages.length > 0 ? `
-    <div class="detail-section">
-      <div class="detail-section-title">Progress — Stage ${currentStageIdx+1} of ${stages.length}</div>
-      <div class="stage-progress-row">${stageHTML}</div>
-    </div>` : ''}
-
-    <!-- Actions -->
-    <div class="detail-section">
-      <div class="detail-section-title">Actions</div>
-      <div class="detail-actions">
-        ${canAdvance ? `<button class="btn-action primary" onclick="advanceStage('${taskId}')">→ Move to Next Stage</button>` : ''}
-        ${canComplete ? `<button class="btn-action primary" onclick="markComplete('${taskId}')">✅ Mark Complete</button>` : ''}
-        ${task.status === 'completed' ? `<div style="color:var(--green);font-size:14px;font-weight:600;">✅ This task is completed</div>` : ''}
-        ${isAdmin ? `<button class="btn-action danger" onclick="deleteTask('${taskId}')">🗑 Delete Task</button>` : ''}
-      </div>
-    </div>
-
-    <!-- Comments -->
-    <div class="detail-section">
-      <div class="detail-section-title">Comments (${comments.length})</div>
-      <div class="comment-list">${commentsHTML}</div>
-      <div class="comment-input-row">
-        <input class="comment-input" type="text" id="commentInput" placeholder="Add a comment…" onkeydown="if(event.key==='Enter') sendComment('${taskId}')">
-        <button class="btn-send" onclick="sendComment('${taskId}')">➤</button>
-      </div>
-    </div>
-  `;
-}
-
-function closeDetail() {
-  document.getElementById('detailModal').classList.remove('open');
-  currentTaskId = null;
-}
-
-// ── ADVANCE STAGE ──
-async function advanceStage(taskId) {
-  const task = allTasks.find(t => t.id === taskId);
-  if (!task) return;
-  const newIdx = (task.currentStageIndex || 0) + 1;
-  try {
-    await updateDoc(doc(db,'tasks',taskId), { currentStageIndex: newIdx });
-    showToast(`✅ Moved to: ${task.stages[newIdx]}`);
-    // Refresh detail
-    setTimeout(() => openDetail(taskId), 300);
-  } catch(e) { showToast('Error updating stage'); }
-}
-
-window.markComplete = async function(taskId) {
-  try {
-    await updateDoc(doc(db,'tasks',taskId), { status: 'completed' });
-    showToast('🎉 Task marked as complete!');
-    closeDetail();
-  } catch(e) { showToast('Error completing task'); }
+  }).join("");
 };
 
-window.deleteTask = async function(taskId) {
-  if (!confirm('Delete this task? This cannot be undone.')) return;
-  try {
-    const { deleteDoc } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
-    await deleteDoc(doc(db,'tasks',taskId));
-    showToast('Task deleted');
-    closeDetail();
-  } catch(e) { showToast('Error deleting task'); }
+window.openRunTemplate=function(tplId){
+  const tpl=allTemplates.find(t=>t.id===tplId);if(!tpl)return;
+  activeRunTpl=tpl;
+  document.getElementById("runTplTitle").textContent="▶ Run: "+tpl.name;
+  document.getElementById("runTaskName").value=tpl.taskName||tpl.name;
+  document.getElementById("runTaskDept").value=tpl.department||"";
+  updateRunStageSelect();
+  document.getElementById("runTaskPriority").value=tpl.priority||"normal";
+  document.getElementById("runTaskDeadline").value="";
+  document.getElementById("runTaskAssignee").value=tpl.assigneeId||"";
+  document.getElementById("runTaskNotes").value=tpl.notes||"";
+  document.getElementById("runBatchCount").value=1;updateRunBatchPreview();
+  document.getElementById("runTplModal").classList.add("open");
+};
+window.updateRunStageSelect=function(){
+  const dept=document.getElementById("runTaskDept").value;const stages=DEPT_STAGES[dept]||[];
+  const sel=document.getElementById("runTaskStage");sel.innerHTML=stages.map(s=>`<option value="${s}">${s}</option>`).join("");
+  if(activeRunTpl?.stage)sel.value=activeRunTpl.stage;
+};
+window.runTemplate=async function(){
+  const name=document.getElementById("runTaskName").value.trim();
+  const dept=document.getElementById("runTaskDept").value;
+  const priority=document.getElementById("runTaskPriority").value;
+  const deadlineVal=document.getElementById("runTaskDeadline").value;
+  const assigneeId=document.getElementById("runTaskAssignee").value;
+  const stage=document.getElementById("runTaskStage").value;
+  const notes=document.getElementById("runTaskNotes").value.trim();
+  const n=Math.max(1,Math.min(50,parseInt(document.getElementById("runBatchCount").value)||1));
+  if(!name||!dept||!assigneeId||!deadlineVal){showToast("Please fill all required fields","error");return;}
+  const deadline=Timestamp.fromDate(new Date(deadlineVal));
+  showToast(`Creating ${n} task(s)...`,"info");
+  for(let i=0;i<n;i++){
+    const taskId=await generateTaskId();
+    const taskName=n>1?`${name} (${i+1}/${n})`:name;
+    await addDoc(collection(db,"tasks"),{taskId,name:taskName,department:dept,priority,deadline,assigneeId,stage,notes,checklist:[],minitasks:[],comments:[],createdAt:serverTimestamp(),updatedAt:serverTimestamp(),createdBy:currentUser.uid,fromTemplate:activeRunTpl?.id||null});
+  }
+  if(activeRunTpl)await updateDoc(doc(db,"taskTemplates",activeRunTpl.id),{usedCount:increment(n)});
+  document.getElementById("runTplModal").classList.remove("open");
+  loadTasks();loadTemplates();
+  showToast(`✅ ${n} task(s) created from template!`,"success");
+};
+window.deleteTemplate=async function(id){
+  if(!confirm("Delete this template? Tasks already created from it are not affected."))return;
+  await deleteDoc(doc(db,"taskTemplates",id));
+  allTemplates=allTemplates.filter(t=>t.id!==id);renderTemplates();showToast("Template deleted","success");
 };
 
-// ── SEND COMMENT ──
-async function sendComment(taskId) {
-  const input = document.getElementById('commentInput');
-  const text = (input.value || '').trim();
-  if (!text) return;
-  input.value = '';
-  try {
-    const comment = {
-      text,
-      authorId: currentUser.uid,
-      authorEmail: currentUser.email,
-      authorName: currentUserData?.name || currentUser.email.split('@')[0],
-      createdAt: new Date()
-    };
-    await updateDoc(doc(db,'tasks',taskId), { comments: arrayUnion(comment) });
-    showToast('Comment added');
-    setTimeout(() => openDetail(taskId), 300);
-  } catch(e) { showToast('Error adding comment'); }
-}
-
-// ── CREATE / EDIT MODAL ──
-function openCreateModal() {
-  editMode = false;
-  document.getElementById('modalTitle').textContent = 'New Task';
-  document.getElementById('submitTaskBtn').textContent = 'Create Task';
-  document.getElementById('taskTitle').value = '';
-  document.getElementById('taskDesc').value = '';
-  document.getElementById('taskDept').value = '';
-  document.getElementById('taskAssignee').value = '';
-  document.getElementById('taskDeadline').value = '';
-  document.getElementById('stagesPreviewGroup').style.display = 'none';
-  selectPriority('normal');
-  document.getElementById('createModal').classList.add('open');
-}
-
-function closeCreateModal() {
-  document.getElementById('createModal').classList.remove('open');
-}
-
-function editCurrentTask() {
-  if (!currentTaskId) return;
-  const task = allTasks.find(t => t.id === currentTaskId);
-  if (!task) return;
-  editMode = true;
-  document.getElementById('modalTitle').textContent = 'Edit Task';
-  document.getElementById('submitTaskBtn').textContent = 'Save Changes';
-  document.getElementById('taskTitle').value = task.title || '';
-  document.getElementById('taskDesc').value = task.description || '';
-  document.getElementById('taskDept').value = task.department || '';
-  document.getElementById('taskAssignee').value = task.assigneeId || '';
-  document.getElementById('taskDeadline').value = task.deadline || '';
-  selectPriority(task.priority || 'normal');
-  onDeptChange();
-  closeDetail();
-  document.getElementById('createModal').classList.add('open');
-}
-
-function selectPriority(p) {
-  selectedPriority = p;
-  document.querySelectorAll('.priority-btn').forEach(btn => {
-    btn.classList.toggle('selected', btn.dataset.p === p);
+// ── BULK DELETE ──
+window.openBulkDelete=()=>document.getElementById("bulkPanel").classList.add("open");
+window.closeBulkDelete=function(){
+  document.getElementById("bulkPanel").classList.remove("open");
+  document.getElementById("bulkPreviewBox").classList.remove("open");
+  document.getElementById("confirmDeleteBtn").style.display="none";bulkPreviewIds=[];
+};
+window.previewBulkDelete=async function(){
+  const dept=document.getElementById("bulkDept").value;
+  const from=document.getElementById("bulkFrom").value;const to=document.getElementById("bulkTo").value;
+  if(!from||!to){showToast("Please select both dates","error");return;}
+  const fromDate=new Date(from);fromDate.setHours(0,0,0,0);
+  const toDate=new Date(to);toDate.setHours(23,59,59,999);
+  const snap=await getDocs(collection(db,"tasks"));
+  const all=snap.docs.map(d=>({id:d.id,...d.data()}));
+  const matched=all.filter(t=>{
+    const created=t.createdAt?.toDate?t.createdAt.toDate():new Date(t.createdAt||0);
+    return(dept==="all"||t.department===dept)&&created>=fromDate&&created<=toDate;
   });
-}
+  bulkPreviewIds=matched.map(t=>t.id);
+  document.getElementById("bulkPreviewBox").classList.add("open");
+  document.getElementById("bulkPreviewSummary").innerHTML=`<span>${matched.length} task${matched.length!==1?'s':''}</span> will be permanently deleted`;
+  document.getElementById("bulkPreviewList").innerHTML=matched.length?matched.map(t=>{
+    const aName=(allStaff.find(s=>s.id===t.assigneeId)||{}).name||"Unassigned";
+    return`<div class="bulk-preview-item">
+      <div><div class="pi-name">${t.name||'Untitled'}</div><div class="pi-meta">${t.department||''} · ${aName}</div></div>
+      <div style="text-align:right"><div class="pi-id">${t.taskId||'—'}</div><span class="badge badge-dept" style="font-size:10px">${t.stage||'—'}</span></div>
+    </div>`;
+  }).join(""):`<div style="padding:16px;color:var(--text3);font-size:13px">No tasks match this selection.</div>`;
+  document.getElementById("confirmDeleteBtn").style.display=matched.length?"inline-flex":"none";
+};
+window.executeBulkDelete=async function(){
+  if(!bulkPreviewIds.length)return;
+  const count=bulkPreviewIds.length;
+  if(!confirm(`Permanently delete ${count} task(s)? This CANNOT be undone.`))return;
+  for(const id of bulkPreviewIds)await deleteDoc(doc(db,"tasks",id));
+  if(typeof logAction==="function")logAction("bulk_delete",{count,ids:bulkPreviewIds});
+  allTasks=allTasks.filter(t=>!bulkPreviewIds.includes(t.id));
+  closeBulkDelete();applyFilters();updateStats();
+  showToast(`🗑 ${count} task(s) deleted`,"success");
+};
 
-function onDeptChange() {
-  const dept = document.getElementById('taskDept').value;
-  const stages = DEPT_STAGES[dept];
-  const group = document.getElementById('stagesPreviewGroup');
-  const preview = document.getElementById('stagesPreview');
-  if (dept && stages) {
-    group.style.display = 'block';
-    preview.innerHTML = stages.map((s,i) =>
-      `<span class="stage-chip ${i===0?'first':''}">${i===0?'▶ ':''}${s}</span>`
-    ).join('');
-  } else {
-    group.style.display = 'none';
-  }
-}
-
-// ── SUBMIT TASK ──
-async function submitTask() {
-  const title = document.getElementById('taskTitle').value.trim();
-  const desc = document.getElementById('taskDesc').value.trim();
-  const dept = document.getElementById('taskDept').value;
-  const assigneeId = document.getElementById('taskAssignee').value;
-  const deadline = document.getElementById('taskDeadline').value;
-
-  if (!title) { showToast('Please enter a task title'); return; }
-  if (!assigneeId) { showToast('Please select a staff member'); return; }
-  if (!deadline) { showToast('Please set a deadline'); return; }
-
-  const assignee = allStaff.find(s => s.id === assigneeId);
-  const stages = dept ? (DEPT_STAGES[dept] || []) : [];
-  const btn = document.getElementById('submitTaskBtn');
-  btn.disabled = true;
-  btn.textContent = editMode ? 'Saving…' : 'Creating…';
-
-  const taskData = {
-    title,
-    description: desc,
-    department: dept,
-    assigneeId,
-    assigneeEmail: assignee?.email || '',
-    assigneeName: assignee?.name || '',
-    deadline,
-    priority: selectedPriority,
-    stages,
-    currentStageIndex: 0,
-    status: 'active',
-    comments: [],
-    createdBy: currentUser.uid,
-    createdByEmail: currentUser.email,
-    createdByName: currentUserData?.name || currentUser.email.split('@')[0],
-  };
-
-  try {
-    if (editMode && currentTaskId) {
-      await updateDoc(doc(db,'tasks',currentTaskId), taskData);
-      showToast('✅ Task updated!');
-    } else {
-      taskData.createdAt = serverTimestamp();
-      await addDoc(collection(db,'tasks'), taskData);
-      showToast('🎉 Task created!');
-    }
-    closeCreateModal();
-  } catch(e) {
-    console.error(e);
-    showToast('Error saving task. Check console.');
-  } finally {
-    btn.disabled = false;
-    btn.textContent = editMode ? 'Save Changes' : 'Create Task';
-  }
-}
-
-// ── HELPERS ──
-function escHtml(str) {
-  return String(str||'')
-    .replace(/&/g,'&amp;')
-    .replace(/</g,'&lt;')
-    .replace(/>/g,'&gt;')
-    .replace(/"/g,'&quot;')
-    .replace(/'/g,'&#39;');
-}
-
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 3000);
-}
-
-// Set today as min deadline
-document.getElementById('taskDeadline').min = new Date().toISOString().split('T')[0];
-
+window.showToast=function(msg,type="success"){
+  const t=document.createElement("div");t.className="toast "+type;t.textContent=msg;
+  document.body.appendChild(t);setTimeout(()=>t.remove(),3500);
+};
 </script>
 </body>
 </html>
