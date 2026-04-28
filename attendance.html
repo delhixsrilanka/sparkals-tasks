@@ -10,122 +10,102 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
-  :root {
-    --bg:#0f0f1a;--surface:#1a1a2e;--surface2:#22223a;--surface3:#2a2a45;
-    --border:rgba(255,255,255,0.08);--text:#f0f0f8;--text2:#9090b0;--text3:#5a5a7a;
-    --accent:#7c6fff;--accent2:#a78bfa;--green:#10b981;--amber:#f59e0b;--red:#ef4444;--blue:#3b82f6;
-    --radius:16px;--radius-sm:10px;
-  }
-  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-  body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:90px}
-  .topbar{position:sticky;top:0;z-index:100;background:rgba(15,15,26,0.95);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:16px 16px 14px;display:flex;align-items:center;justify-content:space-between}
-  .topbar-title{font-size:20px;font-weight:700}
-  .topbar-title span{color:var(--accent2)}
-  .date-chip{font-family:'Space Mono',monospace;font-size:11px;color:var(--text2);background:var(--surface2);border:1px solid var(--border);padding:5px 10px;border-radius:8px}
-  .clock-section{text-align:center;padding:28px 20px 20px}
-  .live-time{font-family:'Space Mono',monospace;font-size:52px;font-weight:700;letter-spacing:-2px;line-height:1;margin-bottom:6px}
-  .live-date{font-size:14px;color:var(--text2)}
-  .status-banner{margin:0 16px 20px;padding:14px 18px;border-radius:var(--radius);border:1.5px solid var(--border);background:var(--surface);display:flex;align-items:center;gap:12px}
-  .status-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0;animation:pulse 2s infinite}
-  @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.6;transform:scale(.85)}}
-  .status-dot.out{background:var(--text3);animation:none}
-  .status-dot.in{background:var(--green)}
-  .status-dot.lunch{background:var(--amber)}
-  .status-text{font-size:15px;font-weight:600;flex:1}
-  .status-since{font-size:12px;color:var(--text2);margin-top:2px}
-  .hours-badge{font-family:'Space Mono',monospace;font-size:13px;font-weight:700;color:var(--accent2);background:rgba(167,139,250,0.1);padding:4px 10px;border-radius:8px}
-  .action-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:0 16px 20px}
-  .action-btn{border:none;border-radius:var(--radius);padding:20px 16px;cursor:pointer;transition:all .2s;text-align:center;font-family:'DM Sans',sans-serif}
-  .action-btn:active{transform:scale(.96)}
-  .action-btn:disabled{opacity:.35;cursor:not-allowed;transform:none}
-  .action-btn .btn-icon{font-size:32px;display:block;margin-bottom:8px}
-  .action-btn .btn-label{font-size:15px;font-weight:700;display:block}
-  .action-btn .btn-sub{font-size:11px;opacity:.75;display:block;margin-top:3px}
-  .btn-clockin{background:linear-gradient(135deg,#10b981,#059669);color:#fff;grid-column:1/-1;padding:24px}
-  .btn-clockin .btn-icon{font-size:40px}
-  .btn-clockin .btn-label{font-size:20px}
-  .btn-lunchout{background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff}
-  .btn-lunchin{background:linear-gradient(135deg,#3b82f6,#2563eb);color:#fff}
-  .btn-clockout{background:linear-gradient(135deg,#ef4444,#dc2626);color:#fff;grid-column:1/-1;padding:22px}
-  .btn-clockout .btn-label{font-size:18px}
-  .section{padding:0 16px 20px}
-  .section-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text3);margin-bottom:12px}
-  .timeline{display:flex;flex-direction:column;gap:0}
-  .timeline-item{display:flex;align-items:flex-start;gap:14px;position:relative}
-  .timeline-item:not(:last-child)::after{content:'';position:absolute;left:17px;top:36px;bottom:-8px;width:2px;background:var(--border)}
-  .timeline-dot{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;margin-bottom:16px}
-  .timeline-dot.green{background:rgba(16,185,129,.15);border:2px solid var(--green)}
-  .timeline-dot.amber{background:rgba(245,158,11,.15);border:2px solid var(--amber)}
-  .timeline-dot.blue{background:rgba(59,130,246,.15);border:2px solid var(--blue)}
-  .timeline-dot.red{background:rgba(239,68,68,.15);border:2px solid var(--red)}
-  .timeline-content{flex:1;padding-top:6px}
-  .timeline-label{font-size:14px;font-weight:600}
-  .timeline-time{font-family:'Space Mono',monospace;font-size:12px;color:var(--text2);margin-top:2px}
-  .timeline-location{font-size:11px;color:var(--text3);margin-top:2px}
-  .week-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:6px}
-  .week-day{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 4px;text-align:center}
-  .week-day-label{font-size:10px;color:var(--text3);margin-bottom:6px}
-  .week-day-dot{width:28px;height:28px;border-radius:50%;margin:0 auto 6px;display:flex;align-items:center;justify-content:center;font-size:12px}
-  .week-day-dot.present{background:rgba(16,185,129,.2);color:var(--green)}
-  .week-day-dot.absent{background:rgba(239,68,68,.1);color:var(--red)}
-  .week-day-dot.today{background:rgba(124,111,255,.2);color:var(--accent2);border:2px solid var(--accent)}
-  .week-day-dot.future{background:var(--surface2);color:var(--text3)}
-  .week-day-hours{font-size:10px;color:var(--text2);font-family:'Space Mono',monospace}
-  .history-list{display:flex;flex-direction:column;gap:8px}
-  .history-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 14px;display:flex;align-items:center;justify-content:space-between}
-  .history-date{font-size:13px;font-weight:600}
-  .history-day{font-size:11px;color:var(--text3);margin-top:2px}
-  .history-in{font-size:12px;color:var(--green);font-family:'Space Mono',monospace}
-  .history-out{font-size:12px;color:var(--red);font-family:'Space Mono',monospace}
-  .history-hours{font-size:12px;font-weight:700;color:var(--accent2);font-family:'Space Mono',monospace;margin-top:2px}
-  .late-badge{font-size:10px;background:rgba(245,158,11,.15);color:var(--amber);padding:2px 6px;border-radius:4px;margin-top:3px;display:inline-block}
-  /* SALARY */
-  .salary-section{margin:0 16px 20px;background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);overflow:hidden}
-  .salary-header{padding:16px 18px;border-bottom:1px solid var(--border)}
-  .salary-header-title{font-size:15px;font-weight:700}
-  .salary-header-sub{font-size:12px;color:var(--text2);margin-top:2px}
-  .salary-body{padding:16px 18px;display:flex;flex-direction:column;gap:12px}
-  .salary-controls{display:flex;gap:8px;flex-wrap:wrap}
-  .salary-select{flex:1;min-width:120px;background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:9px 12px;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text);outline:none;appearance:none}
-  .salary-select:focus{border-color:var(--accent)}
-  .btn-generate{width:100%;padding:13px;background:var(--accent);color:#fff;border:none;border-radius:var(--radius-sm);font-family:'DM Sans',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s}
-  .btn-generate:active{transform:scale(.98);opacity:.9}
-  .btn-generate:disabled{opacity:.5;cursor:not-allowed}
-  .salary-result{display:none}
-  .salary-result.show{display:block}
-  .salary-staff-name{font-size:16px;font-weight:700;margin-bottom:4px}
-  .salary-period{font-size:12px;color:var(--text2);margin-bottom:14px}
-  .salary-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
-  .salary-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px}
-  .salary-card-label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
-  .salary-card-value{font-size:18px;font-weight:700;font-family:'Space Mono',monospace}
-  .salary-card-value.green{color:var(--green)}.salary-card-value.red{color:var(--red)}.salary-card-value.amber{color:var(--amber)}.salary-card-value.accent{color:var(--accent2)}
-  .salary-breakdown{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px;margin-bottom:14px}
-  .salary-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--border);font-size:13px}
-  .salary-row:last-child{border-bottom:none;font-weight:700;font-size:14px;padding-top:10px}
-  .salary-row-label{color:var(--text2)}
-  .salary-row-value{font-family:'Space Mono',monospace}
-  .salary-row-value.deduction{color:var(--red)}
-  .salary-row-value.total{color:var(--green);font-size:16px}
-  .salary-btn-row{display:flex;gap:8px}
-  .btn-dl{flex:1;padding:12px;background:var(--surface3);border:1.5px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;text-align:center;transition:all .2s}
-  .btn-dl.primary{background:var(--green);border-color:var(--green);color:#fff}
-  .btn-dl:active{transform:scale(.97)}
-  /* IMPORTANT: salary section hidden for non-admin initially, shown by JS */
-  .geo-warning{margin:0 16px 16px;padding:14px 16px;background:rgba(239,68,68,.1);border:1.5px solid rgba(239,68,68,.3);border-radius:var(--radius-sm);font-size:13px;color:var(--red);display:none}
-  .gps-checking{display:none;align-items:center;gap:8px;font-size:13px;color:var(--text2);margin:0 16px 12px;padding:10px 14px;background:var(--surface2);border-radius:var(--radius-sm);border:1px solid var(--border)}
-  .gps-checking.show{display:flex}
-  .gps-spinner{width:16px;height:16px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;flex-shrink:0}
-  .bottom-nav{position:fixed;bottom:0;left:0;right:0;background:rgba(26,26,46,.97);backdrop-filter:blur(20px);border-top:1px solid var(--border);display:flex;padding:10px 0 max(10px,env(safe-area-inset-bottom));z-index:100}
-  .nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;text-decoration:none;color:var(--text3);font-size:10px;font-weight:500;cursor:pointer;border:none;background:none;padding:4px 0;transition:color .2s}
-  .nav-item .nav-icon{font-size:22px}
-  .nav-item.active{color:var(--accent2)}
-  .toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(20px);background:#1e1e3a;border:1px solid var(--accent);color:var(--text);padding:12px 20px;border-radius:12px;font-size:14px;font-weight:500;z-index:999;opacity:0;transition:all .3s;white-space:nowrap;pointer-events:none;max-width:90vw;text-align:center}
-  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-  .loading-overlay{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:500;flex-direction:column;gap:16px}
-  .spinner{width:40px;height:40px;border:3px solid var(--surface3);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite}
-  @keyframes spin{to{transform:rotate(360deg)}}
-  .loading-text{font-size:14px;color:var(--text2)}
+:root{--bg:#0f0f1a;--surface:#1a1a2e;--surface2:#22223a;--surface3:#2a2a45;--border:rgba(255,255,255,0.08);--text:#f0f0f8;--text2:#9090b0;--text3:#5a5a7a;--accent:#7c6fff;--accent2:#a78bfa;--green:#10b981;--amber:#f59e0b;--red:#ef4444;--blue:#3b82f6;--radius:16px;--radius-sm:10px;}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:90px}
+.topbar{position:sticky;top:0;z-index:100;background:rgba(15,15,26,0.95);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:16px 16px 14px;display:flex;align-items:center;justify-content:space-between}
+.topbar-title{font-size:20px;font-weight:700}.topbar-title span{color:var(--accent2)}
+.date-chip{font-family:'Space Mono',monospace;font-size:11px;color:var(--text2);background:var(--surface2);border:1px solid var(--border);padding:5px 10px;border-radius:8px}
+.clock-section{text-align:center;padding:28px 20px 20px}
+.live-time{font-family:'Space Mono',monospace;font-size:52px;font-weight:700;letter-spacing:-2px;line-height:1;margin-bottom:6px}
+.live-date{font-size:14px;color:var(--text2)}
+.status-banner{margin:0 16px 20px;padding:14px 18px;border-radius:var(--radius);border:1.5px solid var(--border);background:var(--surface);display:flex;align-items:center;gap:12px}
+.status-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.6;transform:scale(.85)}}
+.status-dot.out{background:var(--text3);animation:none}.status-dot.in{background:var(--green)}.status-dot.lunch{background:var(--amber)}
+.status-text{font-size:15px;font-weight:600;flex:1}
+.status-since{font-size:12px;color:var(--text2);margin-top:2px}
+.hours-badge{font-family:'Space Mono',monospace;font-size:13px;font-weight:700;color:var(--accent2);background:rgba(167,139,250,0.1);padding:4px 10px;border-radius:8px}
+.action-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:0 16px 20px}
+.action-btn{border:none;border-radius:var(--radius);padding:20px 16px;cursor:pointer;transition:all .2s;text-align:center;font-family:'DM Sans',sans-serif}
+.action-btn:active{transform:scale(.96)}.action-btn:disabled{opacity:.35;cursor:not-allowed;transform:none}
+.action-btn .btn-icon{font-size:32px;display:block;margin-bottom:8px}
+.action-btn .btn-label{font-size:15px;font-weight:700;display:block}
+.action-btn .btn-sub{font-size:11px;opacity:.75;display:block;margin-top:3px}
+.btn-clockin{background:linear-gradient(135deg,#10b981,#059669);color:#fff;grid-column:1/-1;padding:24px}
+.btn-clockin .btn-icon{font-size:40px}.btn-clockin .btn-label{font-size:20px}
+.btn-lunchout{background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff}
+.btn-lunchin{background:linear-gradient(135deg,#3b82f6,#2563eb);color:#fff}
+.btn-clockout{background:linear-gradient(135deg,#ef4444,#dc2626);color:#fff;grid-column:1/-1;padding:22px}
+.btn-clockout .btn-label{font-size:18px}
+.section{padding:0 16px 20px}
+.section-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text3);margin-bottom:12px}
+.timeline{display:flex;flex-direction:column;gap:0}
+.timeline-item{display:flex;align-items:flex-start;gap:14px;position:relative}
+.timeline-item:not(:last-child)::after{content:'';position:absolute;left:17px;top:36px;bottom:-8px;width:2px;background:var(--border)}
+.timeline-dot{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;margin-bottom:16px}
+.timeline-dot.green{background:rgba(16,185,129,.15);border:2px solid var(--green)}
+.timeline-dot.amber{background:rgba(245,158,11,.15);border:2px solid var(--amber)}
+.timeline-dot.blue{background:rgba(59,130,246,.15);border:2px solid var(--blue)}
+.timeline-dot.red{background:rgba(239,68,68,.15);border:2px solid var(--red)}
+.timeline-content{flex:1;padding-top:6px}
+.timeline-label{font-size:14px;font-weight:600}
+.timeline-time{font-family:'Space Mono',monospace;font-size:12px;color:var(--text2);margin-top:2px}
+.week-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:6px}
+.week-day{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 4px;text-align:center}
+.week-day-label{font-size:10px;color:var(--text3);margin-bottom:6px}
+.week-day-dot{width:28px;height:28px;border-radius:50%;margin:0 auto 6px;display:flex;align-items:center;justify-content:center;font-size:12px}
+.week-day-dot.present{background:rgba(16,185,129,.2);color:var(--green)}
+.week-day-dot.absent{background:rgba(239,68,68,.1);color:var(--red)}
+.week-day-dot.today{background:rgba(124,111,255,.2);color:var(--accent2);border:2px solid var(--accent)}
+.week-day-dot.future{background:var(--surface2);color:var(--text3)}
+.week-day-hours{font-size:10px;color:var(--text2);font-family:'Space Mono',monospace}
+.history-list{display:flex;flex-direction:column;gap:8px}
+.history-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 14px;display:flex;align-items:center;justify-content:space-between}
+.history-date{font-size:13px;font-weight:600}.history-day{font-size:11px;color:var(--text3);margin-top:2px}
+.history-in{font-size:12px;color:var(--green);font-family:'Space Mono',monospace}
+.history-out{font-size:12px;color:var(--red);font-family:'Space Mono',monospace}
+.history-hours{font-size:12px;font-weight:700;color:var(--accent2);font-family:'Space Mono',monospace;margin-top:2px}
+.late-badge{font-size:10px;background:rgba(245,158,11,.15);color:var(--amber);padding:2px 6px;border-radius:4px;margin-top:3px;display:inline-block}
+.salary-section{margin:0 16px 20px;background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.salary-header{padding:16px 18px;border-bottom:1px solid var(--border)}
+.salary-header-title{font-size:15px;font-weight:700}
+.salary-header-sub{font-size:12px;color:var(--text2);margin-top:2px}
+.salary-body{padding:16px 18px;display:flex;flex-direction:column;gap:12px}
+.salary-controls{display:flex;gap:8px;flex-wrap:wrap}
+.salary-select{flex:1;min-width:120px;background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:9px 12px;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text);outline:none;appearance:none}
+.salary-select:focus{border-color:var(--accent)}
+.btn-generate{width:100%;padding:13px;background:var(--accent);color:#fff;border:none;border-radius:var(--radius-sm);font-family:'DM Sans',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s}
+.btn-generate:active{transform:scale(.98);opacity:.9}.btn-generate:disabled{opacity:.5;cursor:not-allowed}
+.salary-result{display:none}.salary-result.show{display:block}
+.salary-staff-name{font-size:16px;font-weight:700;margin-bottom:4px}
+.salary-period{font-size:12px;color:var(--text2);margin-bottom:14px}
+.salary-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+.salary-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px}
+.salary-card-label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+.salary-card-value{font-size:18px;font-weight:700;font-family:'Space Mono',monospace}
+.salary-card-value.green{color:var(--green)}.salary-card-value.red{color:var(--red)}.salary-card-value.amber{color:var(--amber)}.salary-card-value.accent{color:var(--accent2)}
+.salary-breakdown{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px;margin-bottom:14px}
+.salary-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--border);font-size:13px}
+.salary-row:last-child{border-bottom:none;font-weight:700;font-size:14px;padding-top:10px}
+.salary-row-label{color:var(--text2)}.salary-row-value{font-family:'Space Mono',monospace}
+.salary-row-value.deduction{color:var(--red)}.salary-row-value.total{color:var(--green);font-size:16px}
+.salary-btn-row{display:flex;gap:8px}
+.btn-dl{flex:1;padding:12px;background:var(--surface3);border:1.5px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;text-align:center;transition:all .2s}
+.btn-dl.primary{background:var(--green);border-color:var(--green);color:#fff}.btn-dl:active{transform:scale(.97)}
+.geo-warning{margin:0 16px 16px;padding:14px 16px;background:rgba(239,68,68,.1);border:1.5px solid rgba(239,68,68,.3);border-radius:var(--radius-sm);font-size:13px;color:var(--red);display:none}
+.gps-checking{display:none;align-items:center;gap:8px;font-size:13px;color:var(--text2);margin:0 16px 12px;padding:10px 14px;background:var(--surface2);border-radius:var(--radius-sm);border:1px solid var(--border)}
+.gps-checking.show{display:flex}
+.gps-spinner{width:16px;height:16px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;flex-shrink:0}
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:rgba(26,26,46,.97);backdrop-filter:blur(20px);border-top:1px solid var(--border);display:flex;padding:10px 0 max(10px,env(safe-area-inset-bottom));z-index:100}
+.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;text-decoration:none;color:var(--text3);font-size:10px;font-weight:500;cursor:pointer;border:none;background:none;padding:4px 0;transition:color .2s}
+.nav-item .nav-icon{font-size:22px}.nav-item.active{color:var(--accent2)}
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(20px);background:#1e1e3a;border:1px solid var(--accent);color:var(--text);padding:12px 20px;border-radius:12px;font-size:14px;font-weight:500;z-index:999;opacity:0;transition:all .3s;white-space:nowrap;pointer-events:none;max-width:90vw;text-align:center}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.loading-overlay{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:500;flex-direction:column;gap:16px}
+.spinner{width:40px;height:40px;border:3px solid var(--surface3);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-text{font-size:14px;color:var(--text2)}
 </style>
 </head>
 <body>
@@ -167,7 +147,6 @@
   <div class="week-grid" id="weekGrid"></div>
 </div>
 
-<!-- SALARY REPORT -->
 <div class="salary-section" id="salarySection">
   <div class="salary-header">
     <div class="salary-header-title">💰 Salary Report</div>
@@ -178,13 +157,11 @@
       <select class="salary-select" id="reportStaffSelect"><option value="">— Select Staff —</option></select>
       <select class="salary-select" id="reportMonthSelect"></select>
     </div>
-    <!-- Salary input for staff (admin only sees this if no salary saved) -->
     <div id="salaryInputRow" style="display:none">
-      <label style="font-size:12px;color:var(--text2);display:block;margin-bottom:4px;">Monthly Gross Salary (₹) — enter if not saved in profile</label>
+      <label style="font-size:12px;color:var(--text2);display:block;margin-bottom:4px;">Monthly Gross Salary (₹)</label>
       <input type="number" id="manualSalary" placeholder="e.g. 20000" style="width:100%;background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:10px 14px;font-family:'DM Sans',sans-serif;font-size:15px;color:var(--text);outline:none">
     </div>
     <button class="btn-generate" id="generateBtn" onclick="generateSalaryReport()">📊 Generate Salary Report</button>
-
     <div class="salary-result" id="salaryResult">
       <div class="salary-staff-name" id="rStaffName"></div>
       <div class="salary-period" id="rPeriod"></div>
@@ -222,53 +199,63 @@
   <a href="admin.html" class="nav-item" id="adminNavLink" style="display:none"><span class="nav-icon">⚙️</span>Admin</a>
 </nav>
 
+<script src="firebase-config.js"></script>
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import {
-  getFirestore, collection, addDoc, getDocs, doc, updateDoc,
+  getFirestore, collection, addDoc, getDocs, doc, updateDoc, getDoc,
   query, where, orderBy, limit, serverTimestamp, Timestamp
-} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-
-// ── REPLACE WITH YOUR REAL FIREBASE CONFIG ──
-const firebaseConfig = {
-  apiKey: "AIzaSyDNwQYXcwZrAh4cTfRyhOVk_pRod9p4CRM",
-  authDomain: "sparkals-tasks-app.firebaseapp.com",
-  projectId: "sparkals-tasks-app",
-  storageBucket: "sparkals-tasks-app.firebasestorage.app",
-  messagingSenderId: "147179987231",
-  appId: "1:147179987231:web:c6ffa484f33a2ca420d02a",
-  measurementId: "G-9QF8EWRW3E"
-};
+} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 
-// ── OFFICE: Motilal Street, T. Nagar, Chennai 600017 ──
-const OFFICE_LAT = 13.0405;
-const OFFICE_LNG = 80.2337;
-const OFFICE_RADIUS_METRES = 100;
-const LATE_HOUR = 9;
-const LATE_MINUTE = 15;
-const SALARY_DIVISOR = 30; // salary ÷ 30 per day
-
-const FIELD_DEPARTMENTS = ['Field / Site Work','Logistics & Delivery','Sales & Marketing'];
+const OFFICE_LAT = 13.0405, OFFICE_LNG = 80.2337, OFFICE_RADIUS = 100;
+const LATE_HOUR = 9, LATE_MINUTE = 15;
+const FIELD_DEPTS = ['Field / Site Work','Logistics & Delivery','Sales & Marketing'];
 const ADMIN_EMAILS = ['sandeepgemologist@gmail.com','sparkals.design@gmail.com'];
 
 let currentUser = null, currentUserData = null, todayRecord = null;
 let attendanceState = 'out', clockInTime = null;
 let allStaff = [], currentReportData = null;
 
+// ── KEY FIX: Universal timestamp-to-Date converter ──
+// Handles Firestore Timestamp objects AND plain "HH:MM" strings
+function tsToDate(ts) {
+  if (!ts) return null;
+  if (ts && typeof ts.toDate === 'function') return ts.toDate(); // Firestore Timestamp
+  if (ts instanceof Date) return ts;
+  if (typeof ts === 'string') {
+    // Plain time string like "09:05" — combine with today's date
+    if (ts.length <= 5 && ts.includes(':')) {
+      const [h,m] = ts.split(':').map(Number);
+      const d = new Date(); d.setHours(h,m,0,0); return d;
+    }
+    return new Date(ts); // ISO string
+  }
+  if (typeof ts === 'number') return new Date(ts);
+  return null;
+}
+
+// Format timestamp to HH:MM — works with any format
+function fmtTime(ts) {
+  const d = tsToDate(ts);
+  if (!d) return '—';
+  return d.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:false});
+}
+
+// Expose onclick functions to window
 window.handleClockIn = handleClockIn;
 window.handleLunchOut = handleLunchOut;
 window.handleLunchIn = handleLunchIn;
 window.handleClockOut = handleClockOut;
-window.generateSalaryReport = async function() { await generateSalaryReport(); };
-window.downloadSalaryExcel = function() { if(window._dlExcel) window._dlExcel(); };
-window.downloadSalaryPDF = function() { if(window._dlPDF) window._dlPDF(); };
+window.generateSalaryReport = generateSalaryReport;
+window.downloadSalaryExcel = () => { if(window._dlExcel) window._dlExcel(); };
+window.downloadSalaryPDF = () => { if(window._dlPDF) window._dlPDF(); };
 
-onAuthStateChanged(auth, async (user) => {
+onAuthStateChanged(auth, async user => {
   if (!user) { window.location.href = 'login.html'; return; }
   currentUser = user;
   await loadUserData();
@@ -281,78 +268,32 @@ onAuthStateChanged(auth, async (user) => {
   startClock();
   renderButtons();
   updateStatusBanner();
-  setupAdminNav();
+  if (isAdmin()) document.getElementById('adminNavLink').style.display = 'flex';
   document.getElementById('loadingOverlay').style.display = 'none';
 });
 
+// ── Load user from users collection (not pendingStaff) ──
 async function loadUserData() {
   try {
-    const q = query(collection(db,'pendingStaff'), where('email','==',currentUser.email));
-    const snap = await getDocs(q);
-    if (!snap.empty) currentUserData = { id: snap.docs[0].id, ...snap.docs[0].data() };
-  } catch(e) { console.error(e); }
+    const snap = await getDoc(doc(db, 'users', currentUser.uid));
+    if (snap.exists()) { currentUserData = { id: snap.id, ...snap.data() }; return; }
+    // Fallback: search by email
+    const q = query(collection(db,'users'), where('email','==',currentUser.email));
+    const qs = await getDocs(q);
+    if (!qs.empty) currentUserData = { id: qs.docs[0].id, ...qs.docs[0].data() };
+  } catch(e) { console.error('loadUserData error:', e); }
 }
 
+// ── Load all approved staff from users collection ──
 async function loadStaff() {
   try {
-    const snap = await getDocs(query(collection(db,'pendingStaff'), where('status','==','approved')));
+    const snap = await getDocs(query(collection(db,'users'), where('status','==','approved')));
     allStaff = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-  } catch(e) { console.error(e); }
+  } catch(e) { console.error('loadStaff error:', e); }
 }
 
 function isAdmin() {
   return ADMIN_EMAILS.includes(currentUser.email) || currentUserData?.role === 'admin';
-}
-
-function setupAdminNav() {
-  if (isAdmin()) document.getElementById('adminNavLink').style.display = 'flex';
-}
-
-function setupSalarySection() {
-  const sel = document.getElementById('reportStaffSelect');
-  sel.innerHTML = '<option value="">— Select Staff —</option>';
-  if (isAdmin()) {
-    allStaff.forEach(s => {
-      const o = document.createElement('option');
-      o.value = s.id;
-      o.textContent = `${s.name} (${s.department||'—'})`;
-      o.dataset.salary = s.salary || 0;
-      o.dataset.name = s.name;
-      o.dataset.dept = s.department || '';
-      o.dataset.email = s.email || '';
-      sel.appendChild(o);
-    });
-    document.getElementById('salaryInputRow').style.display = 'block';
-    sel.addEventListener('change', () => {
-      const opt = sel.options[sel.selectedIndex];
-      const saved = parseFloat(opt.dataset.salary) || 0;
-      document.getElementById('manualSalary').value = saved > 0 ? saved : '';
-    });
-  } else {
-    if (currentUserData) {
-      const o = document.createElement('option');
-      o.value = currentUserData.id;
-      o.textContent = currentUserData.name + ' (Me)';
-      o.dataset.salary = currentUserData.salary || 0;
-      o.dataset.name = currentUserData.name;
-      o.dataset.dept = currentUserData.department || '';
-      o.dataset.email = currentUser.email;
-      sel.appendChild(o);
-      sel.value = currentUserData.id;
-    }
-  }
-}
-
-function setupMonthDropdown() {
-  const sel = document.getElementById('reportMonthSelect');
-  const now = new Date();
-  for (let i = 0; i < 6; i++) {
-    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-    const o = document.createElement('option');
-    o.value = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
-    o.textContent = d.toLocaleDateString('en-IN',{month:'long',year:'numeric'});
-    sel.appendChild(o);
-  }
 }
 
 function todayKey() {
@@ -362,17 +303,19 @@ function todayKey() {
 
 async function loadTodayRecord() {
   try {
-    const q = query(collection(db,'attendance'), where('userId','==',currentUser.uid), where('date','==',todayKey()));
-    const snap = await getDocs(q);
+    // Try by uid first, then by userId
+    let snap = await getDocs(query(collection(db,'attendance'), where('uid','==',currentUser.uid), where('date','==',todayKey())));
+    if (snap.empty) snap = await getDocs(query(collection(db,'attendance'), where('userId','==',currentUser.uid), where('date','==',todayKey())));
     if (!snap.empty) {
       todayRecord = { id: snap.docs[0].id, ...snap.docs[0].data() };
-      if (todayRecord.clockOut) attendanceState = 'done';
-      else if (todayRecord.lunchIn) { attendanceState = 'in'; clockInTime = todayRecord.clockIn?.toDate(); }
-      else if (todayRecord.lunchOut) { attendanceState = 'lunch_out'; clockInTime = todayRecord.clockIn?.toDate(); }
-      else if (todayRecord.clockIn) { attendanceState = 'in'; clockInTime = todayRecord.clockIn?.toDate(); }
+      const ci = tsToDate(todayRecord.clockIn);
+      if (todayRecord.clockOut) { attendanceState = 'done'; }
+      else if (todayRecord.lunchIn) { attendanceState = 'in'; clockInTime = ci; }
+      else if (todayRecord.lunchOut) { attendanceState = 'lunch_out'; clockInTime = ci; }
+      else if (todayRecord.clockIn) { attendanceState = 'in'; clockInTime = ci; }
       renderTimeline();
     }
-  } catch(e) { console.error(e); }
+  } catch(e) { console.error('loadTodayRecord error:', e); }
 }
 
 function startClock() {
@@ -389,33 +332,34 @@ function startClock() {
 function updateHoursWorked() {
   if (!clockInTime || attendanceState === 'out') { document.getElementById('hoursBadge').textContent = '0h 0m'; return; }
   let ms = new Date() - clockInTime;
-  if (todayRecord?.lunchOut && todayRecord?.lunchIn) ms -= (todayRecord.lunchIn.toDate() - todayRecord.lunchOut.toDate());
-  else if (todayRecord?.lunchOut && attendanceState === 'lunch_out') ms = todayRecord.lunchOut.toDate() - clockInTime;
+  const lo = tsToDate(todayRecord?.lunchOut), li = tsToDate(todayRecord?.lunchIn);
+  if (lo && li) ms -= (li - lo);
+  else if (lo && attendanceState === 'lunch_out') ms = lo - clockInTime;
   if (ms < 0) ms = 0;
   document.getElementById('hoursBadge').textContent = `${Math.floor(ms/3600000)}h ${Math.floor((ms%3600000)/60000)}m`;
 }
 
 function updateStatusBanner() {
-  const dot = document.getElementById('statusDot'), text = document.getElementById('statusText'), since = document.getElementById('statusSince');
+  const dot=document.getElementById('statusDot'), text=document.getElementById('statusText'), since=document.getElementById('statusSince');
   dot.className = 'status-dot';
-  if (attendanceState === 'out') { dot.classList.add('out'); text.textContent = 'Not Clocked In'; since.textContent = 'Tap Clock In to begin your day'; }
-  else if (attendanceState === 'in') { dot.classList.add('in'); text.textContent = '✅ Clocked In'; since.textContent = clockInTime ? `Since ${clockInTime.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})}` : ''; }
-  else if (attendanceState === 'lunch_out') { dot.classList.add('lunch'); text.textContent = '🍽 On Lunch Break'; since.textContent = todayRecord?.lunchOut ? `Since ${todayRecord.lunchOut.toDate().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})}` : ''; }
-  else if (attendanceState === 'done') { dot.classList.add('out'); text.textContent = '🏁 Day Complete'; since.textContent = 'You have clocked out for today'; }
+  if (attendanceState==='out') { dot.classList.add('out'); text.textContent='Not Clocked In'; since.textContent='Tap Clock In to begin your day'; }
+  else if (attendanceState==='in') { dot.classList.add('in'); text.textContent='✅ Clocked In'; since.textContent=clockInTime?`Since ${fmtTime(clockInTime)}`:''; }
+  else if (attendanceState==='lunch_out') { dot.classList.add('lunch'); text.textContent='🍽 On Lunch Break'; since.textContent=todayRecord?.lunchOut?`Since ${fmtTime(todayRecord.lunchOut)}`:''; }
+  else if (attendanceState==='done') { dot.classList.add('out'); text.textContent='🏁 Day Complete'; since.textContent='You have clocked out for today'; }
 }
 
 function renderButtons() {
   const g = document.getElementById('actionGrid');
-  if (attendanceState === 'out') g.innerHTML = `<button class="action-btn btn-clockin" onclick="handleClockIn()"><span class="btn-icon">👆</span><span class="btn-label">Clock In</span><span class="btn-sub">Start your work day</span></button>`;
-  else if (attendanceState === 'in') g.innerHTML = `<button class="action-btn btn-lunchout" onclick="handleLunchOut()"><span class="btn-icon">🍽</span><span class="btn-label">Lunch Out</span><span class="btn-sub">Going for lunch</span></button><button class="action-btn btn-clockout" onclick="handleClockOut()"><span class="btn-icon">🏁</span><span class="btn-label">Clock Out</span><span class="btn-sub">End your work day</span></button>`;
-  else if (attendanceState === 'lunch_out') g.innerHTML = `<button class="action-btn btn-lunchin" onclick="handleLunchIn()"><span class="btn-icon">✅</span><span class="btn-label">Lunch In</span><span class="btn-sub">Back from lunch</span></button>`;
-  else if (attendanceState === 'done') g.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:24px;color:var(--text2);font-size:15px;">🎉 You have completed your day!<br><span style="font-size:13px;color:var(--text3);">See you tomorrow.</span></div>`;
+  if (attendanceState==='out') g.innerHTML=`<button class="action-btn btn-clockin" onclick="handleClockIn()"><span class="btn-icon">👆</span><span class="btn-label">Clock In</span><span class="btn-sub">Start your work day</span></button>`;
+  else if (attendanceState==='in') g.innerHTML=`<button class="action-btn btn-lunchout" onclick="handleLunchOut()"><span class="btn-icon">🍽</span><span class="btn-label">Lunch Out</span><span class="btn-sub">Going for lunch</span></button><button class="action-btn btn-clockout" onclick="handleClockOut()"><span class="btn-icon">🏁</span><span class="btn-label">Clock Out</span><span class="btn-sub">End your work day</span></button>`;
+  else if (attendanceState==='lunch_out') g.innerHTML=`<button class="action-btn btn-lunchin" onclick="handleLunchIn()"><span class="btn-icon">✅</span><span class="btn-label">Lunch In</span><span class="btn-sub">Back from lunch</span></button>`;
+  else if (attendanceState==='done') g.innerHTML=`<div style="grid-column:1/-1;text-align:center;padding:24px;color:var(--text2);font-size:15px;">🎉 You have completed your day!<br><span style="font-size:13px;color:var(--text3);">See you tomorrow.</span></div>`;
 }
 
 function getGPS() {
   return new Promise((resolve,reject) => {
     if (!navigator.geolocation) { reject(new Error('GPS not supported')); return; }
-    navigator.geolocation.getCurrentPosition(p => resolve({lat:p.coords.latitude,lng:p.coords.longitude}), reject, {enableHighAccuracy:true,timeout:10000,maximumAge:0});
+    navigator.geolocation.getCurrentPosition(p=>resolve({lat:p.coords.latitude,lng:p.coords.longitude}), reject, {enableHighAccuracy:true,timeout:10000,maximumAge:0});
   });
 }
 
@@ -425,7 +369,7 @@ function distanceMetres(lat1,lng1,lat2,lng2) {
   return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
 }
 
-function isFieldStaff() { return FIELD_DEPARTMENTS.includes(currentUserData?.department) || ADMIN_EMAILS.includes(currentUser.email); }
+function isFieldStaff() { return FIELD_DEPTS.includes(currentUserData?.department) || isAdmin(); }
 
 async function checkGeofenceAndGetGPS() {
   document.getElementById('gpsChecking').classList.add('show');
@@ -435,14 +379,18 @@ async function checkGeofenceAndGetGPS() {
     document.getElementById('gpsChecking').classList.remove('show');
     if (!isFieldStaff()) {
       const dist = distanceMetres(gps.lat,gps.lng,OFFICE_LAT,OFFICE_LNG);
-      if (dist > OFFICE_RADIUS_METRES) {
+      if (dist > OFFICE_RADIUS) {
         document.getElementById('geoWarning').style.display = 'block';
-        document.getElementById('geoWarning').textContent = `📍 You are ${Math.round(dist)}m from office (Motilal St, T. Nagar). Must be within ${OFFICE_RADIUS_METRES}m to clock in.`;
+        document.getElementById('geoWarning').textContent = `📍 You are ${Math.round(dist)}m from office. Must be within ${OFFICE_RADIUS}m to clock in.`;
         return null;
       }
     }
     return gps;
-  } catch(e) { document.getElementById('gpsChecking').classList.remove('show'); showToast('⚠ GPS unavailable — clocking in without location'); return {lat:null,lng:null}; }
+  } catch(e) {
+    document.getElementById('gpsChecking').classList.remove('show');
+    showToast('⚠ GPS unavailable — clocking in without location');
+    return {lat:null,lng:null};
+  }
 }
 
 function checkIfLate() { const n=new Date(); return n.getHours()>LATE_HOUR||(n.getHours()===LATE_HOUR&&n.getMinutes()>=LATE_MINUTE); }
@@ -451,12 +399,18 @@ async function handleClockIn() {
   const gps = await checkGeofenceAndGetGPS(); if (gps===null) return;
   const now=new Date(), isLate=checkIfLate();
   try {
-    const data={userId:currentUser.uid,userEmail:currentUser.email,userName:currentUserData?.name||currentUser.email.split('@')[0],department:currentUserData?.department||'',date:todayKey(),clockIn:Timestamp.fromDate(now),clockInLat:gps.lat,clockInLng:gps.lng,isLate,status:'active',createdAt:serverTimestamp()};
-    const ref=await addDoc(collection(db,'attendance'),data);
+    const data={
+      userId:currentUser.uid, uid:currentUser.uid,
+      userEmail:currentUser.email, userName:currentUserData?.name||currentUser.email.split('@')[0],
+      name:currentUserData?.name||'', department:currentUserData?.department||'',
+      date:todayKey(), clockIn:Timestamp.fromDate(now),
+      clockInLat:gps.lat, clockInLng:gps.lng, isLate, status:'active', createdAt:serverTimestamp()
+    };
+    const ref = await addDoc(collection(db,'attendance'),data);
     todayRecord={id:ref.id,...data}; attendanceState='in'; clockInTime=now;
     renderButtons(); updateStatusBanner(); renderTimeline();
     showToast(isLate?'⚠ Clocked in — marked as late':'✅ Clocked in successfully!');
-  } catch(e) { showToast('Error clocking in. Try again.'); }
+  } catch(e) { console.error(e); showToast('Error clocking in. Try again.'); }
 }
 
 async function handleLunchOut() {
@@ -484,7 +438,8 @@ async function handleClockOut() {
   if (!confirm('Are you sure you want to clock out?')) return;
   const gps=await getGPS().catch(()=>({lat:null,lng:null})), now=new Date();
   let ms=now-clockInTime;
-  if (todayRecord.lunchOut&&todayRecord.lunchIn) ms-=(todayRecord.lunchIn.toDate()-todayRecord.lunchOut.toDate());
+  const lo=tsToDate(todayRecord.lunchOut), li=tsToDate(todayRecord.lunchIn);
+  if (lo&&li) ms-=(li-lo);
   const totalHours=Math.max(0,ms/3600000), overtime=Math.max(0,totalHours-9);
   try {
     await updateDoc(doc(db,'attendance',todayRecord.id),{clockOut:Timestamp.fromDate(now),clockOutLat:gps.lat,clockOutLng:gps.lng,totalHours:parseFloat(totalHours.toFixed(2)),overtimeHours:parseFloat(overtime.toFixed(2)),status:'completed'});
@@ -492,30 +447,34 @@ async function handleClockOut() {
     renderButtons(); updateStatusBanner(); renderTimeline();
     showToast(`🏁 ${Math.floor(totalHours)}h ${Math.round((totalHours%1)*60)}m worked today`);
     await loadWeekData(); await loadHistory();
-  } catch(e) { showToast('Error clocking out. Try again.'); }
+  } catch(e) { console.error(e); showToast('Error clocking out. Try again.'); }
 }
 
 function renderTimeline() {
   if (!todayRecord) return;
   const c=document.getElementById('todayTimeline');
-  const fmt=ts=>ts?ts.toDate().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}):'—';
   const items=[];
-  if (todayRecord.clockIn) items.push({icon:'👆',color:'green',label:`Clocked In${todayRecord.isLate?' ⚠ Late':''}`,time:fmt(todayRecord.clockIn),loc:todayRecord.clockInLat?`📍 ${todayRecord.clockInLat.toFixed(4)}, ${todayRecord.clockInLng.toFixed(4)}`:''});
-  if (todayRecord.lunchOut) items.push({icon:'🍽',color:'amber',label:'Lunch Out',time:fmt(todayRecord.lunchOut),loc:''});
-  if (todayRecord.lunchIn) items.push({icon:'✅',color:'blue',label:'Lunch In',time:fmt(todayRecord.lunchIn),loc:''});
-  if (todayRecord.clockOut) { const h=Math.floor(todayRecord.totalHours||0),m=Math.round(((todayRecord.totalHours||0)%1)*60); items.push({icon:'🏁',color:'red',label:`Clocked Out — ${h}h ${m}m worked`,time:fmt(todayRecord.clockOut),loc:''}); }
+  if (todayRecord.clockIn) items.push({icon:'👆',color:'green',label:`Clocked In${todayRecord.isLate?' ⚠ Late':''}`,time:fmtTime(todayRecord.clockIn)});
+  if (todayRecord.lunchOut) items.push({icon:'🍽',color:'amber',label:'Lunch Out',time:fmtTime(todayRecord.lunchOut)});
+  if (todayRecord.lunchIn) items.push({icon:'✅',color:'blue',label:'Lunch In',time:fmtTime(todayRecord.lunchIn)});
+  if (todayRecord.clockOut) {
+    const h=Math.floor(todayRecord.totalHours||0), m=Math.round(((todayRecord.totalHours||0)%1)*60);
+    items.push({icon:'🏁',color:'red',label:`Clocked Out — ${h}h ${m}m worked`,time:fmtTime(todayRecord.clockOut)});
+  }
   if (!items.length) { c.innerHTML='<div style="color:var(--text3);font-size:13px;">No activity yet today.</div>'; return; }
-  c.innerHTML=items.map(x=>`<div class="timeline-item"><div class="timeline-dot ${x.color}">${x.icon}</div><div class="timeline-content"><div class="timeline-label">${x.label}</div><div class="timeline-time">${x.time}</div>${x.loc?`<div class="timeline-location">${x.loc}</div>`:''}</div></div>`).join('');
+  c.innerHTML=items.map(x=>`<div class="timeline-item"><div class="timeline-dot ${x.color}">${x.icon}</div><div class="timeline-content"><div class="timeline-label">${x.label}</div><div class="timeline-time">${x.time}</div></div></div>`).join('');
 }
 
 async function loadWeekData() {
-  const grid=document.getElementById('weekGrid'), days=['Mon','Tue','Wed','Thu','Fri','Sat'], today=new Date(), todayDay=today.getDay();
+  const grid=document.getElementById('weekGrid'), days=['Mon','Tue','Wed','Thu','Fri','Sat'];
+  const today=new Date(), todayDay=today.getDay();
   const monday=new Date(today); monday.setDate(today.getDate()-(todayDay===0?6:todayDay-1)); monday.setHours(0,0,0,0);
   const weekDates=Array.from({length:6},(_,i)=>{const d=new Date(monday);d.setDate(monday.getDate()+i);return d;});
   const weekKeys=weekDates.map(d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`);
   let records={};
   try {
-    const snap=await getDocs(query(collection(db,'attendance'),where('userId','==',currentUser.uid),where('date','in',weekKeys)));
+    let snap = await getDocs(query(collection(db,'attendance'),where('uid','==',currentUser.uid),where('date','in',weekKeys)));
+    if (snap.empty) snap = await getDocs(query(collection(db,'attendance'),where('userId','==',currentUser.uid),where('date','in',weekKeys)));
     snap.docs.forEach(d=>{records[d.data().date]=d.data();});
   } catch(e) { console.error(e); }
   grid.innerHTML=weekDates.map((d,i)=>{
@@ -531,32 +490,63 @@ async function loadWeekData() {
 async function loadHistory() {
   const c=document.getElementById('historyList');
   try {
-    const snap=await getDocs(query(collection(db,'attendance'),where('userId','==',currentUser.uid),orderBy('date','desc'),limit(10)));
+    let snap = await getDocs(query(collection(db,'attendance'),where('uid','==',currentUser.uid),orderBy('date','desc'),limit(10)));
+    if (snap.empty) snap = await getDocs(query(collection(db,'attendance'),where('userId','==',currentUser.uid),orderBy('date','desc'),limit(10)));
     if(snap.empty){c.innerHTML='<div style="color:var(--text3);font-size:13px;">No history yet.</div>';return;}
-    const fmt=ts=>ts?ts.toDate().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}):'—';
     c.innerHTML=snap.docs.map(d=>{
-      const r=d.data(),date=new Date(r.date),h=Math.floor(r.totalHours||0),m=Math.round(((r.totalHours||0)%1)*60);
-      return `<div class="history-card"><div><div class="history-date">${date.toLocaleDateString('en-IN',{day:'numeric',month:'short'})}</div><div class="history-day">${date.toLocaleDateString('en-IN',{weekday:'short'})}</div>${r.isLate?'<span class="late-badge">⚠ Late</span>':''}</div><div><div class="history-in">IN: ${fmt(r.clockIn)}</div><div class="history-out">OUT: ${fmt(r.clockOut)}</div>${r.totalHours?`<div class="history-hours">${h}h ${m}m</div>`:''}</div></div>`;
+      const r=d.data(), date=new Date(r.date+'T00:00:00');
+      const h=Math.floor(r.totalHours||0), m=Math.round(((r.totalHours||0)%1)*60);
+      return `<div class="history-card"><div><div class="history-date">${date.toLocaleDateString('en-IN',{day:'numeric',month:'short'})}</div><div class="history-day">${date.toLocaleDateString('en-IN',{weekday:'short'})}</div>${r.isLate?'<span class="late-badge">⚠ Late</span>':''}</div><div><div class="history-in">IN: ${fmtTime(r.clockIn)}</div><div class="history-out">OUT: ${fmtTime(r.clockOut)}</div>${r.totalHours?`<div class="history-hours">${h}h ${m}m</div>`:''}</div></div>`;
     }).join('');
   } catch(e) { c.innerHTML='<div style="color:var(--text3);font-size:13px;">Could not load history.</div>'; }
 }
 
-// ══ SALARY REPORT ══
+function setupSalarySection() {
+  const sel=document.getElementById('reportStaffSelect');
+  sel.innerHTML='<option value="">— Select Staff —</option>';
+  if (isAdmin()) {
+    allStaff.forEach(s=>{
+      const o=document.createElement('option');
+      o.value=s.id; o.textContent=`${s.name} (${s.department||'—'})`;
+      o.dataset.salary=s.salary||0; o.dataset.name=s.name; o.dataset.dept=s.department||''; o.dataset.email=s.email||'';
+      sel.appendChild(o);
+    });
+    document.getElementById('salaryInputRow').style.display='block';
+    sel.addEventListener('change',()=>{
+      const opt=sel.options[sel.selectedIndex];
+      const saved=parseFloat(opt.dataset.salary)||0;
+      document.getElementById('manualSalary').value=saved>0?saved:'';
+    });
+  } else if (currentUserData) {
+    const o=document.createElement('option');
+    o.value=currentUserData.id; o.textContent=currentUserData.name+' (Me)';
+    o.dataset.salary=currentUserData.salary||0; o.dataset.name=currentUserData.name;
+    o.dataset.dept=currentUserData.department||''; o.dataset.email=currentUser.email;
+    sel.appendChild(o); sel.value=currentUserData.id;
+  }
+}
+
+function setupMonthDropdown() {
+  const sel=document.getElementById('reportMonthSelect'), now=new Date();
+  for (let i=0;i<6;i++) {
+    const d=new Date(now.getFullYear(),now.getMonth()-i,1);
+    const o=document.createElement('option');
+    o.value=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+    o.textContent=d.toLocaleDateString('en-IN',{month:'long',year:'numeric'});
+    sel.appendChild(o);
+  }
+}
+
 async function generateSalaryReport() {
   const staffSel=document.getElementById('reportStaffSelect'), monthSel=document.getElementById('reportMonthSelect');
   const opt=staffSel.options[staffSel.selectedIndex];
   if (!staffSel.value) { showToast('Please select a staff member'); return; }
-
-  const [year,month]= monthSel.value.split('-').map(Number);
-  const staffName=opt.dataset.name||'Unknown', staffDept=opt.dataset.dept||'—', staffEmail=opt.dataset.email||'';
-  const manualSalaryInput=document.getElementById('manualSalary');
-  const grossSalary=parseFloat(manualSalaryInput?.value||opt.dataset.salary)||0;
-
+  const [year,month]=monthSel.value.split('-').map(Number);
+  const staffName=opt.dataset.name||'Unknown', staffDept=opt.dataset.dept||'—', staffEmail=opt.dataset.email||'', staffUid=staffSel.value;
+  const grossSalary=parseFloat(document.getElementById('manualSalary')?.value||opt.dataset.salary)||0;
   if (grossSalary===0) { showToast('Please enter the monthly salary amount'); return; }
 
   const btn=document.getElementById('generateBtn'); btn.disabled=true; btn.textContent='⏳ Generating…';
-
-  // Build working days (Mon–Sat, no Sundays)
   const daysInMonth=new Date(year,month,0).getDate();
   const workingDays=[];
   for (let d=1;d<=daysInMonth;d++) { const dt=new Date(year,month-1,d); if(dt.getDay()!==0) workingDays.push(dt); }
@@ -565,44 +555,26 @@ async function generateSalaryReport() {
 
   let records={};
   try {
-    // Fetch by email (most reliable since userId may differ)
-    const snap=await getDocs(query(collection(db,'attendance'),where('userEmail','==',staffEmail)));
+    let snap=await getDocs(query(collection(db,'attendance'),where('uid','==',staffUid)));
+    if (snap.empty) snap=await getDocs(query(collection(db,'attendance'),where('userId','==',staffUid)));
     snap.docs.forEach(d=>{ if(dateKeys.includes(d.data().date)) records[d.data().date]=d.data(); });
-    // Fallback: by userId stored in staff record
-    if (!Object.keys(records).length) {
-      const snap2=await getDocs(query(collection(db,'attendance'),where('userId','==',staffSel.value)));
-      snap2.docs.forEach(d=>{ if(dateKeys.includes(d.data().date)) records[d.data().date]=d.data(); });
-    }
   } catch(e) { console.error(e); }
 
-  // Fetch LOP approved leaves for this staff this month
-  let lopDays = 0;
+  let lopDays=0;
   try {
-    const leaveSnap = await getDocs(query(
-      collection(db,'leaves'),
-      where('userEmail','==',staffEmail),
-      where('status','==','approved'),
-      where('payType','==','lop')
-    ));
-    leaveSnap.docs.forEach(d => {
-      const l = d.data();
-      // Check if leave falls in this month
-      if (l.fromDate && l.fromDate.startsWith(`${year}-${String(month).padStart(2,'0')}`)) {
-        lopDays += (l.totalDays || 1);
-      }
+    const leaveSnap=await getDocs(query(collection(db,'leaves'),where('uid','==',staffUid),where('status','==','approved'),where('payType','==','lop')));
+    leaveSnap.docs.forEach(d=>{
+      const l=d.data();
+      if(l.fromDate&&l.fromDate.startsWith(`${year}-${String(month).padStart(2,'0')}`)) lopDays+=(l.totalDays||1);
     });
-  } catch(e) { console.error('LOP fetch error',e); }
+  } catch(e) {}
 
-  const daysPresent=Object.keys(records).length;
-  const daysAbsent=totalWorkingDays-daysPresent;
+  const daysPresent=Object.keys(records).length, daysAbsent=Math.max(0,totalWorkingDays-daysPresent);
   const lateCount=Object.values(records).filter(r=>r.isLate).length;
   const totalHours=Object.values(records).reduce((s,r)=>s+(r.totalHours||0),0);
   const avgHours=daysPresent>0?totalHours/daysPresent:0;
-  const perDay=grossSalary/SALARY_DIVISOR;
-  // Deduction = absent days + LOP approved leave days
-  const absentDeduction=daysAbsent*perDay;
-  const lopDeduction=lopDays*perDay;
-  const deduction=absentDeduction+lopDeduction;
+  const perDay=grossSalary/30;
+  const deduction=(daysAbsent+lopDays)*perDay;
   const netSalary=Math.max(0,grossSalary-deduction);
   const periodLabel=new Date(year,month-1,1).toLocaleDateString('en-IN',{month:'long',year:'numeric'});
 
@@ -616,7 +588,7 @@ async function generateSalaryReport() {
   document.getElementById('rAvgHours').textContent=avgHours.toFixed(1)+'h';
   document.getElementById('rGross').textContent='₹'+grossSalary.toLocaleString('en-IN');
   document.getElementById('rPerDay').textContent='₹'+perDay.toFixed(0);
-  document.getElementById('rDeduction').textContent=`−₹${absentDeduction.toFixed(0)} absent + −₹${lopDeduction.toFixed(0)} LOP`;
+  document.getElementById('rDeduction').textContent=`−₹${deduction.toFixed(0)}`;
   document.getElementById('rLateNote').textContent=lateCount+' day(s) — no deduction';
   document.getElementById('rNet').textContent='₹'+netSalary.toFixed(0);
   document.getElementById('salaryResult').classList.add('show');
@@ -624,67 +596,35 @@ async function generateSalaryReport() {
   showToast('✅ Salary report ready!');
 }
 
-window._dlExcel=function() {
-  if (!currentReportData) return;
+window._dlExcel=function(){
+  if(!currentReportData)return;
   const d=currentReportData;
-  const summary=[
-    ['SPARKALS TASKS — SALARY REPORT'],[''],
-    ['Staff Name',d.staffName],['Department',d.staffDept],['Period',d.periodLabel],['Generated',new Date().toLocaleDateString('en-IN')],[''],
-    ['ATTENDANCE SUMMARY'],
-    ['Total Working Days (Mon–Sat)',d.totalWorkingDays],['Days Present',d.daysPresent],['Days Absent',d.daysAbsent],
-    ['Late Arrivals (flagged, no deduction)',d.lateCount],['Total Hours Worked',d.totalHours.toFixed(1)+' hrs'],['Avg Hours/Day',d.avgHours.toFixed(1)+' hrs'],[''],
-    ['SALARY CALCULATION'],
-    ['Gross Monthly Salary','₹'+d.grossSalary.toLocaleString('en-IN')],
-    ['Per Day Rate (÷'+30+')','₹'+d.perDay.toFixed(0)],
-    ['Absent Deduction ('+d.daysAbsent+' days)','−₹'+d.deduction.toFixed(0)],
-    ['Late Deduction','₹0'],
-    ['NET PAYABLE SALARY','₹'+d.netSalary.toFixed(0)],
-  ];
+  const summary=[['SPARKALS TASKS — SALARY REPORT'],[''],['Staff Name',d.staffName],['Department',d.staffDept],['Period',d.periodLabel],['Generated',new Date().toLocaleDateString('en-IN')],[''],['Total Working Days',d.totalWorkingDays],['Days Present',d.daysPresent],['Days Absent',d.daysAbsent],['Late Arrivals',d.lateCount],['Total Hours',d.totalHours.toFixed(1)+'h'],[''],['Gross Salary','₹'+d.grossSalary.toLocaleString('en-IN')],['Per Day Rate','₹'+d.perDay.toFixed(0)],['Absent Deduction','−₹'+d.deduction.toFixed(0)],['NET PAYABLE','₹'+d.netSalary.toFixed(0)]];
   const daily=[['Date','Day','Clock In','Clock Out','Hours','Late?','Status']];
   d.workingDays.forEach(date=>{
     const key=`${d.year}-${String(d.month).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
     const rec=d.records[key];
-    const fmt=ts=>ts?ts.toDate().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}):'—';
-    if(rec) daily.push([date.toLocaleDateString('en-IN',{day:'numeric',month:'short'}),date.toLocaleDateString('en-IN',{weekday:'short'}),fmt(rec.clockIn),fmt(rec.clockOut),(rec.totalHours||0).toFixed(1)+'h',rec.isLate?'Yes ⚠':'No','Present']);
+    if(rec) daily.push([date.toLocaleDateString('en-IN',{day:'numeric',month:'short'}),date.toLocaleDateString('en-IN',{weekday:'short'}),fmtTime(rec.clockIn),fmtTime(rec.clockOut),(rec.totalHours||0).toFixed(1)+'h',rec.isLate?'Yes ⚠':'No','Present']);
     else daily.push([date.toLocaleDateString('en-IN',{day:'numeric',month:'short'}),date.toLocaleDateString('en-IN',{weekday:'short'}),'—','—','—','—','Absent']);
   });
   const wb=XLSX.utils.book_new();
-  const ws1=XLSX.utils.aoa_to_sheet(summary), ws2=XLSX.utils.aoa_to_sheet(daily);
-  ws1['!cols']=[{wch:32},{wch:22}]; ws2['!cols']=[{wch:12},{wch:8},{wch:12},{wch:12},{wch:10},{wch:8},{wch:10}];
-  XLSX.utils.book_append_sheet(wb,ws1,'Salary Summary');
-  XLSX.utils.book_append_sheet(wb,ws2,'Daily Attendance');
+  const ws1=XLSX.utils.aoa_to_sheet(summary),ws2=XLSX.utils.aoa_to_sheet(daily);
+  ws1['!cols']=[{wch:32},{wch:22}];ws2['!cols']=[{wch:12},{wch:8},{wch:12},{wch:12},{wch:10},{wch:8},{wch:10}];
+  XLSX.utils.book_append_sheet(wb,ws1,'Salary Summary');XLSX.utils.book_append_sheet(wb,ws2,'Daily Attendance');
   XLSX.writeFile(wb,`Sparkals_Salary_${d.staffName.replace(/\s/g,'_')}_${d.periodLabel.replace(/\s/g,'_')}.xlsx`);
   showToast('📊 Excel downloaded!');
 };
 
-window._dlPDF=function() {
-  if (!currentReportData) return;
+window._dlPDF=function(){
+  if(!currentReportData)return;
   const d=currentReportData;
-  const html=`<html><head><title>Salary — ${d.staffName}</title><style>body{font-family:Arial,sans-serif;padding:40px;color:#1a1a2e}h1{font-size:22px;margin-bottom:4px}h2{font-size:14px;color:#666;margin-bottom:24px;font-weight:normal}.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:24px}.card{border:1px solid #ddd;border-radius:8px;padding:12px}.cl{font-size:11px;color:#888;text-transform:uppercase}.cv{font-size:22px;font-weight:700;margin-top:4px}.g{color:#10b981}.r{color:#ef4444}.a{color:#f59e0b}.p{color:#7c6fff}table{width:100%;border-collapse:collapse;margin-bottom:24px}th{background:#1a1a2e;color:#fff;padding:10px;text-align:left;font-size:12px}td{padding:8px 10px;border-bottom:1px solid #eee;font-size:12px}tr:nth-child(even){background:#f9f9f9}.tr{font-weight:700;font-size:15px;border-top:2px solid #1a1a2e}.ft{margin-top:40px;font-size:11px;color:#aaa;text-align:center}</style></head><body>
-  <h1>💼 Salary Report — ${d.staffName}</h1>
-  <h2>${d.staffDept} &nbsp;·&nbsp; ${d.periodLabel} &nbsp;·&nbsp; Generated: ${new Date().toLocaleDateString('en-IN')}</h2>
-  <div class="grid">
-    <div class="card"><div class="cl">Days Present</div><div class="cv g">${d.daysPresent}</div></div>
-    <div class="card"><div class="cl">Days Absent</div><div class="cv r">${d.daysAbsent}</div></div>
-    <div class="card"><div class="cl">Late Arrivals</div><div class="cv a">${d.lateCount}</div></div>
-    <div class="card"><div class="cl">Avg Hours/Day</div><div class="cv p">${d.avgHours.toFixed(1)}h</div></div>
-  </div>
-  <table>
-    <tr><th>Description</th><th>Amount</th></tr>
-    <tr><td>Gross Monthly Salary</td><td>₹${d.grossSalary.toLocaleString('en-IN')}</td></tr>
-    <tr><td>Per Day Rate (÷30)</td><td>₹${d.perDay.toFixed(0)}</td></tr>
-    <tr><td>Absent Deduction (${d.daysAbsent} days × ₹${d.perDay.toFixed(0)})</td><td style="color:#ef4444">−₹${d.deduction.toFixed(0)}</td></tr>
-    <tr><td>Late Arrival Deduction</td><td>₹0 (${d.lateCount} late day(s) flagged only)</td></tr>
-    <tr class="tr"><td>NET PAYABLE SALARY</td><td style="color:#10b981">₹${d.netSalary.toFixed(0)}</td></tr>
-  </table>
-  <div class="ft">Sparkals Tasks &nbsp;·&nbsp; Auto-generated &nbsp;·&nbsp; ${new Date().toLocaleString('en-IN')}</div>
-  </body></html>`;
-  const w=window.open('','_blank'); w.document.write(html); w.document.close(); w.print();
-  showToast('📄 PDF ready to print / save!');
+  const html=`<html><head><title>Salary — ${d.staffName}</title><style>body{font-family:Arial,sans-serif;padding:40px;color:#1a1a2e}h1{font-size:22px;margin-bottom:4px}h2{font-size:14px;color:#666;margin-bottom:24px;font-weight:normal}.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:24px}.card{border:1px solid #ddd;border-radius:8px;padding:12px}.cl{font-size:11px;color:#888;text-transform:uppercase}.cv{font-size:22px;font-weight:700;margin-top:4px}.g{color:#10b981}.r{color:#ef4444}.a{color:#f59e0b}.p{color:#7c6fff}table{width:100%;border-collapse:collapse;margin-bottom:24px}th{background:#1a1a2e;color:#fff;padding:10px;text-align:left;font-size:12px}td{padding:8px 10px;border-bottom:1px solid #eee;font-size:12px}tr:nth-child(even){background:#f9f9f9}.tr{font-weight:700;font-size:15px;border-top:2px solid #1a1a2e}.ft{margin-top:40px;font-size:11px;color:#aaa;text-align:center}</style></head><body><h1>💼 Salary Report — ${d.staffName}</h1><h2>${d.staffDept} · ${d.periodLabel} · Generated: ${new Date().toLocaleDateString('en-IN')}</h2><div class="grid"><div class="card"><div class="cl">Days Present</div><div class="cv g">${d.daysPresent}</div></div><div class="card"><div class="cl">Days Absent</div><div class="cv r">${d.daysAbsent}</div></div><div class="card"><div class="cl">Late Arrivals</div><div class="cv a">${d.lateCount}</div></div><div class="card"><div class="cl">Avg Hours/Day</div><div class="cv p">${d.avgHours.toFixed(1)}h</div></div></div><table><tr><th>Description</th><th>Amount</th></tr><tr><td>Gross Monthly Salary</td><td>₹${d.grossSalary.toLocaleString('en-IN')}</td></tr><tr><td>Per Day Rate (÷30)</td><td>₹${d.perDay.toFixed(0)}</td></tr><tr><td>Absent Deduction</td><td style="color:#ef4444">−₹${d.deduction.toFixed(0)}</td></tr><tr><td>Late Deduction</td><td>₹0</td></tr><tr class="tr"><td>NET PAYABLE SALARY</td><td style="color:#10b981">₹${d.netSalary.toFixed(0)}</td></tr></table><div class="ft">Sparkals Tasks · Auto-generated · ${new Date().toLocaleString('en-IN')}</div></body></html>`;
+  const w=window.open('','_blank');w.document.write(html);w.document.close();w.print();
+  showToast('📄 PDF ready to print!');
 };
 
-function showToast(msg) {
-  const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show');
+function showToast(msg){
+  const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');
   setTimeout(()=>t.classList.remove('show'),3500);
 }
 </script>
