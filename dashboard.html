@@ -960,11 +960,23 @@ async function setupNotifications(uid) {
 async function loadNotifBadge() {
   try {
 const firestoreModule = await import("https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js");
-const getFirestore = firestoreModule.getFirestore;
-const collection = firestoreModule.collection;
-const query = firestoreModule.query;
-const where = firestoreModule.where;
-const onSnapshot = firestoreModule.onSnapshot;
+const _db = firestoreModule.getFirestore();
+const _q = firestoreModule.query(
+  firestoreModule.collection(_db, "notifications"),
+  firestoreModule.where("uid", "==", currentUser.uid),
+  firestoreModule.where("read", "==", false)
+);
+firestoreModule.onSnapshot(_q, snap => {
+  const badge = document.getElementById("notifBadge");
+  if (!badge) return;
+  const count = snap.size;
+  if (count > 0) {
+    badge.textContent = count > 99 ? "99+" : count;
+    badge.style.display = "block";
+  } else {
+    badge.style.display = "none";
+  }
+});
     const db = getFirestore();
     const q = query(
       collection(db, "notifications"),
