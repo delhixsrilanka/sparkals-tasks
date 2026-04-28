@@ -432,7 +432,7 @@
       <img src="/icons/logo%20copfy.png" alt="Sparkals" />
     </div>
     <div class="header-icons">
-      <button class="icon-btn notif-badge" onclick="showToast('Notifications coming soon!')" title="Notifications">🔔</button>
+      <a href="notifications.html" class="icon-btn notif-badge" title="Notifications" style="text-decoration:none;position:relative;">🔔<span id="notifBadge" style="display:none;position:absolute;top:-4px;right:-4px;background:#ef4444;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:10px;min-width:16px;text-align:center;font-family:'Space Mono',monospace;"></span></a>
       <button class="icon-btn" onclick="showProfile()" title="Profile">👤</button>
     </div>
   </div>
@@ -956,6 +956,30 @@ async function setupNotifications(uid) {
     console.log('Notification setup skipped:', err.message);
   }
 } 
+// ── LIVE UNREAD NOTIFICATION BADGE ──
+async function loadNotifBadge() {
+  try {
+    const { getFirestore, collection, query, where, onSnapshot } = await import("https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js");
+    const db = getFirestore();
+    const q = query(
+      collection(db, "notifications"),
+      where("uid", "==", currentUser.uid),
+      where("read", "==", false)
+    );
+    onSnapshot(q, snap => {
+      const badge = document.getElementById("notifBadge");
+      if (!badge) return;
+      const count = snap.size;
+      if (count > 0) {
+        badge.textContent = count > 99 ? "99+" : count;
+        badge.style.display = "block";
+      } else {
+        badge.style.display = "none";
+      }
+    });
+  } catch(e) { console.error("Badge error:", e); }
+}
+loadNotifBadge();
   
 </script>
 </body>
