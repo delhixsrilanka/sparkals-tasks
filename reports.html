@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Reports — Sparkals Tasks</title>
+<link rel="manifest" href="manifest.json"/>
+<link rel="icon" href="/icons/logo%20copfy.png"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+<!-- SheetJS for Excel export -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+:root{
+  --bg:#0f0f1a;--surface:#1a1a2e;--surface2:#22223a;--surface3:#2a2a45;--border:#2e2e50;
+  --accent:#7c6af7;--gold:#f0b429;--green:#34d399;--red:#ef4444;--orange:#f97316;--teal:#22d3ee;
+  --text:#f0f0f8;--text2:#9090b8;--text3:#6060a0;
+  --radius:12px;--radius-sm:8px;--shadow:0 4px 24px rgba(0,0,0,0.4);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;}
+
+/* TOPNAV */
+.topnav{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+.topnav-left{display:flex;align-items:center;gap:12px;}
+.topnav-back{background:var(--surface3);border:1px solid var(--border);color:var(--text2);width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;text-decoration:none;transition:all 0.2s;}
+.topnav-back:hover{background:var(--border);color:var(--text);}
+.topnav-title{font-family:'Space Mono',monospace;font-size:15px;color:var(--accent);font-weight:700;}
+.topnav-sub{font-size:11px;color:var(--text2);}
+.topnav-right{display:flex;gap:8px;flex-wrap:wrap;}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 16px;border-radius:var(--radius-sm);border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;transition:all 0.2s;}
+.btn-primary{background:var(--accent);color:#fff;}.btn-primary:hover{background:#6a58e0;transform:translateY(-1px);}
+.btn-green{background:var(--green);color:#0f0f1a;}.btn-green:hover{background:#10b981;}
+.btn-gold{background:var(--gold);color:#0f0f1a;}.btn-gold:hover{background:#d97706;}
+.btn-ghost{background:var(--surface3);color:var(--text2);border:1px solid var(--border);}.btn-ghost:hover{background:var(--border);color:var(--text);}
+.btn-sm{padding:6px 12px;font-size:12px;}
+
+/* MAIN */
+.main{max-width:1200px;margin:0 auto;padding:20px 16px 100px;}
+
+/* DATE RANGE PICKER */
+.range-bar{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px 20px;margin-bottom:20px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+.range-bar label{font-size:12px;color:var(--text2);font-weight:500;}
+.range-bar input[type=date]{background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:var(--radius-sm);padding:8px 12px;font-family:'DM Sans',sans-serif;font-size:13px;outline:none;}
+.range-bar input[type=date]:focus{border-color:var(--accent);}
+.range-sep{color:var(--text3);font-size:13px;}
+.range-presets{display:flex;gap:6px;flex-wrap:wrap;margin-left:auto;}
+.preset-btn{padding:5px 12px;border-radius:20px;border:1px solid var(--border);background:var(--surface2);color:var(--text2);font-size:11px;font-weight:500;cursor:pointer;transition:all 0.2s;}
+.preset-btn:hover{border-color:var(--accent);color:var(--text);}
+
+/* SUMMARY CARDS */
+.summary-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;}
+.sum-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px;position:relative;overflow:hidden;}
+.sum-card::after{content:'';position:absolute;top:-20px;right:-20px;width:80px;height:80px;border-radius:50%;opacity:0.07;}
+.sum-card.c-purple::after{background:var(--accent);}
+.sum-card.c-green::after{background:var(--green);}
+.sum-card.c-teal::after{background:var(--teal);}
+.sum-card.c-orange::after{background:var(--orange);}
+.sum-card .s-label{font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;}
+.sum-card .s-value{font-size:30px;font-weight:700;font-family:'Space Mono',monospace;}
+.sum-card .s-sub{font-size:11px;color:var(--text3);margin-top:4px;}
+.sum-card.c-purple .s-value{color:var(--accent);}
+.sum-card.c-green .s-value{color:var(--green);}
+.sum-card.c-teal .s-value{color:var(--teal);}
+.sum-card.c-orange .s-value{color:var(--orange);}
+
+/* REPORT SECTION */
+.report-section{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:20px;}
+.report-section-head{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;}
+.report-section-head h3{font-size:15px;font-weight:700;}
+.export-btns{display:flex;gap:8px;}
+
+/* TABLE */
+.table-wrap{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+thead{background:var(--surface2);}
+thead th{padding:12px 14px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--text2);white-space:nowrap;border-bottom:1px solid var(--border);}
+tbody tr{border-bottom:1px solid var(--border);transition:background 0.15s;}
+tbody tr:hover{background:var(--surface2);}
+tbody tr:last-child{border-bottom:none;}
+tbody td{padding:12px 14px;vertical-align:middle;white-space:nowrap;}
+.td-name{font-weight:600;color:var(--text);}
+.td-dept{color:var(--text2);font-size:12px;}
+.td-mono{font-family:'Space Mono',monospace;font-size:12px;}
+
+/* PERFORMANCE BADGE */
+.perf-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;}
+.perf-excellent{background:rgba(52,211,153,0.15);color:var(--green);}
+.perf-good{background:rgba(34,211,238,0.12);color:var(--teal);}
+.perf-average{background:rgba(240,180,41,0.15);color:var(--gold);}
+.perf-poor{background:rgba(239,68,68,0.15);color:var(--red);}
+
+/* MINI PROGRESS BAR */
+.mini-bar-wrap{display:flex;align-items:center;gap:8px;}
+.mini-bar{width:60px;height:5px;background:var(--surface3);border-radius:3px;overflow:hidden;flex-shrink:0;}
+.mini-bar-fill{height:100%;border-radius:3px;transition:width 0.4s;}
+.fill-green{background:var(--green);}
+.fill-teal{background:var(--teal);}
+.fill-gold{background:var(--gold);}
+.fill-red{background:var(--red);}
+
+/* DEPT BREAKDOWN */
+.dept-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;padding:20px;}
+.dept-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px;}
+.dept-card-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.dept-card-name{font-size:13px;font-weight:600;}
+.dept-card-count{font-size:11px;color:var(--text3);}
+.dept-stat-row{display:flex;justify-content:space-between;font-size:12px;color:var(--text2);margin-top:6px;}
+.dept-stat-val{font-family:'Space Mono',monospace;font-size:12px;color:var(--text);}
+
+/* EMPTY / LOADING */
+.empty-state{text-align:center;padding:60px 20px;color:var(--text3);}
+.empty-state .icon{font-size:48px;margin-bottom:12px;opacity:0.4;}
+.empty-state p{font-size:14px;}
+.skeleton{background:var(--surface2);border-radius:8px;animation:pulse 1.5s ease infinite;}
+@keyframes pulse{0%,100%{opacity:0.5;}50%{opacity:1;}}
+
+/* TOAST */
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:var(--surface2);border:1px solid var(--green);border-radius:var(--radius);padding:12px 20px;font-size:13px;font-weight:500;color:var(--green);z-index:9999;white-space:nowrap;pointer-events:none;animation:toastIn 0.3s ease;}
+@keyframes toastIn{from{opacity:0;transform:translateX(-50%) translateY(10px);}to{opacity:1;transform:translateX(-50%) translateY(0);}}
+
+/* BOTTOM NAV */
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:1px solid var(--border);display:flex;justify-content:space-around;padding:10px 0 14px;z-index:100;}
+.nav-item{display:flex;flex-direction:column;align-items:center;gap:3px;text-decoration:none;color:var(--text3);cursor:pointer;background:none;border:none;font-family:'DM Sans',sans-serif;}
+.nav-item.active{color:var(--accent);}
+.nav-item span{font-size:20px;}.nav-item small{font-size:10px;font-weight:500;}
+
+::-webkit-scrollbar{width:4px;height:4px;}::-webkit-scrollbar-track{background:var(--surface);}::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+@media(max-width:700px){.summary-row{grid-template-columns:repeat(2,1fr);}.topnav-right{gap:4px;}.btn{padding:7px 10px;font-size:12px;}}
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <div class="topnav-left">
+    <a class="topnav-back" href="admin.html">←</a>
+    <div>
+      <div class="topnav-title">📊 REPORTS</div>
+      <div class="topnav-sub" id="reportPeriodLabel">Select a date range to generate</div>
+    </div>
+  </div>
+  <div class="topnav-right">
+    <button class="btn btn-green btn-sm" onclick="exportExcel()">📥 Excel</button>
+    <button class="btn btn-gold btn-sm" onclick="exportPDF()">📄 PDF</button>
+  </div>
+</nav>
+
+<div class="main">
+
+  <!-- DATE RANGE BAR -->
+  <div class="range-bar">
+    <label>From</label>
+    <input type="date" id="fromDate"/>
+    <span class="range-sep">→</span>
+    <label>To</label>
+    <input type="date" id="toDate"/>
+    <button class="btn btn-primary btn-sm" onclick="generateReport()">Generate Report</button>
+    <div class="range-presets">
+      <button class="preset-btn" onclick="setPreset('thisMonth')">This Month</button>
+      <button class="preset-btn" onclick="setPreset('lastMonth')">Last Month</button>
+      <button class="preset-btn" onclick="setPreset('last30')">Last 30 Days</button>
+      <button class="preset-btn" onclick="setPreset('last7')">Last 7 Days</button>
+    </div>
+  </div>
+
+  <!-- SUMMARY CARDS -->
+  <div class="summary-row" id="summaryRow">
+    <div class="sum-card c-purple"><div class="s-label">Total Staff</div><div class="s-value" id="sumStaff">—</div><div class="s-sub">Active employees</div></div>
+    <div class="sum-card c-green"><div class="s-label">Avg Completion</div><div class="s-value" id="sumCompletion">—</div><div class="s-sub">Tasks done rate</div></div>
+    <div class="sum-card c-teal"><div class="s-label">Avg Attendance</div><div class="s-value" id="sumAttendance">—</div><div class="s-sub">Days present rate</div></div>
+    <div class="sum-card c-orange"><div class="s-label">Late Arrivals</div><div class="s-value" id="sumLate">—</div><div class="s-sub">Total across team</div></div>
+  </div>
+
+  <!-- STAFF SCORECARD TABLE -->
+  <div class="report-section" id="scorecardSection">
+    <div class="report-section-head">
+      <h3>👤 Staff Scorecard</h3>
+      <div style="font-size:12px;color:var(--text2)" id="scorecardMeta">Generate a report to see staff performance</div>
+    </div>
+    <div class="table-wrap">
+      <table id="scorecardTable">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Staff Member</th>
+            <th>Department</th>
+            <th>Days Present</th>
+            <th>Days Absent</th>
+            <th>Late Arrivals</th>
+            <th>Attendance %</th>
+            <th>Tasks Assigned</th>
+            <th>Tasks Completed</th>
+            <th>Completion %</th>
+            <th>Overall Score</th>
+            <th>Rating</th>
+          </tr>
+        </thead>
+        <tbody id="scorecardBody">
+          <tr><td colspan="12"><div class="empty-state"><div class="icon">📊</div><p>Select a date range and click Generate Report</p></div></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- DEPARTMENT BREAKDOWN -->
+  <div class="report-section" id="deptSection">
+    <div class="report-section-head">
+      <h3>🏢 Department Breakdown</h3>
+      <div style="font-size:12px;color:var(--text2)">Performance by department</div>
+    </div>
+    <div class="dept-grid" id="deptGrid">
+      <div class="empty-state" style="grid-column:1/-1"><div class="icon">🏢</div><p>Generate a report to see department stats</p></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav">
+  <a class="nav-item" href="dashboard.html"><span>🏠</span><small>Home</small></a>
+  <a class="nav-item" href="tasks.html"><span>✅</span><small>Tasks</small></a>
+  <a class="nav-item" href="attendance.html"><span>🕐</span><small>Attendance</small></a>
+  <a class="nav-item" href="admin.html"><span>⚙️</span><small>Admin</small></a>
+  <a class="nav-item active" href="reports.html"><span>📊</span><small>Reports</small></a>
+</nav>
+
+<script src="firebase-config.js"></script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
+import {
+  getFirestore, collection, doc, getDoc, getDocs,
+  query, where, orderBy
+} from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+let currentUser = null;
+let reportData = []; // holds scorecard rows for export
+let fromDate = null, toDate = null;
+
+const COMPLETED_STAGES = ["Won","Lost","Verified","Closed","Confirmed","Done","Reported","Received","Dispatched"];
+
+// ── AUTH ──
+onAuthStateChanged(auth, async user => {
+  if (!user) { window.location.href = "login.html"; return; }
+  const snap = await getDoc(doc(db, "users", user.uid));
+  if (!snap.exists() || snap.data().role !== "admin") {
+    alert("Admin access only.");
+    window.location.href = "dashboard.html";
+    return;
+  }
+  currentUser = user;
+  setPreset("thisMonth");
+});
+
+// ── DATE PRESETS ──
+window.setPreset = function(type) {
+  const now = new Date();
+  let from, to;
+  if (type === "thisMonth") {
+    from = new Date(now.getFullYear(), now.getMonth(), 1);
+    to = new Date(now.getFullYear(), now.getMonth()+1, 0);
+  } else if (type === "lastMonth") {
+    from = new Date(now.getFullYear(), now.getMonth()-1, 1);
+    to = new Date(now.getFullYear(), now.getMonth(), 0);
+  } else if (type === "last30") {
+    from = new Date(now - 30*86400000);
+    to = now;
+  } else if (type === "last7") {
+    from = new Date(now - 7*86400000);
+    to = now;
+  }
+  document.getElementById("fromDate").value = fmt(from);
+  document.getElementById("toDate").value = fmt(to);
+};
+
+function fmt(d) {
+  return d.toISOString().split("T")[0];
+}
+
+// ── GENERATE REPORT ──
+window.generateReport = async function() {
+  const fromVal = document.getElementById("fromDate").value;
+  const toVal = document.getElementById("toDate").value;
+  if (!fromVal || !toVal) { showToast("Please select both dates", "error"); return; }
+
+  fromDate = new Date(fromVal); fromDate.setHours(0,0,0,0);
+  toDate = new Date(toVal); toDate.setHours(23,59,59,999);
+
+  // Working days in range (Mon–Sat)
+  const workingDays = countWorkingDays(fromDate, toDate);
+
+  document.getElementById("reportPeriodLabel").textContent =
+    `${fromDate.toLocaleDateString("en-IN",{day:"numeric",month:"short",year:"numeric"})} — ${toDate.toLocaleDateString("en-IN",{day:"numeric",month:"short",year:"numeric"})}`;
+
+  // Show loading
+  document.getElementById("scorecardBody").innerHTML =
+    `<tr><td colspan="12"><div style="padding:30px;text-align:center;color:var(--text2)">⏳ Loading report data...</div></td></tr>`;
+
+  // Fetch all staff
+  const staffSnap = await getDocs(query(collection(db,"users"), where("status","==","approved")));
+  const staff = staffSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+  // Fetch all attendance in range
+  const attSnap = await getDocs(collection(db,"attendance"));
+  const allAtt = attSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+  // Fetch all tasks in range
+  const taskSnap = await getDocs(collection(db,"tasks"));
+  const allTasks = taskSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+  // Build scorecard for each staff
+  reportData = staff.map((s, idx) => {
+    // Attendance for this staff in range
+    const myAtt = allAtt.filter(a => {
+      if (a.userId !== s.id && a.uid !== s.id) return false;
+      const d = a.clockIn?.toDate ? a.clockIn.toDate() : new Date(a.clockIn||0);
+      return d >= fromDate && d <= toDate;
+    });
+    const present = myAtt.length;
+    const absent = Math.max(0, workingDays - present);
+    const late = myAtt.filter(a => {
+      const d = a.clockIn?.toDate ? a.clockIn.toDate() : new Date(a.clockIn||0);
+      const h = d.getHours(), m = d.getMinutes();
+      return h > 9 || (h === 9 && m > 15);
+    }).length;
+    const attPct = workingDays > 0 ? Math.round((present/workingDays)*100) : 0;
+
+    // Tasks for this staff in range
+    const myTasks = allTasks.filter(t => {
+      if (t.assigneeId !== s.id) return false;
+      const d = t.createdAt?.toDate ? t.createdAt.toDate() : new Date(t.createdAt||0);
+      return d >= fromDate && d <= toDate;
+    });
+    const assigned = myTasks.length;
+    const completed = myTasks.filter(t => COMPLETED_STAGES.includes(t.stage)).length;
+    const compPct = assigned > 0 ? Math.round((completed/assigned)*100) : 0;
+
+    // Overall score (attendance 50% + completion 50%)
+    const overall = Math.round((attPct + compPct) / 2);
+    const rating = overall >= 85 ? "Excellent" : overall >= 70 ? "Good" : overall >= 50 ? "Average" : "Needs Attention";
+
+    return {
+      idx: idx+1,
+      name: s.name || "Unknown",
+      department: s.department || s.primaryDepartment || "—",
+      present, absent, late, attPct,
+      assigned, completed, compPct,
+      overall, rating
+    };
+  });
+
+  // Sort by overall score descending
+  reportData.sort((a,b) => b.overall - a.overall);
+  reportData.forEach((r,i) => r.idx = i+1);
+
+  renderSummary();
+  renderScorecard();
+  renderDeptBreakdown(staff, allAtt, allTasks, workingDays);
+};
+
+function countWorkingDays(from, to) {
+  let count = 0;
+  const d = new Date(from);
+  while (d <= to) {
+    const day = d.getDay();
+    if (day !== 0) count++; // exclude Sunday only (Mon–Sat work)
+    d.setDate(d.getDate()+1);
+  }
+  return count;
+}
+
+function renderSummary() {
+  const total = reportData.length;
+  const avgComp = total ? Math.round(reportData.reduce((s,r)=>s+r.compPct,0)/total) : 0;
+  const avgAtt = total ? Math.round(reportData.reduce((s,r)=>s+r.attPct,0)/total) : 0;
+  const totalLate = reportData.reduce((s,r)=>s+r.late,0);
+  document.getElementById("sumStaff").textContent = total;
+  document.getElementById("sumCompletion").textContent = avgComp+"%";
+  document.getElementById("sumAttendance").textContent = avgAtt+"%";
+  document.getElementById("sumLate").textContent = totalLate;
+}
+
+function ratingBadge(rating) {
+  const map = { "Excellent":"perf-excellent ⭐ Excellent", "Good":"perf-good ✅ Good", "Average":"perf-average ⚡ Average", "Needs Attention":"perf-poor ⚠ Needs Attention" };
+  const v = map[rating]||"perf-average "+rating;
+  const [cls,...rest] = v.split(" ");
+  return `<span class="perf-badge ${cls}">${rest.join(" ")}</span>`;
+}
+
+function miniBar(pct) {
+  const cls = pct>=85?"fill-green":pct>=70?"fill-teal":pct>=50?"fill-gold":"fill-red";
+  return `<div class="mini-bar-wrap"><div class="mini-bar"><div class="mini-bar-fill ${cls}" style="width:${pct}%"></div></div><span class="td-mono">${pct}%</span></div>`;
+}
+
+function renderScorecard() {
+  const tbody = document.getElementById("scorecardBody");
+  if (!reportData.length) {
+    tbody.innerHTML = `<tr><td colspan="12"><div class="empty-state"><div class="icon">👤</div><p>No staff data found for this period</p></div></td></tr>`;
+    return;
+  }
+  document.getElementById("scorecardMeta").textContent = `${reportData.length} staff members · sorted by overall score`;
+  tbody.innerHTML = reportData.map(r => `
+    <tr>
+      <td class="td-mono" style="color:var(--text3)">${r.idx}</td>
+      <td><div class="td-name">${r.name}</div></td>
+      <td><div class="td-dept">${r.department}</div></td>
+      <td class="td-mono">${r.present}</td>
+      <td class="td-mono" style="color:${r.absent>3?'var(--red)':'var(--text2)'}">${r.absent}</td>
+      <td class="td-mono" style="color:${r.late>3?'var(--orange)':'var(--text2)'}">${r.late}</td>
+      <td>${miniBar(r.attPct)}</td>
+      <td class="td-mono">${r.assigned}</td>
+      <td class="td-mono">${r.completed}</td>
+      <td>${miniBar(r.compPct)}</td>
+      <td>${miniBar(r.overall)}</td>
+      <td>${ratingBadge(r.rating)}</td>
+    </tr>`).join("");
+}
+
+function renderDeptBreakdown(staff, allAtt, allTasks, workingDays) {
+  const depts = {};
+  staff.forEach(s => {
+    const dept = s.department || s.primaryDepartment || "Unknown";
+    if (!depts[dept]) depts[dept] = { staff:[], att:0, tasks:0, done:0, late:0 };
+    depts[dept].staff.push(s.id);
+  });
+  Object.entries(depts).forEach(([dept, d]) => {
+    d.staff.forEach(uid => {
+      const row = reportData.find(r => r.name === (staff.find(s=>s.id===uid)||{}).name);
+      if (row) { d.att += row.attPct; d.tasks += row.assigned; d.done += row.completed; d.late += row.late; }
+    });
+    d.avgAtt = d.staff.length ? Math.round(d.att/d.staff.length) : 0;
+    d.compPct = d.tasks ? Math.round((d.done/d.tasks)*100) : 0;
+  });
+  const grid = document.getElementById("deptGrid");
+  const entries = Object.entries(depts).filter(([,d])=>d.staff.length>0);
+  if (!entries.length) { grid.innerHTML=`<div class="empty-state" style="grid-column:1/-1"><div class="icon">🏢</div><p>No department data</p></div>`; return; }
+  grid.innerHTML = entries.sort((a,b)=>b[1].compPct-a[1].compPct).map(([dept,d])=>`
+    <div class="dept-card">
+      <div class="dept-card-head">
+        <div class="dept-card-name">${dept}</div>
+        <div class="dept-card-count">${d.staff.length} staff</div>
+      </div>
+      <div class="dept-stat-row"><span>Avg Attendance</span><span class="dept-stat-val">${d.avgAtt}%</span></div>
+      <div class="dept-stat-row"><span>Tasks Completed</span><span class="dept-stat-val">${d.done} / ${d.tasks}</span></div>
+      <div class="dept-stat-row"><span>Completion Rate</span><span class="dept-stat-val" style="color:${d.compPct>=70?'var(--green)':d.compPct>=50?'var(--gold)':'var(--red)'}">${d.compPct}%</span></div>
+      <div class="dept-stat-row"><span>Late Arrivals</span><span class="dept-stat-val" style="color:${d.late>5?'var(--orange)':'var(--text)'}">${d.late}</span></div>
+    </div>`).join("");
+}
+
+// ── EXCEL EXPORT ──
+window.exportExcel = function() {
+  if (!reportData.length) { showToast("Generate a report first", "error"); return; }
+  const fromVal = document.getElementById("fromDate").value;
+  const toVal = document.getElementById("toDate").value;
+
+  // Sheet 1: Summary scorecard
+  const headers = ["#","Name","Department","Days Present","Days Absent","Late Arrivals","Attendance %","Tasks Assigned","Tasks Completed","Completion %","Overall Score","Rating"];
+  const rows = reportData.map(r => [r.idx,r.name,r.department,r.present,r.absent,r.late,r.attPct+"%",r.assigned,r.completed,r.compPct+"%",r.overall+"%",r.rating]);
+
+  const wb = XLSX.utils.book_new();
+
+  // Scorecard sheet
+  const ws1Data = [
+    [`SPARKALS TASKS — STAFF PERFORMANCE REPORT`],
+    [`Period: ${fromVal} to ${toVal}`],
+    [`Generated: ${new Date().toLocaleDateString("en-IN")}`],
+    [],
+    headers,
+    ...rows
+  ];
+  const ws1 = XLSX.utils.aoa_to_sheet(ws1Data);
+  ws1["!cols"] = [
+    {wch:4},{wch:22},{wch:22},{wch:14},{wch:13},{wch:14},{wch:14},{wch:15},{wch:16},{wch:13},{wch:13},{wch:18}
+  ];
+  XLSX.utils.book_append_sheet(wb, ws1, "Staff Scorecard");
+
+  // Summary sheet
+  const total = reportData.length;
+  const avgComp = total ? Math.round(reportData.reduce((s,r)=>s+r.compPct,0)/total) : 0;
+  const avgAtt = total ? Math.round(reportData.reduce((s,r)=>s+r.attPct,0)/total) : 0;
+  const totalLate = reportData.reduce((s,r)=>s+r.late,0);
+  const ws2Data = [
+    ["SUMMARY"],
+    ["Total Staff", total],
+    ["Avg Task Completion", avgComp+"%"],
+    ["Avg Attendance", avgAtt+"%"],
+    ["Total Late Arrivals", totalLate],
+    [],
+    ["Rating Breakdown"],
+    ["Excellent (85%+)", reportData.filter(r=>r.rating==="Excellent").length],
+    ["Good (70–84%)", reportData.filter(r=>r.rating==="Good").length],
+    ["Average (50–69%)", reportData.filter(r=>r.rating==="Average").length],
+    ["Needs Attention (<50%)", reportData.filter(r=>r.rating==="Needs Attention").length],
+  ];
+  const ws2 = XLSX.utils.aoa_to_sheet(ws2Data);
+  XLSX.utils.book_append_sheet(wb, ws2, "Summary");
+
+  XLSX.writeFile(wb, `Sparkals_Report_${fromVal}_to_${toVal}.xlsx`);
+  showToast("✅ Excel downloaded!");
+};
+
+// ── PDF EXPORT ──
+window.exportPDF = function() {
+  if (!reportData.length) { showToast("Generate a report first", "error"); return; }
+  window.print();
+  showToast("📄 Opening print dialog...");
+};
+
+// ── TOAST ──
+window.showToast = function(msg, type="success") {
+  const t = document.createElement("div");
+  t.className = "toast";
+  t.style.borderColor = type==="error" ? "var(--red)" : "var(--green)";
+  t.style.color = type==="error" ? "var(--red)" : "var(--green)";
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(()=>t.remove(), 3500);
+};
+</script>
+</body>
+</html>
