@@ -79,6 +79,31 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 .stage-btn.active{background:var(--accent);color:#fff;border-color:var(--accent);}
 .stage-btn:hover:not(.active){border-color:var(--accent);color:var(--text);}
 .task-desc{margin-top:12px;font-size:13px;color:var(--text2);line-height:1.6;}
+
+/* ── TASK TIMER STYLES ── */
+.timer-section{margin-top:16px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);overflow:hidden;}
+.timer-header{padding:12px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px;}
+.timer-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--text2);}
+.timer-total{font-family:'Space Mono',monospace;font-size:13px;font-weight:700;color:var(--accent);}
+.timer-display{font-family:'Space Mono',monospace;font-size:22px;font-weight:700;color:var(--green);padding:0 14px 4px;display:none;}
+.timer-display.running{display:block;}
+.timer-btn-row{padding:0 14px 12px;display:flex;gap:8px;align-items:center;}
+.btn-timer-start{background:rgba(52,211,153,0.15);border:1.5px solid var(--green);color:var(--green);padding:8px 18px;border-radius:20px;font-size:13px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;}
+.btn-timer-start:hover{background:rgba(52,211,153,0.25);}
+.btn-timer-stop{background:rgba(239,68,68,0.15);border:1.5px solid var(--red);color:var(--red);padding:8px 18px;border-radius:20px;font-size:13px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;display:none;}
+.btn-timer-stop:hover{background:rgba(239,68,68,0.25);}
+.btn-timer-stop.running{display:inline-flex;}
+.btn-timer-start.running{display:none;}
+.timer-running-badge{font-size:11px;color:var(--green);display:none;align-items:center;gap:5px;}
+.timer-running-badge.running{display:flex;}
+.timer-dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse 1.2s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.3;}}
+.timer-sessions{border-top:1px solid var(--border);padding:10px 14px;display:flex;flex-direction:column;gap:6px;}
+.timer-sessions-title{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;}
+.session-item{display:flex;justify-content:space-between;align-items:center;font-size:12px;}
+.session-label{color:var(--text2);}
+.session-duration{font-family:'Space Mono',monospace;color:var(--teal);font-weight:700;}
+
 .subtask-section{margin-top:16px;}
 .subtask-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
 .subtask-title{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--text2);}
@@ -119,7 +144,6 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 .comment-input-row{display:flex;gap:8px;}
 .comment-input{flex:1;background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:var(--radius-sm);padding:8px 12px;font-family:'DM Sans',sans-serif;font-size:13px;outline:none;}
 .comment-input:focus{border-color:var(--accent);}
-/* TEMPLATES */
 .templates-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px;}
 .template-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px;transition:all 0.2s;position:relative;overflow:hidden;}
 .template-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--teal),var(--accent));}
@@ -134,7 +158,6 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 .template-footer{display:flex;gap:8px;justify-content:space-between;align-items:center;}
 .template-use-count{font-size:11px;color:var(--text3);}
 .template-actions{display:flex;gap:6px;}
-/* MODALS */
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:200;display:none;align-items:flex-start;justify-content:center;padding:40px 16px;overflow-y:auto;}
 .modal-overlay.open{display:flex;}
 .modal{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);width:100%;max-width:620px;display:flex;flex-direction:column;box-shadow:var(--shadow);animation:slideDown 0.25s ease;margin:auto;}
@@ -150,7 +173,6 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 .form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--accent);}
 .form-group textarea{resize:vertical;min-height:70px;}
 .form-row-2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
-/* BATCH */
 .batch-divider{display:flex;align-items:center;gap:12px;margin:4px 0;}
 .batch-divider::before,.batch-divider::after{content:'';flex:1;height:1px;background:var(--border);}
 .batch-divider span{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;white-space:nowrap;}
@@ -160,7 +182,6 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 .batch-count-input{width:80px!important;text-align:center;font-size:18px;font-weight:700;font-family:'Space Mono',monospace;}
 .batch-preview{margin-top:10px;font-size:12px;color:var(--text2);line-height:1.8;}
 .batch-id-chip{font-family:'Space Mono',monospace;font-size:10px;color:var(--gold);background:rgba(240,180,41,0.1);border:1px solid rgba(240,180,41,0.2);padding:1px 6px;border-radius:10px;margin-right:4px;}
-/* BULK DELETE */
 .bulk-panel-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:200;display:none;align-items:flex-start;justify-content:center;padding-top:60px;}
 .bulk-panel-overlay.open{display:flex;}
 .bulk-panel{background:var(--surface);border:1px solid var(--red);border-radius:var(--radius);width:100%;max-width:640px;max-height:80vh;display:flex;flex-direction:column;box-shadow:0 8px 40px rgba(239,68,68,0.2);animation:slideDown 0.25s ease;margin:0 16px;}
@@ -225,7 +246,6 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
     <button class="page-tab" id="ptab-templates" onclick="showTab('templates')">📋 Templates</button>
   </div>
 
-  <!-- TASKS VIEW -->
   <div id="view-tasks">
     <div class="stats-row">
       <div class="stat-card c-purple"><div class="label">Total Tasks</div><div class="value" id="statTotal">0</div></div>
@@ -243,7 +263,6 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
     <div class="tasks-list" id="tasksList"><div class="empty-state"><div class="icon">📋</div><p>Loading tasks...</p></div></div>
   </div>
 
-  <!-- TEMPLATES VIEW -->
   <div id="view-templates" style="display:none">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;gap:12px;flex-wrap:wrap;">
       <div>
@@ -307,7 +326,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
   <div class="modal" style="max-width:480px;border-color:var(--teal);">
     <div class="modal-head"><h3 style="color:var(--teal)">💾 Save as Template</h3><button class="modal-close" onclick="document.getElementById('saveTplModal').classList.remove('open')">✕</button></div>
     <div class="modal-body">
-      <div style="background:rgba(34,211,238,0.07);border:1px solid rgba(34,211,238,0.2);border-radius:var(--radius-sm);padding:12px;font-size:13px;color:var(--text2);line-height:1.6;">A template saves your task form so next time you tap Run — the form opens pre-filled. You only change what is different.</div>
+      <div style="background:rgba(34,211,238,0.07);border:1px solid rgba(34,211,238,0.2);border-radius:var(--radius-sm);padding:12px;font-size:13px;color:var(--text2);line-height:1.6;">A template saves your task form so next time you tap Run — the form opens pre-filled.</div>
       <div class="form-group"><label>Template Name *</label><input type="text" id="tplName" placeholder="e.g. Client Follow-up, Monthly Stock Check"/></div>
       <div class="form-group"><label>Short Description (optional)</label><input type="text" id="tplDesc" placeholder="e.g. Standard follow-up after site visit"/></div>
     </div>
@@ -361,7 +380,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
       <div class="warning-strip">⚠️ <span>Permanently deletes all matching tasks. Cannot be undone. Admin only.</span></div>
       <div class="bulk-filters">
         <div class="form-group field-full"><div class="field-label">Department</div><select class="field-input" id="bulkDept"><option value="all">All Departments</option></select></div>
-        <div class="form-group"><div class="field-label">From Date (task created on)</div><input type="date" class="field-input" id="bulkFrom"/></div>
+        <div class="form-group"><div class="field-label">From Date</div><input type="date" class="field-input" id="bulkFrom"/></div>
         <div class="form-group"><div class="field-label">To Date</div><input type="date" class="field-input" id="bulkTo"/></div>
       </div>
       <button class="btn btn-ghost" onclick="previewBulkDelete()">🔍 Preview Tasks to Delete</button>
@@ -380,12 +399,12 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 <script src="firebase-config.js"></script>
 <script src="audit.js"></script>
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 import {
   getFirestore, collection, doc, getDoc, getDocs, addDoc, updateDoc, deleteDoc,
   query, where, orderBy, serverTimestamp, Timestamp, runTransaction, increment
-} from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
@@ -406,12 +425,167 @@ const DEPT_STAGES = {
 const DEPTS = Object.keys(DEPT_STAGES);
 const COMPLETED_STAGES = ["Won","Lost","Verified","Closed","Confirmed","Done","Reported","Received","Dispatched"];
 
-let currentUser=null,currentRole=null;
-let allTasks=[],allStaff=[],allTemplates=[];
-let activeDept="all",bulkPreviewIds=[],pendingTplData=null,activeRunTpl=null;
+let currentUser=null, currentRole=null;
+let allTasks=[], allStaff=[], allTemplates=[];
+let activeDept="all", bulkPreviewIds=[], pendingTplData=null, activeRunTpl=null;
+
+// ── LIVE TIMER STATE (in-memory only, resets on page reload — sessions are saved to Firestore) ──
+const activeTimers = {}; // taskId → { startTime, intervalId }
+
+// ── FORMAT milliseconds to Xh Ym Zs ──
+function fmtMs(ms) {
+  if (ms < 0) ms = 0;
+  const h = Math.floor(ms / 3600000);
+  const m = Math.floor((ms % 3600000) / 60000);
+  const s = Math.floor((ms % 60000) / 1000);
+  if (h > 0) return `${h}h ${m}m ${s}s`;
+  if (m > 0) return `${m}m ${s}s`;
+  return `${s}s`;
+}
+
+// ── FORMAT total minutes to Xh Ym ──
+function fmtMinutes(mins) {
+  if (!mins || mins <= 0) return '0m';
+  const h = Math.floor(mins / 60);
+  const m = Math.round(mins % 60);
+  if (h > 0) return `${h}h ${m}m`;
+  return `${m}m`;
+}
+
+// ── START TIMER for a task ──
+window.startTimer = async function(taskId) {
+  if (activeTimers[taskId]) return; // already running
+  const startTime = Date.now();
+  activeTimers[taskId] = { startTime };
+
+  // Update button states
+  const startBtn = document.getElementById(`timer-start-${taskId}`);
+  const stopBtn  = document.getElementById(`timer-stop-${taskId}`);
+  const display  = document.getElementById(`timer-display-${taskId}`);
+  const badge    = document.getElementById(`timer-badge-${taskId}`);
+  if (startBtn) startBtn.classList.add('running');
+  if (stopBtn)  stopBtn.classList.add('running');
+  if (display)  display.classList.add('running');
+  if (badge)    badge.classList.add('running');
+
+  // Live tick every second
+  activeTimers[taskId].intervalId = setInterval(() => {
+    const elapsed = Date.now() - startTime;
+    if (display) display.textContent = '⏱ ' + fmtMs(elapsed);
+  }, 1000);
+
+  showToast('⏱ Timer started!', 'success');
+};
+
+// ── STOP TIMER and save session to Firestore ──
+window.stopTimer = async function(taskId) {
+  const timer = activeTimers[taskId];
+  if (!timer) return;
+
+  clearInterval(timer.intervalId);
+  const elapsed = Date.now() - timer.startTime;
+  const durationMinutes = parseFloat((elapsed / 60000).toFixed(2));
+  delete activeTimers[taskId];
+
+  // Reset button states
+  const startBtn = document.getElementById(`timer-start-${taskId}`);
+  const stopBtn  = document.getElementById(`timer-stop-${taskId}`);
+  const display  = document.getElementById(`timer-display-${taskId}`);
+  const badge    = document.getElementById(`timer-badge-${taskId}`);
+  if (startBtn) startBtn.classList.remove('running');
+  if (stopBtn)  stopBtn.classList.remove('running');
+  if (display)  { display.classList.remove('running'); display.textContent = ''; }
+  if (badge)    badge.classList.remove('running');
+
+  // Build new session record
+  const now = new Date();
+  const session = {
+    startedAt: new Date(now.getTime() - elapsed).toISOString(),
+    stoppedAt: now.toISOString(),
+    durationMinutes,
+    recordedBy: currentUser.uid,
+    recordedByName: (allStaff.find(s => s.id === currentUser.uid)||{}).name || 'Unknown'
+  };
+
+  // Save to Firestore
+  try {
+    const task = allTasks.find(t => t.id === taskId);
+    const sessions = [...(task?.timerSessions || []), session];
+    const totalMinutes = sessions.reduce((sum, s) => sum + (s.durationMinutes || 0), 0);
+    await updateDoc(doc(db, 'tasks', taskId), {
+      timerSessions: sessions,
+      totalTimeMinutes: parseFloat(totalMinutes.toFixed(2)),
+      updatedAt: serverTimestamp()
+    });
+    // Update local state
+    allTasks = allTasks.map(t => t.id === taskId
+      ? { ...t, timerSessions: sessions, totalTimeMinutes: totalMinutes }
+      : t
+    );
+    // Refresh timer UI only (not whole card — avoids disrupting open card)
+    renderTimerSessions(taskId, sessions, totalMinutes);
+    showToast(`✅ Session saved — ${fmtMs(elapsed)}`, 'success');
+  } catch(e) {
+    console.error('Timer save error:', e);
+    showToast('❌ Could not save session. Try again.', 'error');
+  }
+};
+
+// ── RENDER SESSION LIST inside an already-open card ──
+function renderTimerSessions(taskId, sessions, totalMinutes) {
+  const sessionsEl = document.getElementById(`timer-sessions-${taskId}`);
+  const totalEl    = document.getElementById(`timer-total-${taskId}`);
+  if (totalEl) totalEl.textContent = `Total: ${fmtMinutes(totalMinutes)}`;
+  if (!sessionsEl) return;
+  if (!sessions || sessions.length === 0) {
+    sessionsEl.innerHTML = '<div class="timer-sessions-title">No sessions yet</div>';
+    return;
+  }
+  sessionsEl.innerHTML = `<div class="timer-sessions-title">Work Sessions (${sessions.length})</div>` +
+    sessions.slice(-5).reverse().map((s, i) => {
+      const idx = sessions.length - i;
+      const date = new Date(s.stoppedAt);
+      const label = `Session ${idx} · ${date.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })} · ${s.recordedByName || ''}`;
+      return `<div class="session-item">
+        <span class="session-label">${label}</span>
+        <span class="session-duration">${fmtMinutes(s.durationMinutes)}</span>
+      </div>`;
+    }).join('');
+}
+
+// ── BUILD TIMER BLOCK HTML for a task ──
+function buildTimerBlock(t) {
+  const sessions = t.timerSessions || [];
+  const totalMinutes = t.totalTimeMinutes || 0;
+  const sessionsHtml = sessions.length === 0
+    ? '<div class="timer-sessions-title">No sessions yet — tap Start to begin tracking</div>'
+    : `<div class="timer-sessions-title">Work Sessions (${sessions.length})</div>` +
+      sessions.slice(-5).reverse().map((s, i) => {
+        const idx = sessions.length - i;
+        const date = new Date(s.stoppedAt);
+        return `<div class="session-item">
+          <span class="session-label">Session ${idx} · ${date.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })} · ${s.recordedByName || ''}</span>
+          <span class="session-duration">${fmtMinutes(s.durationMinutes)}</span>
+        </div>`;
+      }).join('');
+
+  return `
+  <div class="timer-section">
+    <div class="timer-header">
+      <span class="timer-label">⏱ Task Timer</span>
+      <span class="timer-total" id="timer-total-${t.id}">Total: ${fmtMinutes(totalMinutes)}</span>
+    </div>
+    <div class="timer-display" id="timer-display-${t.id}"></div>
+    <div class="timer-btn-row">
+      <button class="btn-timer-start" id="timer-start-${t.id}" onclick="startTimer('${t.id}')">▶ Start Timer</button>
+      <button class="btn-timer-stop" id="timer-stop-${t.id}" onclick="stopTimer('${t.id}')">⏹ Stop & Save</button>
+      <div class="timer-running-badge" id="timer-badge-${t.id}"><div class="timer-dot"></div>Recording...</div>
+    </div>
+    <div class="timer-sessions" id="timer-sessions-${t.id}">${sessionsHtml}</div>
+  </div>`;
+}
 
 // ── UNIQUE TASK ID GENERATOR ──
-// Uses a Firestore counter document so IDs never repeat, even with multiple users creating tasks simultaneously
 async function generateTaskId() {
   const counterRef = doc(db,"appConfig","taskCounter");
   let newNum = 1;
@@ -421,9 +595,7 @@ async function generateTaskId() {
       newNum = snap.exists() ? (snap.data().count||0)+1 : 1;
       tx.set(counterRef,{count:newNum},{merge:true});
     });
-  } catch(e) {
-    newNum = Date.now() % 99999;
-  }
+  } catch(e) { newNum = Date.now() % 99999; }
   return "TASK-" + String(newNum).padStart(4,"0");
 }
 
@@ -485,9 +657,9 @@ window.filterDept=function(dept,el){
 };
 
 async function loadTasks(){
-  let q=currentRole==="admin"
-    ?query(collection(db,"tasks"),orderBy("createdAt","desc"))
-    :query(collection(db,"tasks"),where("assigneeId","==",currentUser.uid),orderBy("createdAt","desc"));
+  let q = currentRole==="admin" || currentRole==="manager"
+    ? query(collection(db,"tasks"),orderBy("createdAt","desc"))
+    : query(collection(db,"tasks"),where("assigneeId","==",currentUser.uid),orderBy("createdAt","desc"));
   const snap=await getDocs(q);
   allTasks=snap.docs.map(d=>({id:d.id,...d.data()}));
   updateStats();applyFilters();
@@ -560,6 +732,9 @@ function buildTaskCard(t){
   const progHtml=tot?`<div class="progress-bar-wrap"><div class="progress-bar-label">${dn} of ${tot} sub-tasks done (${pct}%)</div><div class="progress-bar"><div class="progress-bar-fill" style="width:${pct}%"></div></div></div>`:"";
   const cmtHtml=(t.comments||[]).slice(-10).map(c=>`<div class="comment-item"><div class="comment-meta">${c.author} · ${c.time||''}</div><div class="comment-text">${c.text}</div></div>`).join("");
   const canTpl=currentRole==='admin'||currentRole==='manager';
+  // Timer visible to: assigned staff, admin, manager
+  const canSeeTimer = currentRole==='admin' || currentRole==='manager' || t.assigneeId===currentUser.uid;
+
   return`
   <div class="task-card priority-${t.priority||'normal'}" id="card_${t.id}">
     <div class="task-header" onclick="toggleCard('${t.id}')">
@@ -573,6 +748,7 @@ function buildTaskCard(t){
           <span class="badge badge-assignee">👤 ${aName}</span>
           ${deadlineInfo(t)}
           <span class="badge badge-dept">📌 ${t.stage||'—'}</span>
+          ${t.totalTimeMinutes>0?`<span class="badge" style="background:rgba(52,211,153,0.1);color:var(--green);">⏱ ${fmtMinutes(t.totalTimeMinutes)}</span>`:''}
         </div>
       </div>
       <div class="task-actions" onclick="event.stopPropagation()">
@@ -584,6 +760,7 @@ function buildTaskCard(t){
       <div class="stage-section"><div class="stage-label">Stage Progress</div><div class="stage-track">${stagesHtml}</div></div>
       ${t.notes?`<div class="task-desc">${t.notes}</div>`:''}
       ${progHtml}
+      ${canSeeTimer ? buildTimerBlock(t) : ''}
       <div class="subtask-section">
         <div class="subtask-header">
           <div class="subtask-title">Sub-tasks</div>
@@ -728,7 +905,7 @@ window.updateBatchPreview=function(){
   const n=parseInt(document.getElementById("batchCount").value)||1;
   const el=document.getElementById("batchPreview");
   el.innerHTML=n===1?`Will create <strong style="color:var(--teal)">1</strong> task — unique TASK-ID auto-assigned.`
-    :`Will create <strong style="color:var(--teal)">${n}</strong> tasks. Names: "Task Name (1/${n})", "Task Name (2/${n})"... Each gets its own unique TASK-ID.`;
+    :`Will create <strong style="color:var(--teal)">${n}</strong> tasks. Each gets its own unique TASK-ID.`;
 };
 window.updateRunBatchPreview=function(){
   const n=parseInt(document.getElementById("runBatchCount").value)||1;
@@ -736,7 +913,6 @@ window.updateRunBatchPreview=function(){
   el.innerHTML=n===1?`Will create <strong style="color:var(--teal)">1</strong> task — unique TASK-ID auto-assigned.`
     :`Will create <strong style="color:var(--teal)">${n}</strong> tasks, each with a unique TASK-ID.`;
 };
-
 window.createTask=async function(){
   const name=document.getElementById("newTaskName").value.trim();
   const dept=document.getElementById("newTaskDept").value;
@@ -752,8 +928,8 @@ window.createTask=async function(){
   for(let i=0;i<n;i++){
     const taskId=await generateTaskId();
     const taskName=n>1?`${name} (${i+1}/${n})`:name;
-    const ref=await addDoc(collection(db,"tasks"),{taskId,name:taskName,department:dept,priority,deadline,assigneeId,stage,notes,checklist:[],minitasks:[],comments:[],createdAt:serverTimestamp(),updatedAt:serverTimestamp(),createdBy:currentUser.uid});
-    allTasks.unshift({id:ref.id,taskId,name:taskName,department:dept,priority,deadline:{toDate:()=>new Date(deadlineVal)},assigneeId,stage,notes,checklist:[],minitasks:[],comments:[]});
+    const ref=await addDoc(collection(db,"tasks"),{taskId,name:taskName,department:dept,priority,deadline,assigneeId,stage,notes,checklist:[],minitasks:[],comments:[],timerSessions:[],totalTimeMinutes:0,createdAt:serverTimestamp(),updatedAt:serverTimestamp(),createdBy:currentUser.uid});
+    allTasks.unshift({id:ref.id,taskId,name:taskName,department:dept,priority,deadline:{toDate:()=>new Date(deadlineVal)},assigneeId,stage,notes,checklist:[],minitasks:[],comments:[],timerSessions:[],totalTimeMinutes:0});
   }
   closeCreateModal();applyFilters();updateStats();
   showToast(`✅ ${n} task(s) created!`,"success");
@@ -786,7 +962,6 @@ window.saveTemplate=async function(){
   document.getElementById("saveTplModal").classList.remove("open");
   showToast("✅ Template saved!","success");loadTemplates();
 };
-
 async function loadTemplates(){
   const snap=await getDocs(query(collection(db,"taskTemplates"),orderBy("createdAt","desc")));
   allTemplates=snap.docs.map(d=>({id:d.id,...d.data()}));
@@ -820,7 +995,6 @@ window.renderTemplates=function(){
     </div>`;
   }).join("");
 };
-
 window.openRunTemplate=function(tplId){
   const tpl=allTemplates.find(t=>t.id===tplId);if(!tpl)return;
   activeRunTpl=tpl;
@@ -855,7 +1029,7 @@ window.runTemplate=async function(){
   for(let i=0;i<n;i++){
     const taskId=await generateTaskId();
     const taskName=n>1?`${name} (${i+1}/${n})`:name;
-    await addDoc(collection(db,"tasks"),{taskId,name:taskName,department:dept,priority,deadline,assigneeId,stage,notes,checklist:[],minitasks:[],comments:[],createdAt:serverTimestamp(),updatedAt:serverTimestamp(),createdBy:currentUser.uid,fromTemplate:activeRunTpl?.id||null});
+    await addDoc(collection(db,"tasks"),{taskId,name:taskName,department:dept,priority,deadline,assigneeId,stage,notes,checklist:[],minitasks:[],comments:[],timerSessions:[],totalTimeMinutes:0,createdAt:serverTimestamp(),updatedAt:serverTimestamp(),createdBy:currentUser.uid,fromTemplate:activeRunTpl?.id||null});
   }
   if(activeRunTpl)await updateDoc(doc(db,"taskTemplates",activeRunTpl.id),{usedCount:increment(n)});
   document.getElementById("runTplModal").classList.remove("open");
