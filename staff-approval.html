@@ -7,210 +7,98 @@
   <title>Staff Approval — Sparkals Tasks</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      background: #f0f2f5;
-      min-height: 100vh;
-      padding-bottom: 40px;
-    }
-    .header {
-      background: #1a1a2e;
-      padding: 20px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-    .back-btn {
-      color: white;
-      background: rgba(255,255,255,0.1);
-      border: none;
-      border-radius: 10px;
-      padding: 8px 14px;
-      font-size: 14px;
-      cursor: pointer;
-      text-decoration: none;
-    }
+    body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; min-height: 100vh; padding-bottom: 40px; }
+    .header { background: #1a1a2e; padding: 20px; display: flex; align-items: center; gap: 12px; }
+    .back-btn { color: white; background: rgba(255,255,255,0.1); border: none; border-radius: 10px; padding: 8px 14px; font-size: 14px; cursor: pointer; text-decoration: none; }
     .header-title { color: white; font-size: 18px; font-weight: 700; }
     .header-sub { color: rgba(255,255,255,0.6); font-size: 12px; }
     .main { padding: 16px; }
 
+    /* Bulk approve bar */
+    .bulk-bar {
+      background: #fff8e6;
+      border: 1.5px solid #fcd34d;
+      border-radius: 16px;
+      padding: 14px 16px;
+      margin-bottom: 14px;
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .bulk-bar.show { display: flex; }
+    .bulk-bar-text { font-size: 13px; font-weight: 600; color: #92400e; }
+    .btn-bulk-approve {
+      padding: 10px 18px;
+      background: #22c55e; color: white;
+      border: none; border-radius: 10px;
+      font-size: 13px; font-weight: 700; cursor: pointer;
+      white-space: nowrap;
+    }
+    .btn-bulk-approve:disabled { opacity: 0.5; cursor: not-allowed; }
+
     /* Tabs */
-    .tabs {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 16px;
-    }
-    .tab {
-      padding: 8px 16px;
-      border-radius: 20px;
-      font-size: 13px;
-      font-weight: 600;
-      cursor: pointer;
-      border: 2px solid #e8e8e8;
-      background: white;
-      color: #888;
-    }
-    .tab.active {
-      background: #1a1a2e;
-      color: white;
-      border-color: #1a1a2e;
-    }
+    .tabs { display: flex; gap: 8px; margin-bottom: 16px; }
+    .tab { padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 600; cursor: pointer; border: 2px solid #e8e8e8; background: white; color: #888; }
+    .tab.active { background: #1a1a2e; color: white; border-color: #1a1a2e; }
     .tab-content { display: none; }
     .tab-content.active { display: block; }
 
     /* Cards */
-    .staff-card {
-      background: white;
-      border-radius: 20px;
-      padding: 18px;
-      margin-bottom: 12px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-    }
+    .staff-card { background: white; border-radius: 20px; padding: 18px; margin-bottom: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); }
     .pending-card { border-left: 4px solid #f59e0b; }
     .approved-card { border-left: 4px solid #22c55e; }
     .rejected-card { border-left: 4px solid #ef4444; }
 
-    .card-top {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 14px;
-    }
-    .avatar {
-      width: 52px;
-      height: 52px;
-      border-radius: 14px;
-      background: #1a1a2e;
-      color: white;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 22px;
-      font-weight: 700;
-      flex-shrink: 0;
-    }
+    .card-top { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+    .avatar { width: 52px; height: 52px; border-radius: 14px; background: #1a1a2e; color: white; display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 700; flex-shrink: 0; }
     .avatar.green { background: #22c55e; }
     .avatar.red { background: #ef4444; }
     .staff-name { font-size: 16px; font-weight: 700; color: #1a1a2e; margin-bottom: 3px; }
     .staff-sub { font-size: 13px; color: #888; }
 
-    /* Key info — only what matters */
-    .key-info {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-      margin-bottom: 14px;
-    }
-    .info-box {
-      background: #f8f8f8;
-      border-radius: 12px;
-      padding: 10px 12px;
-    }
+    .key-info { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+    .info-box { background: #f8f8f8; border-radius: 12px; padding: 10px 12px; }
     .info-label { font-size: 11px; color: #888; font-weight: 500; margin-bottom: 3px; }
-    .info-value { font-size: 14px; font-weight: 700; color: #1a1a2e; }
+    .info-value { font-size: 13px; font-weight: 700; color: #1a1a2e; word-break: break-all; }
     .info-box.full { grid-column: 1 / -1; }
 
     /* Edit fields */
-    .edit-section {
-      background: #f0f2ff;
-      border: 1.5px solid #c7c7ff;
-      border-radius: 14px;
-      padding: 14px;
-      margin-bottom: 14px;
-      display: none;
-    }
+    .edit-section { background: #f0f2ff; border: 1.5px solid #c7c7ff; border-radius: 14px; padding: 14px; margin-bottom: 14px; display: none; }
     .edit-section.open { display: block; }
     .edit-group { margin-bottom: 10px; }
     .edit-label { font-size: 12px; font-weight: 600; color: #444; margin-bottom: 4px; display: block; }
-    .edit-input, .edit-select {
-      width: 100%;
-      padding: 10px 12px;
-      border: 1.5px solid #c7c7ff;
-      border-radius: 10px;
-      font-size: 14px;
-      color: #1a1a2e;
-      background: white;
-      outline: none;
-    }
-    .save-edit-btn {
-      width: 100%;
-      padding: 10px;
-      background: #3b37c8;
-      color: white;
-      border: none;
-      border-radius: 10px;
-      font-size: 14px;
-      font-weight: 700;
-      cursor: pointer;
-      margin-top: 4px;
-    }
+    .edit-input, .edit-select { width: 100%; padding: 10px 12px; border: 1.5px solid #c7c7ff; border-radius: 10px; font-size: 14px; color: #1a1a2e; background: white; outline: none; }
+    .save-edit-btn { width: 100%; padding: 10px; background: #3b37c8; color: white; border: none; border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer; margin-top: 4px; }
 
     /* Action buttons */
     .action-row { display: flex; gap: 8px; flex-direction: column; }
-    .edit-btn {
-      width: 100%;
-      padding: 10px;
-      background: #f0f2ff;
-      color: #1a1a2e;
-      border: 2px solid #c7c7ff;
-      border-radius: 12px;
-      font-size: 14px;
-      font-weight: 700;
-      cursor: pointer;
-    }
+    .edit-btn { width: 100%; padding: 10px; background: #f0f2ff; color: #1a1a2e; border: 2px solid #c7c7ff; border-radius: 12px; font-size: 14px; font-weight: 700; cursor: pointer; }
     .approve-reject-row { display: flex; gap: 8px; }
-    .btn-approve {
-      flex: 1; padding: 12px;
-      background: #22c55e; color: white;
-      border: none; border-radius: 12px;
-      font-size: 14px; font-weight: 700; cursor: pointer;
-    }
-    .btn-reject {
-      flex: 1; padding: 12px;
-      background: #ef4444; color: white;
-      border: none; border-radius: 12px;
-      font-size: 14px; font-weight: 700; cursor: pointer;
-    }
+    .btn-approve { flex: 1; padding: 12px; background: #22c55e; color: white; border: none; border-radius: 12px; font-size: 14px; font-weight: 700; cursor: pointer; }
+    .btn-reject { flex: 1; padding: 12px; background: #ef4444; color: white; border: none; border-radius: 12px; font-size: 14px; font-weight: 700; cursor: pointer; }
     .btn-approve:disabled, .btn-reject:disabled { opacity: 0.5; cursor: not-allowed; }
 
-    .status-badge {
-      padding: 4px 12px; border-radius: 20px;
-      font-size: 12px; font-weight: 700;
-    }
+    /* WhatsApp message box */
+    .wa-box { display: none; background: #f0fdf4; border: 1.5px solid #86efac; border-radius: 14px; padding: 14px; margin-top: 10px; }
+    .wa-box.show { display: block; }
+    .wa-box-title { font-size: 12px; font-weight: 700; color: #15803d; margin-bottom: 8px; }
+    .wa-message { font-size: 12px; color: #166534; line-height: 1.6; background: white; border-radius: 10px; padding: 12px; border: 1px solid #bbf7d0; white-space: pre-wrap; word-break: break-word; }
+    .btn-copy-wa { width: 100%; margin-top: 10px; padding: 10px; background: #25D366; color: white; border: none; border-radius: 10px; font-size: 13px; font-weight: 700; cursor: pointer; }
+    .btn-copy-wa:active { opacity: 0.85; }
+
+    .status-badge { padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; }
     .badge-approved { background: #dcfce7; color: #15803d; }
     .badge-rejected { background: #fee2e2; color: #dc2626; }
 
-    .empty-state {
-      text-align: center; padding: 40px 20px;
-      color: #888; font-size: 14px;
-      background: white; border-radius: 20px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-    }
+    .empty-state { text-align: center; padding: 40px 20px; color: #888; font-size: 14px; background: white; border-radius: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); }
     .empty-icon { font-size: 48px; margin-bottom: 12px; }
 
-    .spinner {
-      display: inline-block; width: 16px; height: 16px;
-      border: 2px solid rgba(255,255,255,0.3);
-      border-top-color: white; border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-      vertical-align: middle; margin-right: 6px;
-    }
+    .spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.8s linear infinite; vertical-align: middle; margin-right: 6px; }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    .toast {
-      position: fixed; bottom: 30px; left: 50%;
-      transform: translateX(-50%);
-      background: #1a1a2e; color: white;
-      padding: 12px 24px; border-radius: 24px;
-      font-size: 14px; font-weight: 600;
-      z-index: 999; opacity: 0; transition: opacity 0.3s;
-      white-space: nowrap;
-    }
+    .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: #1a1a2e; color: white; padding: 12px 24px; border-radius: 24px; font-size: 14px; font-weight: 600; z-index: 999; opacity: 0; transition: opacity 0.3s; white-space: nowrap; max-width: 90vw; text-align: center; }
     .toast.show { opacity: 1; }
-
-    .access-denied {
-      text-align: center; padding: 60px 20px;
-    }
   </style>
 </head>
 <body>
@@ -224,34 +112,29 @@
 </div>
 
 <div class="main">
+
+  <!-- BULK APPROVE BAR — only shows when there are pending staff -->
+  <div class="bulk-bar" id="bulk-bar">
+    <div class="bulk-bar-text" id="bulk-bar-text">⏳ pending registrations waiting</div>
+    <button class="btn-bulk-approve" id="bulk-approve-btn" onclick="bulkApproveAll()">
+      ✅ Approve All
+    </button>
+  </div>
+
   <div class="tabs">
-    <div class="tab active" id="tab-btn-pending" onclick="switchTab('pending', this)">
-      ⏳ Pending <span id="pending-count"></span>
-    </div>
-    <div class="tab" id="tab-btn-approved" onclick="switchTab('approved', this)">
-      ✅ Approved
-    </div>
-    <div class="tab" id="tab-btn-rejected" onclick="switchTab('rejected', this)">
-      ❌ Rejected
-    </div>
+    <div class="tab active" id="tab-btn-pending" onclick="switchTab('pending', this)">⏳ Pending <span id="pending-count"></span></div>
+    <div class="tab" id="tab-btn-approved" onclick="switchTab('approved', this)">✅ Approved</div>
+    <div class="tab" id="tab-btn-rejected" onclick="switchTab('rejected', this)">❌ Rejected</div>
   </div>
 
   <div class="tab-content active" id="tab-pending">
-    <div id="pending-list">
-      <div class="empty-state"><div class="empty-icon">⏳</div>Loading...</div>
-    </div>
+    <div id="pending-list"><div class="empty-state"><div class="empty-icon">⏳</div>Loading...</div></div>
   </div>
-
   <div class="tab-content" id="tab-approved">
-    <div id="approved-list">
-      <div class="empty-state"><div class="empty-icon">✅</div>Loading...</div>
-    </div>
+    <div id="approved-list"><div class="empty-state"><div class="empty-icon">✅</div>Loading...</div></div>
   </div>
-
   <div class="tab-content" id="tab-rejected">
-    <div id="rejected-list">
-      <div class="empty-state"><div class="empty-icon">❌</div>Loading...</div>
-    </div>
+    <div id="rejected-list"><div class="empty-state"><div class="empty-icon">❌</div>Loading...</div></div>
   </div>
 </div>
 
@@ -259,15 +142,8 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-  import {
-    getAuth, onAuthStateChanged,
-    createUserWithEmailAndPassword,
-    sendPasswordResetEmail
-  } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-  import {
-    getFirestore, collection, getDocs,
-    doc, updateDoc, setDoc, serverTimestamp
-  } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+  import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+  import { getFirestore, collection, getDocs, doc, updateDoc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyDNwQYXcwZrAh4cTfRyhOVk_pRod9p4CRM",
@@ -281,49 +157,50 @@
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
   const db = getFirestore(app);
+  const ADMIN_EMAILS = ['sandeepgemologist@gmail.com','sparkals.design@gmail.com'];
 
-  const ADMIN_EMAILS = [
-    'sandeepgemologist@gmail.com',
-    'sparkals.design@gmail.com'
-  ];
+  // Store pending staff globally for bulk approve
+  let pendingStaffList = [];
 
-  // Auth check — admin only
   onAuthStateChanged(auth, (user) => {
     if (!user || !ADMIN_EMAILS.includes(user.email.toLowerCase())) {
-      window.location.replace('login.html');
-      return;
+      window.location.replace('login.html'); return;
     }
     document.getElementById('header-sub').textContent = `Logged in as ${user.email}`;
     loadAllStaff();
   });
 
-  // Load all staff from pendingStaff collection
   async function loadAllStaff() {
     try {
       const snapshot = await getDocs(collection(db, 'pendingStaff'));
       const pending = [], approved = [], rejected = [];
-
       snapshot.forEach(d => {
         const data = { id: d.id, ...d.data() };
         if (data.status === 'pending') pending.push(data);
         else if (data.status === 'approved') approved.push(data);
         else if (data.status === 'rejected') rejected.push(data);
       });
+      pendingStaffList = pending;
 
-      document.getElementById('pending-count').textContent =
-        pending.length > 0 ? `(${pending.length})` : '';
+      // Show/hide bulk approve bar
+      const bulkBar = document.getElementById('bulk-bar');
+      if (pending.length > 0) {
+        bulkBar.classList.add('show');
+        document.getElementById('bulk-bar-text').textContent = `⏳ ${pending.length} pending registration${pending.length>1?'s':''} waiting`;
+      } else {
+        bulkBar.classList.remove('show');
+      }
 
+      document.getElementById('pending-count').textContent = pending.length > 0 ? `(${pending.length})` : '';
       renderPending(pending);
       renderApproved(approved);
       renderRejected(rejected);
-
     } catch(e) {
       console.error(e);
       showToast('❌ Could not load staff. Check connection.');
     }
   }
 
-  // Render pending staff — shows Name, Department, Phone only
   function renderPending(list) {
     const container = document.getElementById('pending-list');
     if (list.length === 0) {
@@ -335,88 +212,88 @@
         <div class="card-top">
           <div class="avatar">${(s.name||'S').charAt(0).toUpperCase()}</div>
           <div>
-            <div class="staff-name">${s.name || 'Unknown'}</div>
+            <div class="staff-name">${s.name||'Unknown'}</div>
             <div class="staff-sub">Applied ${s.submittedAt?.toDate ? s.submittedAt.toDate().toLocaleDateString('en-IN') : 'recently'}</div>
           </div>
         </div>
 
-        <!-- Key info: Name, Department, Phone -->
         <div class="key-info">
           <div class="info-box full">
             <div class="info-label">👤 Full Name</div>
-            <div class="info-value" id="display-name-${s.id}">${s.name || '—'}</div>
+            <div class="info-value" id="display-name-${s.id}">${s.name||'—'}</div>
           </div>
           <div class="info-box">
             <div class="info-label">🏢 Department</div>
-            <div class="info-value" id="display-dept-${s.id}">${s.department || '—'}</div>
-          </div>
-          <div class="info-box">
-            <div class="info-label">📱 Phone</div>
-            <div class="info-value" id="display-phone-${s.id}">${s.phone || '—'}</div>
-          </div>
-          <div class="info-box">
-            <div class="info-label">📧 Email</div>
-            <div class="info-value" style="font-size:12px;" id="display-email-${s.id}">${s.email || '—'}</div>
+            <div class="info-value" id="display-dept-${s.id}">${s.department||'—'}</div>
           </div>
           <div class="info-box">
             <div class="info-label">💼 Job Title</div>
-            <div class="info-value" id="display-job-${s.id}">${s.jobtitle || '—'}</div>
+            <div class="info-value" id="display-job-${s.id}">${s.jobtitle||'—'}</div>
+          </div>
+          <div class="info-box">
+            <div class="info-label">📱 Mobile</div>
+            <div class="info-value" id="display-phone-${s.id}">${s.phone||'—'}</div>
+          </div>
+          <div class="info-box">
+            <div class="info-label">🆘 Emergency</div>
+            <div class="info-value" id="display-emergency-${s.id}">${s.emergencyPhone||'—'}</div>
+          </div>
+          <div class="info-box full">
+            <div class="info-label">📧 Email</div>
+            <div class="info-value" id="display-email-${s.id}">${s.email||'—'}</div>
+          </div>
+          <div class="info-box full">
+            <div class="info-label">🪪 Aadhaar</div>
+            <div class="info-value">${s.aadhaar ? s.aadhaar.replace(/(\d{4})(\d{4})(\d{4})/,'$1 $2 $3') : '—'}</div>
           </div>
         </div>
 
-        <!-- Edit section (hidden by default) -->
+        <!-- Edit section -->
         <div class="edit-section" id="edit-section-${s.id}">
           <div class="edit-group">
             <label class="edit-label">Full Name</label>
-            <input class="edit-input" id="edit-name-${s.id}" value="${s.name || ''}" />
+            <input class="edit-input" id="edit-name-${s.id}" value="${s.name||''}" />
           </div>
           <div class="edit-group">
             <label class="edit-label">Department</label>
             <select class="edit-select" id="edit-dept-${s.id}">
-              <option value="Sales & Marketing" ${s.department==='Sales & Marketing'?'selected':''}>Sales & Marketing</option>
-              <option value="Operations" ${s.department==='Operations'?'selected':''}>Operations</option>
-              <option value="Accounts & Finance" ${s.department==='Accounts & Finance'?'selected':''}>Accounts & Finance</option>
-              <option value="Logistics & Delivery" ${s.department==='Logistics & Delivery'?'selected':''}>Logistics & Delivery</option>
-              <option value="IT & Technology" ${s.department==='IT & Technology'?'selected':''}>IT & Technology</option>
-              <option value="Customer Support" ${s.department==='Customer Support'?'selected':''}>Customer Support</option>
-              <option value="Field / Site Work" ${s.department==='Field / Site Work'?'selected':''}>Field / Site Work</option>
-              <option value="Management" ${s.department==='Management'?'selected':''}>Management</option>
-              <option value="Production & Manufacturing" ${s.department==='Production & Manufacturing'?'selected':''}>Production & Manufacturing</option>
-              <option value="Purchase" ${s.department==='Purchase'?'selected':''}>Purchase</option>
+              ${['Sales & Marketing','Operations','Accounts & Finance','Logistics & Delivery','IT & Technology','Customer Support','Field / Site Work','Management','Production & Manufacturing','Purchase'].map(d=>`<option value="${d}" ${s.department===d?'selected':''}>${d}</option>`).join('')}
             </select>
           </div>
           <div class="edit-group">
-            <label class="edit-label">Phone</label>
-            <input class="edit-input" id="edit-phone-${s.id}" value="${s.phone || ''}" maxlength="10" />
+            <label class="edit-label">Mobile Number</label>
+            <input class="edit-input" id="edit-phone-${s.id}" value="${s.phone||''}" maxlength="10" />
           </div>
           <div class="edit-group">
             <label class="edit-label">Job Title</label>
-            <input class="edit-input" id="edit-job-${s.id}" value="${s.jobtitle || ''}" />
+            <input class="edit-input" id="edit-job-${s.id}" value="${s.jobtitle||''}" />
+          </div>
+          <div class="edit-group">
+            <label class="edit-label">Monthly Gross Salary (₹) <span style="font-size:11px;color:#888;">— optional, used for salary reports</span></label>
+            <input class="edit-input" type="number" id="edit-salary-${s.id}" value="${s.salary||''}" placeholder="e.g. 18000" />
           </div>
           <button class="save-edit-btn" onclick="saveEdits('${s.id}')">💾 Save Changes</button>
         </div>
 
         <!-- Action buttons -->
         <div class="action-row">
-          <button class="edit-btn" onclick="toggleEdit('${s.id}')">
-            ✏️ Edit Details Before Approving
-          </button>
+          <button class="edit-btn" onclick="toggleEdit('${s.id}')">✏️ Edit Details Before Approving</button>
           <div class="approve-reject-row">
-            <button class="btn-approve" id="approve-btn-${s.id}"
-              onclick="approveStaff('${s.id}')">
-              ✅ Approve
-            </button>
-            <button class="btn-reject" id="reject-btn-${s.id}"
-              onclick="rejectStaff('${s.id}')">
-              ❌ Reject
-            </button>
+            <button class="btn-approve" id="approve-btn-${s.id}" onclick="approveStaff('${s.id}')">✅ Approve</button>
+            <button class="btn-reject" id="reject-btn-${s.id}" onclick="rejectStaff('${s.id}')">❌ Reject</button>
           </div>
+        </div>
+
+        <!-- WhatsApp message — appears after approval -->
+        <div class="wa-box" id="wa-box-${s.id}">
+          <div class="wa-box-title">📱 WhatsApp Message Ready — tap to copy and send</div>
+          <div class="wa-message" id="wa-msg-${s.id}"></div>
+          <button class="btn-copy-wa" onclick="copyWAMessage('${s.id}')">📋 Copy WhatsApp Message</button>
         </div>
       </div>
     `).join('');
   }
 
-  // Render approved
   function renderApproved(list) {
     const container = document.getElementById('approved-list');
     if (list.length === 0) {
@@ -428,20 +305,21 @@
         <div class="card-top">
           <div class="avatar green">${(s.name||'S').charAt(0).toUpperCase()}</div>
           <div style="flex:1;">
-            <div class="staff-name">${s.name || 'Unknown'}</div>
-            <div class="staff-sub">${s.department || ''} · ${s.phone || ''}</div>
+            <div class="staff-name">${s.name||'Unknown'}</div>
+            <div class="staff-sub">${s.department||''} · ${s.phone||''}</div>
           </div>
           <span class="status-badge badge-approved">✅ Approved</span>
         </div>
         <div class="key-info">
-          <div class="info-box"><div class="info-label">📧 Email</div><div class="info-value" style="font-size:12px;">${s.email||'—'}</div></div>
+          <div class="info-box"><div class="info-label">📧 Email</div><div class="info-value">${s.email||'—'}</div></div>
           <div class="info-box"><div class="info-label">💼 Job Title</div><div class="info-value">${s.jobtitle||'—'}</div></div>
+          <div class="info-box"><div class="info-label">📱 Mobile</div><div class="info-value">${s.phone||'—'}</div></div>
+          <div class="info-box"><div class="info-label">🆘 Emergency</div><div class="info-value">${s.emergencyPhone||'—'}</div></div>
         </div>
       </div>
     `).join('');
   }
 
-  // Render rejected
   function renderRejected(list) {
     const container = document.getElementById('rejected-list');
     if (list.length === 0) {
@@ -453,8 +331,8 @@
         <div class="card-top">
           <div class="avatar red">${(s.name||'S').charAt(0).toUpperCase()}</div>
           <div style="flex:1;">
-            <div class="staff-name">${s.name || 'Unknown'}</div>
-            <div class="staff-sub">${s.department || ''} · ${s.phone || ''}</div>
+            <div class="staff-name">${s.name||'Unknown'}</div>
+            <div class="staff-sub">${s.department||''} · ${s.phone||''}</div>
           </div>
           <span class="status-badge badge-rejected">❌ Rejected</span>
         </div>
@@ -462,139 +340,205 @@
     `).join('');
   }
 
-  // Toggle edit section
-  window.toggleEdit = function(id) {
-    const section = document.getElementById(`edit-section-${id}`);
-    section.classList.toggle('open');
+  // Generate WhatsApp message after approval
+  function buildWAMessage(name, email) {
+    return `Hi ${name}! 👋
+
+Your Sparkals Tasks account has been approved! ✅
+
+Here are your next steps:
+
+1️⃣ Check your email (${email}) for a password setup link
+2️⃣ Click the link and set your password
+3️⃣ Open this link in Chrome on your phone:
+👉 https://sparkals-tasks.vercel.app/login.html
+4️⃣ Log in with your email and new password
+5️⃣ Tap "Add to Home Screen" when Chrome asks — this installs the app on your phone
+
+Welcome to the team! 🎉
+— Sparkals Tasks`;
+  }
+
+  window.copyWAMessage = function(id) {
+    const msg = document.getElementById(`wa-msg-${id}`)?.textContent;
+    if (!msg) return;
+    navigator.clipboard.writeText(msg).then(() => {
+      showToast('✅ Copied! Paste it into WhatsApp now.');
+    }).catch(() => {
+      // Fallback for older phones
+      const ta = document.createElement('textarea');
+      ta.value = msg; document.body.appendChild(ta);
+      ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
+      showToast('✅ Copied! Paste it into WhatsApp now.');
+    });
   };
 
-  // Save edits
+  window.toggleEdit = function(id) {
+    document.getElementById(`edit-section-${id}`).classList.toggle('open');
+  };
+
   window.saveEdits = async function(id) {
-    const name = document.getElementById(`edit-name-${id}`).value.trim();
-    const dept = document.getElementById(`edit-dept-${id}`).value;
-    const phone = document.getElementById(`edit-phone-${id}`).value.trim();
-    const job = document.getElementById(`edit-job-${id}`).value.trim();
-
+    const name   = document.getElementById(`edit-name-${id}`).value.trim();
+    const dept   = document.getElementById(`edit-dept-${id}`).value;
+    const phone  = document.getElementById(`edit-phone-${id}`).value.trim();
+    const job    = document.getElementById(`edit-job-${id}`).value.trim();
+    const salary = parseFloat(document.getElementById(`edit-salary-${id}`).value) || 0;
     try {
-      await updateDoc(doc(db, 'pendingStaff', id), {
-        name, department: dept, phone, jobtitle: job, editedAt: serverTimestamp()
-      });
-
-      // Update display values instantly
+      await updateDoc(doc(db,'pendingStaff',id), { name, department:dept, phone, jobtitle:job, salary, editedAt:serverTimestamp() });
       document.getElementById(`display-name-${id}`).textContent = name;
       document.getElementById(`display-dept-${id}`).textContent = dept;
       document.getElementById(`display-phone-${id}`).textContent = phone;
       document.getElementById(`display-job-${id}`).textContent = job;
-
-      // Close edit section
       document.getElementById(`edit-section-${id}`).classList.remove('open');
       showToast('✅ Details updated!');
-
-    } catch(e) {
-      showToast('❌ Could not save. Try again.');
-    }
+    } catch(e) { showToast('❌ Could not save. Try again.'); }
   };
 
-  // Approve staff
-  window.approveStaff = async function(id) {
-    const approveBtn = document.getElementById(`approve-btn-${id}`);
-    const rejectBtn = document.getElementById(`reject-btn-${id}`);
+  // Core approve function — used by both single and bulk
+  async function doApprove(s) {
+    const id     = s.id;
+    const name   = document.getElementById(`display-name-${id}`)?.textContent || s.name || '';
+    const email  = document.getElementById(`display-email-${id}`)?.textContent || s.email || '';
+    const dept   = document.getElementById(`display-dept-${id}`)?.textContent || s.department || '';
+    const phone  = document.getElementById(`display-phone-${id}`)?.textContent || s.phone || '';
+    const job    = document.getElementById(`display-job-${id}`)?.textContent || s.jobtitle || 'Staff';
+    const salary = parseFloat(document.getElementById(`edit-salary-${id}`)?.value) || s.salary || 0;
 
-    // Get latest data from display fields
-    const name = document.getElementById(`display-name-${id}`)?.textContent || '';
-    const email = document.getElementById(`display-email-${id}`)?.textContent || '';
-    const dept = document.getElementById(`display-dept-${id}`)?.textContent || '';
-    const phone = document.getElementById(`display-phone-${id}`)?.textContent || '';
-    const job = document.getElementById(`display-job-${id}`)?.textContent || '';
+    if (!email || email === '—') throw new Error('No email');
 
-    if (!email || email === '—') {
-      showToast('❌ No email found. Edit details first.');
-      return;
-    }
-
-    approveBtn.disabled = true;
-    rejectBtn.disabled = true;
-    approveBtn.innerHTML = '<span class="spinner"></span>Approving...';
+    const tempPassword = 'Sparkals@' + Math.random().toString(36).slice(2,8);
+    let newUid = null;
 
     try {
-      // Create Firebase Auth account
-      const tempPassword = 'Sparkals@' + Math.random().toString(36).slice(2,8);
       const userCredential = await createUserWithEmailAndPassword(auth, email, tempPassword);
-      const newUid = userCredential.user.uid;
+      newUid = userCredential.user.uid;
+    } catch(e) {
+      if (e.code !== 'auth/email-already-in-use') throw e;
+      // Already exists — still approve
+    }
 
-      // Send password reset email
-      await sendPasswordResetEmail(auth, email);
+    await sendPasswordResetEmail(auth, email);
 
-      // Update pendingStaff status
-      await updateDoc(doc(db, 'pendingStaff', id), {
-        status: 'approved',
-        approvedAt: serverTimestamp(),
-        uid: newUid
-      });
+    await updateDoc(doc(db,'pendingStaff',id), {
+      status: 'approved', approvedAt: serverTimestamp(), ...(newUid ? {uid: newUid} : {})
+    });
 
-      // Create user profile
-      await setDoc(doc(db, 'users', newUid), {
+    if (newUid) {
+      await setDoc(doc(db,'users',newUid), {
         name, email, department: dept, phone,
-        jobtitle: job || 'Staff',
-        role: 'staff', status: 'active',
+        jobtitle: job, salary,
+        role: 'staff', status: 'approved',
         joinDate: new Date().toISOString().split('T')[0],
         companyName: 'Sparkals Tasks',
         createdAt: serverTimestamp()
       });
+    }
 
-      showToast(`✅ ${name} approved! Tell them to check their email to set password.`);
+    // Show WhatsApp message box
+    const waMsg = buildWAMessage(name, email);
+    const waMsgEl = document.getElementById(`wa-msg-${id}`);
+    const waBox = document.getElementById(`wa-box-${id}`);
+    if (waMsgEl && waBox) { waMsgEl.textContent = waMsg; waBox.classList.add('show'); }
 
-      const card = document.getElementById(`card-${id}`);
-      card.style.opacity = '0';
-      card.style.transition = 'opacity 0.3s';
-      setTimeout(() => { card.remove(); loadAllStaff(); }, 300);
+    return name;
+  }
 
+  window.approveStaff = async function(id) {
+    const approveBtn = document.getElementById(`approve-btn-${id}`);
+    const rejectBtn  = document.getElementById(`reject-btn-${id}`);
+    approveBtn.disabled = true; rejectBtn.disabled = true;
+    approveBtn.innerHTML = '<span class="spinner"></span>Approving...';
+
+    // Find staff data from pendingStaffList
+    const s = pendingStaffList.find(x => x.id === id) || { id };
+    try {
+      const name = await doApprove(s);
+      showToast(`✅ ${name} approved! Copy the WhatsApp message below.`);
+      // Disable approve/reject buttons — keep card visible so admin can copy WA message
+      approveBtn.textContent = '✅ Approved';
+      approveBtn.style.background = '#86efac';
+      approveBtn.style.color = '#166534';
+      rejectBtn.style.display = 'none';
+      document.querySelector(`#card-${id} .edit-btn`)?.style && (document.querySelector(`#card-${id} .edit-btn`).style.display = 'none');
+      // Remove from pending list
+      pendingStaffList = pendingStaffList.filter(x => x.id !== id);
+      updateBulkBar();
     } catch(e) {
-      if (e.code === 'auth/email-already-in-use') {
-        // Already has account — just approve
-        await updateDoc(doc(db, 'pendingStaff', id), {
-          status: 'approved', approvedAt: serverTimestamp()
-        });
-        showToast(`✅ ${name} approved!`);
-        const card = document.getElementById(`card-${id}`);
-        card.style.opacity = '0';
-        setTimeout(() => { card.remove(); loadAllStaff(); }, 300);
-      } else {
-        console.error(e);
-        showToast('❌ Could not approve. Try again.');
-        approveBtn.disabled = false;
-        rejectBtn.disabled = false;
-        approveBtn.innerHTML = '✅ Approve';
-      }
+      console.error(e);
+      showToast('❌ Could not approve. Try again.');
+      approveBtn.disabled = false; rejectBtn.disabled = false;
+      approveBtn.innerHTML = '✅ Approve';
     }
   };
 
-  // Reject staff
   window.rejectStaff = async function(id) {
     const name = document.getElementById(`display-name-${id}`)?.textContent || 'this staff';
     if (!confirm(`Reject ${name}'s registration? Record will be kept as log.`)) return;
-
     const rejectBtn = document.getElementById(`reject-btn-${id}`);
-    rejectBtn.disabled = true;
-    rejectBtn.innerHTML = '<span class="spinner"></span>';
-
+    rejectBtn.disabled = true; rejectBtn.innerHTML = '<span class="spinner"></span>';
     try {
-      await updateDoc(doc(db, 'pendingStaff', id), {
-        status: 'rejected', rejectedAt: serverTimestamp()
-      });
-      showToast(`❌ ${name} rejected. Record kept in log.`);
+      await updateDoc(doc(db,'pendingStaff',id), { status:'rejected', rejectedAt:serverTimestamp() });
+      showToast(`❌ ${name} rejected.`);
       const card = document.getElementById(`card-${id}`);
-      card.style.opacity = '0';
-      card.style.transition = 'opacity 0.3s';
+      card.style.opacity = '0'; card.style.transition = 'opacity 0.3s';
       setTimeout(() => { card.remove(); loadAllStaff(); }, 300);
     } catch(e) {
       showToast('❌ Could not reject. Try again.');
-      rejectBtn.disabled = false;
-      rejectBtn.innerHTML = '❌ Reject';
+      rejectBtn.disabled = false; rejectBtn.innerHTML = '❌ Reject';
     }
   };
 
-  // Switch tabs
+  // Bulk approve all pending
+  window.bulkApproveAll = async function() {
+    if (pendingStaffList.length === 0) return;
+    if (!confirm(`Approve all ${pendingStaffList.length} pending staff at once? Password reset emails will be sent to each person.`)) return;
+
+    const btn = document.getElementById('bulk-approve-btn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span>Approving all...';
+
+    let successCount = 0, failCount = 0;
+    const toProcess = [...pendingStaffList];
+
+    for (const s of toProcess) {
+      try {
+        await doApprove(s);
+        successCount++;
+        // Update card UI
+        const approveBtn = document.getElementById(`approve-btn-${s.id}`);
+        const rejectBtn  = document.getElementById(`reject-btn-${s.id}`);
+        if (approveBtn) { approveBtn.textContent = '✅ Approved'; approveBtn.style.background = '#86efac'; approveBtn.style.color = '#166534'; approveBtn.disabled = true; }
+        if (rejectBtn)  { rejectBtn.style.display = 'none'; }
+        document.querySelector(`#card-${s.id} .edit-btn`)?.remove();
+      } catch(e) {
+        console.error(`Failed to approve ${s.name}:`, e);
+        failCount++;
+      }
+    }
+
+    pendingStaffList = [];
+    updateBulkBar();
+
+    if (failCount === 0) {
+      showToast(`✅ All ${successCount} staff approved! WhatsApp messages are ready below.`);
+    } else {
+      showToast(`✅ ${successCount} approved, ❌ ${failCount} failed. Check below.`);
+    }
+    btn.disabled = false;
+    btn.innerHTML = '✅ Approve All';
+  };
+
+  function updateBulkBar() {
+    const bulkBar = document.getElementById('bulk-bar');
+    if (pendingStaffList.length > 0) {
+      bulkBar.classList.add('show');
+      document.getElementById('bulk-bar-text').textContent = `⏳ ${pendingStaffList.length} pending registration${pendingStaffList.length>1?'s':''} waiting`;
+    } else {
+      bulkBar.classList.remove('show');
+    }
+    document.getElementById('pending-count').textContent = pendingStaffList.length > 0 ? `(${pendingStaffList.length})` : '';
+  }
+
   window.switchTab = function(tab, el) {
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
     document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
@@ -602,12 +546,10 @@
     document.getElementById(`tab-${tab}`).classList.add('active');
   };
 
-  // Toast
   window.showToast = function(msg) {
     const t = document.getElementById('toast');
-    t.textContent = msg;
-    t.classList.add('show');
-    setTimeout(() => t.classList.remove('show'), 3500);
+    t.textContent = msg; t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 4000);
   };
 </script>
 </body>
