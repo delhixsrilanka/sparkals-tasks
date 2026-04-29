@@ -109,20 +109,16 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 </style>
 </head>
 <body>
-
 <div class="loading-overlay" id="loadingOverlay"><div class="spinner"></div><div class="loading-text">Loading attendance…</div></div>
 <div class="toast" id="toast"></div>
-
 <div class="topbar">
   <div class="topbar-title">⏱ <span>Attendance</span></div>
   <div class="date-chip" id="dateChip">--</div>
 </div>
-
 <div class="clock-section">
   <div class="live-time" id="liveClock">--:--:--</div>
   <div class="live-date" id="liveDate">Loading…</div>
 </div>
-
 <div class="status-banner">
   <div class="status-dot out" id="statusDot"></div>
   <div style="flex:1">
@@ -131,23 +127,18 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
   </div>
   <div class="hours-badge" id="hoursBadge">0h 0m</div>
 </div>
-
 <div class="geo-warning" id="geoWarning"></div>
 <div class="gps-checking" id="gpsChecking"><div class="gps-spinner"></div>Getting your GPS location…</div>
-
 <div class="action-grid" id="actionGrid"></div>
-
 <div class="section">
   <div class="section-title">Today's Timeline</div>
   <div class="timeline" id="todayTimeline"><div style="color:var(--text3);font-size:13px;">No activity yet today.</div></div>
 </div>
-
 <div class="section">
   <div class="section-title">This Week (Mon–Sat)</div>
   <div class="week-grid" id="weekGrid"></div>
 </div>
-
-<div class="salary-section" id="salarySection">
+<div class="salary-section">
   <div class="salary-header">
     <div class="salary-header-title">💰 Salary Report</div>
     <div class="salary-header-sub">On-demand or month-end generation</div>
@@ -185,12 +176,10 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
     </div>
   </div>
 </div>
-
 <div class="section">
   <div class="section-title">Recent History (Last 10 Days)</div>
   <div class="history-list" id="historyList"><div style="color:var(--text3);font-size:13px;">No history yet.</div></div>
 </div>
-
 <nav class="bottom-nav">
   <a href="dashboard.html" class="nav-item"><span class="nav-icon">🏠</span>Home</a>
   <a href="tasks.html" class="nav-item"><span class="nav-icon">✅</span>Tasks</a>
@@ -202,10 +191,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 <script src="firebase-config.js"></script>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import {
-  getFirestore, collection, addDoc, getDocs, doc, updateDoc, getDoc,
-  query, where, orderBy, limit, serverTimestamp, Timestamp
-} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, getDoc, query, where, serverTimestamp, Timestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
 const app = initializeApp(firebaseConfig);
@@ -221,31 +207,57 @@ let currentUser = null, currentUserData = null, todayRecord = null;
 let attendanceState = 'out', clockInTime = null;
 let allStaff = [], currentReportData = null;
 
-// Universal timestamp converter — handles ALL formats Firebase can return
+// ── ROBUST TIMESTAMP CONVERTER ──
+// Handles: Firestore Timestamp, {seconds,nanoseconds}, Date, number,
+// ISO string, plain "HH:MM" string (from old attendance records)
 function tsToDate(ts) {
   if (!ts) return null;
-  if (typeof ts.toDate === 'function') return ts.toDate();
-  if (ts instanceof Date) return ts;
-  if (typeof ts === 'number') return new Date(ts);
-  if (typeof ts === 'string') {
-    if (ts.length <= 5 && ts.includes(':')) {
-      const [h,m] = ts.split(':').map(Number);
-      const d = new Date(); d.setHours(h,m,0,0); return d;
+  try {
+    if (typeof ts.toDate === 'function') return ts.toDate();
+    if (ts instanceof Date) return isNaN(ts) ? null : ts;
+    if (typeof ts === 'number') return new Date(ts);
+    if (ts.seconds !== undefined) return new Date(ts.seconds * 1000);
+    if (typeof ts === 'string') {
+      // Plain time "HH:MM" or "HH:MM:SS" from old records
+      if (/^\d{1,2}:\d{2}/.test(ts)) {
+        const parts = ts.split(':').map(Number);
+        const d = new Date();
+        d.setHours(parts[0], parts[1], parts[2]||0, 0);
+        return d;
+      }
+      const parsed = new Date(ts);
+      return isNaN(parsed) ? null : parsed;
     }
-    const parsed = new Date(ts);
-    return isNaN(parsed.getTime()) ? null : parsed;
-  }
-  // Firestore Timestamp-like plain object {seconds, nanoseconds}
-  if (ts.seconds !== undefined) return new Date(ts.seconds * 1000);
+  } catch(e) {}
   return null;
 }
 
 function fmtTime(ts) {
   const d = tsToDate(ts);
-  if (!d || isNaN(d.getTime())) return '—';
+  if (!d) return '—';
   return d.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:false});
 }
 
+function hideLoading() {
+  document.getElementById('loadingOverlay').style.display = 'none';
+}
+
+function todayKey() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+function isAdmin() {
+  return ADMIN_EMAILS.includes(currentUser?.email) || currentUserData?.role === 'admin';
+}
+
+function isFieldStaff() {
+  // If we can't load user data, default to true to avoid blocking clock-in
+  if (!currentUserData) return true;
+  return FIELD_DEPTS.includes(currentUserData.department) || isAdmin();
+}
+
+// Expose onclick handlers
 window.handleClockIn = handleClockIn;
 window.handleLunchOut = handleLunchOut;
 window.handleLunchIn = handleLunchIn;
@@ -254,9 +266,14 @@ window.generateSalaryReport = generateSalaryReport;
 window.downloadSalaryExcel = () => { if(window._dlExcel) window._dlExcel(); };
 window.downloadSalaryPDF = () => { if(window._dlPDF) window._dlPDF(); };
 
+// ── AUTH — with guaranteed loading hide ──
 onAuthStateChanged(auth, async user => {
   if (!user) { window.location.href = 'login.html'; return; }
   currentUser = user;
+
+  // Start clock immediately so page feels responsive
+  startClock();
+
   try {
     await loadUserData();
     await loadStaff();
@@ -265,26 +282,38 @@ onAuthStateChanged(auth, async user => {
     await loadHistory();
     setupMonthDropdown();
     setupSalarySection();
-    startClock();
     renderButtons();
     updateStatusBanner();
     if (isAdmin()) document.getElementById('adminNavLink').style.display = 'flex';
   } catch(e) {
-    console.error('Attendance load error:', e);
+    console.error('Page load error:', e);
+    // Still render buttons so user can at least clock in
+    renderButtons();
+    updateStatusBanner();
   } finally {
-    // Always hide loading — even if errors occur
-    document.getElementById('loadingOverlay').style.display = 'none';
+    hideLoading(); // ALWAYS hides — no matter what
   }
 });
 
+// ── LOAD USER DATA — tries uid first, then email fallback ──
 async function loadUserData() {
   try {
+    // Try direct lookup by Firebase Auth UID
     const snap = await getDoc(doc(db, 'users', currentUser.uid));
-    if (snap.exists()) { currentUserData = { id: snap.id, ...snap.data() }; return; }
+    if (snap.exists()) {
+      currentUserData = { id: snap.id, ...snap.data() };
+      return;
+    }
+    // Fallback: search by email (handles old accounts)
     const q = query(collection(db,'users'), where('email','==',currentUser.email));
     const qs = await getDocs(q);
-    if (!qs.empty) currentUserData = { id: qs.docs[0].id, ...qs.docs[0].data() };
-  } catch(e) { console.error('loadUserData error:', e); }
+    if (!qs.empty) {
+      currentUserData = { id: qs.docs[0].id, ...qs.docs[0].data() };
+    }
+  } catch(e) {
+    console.error('loadUserData error:', e);
+    // Don't throw — allow page to continue with null userData
+  }
 }
 
 async function loadStaff() {
@@ -294,34 +323,42 @@ async function loadStaff() {
   } catch(e) { console.error('loadStaff error:', e); }
 }
 
-function isAdmin() {
-  return ADMIN_EMAILS.includes(currentUser?.email) || currentUserData?.role === 'admin';
-}
-
-function todayKey() {
-  const d = new Date();
-  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-}
-
-// FIX 1: Recalculates hours from saved timestamps on page load
+// ── LOAD TODAY'S ATTENDANCE RECORD ──
+// Handles both old schema (userId field, string times) and new schema (uid field, Timestamps)
 async function loadTodayRecord() {
   try {
-    let snap = await getDocs(query(collection(db,'attendance'), where('uid','==',currentUser.uid), where('date','==',todayKey())));
-    if (snap.empty) snap = await getDocs(query(collection(db,'attendance'), where('userId','==',currentUser.uid), where('date','==',todayKey())));
+    const today = todayKey();
+    let snap = null;
+
+    // Try new schema: uid field
+    snap = await getDocs(query(collection(db,'attendance'), where('uid','==',currentUser.uid), where('date','==',today)));
+
+    // Try old schema: userId field
+    if (snap.empty) {
+      snap = await getDocs(query(collection(db,'attendance'), where('userId','==',currentUser.uid), where('date','==',today)));
+    }
+
+    // Try by email as last resort
+    if (snap.empty && currentUser.email) {
+      snap = await getDocs(query(collection(db,'attendance'), where('userEmail','==',currentUser.email), where('date','==',today)));
+    }
+
     if (!snap.empty) {
       todayRecord = { id: snap.docs[0].id, ...snap.docs[0].data() };
       const ci = tsToDate(todayRecord.clockIn);
       const co = tsToDate(todayRecord.clockOut);
       clockInTime = ci;
+
       if (co) {
         attendanceState = 'done';
-        // Recalculate hours from saved timestamps so page reload shows correct value
+        // Recalculate hours from saved data
         if (ci && co) {
           let ms = co - ci;
           const lo = tsToDate(todayRecord.lunchOut);
           const li = tsToDate(todayRecord.lunchIn);
           if (lo && li) ms -= (li - lo);
-          todayRecord.totalHours = Math.max(0, ms / 3600000);
+          if (ms < 0) ms = 0;
+          todayRecord.totalHours = ms / 3600000;
         }
       } else if (todayRecord.lunchIn) {
         attendanceState = 'in';
@@ -332,7 +369,10 @@ async function loadTodayRecord() {
       }
       renderTimeline();
     }
-  } catch(e) { console.error('loadTodayRecord error:', e); document.getElementById('loadingOverlay').style.display = 'none'; }
+  } catch(e) {
+    console.error('loadTodayRecord error:', e);
+    // Don't throw — just means no record found
+  }
 }
 
 function startClock() {
@@ -349,39 +389,42 @@ function startClock() {
 function updateHoursWorked() {
   if (!clockInTime || attendanceState === 'out') { document.getElementById('hoursBadge').textContent = '0h 0m'; return; }
   if (attendanceState === 'done' && todayRecord?.totalHours) {
-    const h = Math.floor(todayRecord.totalHours), m = Math.round((todayRecord.totalHours % 1) * 60);
-    document.getElementById('hoursBadge').textContent = `${h}h ${m}m`;
-    return;
+    const h = Math.floor(todayRecord.totalHours), m = Math.round((todayRecord.totalHours%1)*60);
+    document.getElementById('hoursBadge').textContent = `${h}h ${m}m`; return;
   }
   let ms = new Date() - clockInTime;
   const lo = tsToDate(todayRecord?.lunchOut), li = tsToDate(todayRecord?.lunchIn);
-  if (lo && li) ms -= (li - lo);
-  else if (lo && attendanceState === 'lunch_out') ms = lo - clockInTime;
+  if (lo && li) ms -= (li-lo);
+  else if (lo && attendanceState==='lunch_out') ms = lo - clockInTime;
   if (ms < 0) ms = 0;
   document.getElementById('hoursBadge').textContent = `${Math.floor(ms/3600000)}h ${Math.floor((ms%3600000)/60000)}m`;
 }
 
 function updateStatusBanner() {
   const dot=document.getElementById('statusDot'), text=document.getElementById('statusText'), since=document.getElementById('statusSince');
-  dot.className = 'status-dot';
-  if (attendanceState==='out') { dot.classList.add('out'); text.textContent='Not Clocked In'; since.textContent='Tap Clock In to begin your day'; }
-  else if (attendanceState==='in') { dot.classList.add('in'); text.textContent='✅ Clocked In'; since.textContent=clockInTime?`Since ${fmtTime(clockInTime)}`:''; }
-  else if (attendanceState==='lunch_out') { dot.classList.add('lunch'); text.textContent='🍽 On Lunch Break'; since.textContent=todayRecord?.lunchOut?`Since ${fmtTime(todayRecord.lunchOut)}`:''; }
-  else if (attendanceState==='done') { dot.classList.add('out'); text.textContent='🏁 Day Complete'; since.textContent='You have clocked out for today'; }
+  dot.className='status-dot';
+  if (attendanceState==='out'){dot.classList.add('out');text.textContent='Not Clocked In';since.textContent='Tap Clock In to begin your day';}
+  else if(attendanceState==='in'){dot.classList.add('in');text.textContent='✅ Clocked In';since.textContent=clockInTime?`Since ${fmtTime(clockInTime)}`:'Since earlier';}
+  else if(attendanceState==='lunch_out'){dot.classList.add('lunch');text.textContent='🍽 On Lunch Break';since.textContent=todayRecord?.lunchOut?`Since ${fmtTime(todayRecord.lunchOut)}`:'On break';}
+  else if(attendanceState==='done'){dot.classList.add('out');text.textContent='🏁 Day Complete';since.textContent='You have clocked out for today';}
 }
 
 function renderButtons() {
   const g = document.getElementById('actionGrid');
   if (attendanceState==='out') g.innerHTML=`<button class="action-btn btn-clockin" onclick="handleClockIn()"><span class="btn-icon">👆</span><span class="btn-label">Clock In</span><span class="btn-sub">Start your work day</span></button>`;
-  else if (attendanceState==='in') g.innerHTML=`<button class="action-btn btn-lunchout" onclick="handleLunchOut()"><span class="btn-icon">🍽</span><span class="btn-label">Lunch Out</span><span class="btn-sub">Going for lunch</span></button><button class="action-btn btn-clockout" onclick="handleClockOut()"><span class="btn-icon">🏁</span><span class="btn-label">Clock Out</span><span class="btn-sub">End your work day</span></button>`;
-  else if (attendanceState==='lunch_out') g.innerHTML=`<button class="action-btn btn-lunchin" onclick="handleLunchIn()"><span class="btn-icon">✅</span><span class="btn-label">Lunch In</span><span class="btn-sub">Back from lunch</span></button>`;
-  else if (attendanceState==='done') g.innerHTML=`<div style="grid-column:1/-1;text-align:center;padding:24px;color:var(--text2);font-size:15px;">🎉 You have completed your day!<br><span style="font-size:13px;color:var(--text3);">See you tomorrow.</span></div>`;
+  else if(attendanceState==='in') g.innerHTML=`<button class="action-btn btn-lunchout" onclick="handleLunchOut()"><span class="btn-icon">🍽</span><span class="btn-label">Lunch Out</span><span class="btn-sub">Going for lunch</span></button><button class="action-btn btn-clockout" onclick="handleClockOut()"><span class="btn-icon">🏁</span><span class="btn-label">Clock Out</span><span class="btn-sub">End your work day</span></button>`;
+  else if(attendanceState==='lunch_out') g.innerHTML=`<button class="action-btn btn-lunchin" onclick="handleLunchIn()"><span class="btn-icon">✅</span><span class="btn-label">Lunch In</span><span class="btn-sub">Back from lunch</span></button>`;
+  else if(attendanceState==='done') g.innerHTML=`<div style="grid-column:1/-1;text-align:center;padding:24px;color:var(--text2);font-size:15px;">🎉 You have completed your day!<br><span style="font-size:13px;color:var(--text3);">See you tomorrow.</span></div>`;
 }
 
 function getGPS() {
-  return new Promise((resolve,reject) => {
-    if (!navigator.geolocation) { reject(new Error('GPS not supported')); return; }
-    navigator.geolocation.getCurrentPosition(p=>resolve({lat:p.coords.latitude,lng:p.coords.longitude}), reject, {enableHighAccuracy:true,timeout:10000,maximumAge:0});
+  return new Promise((resolve) => {
+    if (!navigator.geolocation) { resolve({lat:null,lng:null}); return; }
+    navigator.geolocation.getCurrentPosition(
+      p => resolve({lat:p.coords.latitude,lng:p.coords.longitude}),
+      () => resolve({lat:null,lng:null}), // Never reject — just return null GPS
+      {enableHighAccuracy:true,timeout:8000,maximumAge:0}
+    );
   });
 }
 
@@ -391,284 +434,295 @@ function distanceMetres(lat1,lng1,lat2,lng2) {
   return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
 }
 
-function isFieldStaff() { return FIELD_DEPTS.includes(currentUserData?.department) || isAdmin(); }
-
 async function checkGeofenceAndGetGPS() {
   document.getElementById('gpsChecking').classList.add('show');
-  document.getElementById('geoWarning').style.display = 'none';
-  try {
-    const gps = await getGPS();
-    document.getElementById('gpsChecking').classList.remove('show');
-    if (!isFieldStaff()) {
-      const dist = distanceMetres(gps.lat,gps.lng,OFFICE_LAT,OFFICE_LNG);
-      if (dist > OFFICE_RADIUS) {
-        document.getElementById('geoWarning').style.display = 'block';
-        document.getElementById('geoWarning').textContent = `📍 You are ${Math.round(dist)}m from office. Must be within ${OFFICE_RADIUS}m to clock in.`;
-        return null;
-      }
-    }
-    return gps;
-  } catch(e) {
-    document.getElementById('gpsChecking').classList.remove('show');
+  document.getElementById('geoWarning').style.display='none';
+  const gps = await getGPS(); // Never throws
+  document.getElementById('gpsChecking').classList.remove('show');
+
+  if (!gps.lat) {
     showToast('⚠ GPS unavailable — clocking in without location');
-    return {lat:null,lng:null};
+    return gps;
   }
+
+  // Skip geofence for field staff, admin, or if user data not loaded
+  if (!isFieldStaff()) {
+    const dist = distanceMetres(gps.lat,gps.lng,OFFICE_LAT,OFFICE_LNG);
+    if (dist > OFFICE_RADIUS) {
+      document.getElementById('geoWarning').style.display='block';
+      document.getElementById('geoWarning').textContent=`📍 You are ${Math.round(dist)}m from office. Must be within ${OFFICE_RADIUS}m to clock in.`;
+      return null; // Block clock-in
+    }
+  }
+  return gps;
 }
 
-function checkIfLate() { const n=new Date(); return n.getHours()>LATE_HOUR||(n.getHours()===LATE_HOUR&&n.getMinutes()>=LATE_MINUTE); }
+function checkIfLate() {
+  const n=new Date();
+  return n.getHours()>LATE_HOUR||(n.getHours()===LATE_HOUR&&n.getMinutes()>=LATE_MINUTE);
+}
 
 async function handleClockIn() {
-  const gps = await checkGeofenceAndGetGPS(); if (gps===null) return;
-  const now=new Date(), isLate=checkIfLate();
+  const gps = await checkGeofenceAndGetGPS();
+  if (gps === null) return; // Blocked by geofence
+
+  const now = new Date(), isLate = checkIfLate();
+  const userName = currentUserData?.name || currentUser.email.split('@')[0];
+  const dept = currentUserData?.department || '';
+
   try {
-    const data={
-      userId:currentUser.uid, uid:currentUser.uid,
-      userEmail:currentUser.email, userName:currentUserData?.name||currentUser.email.split('@')[0],
-      name:currentUserData?.name||'', department:currentUserData?.department||'',
-      date:todayKey(), clockIn:Timestamp.fromDate(now),
-      clockInLat:gps.lat, clockInLng:gps.lng, isLate, status:'active', createdAt:serverTimestamp()
+    const data = {
+      // Save BOTH uid and userId for backward compatibility
+      uid: currentUser.uid,
+      userId: currentUser.uid,
+      userEmail: currentUser.email,
+      userName,
+      name: userName,
+      department: dept,
+      date: todayKey(),
+      clockIn: Timestamp.fromDate(now),
+      clockInLat: gps.lat,
+      clockInLng: gps.lng,
+      isLate,
+      status: 'active',
+      createdAt: serverTimestamp()
     };
-    const ref = await addDoc(collection(db,'attendance'),data);
-    todayRecord={id:ref.id,...data}; attendanceState='in'; clockInTime=now;
+    const ref = await addDoc(collection(db,'attendance'), data);
+    todayRecord = {id:ref.id,...data};
+    attendanceState = 'in';
+    clockInTime = now;
     renderButtons(); updateStatusBanner(); renderTimeline();
-    showToast(isLate?'⚠ Clocked in — marked as late':'✅ Clocked in successfully!');
-  } catch(e) { console.error(e); showToast('Error clocking in. Try again.'); }
+    showToast(isLate ? '⚠ Clocked in — marked as late' : '✅ Clocked in successfully!');
+  } catch(e) {
+    console.error('Clock in error:', e);
+    showToast('❌ Error clocking in. Please try again.');
+  }
 }
 
 async function handleLunchOut() {
   if (!todayRecord) return;
-  const now=new Date();
+  const now = new Date();
   try {
     await updateDoc(doc(db,'attendance',todayRecord.id),{lunchOut:Timestamp.fromDate(now)});
-    todayRecord.lunchOut=Timestamp.fromDate(now); attendanceState='lunch_out';
-    renderButtons(); updateStatusBanner(); renderTimeline(); showToast('🍽 Lunch break started');
-  } catch(e) { showToast('Error. Try again.'); }
+    todayRecord.lunchOut = Timestamp.fromDate(now);
+    attendanceState = 'lunch_out';
+    renderButtons(); updateStatusBanner(); renderTimeline();
+    showToast('🍽 Lunch break started');
+  } catch(e) { showToast('❌ Error. Try again.'); }
 }
 
 async function handleLunchIn() {
   if (!todayRecord) return;
-  const now=new Date();
+  const now = new Date();
   try {
     await updateDoc(doc(db,'attendance',todayRecord.id),{lunchIn:Timestamp.fromDate(now)});
-    todayRecord.lunchIn=Timestamp.fromDate(now); attendanceState='in';
-    renderButtons(); updateStatusBanner(); renderTimeline(); showToast('✅ Welcome back from lunch!');
-  } catch(e) { showToast('Error. Try again.'); }
+    todayRecord.lunchIn = Timestamp.fromDate(now);
+    attendanceState = 'in';
+    renderButtons(); updateStatusBanner(); renderTimeline();
+    showToast('✅ Welcome back from lunch!');
+  } catch(e) { showToast('❌ Error. Try again.'); }
 }
 
 async function handleClockOut() {
   if (!todayRecord) return;
   if (!confirm('Are you sure you want to clock out?')) return;
-  const gps=await getGPS().catch(()=>({lat:null,lng:null})), now=new Date();
-  let ms=now-clockInTime;
+  const gps = await getGPS(), now = new Date();
+  let ms = now - clockInTime;
   const lo=tsToDate(todayRecord.lunchOut), li=tsToDate(todayRecord.lunchIn);
   if (lo&&li) ms-=(li-lo);
-  const totalHours=Math.max(0,ms/3600000), overtime=Math.max(0,totalHours-9);
+  if (ms<0) ms=0;
+  const totalHours=ms/3600000, overtime=Math.max(0,totalHours-9);
   try {
     await updateDoc(doc(db,'attendance',todayRecord.id),{
-      clockOut:Timestamp.fromDate(now),clockOutLat:gps.lat,clockOutLng:gps.lng,
-      totalHours:parseFloat(totalHours.toFixed(2)),overtimeHours:parseFloat(overtime.toFixed(2)),status:'completed'
+      clockOut:Timestamp.fromDate(now),
+      clockOutLat:gps.lat, clockOutLng:gps.lng,
+      totalHours:parseFloat(totalHours.toFixed(2)),
+      overtimeHours:parseFloat(overtime.toFixed(2)),
+      status:'completed'
     });
-    todayRecord.clockOut=Timestamp.fromDate(now); todayRecord.totalHours=totalHours; attendanceState='done';
+    todayRecord.clockOut=Timestamp.fromDate(now);
+    todayRecord.totalHours=totalHours;
+    attendanceState='done';
     renderButtons(); updateStatusBanner(); renderTimeline();
     showToast(`🏁 ${Math.floor(totalHours)}h ${Math.round((totalHours%1)*60)}m worked today`);
     await loadWeekData(); await loadHistory();
-  } catch(e) { console.error(e); showToast('Error clocking out. Try again.'); }
+  } catch(e) { console.error(e); showToast('❌ Error clocking out. Try again.'); }
 }
 
-// FIX 2: All timestamps forced through tsToDate — no more Invalid Date
 function renderTimeline() {
   if (!todayRecord) return;
   const c = document.getElementById('todayTimeline');
   const items = [];
-  const ci = tsToDate(todayRecord.clockIn);
-  const lo = tsToDate(todayRecord.lunchOut);
-  const li = tsToDate(todayRecord.lunchIn);
-  const co = tsToDate(todayRecord.clockOut);
-  if (ci) items.push({icon:'👆', color:'green', label:`Clocked In${todayRecord.isLate?' ⚠ Late':''}`, time:fmtTime(ci)});
-  if (lo) items.push({icon:'🍽', color:'amber', label:'Lunch Out', time:fmtTime(lo)});
-  if (li) items.push({icon:'✅', color:'blue', label:'Lunch In', time:fmtTime(li)});
+  const ci=tsToDate(todayRecord.clockIn), lo=tsToDate(todayRecord.lunchOut);
+  const li=tsToDate(todayRecord.lunchIn), co=tsToDate(todayRecord.clockOut);
+  if (ci) items.push({icon:'👆',color:'green',label:`Clocked In${todayRecord.isLate?' ⚠ Late':''}`,time:fmtTime(ci)});
+  if (lo) items.push({icon:'🍽',color:'amber',label:'Lunch Out',time:fmtTime(lo)});
+  if (li) items.push({icon:'✅',color:'blue',label:'Lunch In',time:fmtTime(li)});
   if (co) {
-    const h = Math.floor(todayRecord.totalHours || 0);
-    const m = Math.round(((todayRecord.totalHours || 0) % 1) * 60);
-    items.push({icon:'🏁', color:'red', label:`Clocked Out — ${h}h ${m}m worked`, time:fmtTime(co)});
+    const h=Math.floor(todayRecord.totalHours||0), m=Math.round(((todayRecord.totalHours||0)%1)*60);
+    items.push({icon:'🏁',color:'red',label:`Clocked Out — ${h}h ${m}m worked`,time:fmtTime(co)});
   }
-  if (!items.length) { c.innerHTML = '<div style="color:var(--text3);font-size:13px;">No activity yet today.</div>'; return; }
-  c.innerHTML = items.map(x => `<div class="timeline-item"><div class="timeline-dot ${x.color}">${x.icon}</div><div class="timeline-content"><div class="timeline-label">${x.label}</div><div class="timeline-time">${x.time}</div></div></div>`).join('');
+  if (!items.length) { c.innerHTML='<div style="color:var(--text3);font-size:13px;">No activity yet today.</div>'; return; }
+  c.innerHTML=items.map(x=>`<div class="timeline-item"><div class="timeline-dot ${x.color}">${x.icon}</div><div class="timeline-content"><div class="timeline-label">${x.label}</div><div class="timeline-time">${x.time}</div></div></div>`).join('');
 }
 
 async function loadWeekData() {
-  const grid=document.getElementById('weekGrid'), days=['Mon','Tue','Wed','Thu','Fri','Sat'];
-  const today=new Date(), todayDay=today.getDay();
-  const monday=new Date(today); monday.setDate(today.getDate()-(todayDay===0?6:todayDay-1)); monday.setHours(0,0,0,0);
-  const weekDates=Array.from({length:6},(_,i)=>{const d=new Date(monday);d.setDate(monday.getDate()+i);return d;});
-  const weekKeys=weekDates.map(d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`);
-  let records={};
   try {
+    const grid=document.getElementById('weekGrid'), days=['Mon','Tue','Wed','Thu','Fri','Sat'];
+    const today=new Date(), todayDay=today.getDay();
+    const monday=new Date(today); monday.setDate(today.getDate()-(todayDay===0?6:todayDay-1)); monday.setHours(0,0,0,0);
+    const weekDates=Array.from({length:6},(_,i)=>{const d=new Date(monday);d.setDate(monday.getDate()+i);return d;});
+    const weekKeys=weekDates.map(d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`);
+    let records={};
+    // Try uid first, then userId
     let snap = await getDocs(query(collection(db,'attendance'),where('uid','==',currentUser.uid),where('date','in',weekKeys)));
     if (snap.empty) snap = await getDocs(query(collection(db,'attendance'),where('userId','==',currentUser.uid),where('date','in',weekKeys)));
     snap.docs.forEach(d=>{records[d.data().date]=d.data();});
-  } catch(e) { console.error(e); }
-  grid.innerHTML=weekDates.map((d,i)=>{
-    const key=weekKeys[i],rec=records[key],isToday=key===todayKey(),isPast=d<today&&!isToday;
-    let dc='future',dt='·',ht='—';
-    if(isToday){dc='today';dt='●';ht='Today';}
-    else if(rec?.clockIn){dc='present';dt='✓';ht=rec.totalHours?`${Math.floor(rec.totalHours)}h`:'Active';}
-    else if(isPast){dc='absent';dt='✗';ht='Absent';}
-    return `<div class="week-day"><div class="week-day-label">${days[i]}</div><div class="week-day-dot ${dc}">${dt}</div><div class="week-day-hours">${ht}</div></div>`;
-  }).join('');
+    grid.innerHTML=weekDates.map((d,i)=>{
+      const key=weekKeys[i],rec=records[key],isToday=key===todayKey(),isPast=d<today&&!isToday;
+      let dc='future',dt='·',ht='—';
+      if(isToday){dc='today';dt='●';ht='Today';}
+      else if(rec?.clockIn){dc='present';dt='✓';ht=rec.totalHours?`${Math.floor(rec.totalHours)}h`:'Active';}
+      else if(isPast){dc='absent';dt='✗';ht='Absent';}
+      return `<div class="week-day"><div class="week-day-label">${days[i]}</div><div class="week-day-dot ${dc}">${dt}</div><div class="week-day-hours">${ht}</div></div>`;
+    }).join('');
+  } catch(e) { console.error('loadWeekData error:', e); }
 }
 
-// FIX 3: History loads WITHOUT orderBy to avoid missing Firestore index error
 async function loadHistory() {
   const c = document.getElementById('historyList');
   try {
-    let snap = await getDocs(query(collection(db,'attendance'), where('uid','==',currentUser.uid)));
-    if (snap.empty) snap = await getDocs(query(collection(db,'attendance'), where('userId','==',currentUser.uid)));
+    // Try uid, then userId — sort in JS to avoid index requirement
+    let snap = await getDocs(query(collection(db,'attendance'),where('uid','==',currentUser.uid)));
+    if (snap.empty) snap = await getDocs(query(collection(db,'attendance'),where('userId','==',currentUser.uid)));
     if (snap.empty) { c.innerHTML='<div style="color:var(--text3);font-size:13px;">No history yet.</div>'; return; }
-    // Sort in JS instead of Firestore — avoids index requirement
-    const docs = snap.docs
-      .map(d => ({ id: d.id, ...d.data() }))
-      .filter(r => r.date)
-      .sort((a, b) => b.date.localeCompare(a.date))
-      .slice(0, 10);
+    const docs=snap.docs.map(d=>({id:d.id,...d.data()}))
+      .filter(r=>r.date)
+      .sort((a,b)=>b.date.localeCompare(a.date))
+      .slice(0,10);
     if (!docs.length) { c.innerHTML='<div style="color:var(--text3);font-size:13px;">No history yet.</div>'; return; }
-    c.innerHTML = docs.map(r => {
-      const date = new Date(r.date + 'T00:00:00');
-      const h = Math.floor(r.totalHours || 0), m = Math.round(((r.totalHours || 0) % 1) * 60);
+    c.innerHTML=docs.map(r=>{
+      const date=new Date(r.date+'T00:00:00');
+      const h=Math.floor(r.totalHours||0), m=Math.round(((r.totalHours||0)%1)*60);
       return `<div class="history-card"><div><div class="history-date">${date.toLocaleDateString('en-IN',{day:'numeric',month:'short'})}</div><div class="history-day">${date.toLocaleDateString('en-IN',{weekday:'short'})}</div>${r.isLate?'<span class="late-badge">⚠ Late</span>':''}</div><div><div class="history-in">IN: ${fmtTime(r.clockIn)}</div><div class="history-out">OUT: ${fmtTime(r.clockOut)}</div>${r.totalHours?`<div class="history-hours">${h}h ${m}m</div>`:''}</div></div>`;
     }).join('');
   } catch(e) { console.error('loadHistory error:', e); c.innerHTML='<div style="color:var(--text3);font-size:13px;">Could not load history.</div>'; }
 }
 
 function setupSalarySection() {
-  const sel = document.getElementById('reportStaffSelect');
-  sel.innerHTML = '<option value="">— Select Staff —</option>';
+  const sel=document.getElementById('reportStaffSelect');
+  sel.innerHTML='<option value="">— Select Staff —</option>';
   if (isAdmin()) {
-    allStaff.forEach(s => {
-      const o = document.createElement('option');
-      o.value = s.id; o.textContent = `${s.name} (${s.department||'—'})`;
-      o.dataset.salary = s.salary||0; o.dataset.name = s.name;
-      o.dataset.dept = s.department||''; o.dataset.email = s.email||'';
+    allStaff.forEach(s=>{
+      const o=document.createElement('option');
+      o.value=s.id; o.textContent=`${s.name} (${s.department||'—'})`;
+      o.dataset.salary=s.salary||0; o.dataset.name=s.name; o.dataset.dept=s.department||''; o.dataset.email=s.email||'';
       sel.appendChild(o);
     });
-    document.getElementById('salaryInputRow').style.display = 'block';
-    sel.addEventListener('change', () => {
-      const opt = sel.options[sel.selectedIndex];
-      const saved = parseFloat(opt.dataset.salary) || 0;
-      document.getElementById('manualSalary').value = saved > 0 ? saved : '';
+    document.getElementById('salaryInputRow').style.display='block';
+    sel.addEventListener('change',()=>{
+      const opt=sel.options[sel.selectedIndex];
+      document.getElementById('manualSalary').value=parseFloat(opt.dataset.salary)||'';
     });
   } else if (currentUserData) {
-    const o = document.createElement('option');
-    o.value = currentUserData.id; o.textContent = currentUserData.name + ' (Me)';
-    o.dataset.salary = currentUserData.salary||0; o.dataset.name = currentUserData.name;
-    o.dataset.dept = currentUserData.department||''; o.dataset.email = currentUser.email;
-    sel.appendChild(o); sel.value = currentUserData.id;
-    // Non-admin: hide salary input row (they see their own data only, no salary entry)
-    document.getElementById('salaryInputRow').style.display = 'none';
+    const o=document.createElement('option');
+    o.value=currentUserData.id; o.textContent=currentUserData.name+' (Me)';
+    o.dataset.salary=currentUserData.salary||0; o.dataset.name=currentUserData.name; o.dataset.dept=currentUserData.department||''; o.dataset.email=currentUser.email;
+    sel.appendChild(o); sel.value=currentUserData.id;
+    document.getElementById('salaryInputRow').style.display='none';
   }
 }
 
 function setupMonthDropdown() {
-  const sel = document.getElementById('reportMonthSelect'), now = new Date();
-  for (let i = 0; i < 6; i++) {
-    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-    const o = document.createElement('option');
-    o.value = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
-    o.textContent = d.toLocaleDateString('en-IN', {month:'long', year:'numeric'});
+  const sel=document.getElementById('reportMonthSelect'), now=new Date();
+  for(let i=0;i<6;i++){
+    const d=new Date(now.getFullYear(),now.getMonth()-i,1);
+    const o=document.createElement('option');
+    o.value=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+    o.textContent=d.toLocaleDateString('en-IN',{month:'long',year:'numeric'});
     sel.appendChild(o);
   }
 }
 
 async function generateSalaryReport() {
-  const staffSel = document.getElementById('reportStaffSelect'), monthSel = document.getElementById('reportMonthSelect');
-  const opt = staffSel.options[staffSel.selectedIndex];
-  if (!staffSel.value) { showToast('Please select a staff member'); return; }
-  const [year,month] = monthSel.value.split('-').map(Number);
-  const staffName = opt.dataset.name||'Unknown', staffDept = opt.dataset.dept||'—';
-  const staffEmail = opt.dataset.email||'', staffUid = staffSel.value;
-  const grossSalary = parseFloat(document.getElementById('manualSalary')?.value || opt.dataset.salary) || 0;
-  if (grossSalary === 0) { showToast('Please enter the monthly salary amount'); return; }
-
-  const btn = document.getElementById('generateBtn'); btn.disabled = true; btn.textContent = '⏳ Generating…';
-  const daysInMonth = new Date(year, month, 0).getDate();
-  const workingDays = [];
-  for (let d = 1; d <= daysInMonth; d++) { const dt = new Date(year, month-1, d); if (dt.getDay() !== 0) workingDays.push(dt); }
-  const totalWorkingDays = workingDays.length;
-  const dateKeys = workingDays.map(d => `${year}-${String(month).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`);
-
-  let records = {};
+  const staffSel=document.getElementById('reportStaffSelect'), monthSel=document.getElementById('reportMonthSelect');
+  const opt=staffSel.options[staffSel.selectedIndex];
+  if(!staffSel.value){showToast('Please select a staff member');return;}
+  const [year,month]=monthSel.value.split('-').map(Number);
+  const staffName=opt.dataset.name||'Unknown', staffDept=opt.dataset.dept||'—', staffUid=staffSel.value;
+  const grossSalary=parseFloat(document.getElementById('manualSalary')?.value||opt.dataset.salary)||0;
+  if(!grossSalary){showToast('Please enter the monthly salary amount');return;}
+  const btn=document.getElementById('generateBtn'); btn.disabled=true; btn.textContent='⏳ Generating…';
+  const daysInMonth=new Date(year,month,0).getDate();
+  const workingDays=[];
+  for(let d=1;d<=daysInMonth;d++){const dt=new Date(year,month-1,d);if(dt.getDay()!==0)workingDays.push(dt);}
+  const totalWorkingDays=workingDays.length;
+  const dateKeys=workingDays.map(d=>`${year}-${String(month).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`);
+  let records={};
   try {
-    let snap = await getDocs(query(collection(db,'attendance'), where('uid','==',staffUid)));
-    if (snap.empty) snap = await getDocs(query(collection(db,'attendance'), where('userId','==',staffUid)));
-    snap.docs.forEach(d => { if (dateKeys.includes(d.data().date)) records[d.data().date] = d.data(); });
-  } catch(e) { console.error(e); }
-
-  let lopDays = 0;
+    let snap=await getDocs(query(collection(db,'attendance'),where('uid','==',staffUid)));
+    if(snap.empty) snap=await getDocs(query(collection(db,'attendance'),where('userId','==',staffUid)));
+    snap.docs.forEach(d=>{if(dateKeys.includes(d.data().date))records[d.data().date]=d.data();});
+  } catch(e){console.error(e);}
+  let lopDays=0;
   try {
-    const leaveSnap = await getDocs(query(collection(db,'leaves'), where('uid','==',staffUid), where('status','==','approved'), where('payType','==','lop')));
-    leaveSnap.docs.forEach(d => {
-      const l = d.data();
-      if (l.fromDate && l.fromDate.startsWith(`${year}-${String(month).padStart(2,'0')}`)) lopDays += (l.totalDays || 1);
-    });
-  } catch(e) {}
-
-  const daysPresent = Object.keys(records).length, daysAbsent = Math.max(0, totalWorkingDays - daysPresent);
-  const lateCount = Object.values(records).filter(r => r.isLate).length;
-  const totalHours = Object.values(records).reduce((s,r) => s + (r.totalHours||0), 0);
-  const avgHours = daysPresent > 0 ? totalHours / daysPresent : 0;
-  const perDay = grossSalary / 30;
-  const deduction = (daysAbsent + lopDays) * perDay;
-  const netSalary = Math.max(0, grossSalary - deduction);
-  const periodLabel = new Date(year, month-1, 1).toLocaleDateString('en-IN', {month:'long', year:'numeric'});
-
-  currentReportData = {staffName,staffDept,grossSalary,perDay,deduction,netSalary,daysPresent,daysAbsent,lateCount,avgHours,totalHours,totalWorkingDays,periodLabel,year,month,records,dateKeys,workingDays};
-
-  document.getElementById('rStaffName').textContent = staffName + ' — ' + staffDept;
-  document.getElementById('rPeriod').textContent = 'Salary Report: ' + periodLabel;
-  document.getElementById('rPresent').textContent = daysPresent;
-  document.getElementById('rAbsent').textContent = daysAbsent;
-  document.getElementById('rLate').textContent = lateCount;
-  document.getElementById('rAvgHours').textContent = avgHours.toFixed(1) + 'h';
-  document.getElementById('rGross').textContent = '₹' + grossSalary.toLocaleString('en-IN');
-  document.getElementById('rPerDay').textContent = '₹' + perDay.toFixed(0);
-  document.getElementById('rDeduction').textContent = `−₹${deduction.toFixed(0)}`;
-  document.getElementById('rLateNote').textContent = lateCount + ' day(s) — no deduction';
-  document.getElementById('rNet').textContent = '₹' + netSalary.toFixed(0);
+    const ls=await getDocs(query(collection(db,'leaves'),where('uid','==',staffUid),where('status','==','approved'),where('payType','==','lop')));
+    ls.docs.forEach(d=>{const l=d.data();if(l.fromDate&&l.fromDate.startsWith(`${year}-${String(month).padStart(2,'0')}`))lopDays+=(l.totalDays||1);});
+  } catch(e){}
+  const daysPresent=Object.keys(records).length, daysAbsent=Math.max(0,totalWorkingDays-daysPresent);
+  const lateCount=Object.values(records).filter(r=>r.isLate).length;
+  const totalHours=Object.values(records).reduce((s,r)=>s+(r.totalHours||0),0);
+  const avgHours=daysPresent>0?totalHours/daysPresent:0;
+  const perDay=grossSalary/30, deduction=(daysAbsent+lopDays)*perDay;
+  const netSalary=Math.max(0,grossSalary-deduction);
+  const periodLabel=new Date(year,month-1,1).toLocaleDateString('en-IN',{month:'long',year:'numeric'});
+  currentReportData={staffName,staffDept,grossSalary,perDay,deduction,netSalary,daysPresent,daysAbsent,lateCount,avgHours,totalHours,totalWorkingDays,periodLabel,year,month,records,dateKeys,workingDays};
+  document.getElementById('rStaffName').textContent=staffName+' — '+staffDept;
+  document.getElementById('rPeriod').textContent='Salary Report: '+periodLabel;
+  document.getElementById('rPresent').textContent=daysPresent;
+  document.getElementById('rAbsent').textContent=daysAbsent;
+  document.getElementById('rLate').textContent=lateCount;
+  document.getElementById('rAvgHours').textContent=avgHours.toFixed(1)+'h';
+  document.getElementById('rGross').textContent='₹'+grossSalary.toLocaleString('en-IN');
+  document.getElementById('rPerDay').textContent='₹'+perDay.toFixed(0);
+  document.getElementById('rDeduction').textContent=`−₹${deduction.toFixed(0)}`;
+  document.getElementById('rLateNote').textContent=lateCount+' day(s) — no deduction';
+  document.getElementById('rNet').textContent='₹'+netSalary.toFixed(0);
   document.getElementById('salaryResult').classList.add('show');
-  btn.disabled = false; btn.textContent = '📊 Generate Salary Report';
+  btn.disabled=false; btn.textContent='📊 Generate Salary Report';
   showToast('✅ Salary report ready!');
 }
 
-window._dlExcel = function() {
-  if (!currentReportData) return;
-  const d = currentReportData;
-  const summary = [['SPARKALS TASKS — SALARY REPORT'],[''],['Staff Name',d.staffName],['Department',d.staffDept],['Period',d.periodLabel],['Generated',new Date().toLocaleDateString('en-IN')],[''],['Total Working Days',d.totalWorkingDays],['Days Present',d.daysPresent],['Days Absent',d.daysAbsent],['Late Arrivals',d.lateCount],['Total Hours',d.totalHours.toFixed(1)+'h'],[''],['Gross Salary','₹'+d.grossSalary.toLocaleString('en-IN')],['Per Day Rate','₹'+d.perDay.toFixed(0)],['Absent Deduction','−₹'+d.deduction.toFixed(0)],['NET PAYABLE','₹'+d.netSalary.toFixed(0)]];
-  const daily = [['Date','Day','Clock In','Clock Out','Hours','Late?','Status']];
-  d.workingDays.forEach(date => {
-    const key = `${d.year}-${String(d.month).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
-    const rec = d.records[key];
-    if (rec) daily.push([date.toLocaleDateString('en-IN',{day:'numeric',month:'short'}),date.toLocaleDateString('en-IN',{weekday:'short'}),fmtTime(rec.clockIn),fmtTime(rec.clockOut),(rec.totalHours||0).toFixed(1)+'h',rec.isLate?'Yes ⚠':'No','Present']);
+window._dlExcel=function(){
+  if(!currentReportData)return;
+  const d=currentReportData;
+  const summary=[['SPARKALS TASKS — SALARY REPORT'],[''],['Staff Name',d.staffName],['Department',d.staffDept],['Period',d.periodLabel],['Generated',new Date().toLocaleDateString('en-IN')],[''],['Total Working Days',d.totalWorkingDays],['Days Present',d.daysPresent],['Days Absent',d.daysAbsent],['Late Arrivals',d.lateCount],['Total Hours',d.totalHours.toFixed(1)+'h'],[''],['Gross Salary','₹'+d.grossSalary.toLocaleString('en-IN')],['Per Day Rate','₹'+d.perDay.toFixed(0)],['Absent Deduction','−₹'+d.deduction.toFixed(0)],['NET PAYABLE','₹'+d.netSalary.toFixed(0)]];
+  const daily=[['Date','Day','Clock In','Clock Out','Hours','Late?','Status']];
+  d.workingDays.forEach(date=>{
+    const key=`${d.year}-${String(d.month).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
+    const rec=d.records[key];
+    if(rec)daily.push([date.toLocaleDateString('en-IN',{day:'numeric',month:'short'}),date.toLocaleDateString('en-IN',{weekday:'short'}),fmtTime(rec.clockIn),fmtTime(rec.clockOut),(rec.totalHours||0).toFixed(1)+'h',rec.isLate?'Yes ⚠':'No','Present']);
     else daily.push([date.toLocaleDateString('en-IN',{day:'numeric',month:'short'}),date.toLocaleDateString('en-IN',{weekday:'short'}),'—','—','—','—','Absent']);
   });
-  const wb = XLSX.utils.book_new();
-  const ws1 = XLSX.utils.aoa_to_sheet(summary), ws2 = XLSX.utils.aoa_to_sheet(daily);
-  ws1['!cols'] = [{wch:32},{wch:22}]; ws2['!cols'] = [{wch:12},{wch:8},{wch:12},{wch:12},{wch:10},{wch:8},{wch:10}];
-  XLSX.utils.book_append_sheet(wb,ws1,'Salary Summary'); XLSX.utils.book_append_sheet(wb,ws2,'Daily Attendance');
-  XLSX.writeFile(wb, `Sparkals_Salary_${d.staffName.replace(/\s/g,'_')}_${d.periodLabel.replace(/\s/g,'_')}.xlsx`);
+  const wb=XLSX.utils.book_new();
+  const ws1=XLSX.utils.aoa_to_sheet(summary),ws2=XLSX.utils.aoa_to_sheet(daily);
+  ws1['!cols']=[{wch:32},{wch:22}];ws2['!cols']=[{wch:12},{wch:8},{wch:12},{wch:12},{wch:10},{wch:8},{wch:10}];
+  XLSX.utils.book_append_sheet(wb,ws1,'Salary Summary');XLSX.utils.book_append_sheet(wb,ws2,'Daily Attendance');
+  XLSX.writeFile(wb,`Sparkals_Salary_${d.staffName.replace(/\s/g,'_')}_${d.periodLabel.replace(/\s/g,'_')}.xlsx`);
   showToast('📊 Excel downloaded!');
 };
 
-window._dlPDF = function() {
-  if (!currentReportData) return;
-  const d = currentReportData;
-  const html = `<html><head><title>Salary — ${d.staffName}</title><style>body{font-family:Arial,sans-serif;padding:40px;color:#1a1a2e}h1{font-size:22px;margin-bottom:4px}h2{font-size:14px;color:#666;margin-bottom:24px;font-weight:normal}.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:24px}.card{border:1px solid #ddd;border-radius:8px;padding:12px}.cl{font-size:11px;color:#888;text-transform:uppercase}.cv{font-size:22px;font-weight:700;margin-top:4px}.g{color:#10b981}.r{color:#ef4444}.a{color:#f59e0b}.p{color:#7c6fff}table{width:100%;border-collapse:collapse;margin-bottom:24px}th{background:#1a1a2e;color:#fff;padding:10px;text-align:left;font-size:12px}td{padding:8px 10px;border-bottom:1px solid #eee;font-size:12px}tr:nth-child(even){background:#f9f9f9}.tr{font-weight:700;font-size:15px;border-top:2px solid #1a1a2e}.ft{margin-top:40px;font-size:11px;color:#aaa;text-align:center}</style></head><body><h1>💼 Salary Report — ${d.staffName}</h1><h2>${d.staffDept} · ${d.periodLabel} · Generated: ${new Date().toLocaleDateString('en-IN')}</h2><div class="grid"><div class="card"><div class="cl">Days Present</div><div class="cv g">${d.daysPresent}</div></div><div class="card"><div class="cl">Days Absent</div><div class="cv r">${d.daysAbsent}</div></div><div class="card"><div class="cl">Late Arrivals</div><div class="cv a">${d.lateCount}</div></div><div class="card"><div class="cl">Avg Hours/Day</div><div class="cv p">${d.avgHours.toFixed(1)}h</div></div></div><table><tr><th>Description</th><th>Amount</th></tr><tr><td>Gross Monthly Salary</td><td>₹${d.grossSalary.toLocaleString('en-IN')}</td></tr><tr><td>Per Day Rate (÷30)</td><td>₹${d.perDay.toFixed(0)}</td></tr><tr><td>Absent Deduction</td><td style="color:#ef4444">−₹${d.deduction.toFixed(0)}</td></tr><tr><td>Late Deduction</td><td>₹0</td></tr><tr class="tr"><td>NET PAYABLE SALARY</td><td style="color:#10b981">₹${d.netSalary.toFixed(0)}</td></tr></table><div class="ft">Sparkals Tasks · Auto-generated · ${new Date().toLocaleString('en-IN')}</div></body></html>`;
-  const w = window.open('','_blank'); w.document.write(html); w.document.close(); w.print();
+window._dlPDF=function(){
+  if(!currentReportData)return;
+  const d=currentReportData;
+  const html=`<html><head><title>Salary — ${d.staffName}</title><style>body{font-family:Arial,sans-serif;padding:40px;color:#1a1a2e}h1{font-size:22px;margin-bottom:4px}h2{font-size:14px;color:#666;margin-bottom:24px;font-weight:normal}.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:24px}.card{border:1px solid #ddd;border-radius:8px;padding:12px}.cl{font-size:11px;color:#888;text-transform:uppercase}.cv{font-size:22px;font-weight:700;margin-top:4px}.g{color:#10b981}.r{color:#ef4444}.a{color:#f59e0b}.p{color:#7c6fff}table{width:100%;border-collapse:collapse;margin-bottom:24px}th{background:#1a1a2e;color:#fff;padding:10px;text-align:left;font-size:12px}td{padding:8px 10px;border-bottom:1px solid #eee;font-size:12px}tr:nth-child(even){background:#f9f9f9}.tr{font-weight:700;font-size:15px;border-top:2px solid #1a1a2e}.ft{margin-top:40px;font-size:11px;color:#aaa;text-align:center}</style></head><body><h1>💼 Salary Report — ${d.staffName}</h1><h2>${d.staffDept} · ${d.periodLabel} · Generated: ${new Date().toLocaleDateString('en-IN')}</h2><div class="grid"><div class="card"><div class="cl">Days Present</div><div class="cv g">${d.daysPresent}</div></div><div class="card"><div class="cl">Days Absent</div><div class="cv r">${d.daysAbsent}</div></div><div class="card"><div class="cl">Late Arrivals</div><div class="cv a">${d.lateCount}</div></div><div class="card"><div class="cl">Avg Hours/Day</div><div class="cv p">${d.avgHours.toFixed(1)}h</div></div></div><table><tr><th>Description</th><th>Amount</th></tr><tr><td>Gross Monthly Salary</td><td>₹${d.grossSalary.toLocaleString('en-IN')}</td></tr><tr><td>Per Day Rate (÷30)</td><td>₹${d.perDay.toFixed(0)}</td></tr><tr><td>Absent Deduction</td><td style="color:#ef4444">−₹${d.deduction.toFixed(0)}</td></tr><tr><td>Late Deduction</td><td>₹0</td></tr><tr class="tr"><td>NET PAYABLE SALARY</td><td style="color:#10b981">₹${d.netSalary.toFixed(0)}</td></tr></table><div class="ft">Sparkals Tasks · Auto-generated · ${new Date().toLocaleString('en-IN')}</div></body></html>`;
+  const w=window.open('','_blank');w.document.write(html);w.document.close();w.print();
   showToast('📄 PDF ready to print!');
 };
 
-function showToast(msg) {
-  const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 3500);
+function showToast(msg){
+  const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),3500);
 }
 </script>
 <script src="offline-sync.js"></script>
