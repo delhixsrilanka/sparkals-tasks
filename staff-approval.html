@@ -406,16 +406,9 @@ Welcome to the team! 🎉
 
     if (!email || email === '—') throw new Error('No email');
 
-    const tempPassword = 'Sparkals@' + Math.random().toString(36).slice(2,8);
+    // Send password reset email only — does NOT disturb admin session
+    await sendPasswordResetEmail(auth, email);
     let newUid = null;
-
-    try {
-      const userCredential = await createUserWithEmailAndPassword(auth, email, tempPassword);
-      newUid = userCredential.user.uid;
-    } catch(e) {
-      if (e.code !== 'auth/email-already-in-use') throw e;
-      // Already exists — still approve
-    }
 
     await sendPasswordResetEmail(auth, email);
 
