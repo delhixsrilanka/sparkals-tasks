@@ -1,110 +1,465 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#1a1a2e" />
-  <title>Sparkals Tasks</title>
-  <link rel="manifest" href="manifest.json" />
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      background: #1a1a2e;
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+/**
+ * SPARKALS TASKS — FIREBASE CLOUD FUNCTIONS
+ * Written for firebase-functions v7 + firebase-admin v13 + Node 24
+ *
+ * Functions:
+ * 1. onTaskCreated       — push notification when task assigned
+ * 2. onLeaveUpdated      — push notification when leave approved/rejected
+ * 3. deadlineReminders   — 24h and 2h deadline alerts (every hour)
+ * 4. dailyOverdueAlert   — overdue task summary to admin at 10am Mon–Sat
+ * 5. escalationAlert     — task not updated for 4h → alert admin (every 2h)
+ * 6. autoCloseAttendance — auto clock-out staff at 6:30pm if they forgot (Mon–Sat)
+ *
+ * Business rules:
+ * - Work hours: 9am–6pm, Monday–Saturday
+ * - Late threshold: 9:15am
+ * - Overtime: tracked separately, zero extra pay
+ * - Auto close: 6:30pm if no clock-out recorded
+ */
+
+const { onDocumentCreated, onDocumentUpdated } = require("firebase-functions/v2/firestore");
+const { onSchedule } = require("firebase-functions/v2/scheduler");
+const { initializeApp } = require("firebase-admin/app");
+const { getFirestore } = require("firebase-admin/firestore");
+const { getMessaging } = require("firebase-admin/messaging");
+
+initializeApp();
+
+const db = getFirestore();
+const messaging = getMessaging();
+
+// ── CONSTANTS ──
+const WORK_END_HOUR = 18;       // 6:00pm
+const WORK_END_MINUTE = 0;
+const AUTO_CLOSE_HOUR = 18;     // Auto-close at 6:30pm
+const AUTO_CLOSE_MINUTE = 30;
+const OVERTIME_AFTER_HOURS = 9; // Overtime after 9 hours worked
+
+// ── WORK HOURS CHECK: 9am–6pm Mon–Sat IST ──
+function isWorkHours() {
+  const now = new Date();
+  const ist = new Date(now.getTime() + 5.5 * 60 * 60 * 1000);
+  const hour = ist.getUTCHours();
+  const day = ist.getUTCDay(); // 0=Sun, 6=Sat
+  return day >= 1 && day <= 6 && hour >= 9 && hour < 18;
+}
+
+// ── GET CURRENT IST DATE STRING (YYYY-MM-DD) ──
+function getISTDateString() {
+  const now = new Date();
+  const ist = new Date(now.getTime() + 5.5 * 60 * 60 * 1000);
+  return ist.toISOString().split("T")[0];
+}
+
+// ── GET FCM TOKEN ──
+async function getToken(uid) {
+  try {
+    const snap = await db.collection("fcmTokens").doc(uid).get();
+    if (!snap.exists) return null;
+    return snap.data().token || null;
+  } catch(e) { return null; }
+}
+
+// ── SEND PUSH NOTIFICATION ──
+async function sendPush(uid, title, body, data = {}) {
+  if (!isWorkHours()) {
+    console.log("Outside work hours — skipped push for", uid);
+    return;
+  }
+  const token = await getToken(uid);
+  if (!token) {
+    console.log("No FCM token for user", uid);
+    return;
+  }
+  const message = {
+    token,
+    notification: { title, body },
+    data: { ...data, click_action: "https://sparkals-tasks.vercel.app/dashboard.html" },
+    webpush: {
+      notification: {
+        title,
+        body,
+        icon: "/icons/logo%20copfy.png",
+        badge: "/icons/logo%20copfy.png",
+        vibrate: [200, 100, 200],
+      },
+      fcmOptions: {
+        link: "https://sparkals-tasks.vercel.app/dashboard.html",
+      },
+    },
+  };
+  try {
+    await messaging.send(message);
+    console.log("✅ Push sent to", uid, "—", title);
+  } catch (err) {
+    console.error("❌ Push failed for", uid, err.message);
+    if (err.code === "messaging/registration-token-not-registered") {
+      await db.collection("fcmTokens").doc(uid).delete();
     }
-    .card {
-      background: #ffffff;
-      border-radius: 24px;
-      padding: 48px 36px;
-      text-align: center;
-      max-width: 360px;
-      width: 90%;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+  }
+}
+
+// ── SAVE IN-APP NOTIFICATION ──
+async function saveNotification(uid, title, body, type, relatedId = "") {
+  try {
+    await db.collection("notifications").add({
+      uid, title, body, type, relatedId,
+      read: false,
+      createdAt: new Date(),
+    });
+  } catch(e) {
+    console.error("saveNotification error:", e.message);
+  }
+}
+
+// ── GET ALL ADMIN UIDs ──
+async function getAdminUids() {
+  try {
+    const snap = await db.collection("users")
+      .where("role", "==", "admin")
+      .where("status", "==", "approved")
+      .get();
+    return snap.docs.map((d) => d.id);
+  } catch(e) { return []; }
+}
+
+const COMPLETED_STAGES = [
+  "Won","Lost","Verified","Closed","Confirmed",
+  "Done","Reported","Received","Dispatched",
+];
+
+// ══════════════════════════════════════════════════════
+// FUNCTION 1 — TASK ASSIGNED
+// Fires when a new task is created in Firestore
+// ══════════════════════════════════════════════════════
+exports.onTaskCreated = onDocumentCreated(
+  { document: "tasks/{taskId}", region: "asia-south1" },
+  async (event) => {
+    const task = event.data.data();
+    const taskId = event.params.taskId;
+    if (!task.assigneeId) return;
+
+    const title = "📋 New Task Assigned";
+    const deadline = task.deadline
+      ? task.deadline.toDate().toLocaleDateString("en-IN")
+      : "Not set";
+    const body = `${task.taskId || ""} — ${task.name}. Deadline: ${deadline}`;
+
+    await sendPush(task.assigneeId, title, body, { type: "task_assigned", taskId });
+    await saveNotification(task.assigneeId, title, body, "task_assigned", taskId);
+    console.log("Task assigned notification sent:", task.name);
+  }
+);
+
+// ══════════════════════════════════════════════════════
+// FUNCTION 2 — LEAVE APPROVED OR REJECTED
+// Fires when a leave document status changes
+// ══════════════════════════════════════════════════════
+exports.onLeaveUpdated = onDocumentUpdated(
+  { document: "leaves/{leaveId}", region: "asia-south1" },
+  async (event) => {
+    const before = event.data.before.data();
+    const after = event.data.after.data();
+    const leaveId = event.params.leaveId;
+
+    if (before.status === after.status) return;
+    if (after.status !== "approved" && after.status !== "rejected") return;
+
+    const uid = after.uid;
+    if (!uid) return;
+
+    const isApproved = after.status === "approved";
+    const title = isApproved ? "✅ Leave Approved" : "❌ Leave Rejected";
+    const body = isApproved
+      ? `Your leave ${after.fromDate} to ${after.toDate} is approved${after.payType === "lop" ? " (LOP — salary deduction applies)" : " (Paid)"}.`
+      : `Your leave ${after.fromDate} to ${after.toDate} was rejected. Please check with admin.`;
+
+    await sendPush(uid, title, body, { type: "leave_update", leaveId });
+    await saveNotification(uid, title, body, "leave_update", leaveId);
+    console.log("Leave update notification sent to:", uid, "Status:", after.status);
+  }
+);
+
+// ══════════════════════════════════════════════════════
+// FUNCTION 3 — DEADLINE REMINDERS
+// Runs every hour — checks 24h and 2h deadlines
+// ══════════════════════════════════════════════════════
+exports.deadlineReminders = onSchedule(
+  { schedule: "every 60 minutes", timeZone: "Asia/Kolkata", region: "asia-south1" },
+  async () => {
+    if (!isWorkHours()) {
+      console.log("Outside work hours — deadline reminders skipped");
+      return;
     }
-    .logo-wrapper {
-      width: 100px;
-      height: 100px;
-      background: #1a1a2e;
-      border-radius: 24px;
-      margin: 0 auto 24px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 10px;
+    const now = new Date();
+    const tasksSnap = await db.collection("tasks").get();
+
+    for (const taskDoc of tasksSnap.docs) {
+      const task = { id: taskDoc.id, ...taskDoc.data() };
+      if (COMPLETED_STAGES.includes(task.stage)) continue;
+      if (!task.deadline || !task.assigneeId) continue;
+
+      const deadline = task.deadline.toDate();
+      const hoursLeft = (deadline - now) / (1000 * 60 * 60);
+
+      // 24-hour reminder
+      if (hoursLeft > 23 && hoursLeft <= 25) {
+        const alreadySent = await db.collection("notifications")
+          .where("relatedId", "==", task.id)
+          .where("type", "==", "deadline_24h")
+          .get();
+        if (!alreadySent.empty) continue;
+
+        const title = "⏰ Deadline Tomorrow";
+        const body = `${task.taskId || ""} — "${task.name}" is due tomorrow. Stage: ${task.stage}.`;
+        await sendPush(task.assigneeId, title, body, { type: "deadline_24h", taskId: task.id });
+        await saveNotification(task.assigneeId, title, body, "deadline_24h", task.id);
+      }
+
+      // 2-hour reminder
+      if (hoursLeft > 1.5 && hoursLeft <= 2.5) {
+        const alreadySent = await db.collection("notifications")
+          .where("relatedId", "==", task.id)
+          .where("type", "==", "deadline_2h")
+          .get();
+        if (!alreadySent.empty) continue;
+
+        const title = "🚨 Deadline in 2 Hours";
+        const body = `${task.taskId || ""} — "${task.name}" is due in 2 hours! Stage: ${task.stage}. Update now.`;
+        await sendPush(task.assigneeId, title, body, { type: "deadline_2h", taskId: task.id });
+        await saveNotification(task.assigneeId, title, body, "deadline_2h", task.id);
+      }
     }
-    .logo-wrapper img {
-      width: 80px;
-      height: 80px;
-      border-radius: 50%;
-      object-fit: cover;
+    console.log("Deadline reminders check complete");
+  }
+);
+
+// ══════════════════════════════════════════════════════
+// FUNCTION 4 — DAILY OVERDUE ALERT TO ADMIN
+// Runs at 10am Mon–Sat
+// ══════════════════════════════════════════════════════
+exports.dailyOverdueAlert = onSchedule(
+  { schedule: "0 10 * * 1-6", timeZone: "Asia/Kolkata", region: "asia-south1" },
+  async () => {
+    const now = new Date();
+    const tasksSnap = await db.collection("tasks").get();
+    const overdue = tasksSnap.docs
+      .map((d) => ({ id: d.id, ...d.data() }))
+      .filter((t) => {
+        if (!t.deadline) return false;
+        if (COMPLETED_STAGES.includes(t.stage)) return false;
+        return t.deadline.toDate() < now;
+      });
+
+    if (overdue.length === 0) {
+      console.log("No overdue tasks today");
+      return;
     }
-    h1 {
-      color: #1a1a2e;
-      font-size: 26px;
-      font-weight: 700;
-      margin-bottom: 8px;
+
+    const adminUids = await getAdminUids();
+    const title = `⚠️ ${overdue.length} Overdue Task${overdue.length > 1 ? "s" : ""}`;
+    const body = `You have ${overdue.length} overdue task${overdue.length > 1 ? "s" : ""}. Open the admin dashboard to review.`;
+
+    for (const adminUid of adminUids) {
+      await sendPush(adminUid, title, body, { type: "overdue_alert" });
+      await saveNotification(adminUid, title, body, "overdue_alert");
     }
-    p {
-      color: #666;
-      font-size: 15px;
-      margin-bottom: 32px;
-      line-height: 1.5;
+    console.log(`Overdue alert sent to ${adminUids.length} admin(s) for ${overdue.length} tasks`);
+  }
+);
+
+// ══════════════════════════════════════════════════════
+// FUNCTION 5 — ESCALATION ALERT
+// Task not updated for 4+ work hours → alert admin
+// Runs every 2 hours during work hours
+// ══════════════════════════════════════════════════════
+exports.escalationAlert = onSchedule(
+  { schedule: "every 120 minutes", timeZone: "Asia/Kolkata", region: "asia-south1" },
+  async () => {
+    if (!isWorkHours()) return;
+
+    const now = new Date();
+    const fourHoursAgo = new Date(now.getTime() - 4 * 60 * 60 * 1000);
+    const tasksSnap = await db.collection("tasks").get();
+
+    const stale = tasksSnap.docs
+      .map((d) => ({ id: d.id, ...d.data() }))
+      .filter((t) => {
+        if (COMPLETED_STAGES.includes(t.stage)) return false;
+        if (!t.updatedAt) return false;
+        return t.updatedAt.toDate() < fourHoursAgo;
+      });
+
+    const adminUids = await getAdminUids();
+
+    for (const task of stale) {
+      // Avoid duplicate escalation within 4 hours
+      const recent = await db.collection("notifications")
+        .where("relatedId", "==", task.id)
+        .where("type", "==", "escalation")
+        .get();
+
+      if (!recent.empty) {
+        const lastSent = recent.docs[0].data().createdAt;
+        const lastDate = lastSent instanceof Date ? lastSent : lastSent?.toDate?.();
+        if (lastDate && now - lastDate < 4 * 60 * 60 * 1000) continue;
+      }
+
+      const title = "🔔 Task Not Updated";
+      const body = `${task.taskId || ""} — "${task.name}" has no update for 4+ hours. Stage: ${task.stage}.`;
+
+      for (const adminUid of adminUids) {
+        await sendPush(adminUid, title, body, { type: "escalation", taskId: task.id });
+        await saveNotification(adminUid, title, body, "escalation", task.id);
+      }
     }
-    .status {
-      background: #f0fdf4;
-      border: 1.5px solid #86efac;
-      border-radius: 12px;
-      padding: 14px 20px;
-      color: #15803d;
-      font-size: 14px;
-      font-weight: 600;
-      margin-bottom: 16px;
+    console.log(`Escalation check done — ${stale.length} stale task(s)`);
+  }
+);
+
+// ══════════════════════════════════════════════════════
+// FUNCTION 6 — AUTO CLOSE ATTENDANCE AT 6:30PM
+//
+// Business rule:
+// - If a staff member clocked in but has NO clock-out by 6:30pm
+// - System automatically closes their attendance at 6:00pm (end of work day)
+// - Total hours and overtime are calculated correctly
+// - Overtime = hours beyond 9 (tracked, not paid)
+// - A note "autoClosedBySystem: true" is saved so admin can see it
+// - Staff receive a push notification: "Your attendance was auto-closed"
+// - Admin sees these staff on the dashboard with a note
+//
+// Runs at 6:30pm Mon–Sat IST
+// ══════════════════════════════════════════════════════
+exports.autoCloseAttendance = onSchedule(
+  { schedule: "30 18 * * 1-6", timeZone: "Asia/Kolkata", region: "asia-south1" },
+  async () => {
+    console.log("[AutoClose] Starting attendance auto-close at 6:30pm IST");
+
+    const today = getISTDateString();
+
+    // Auto-close time is 6:00pm IST (official end of work day)
+    const autoCloseTime = new Date();
+    const ist = new Date(autoCloseTime.getTime() + 5.5 * 60 * 60 * 1000);
+    // Set to exactly 18:00:00 IST
+    ist.setUTCHours(WORK_END_HOUR - 0, WORK_END_MINUTE, 0, 0);
+    // Convert back to UTC for Firestore
+    const closeTimestamp = new Date(ist.getTime() - 5.5 * 60 * 60 * 1000);
+
+    // Find all attendance records for today that have clockIn but NO clockOut
+    let openRecords = [];
+    try {
+      const snap = await db.collection("attendance")
+        .where("date", "==", today)
+        .where("status", "==", "active")
+        .get();
+      openRecords = snap.docs.filter(d => {
+        const data = d.data();
+        return data.clockIn && !data.clockOut;
+      });
+    } catch(e) {
+      console.error("[AutoClose] Error fetching open records:", e.message);
+      return;
     }
-    .coming-soon {
-      background: #f8f8ff;
-      border: 1.5px solid #c7c7ff;
-      border-radius: 12px;
-      padding: 14px 20px;
-      color: #3b37c8;
-      font-size: 13px;
-      line-height: 1.6;
+
+    if (openRecords.length === 0) {
+      console.log("[AutoClose] No open attendance records found for today — all staff clocked out");
+      return;
     }
-    .version {
-      color: #aaa;
-      font-size: 12px;
-      margin-top: 24px;
+
+    console.log(`[AutoClose] Found ${openRecords.length} open record(s) to auto-close`);
+
+    const { FieldValue } = require("firebase-admin/firestore");
+
+    for (const recordDoc of openRecords) {
+      const record = recordDoc.data();
+      const uid = record.uid || record.userId;
+      const userName = record.userName || record.name || "Staff";
+
+      try {
+        // Calculate hours worked
+        let clockInDate;
+        if (record.clockIn && typeof record.clockIn.toDate === "function") {
+          clockInDate = record.clockIn.toDate();
+        } else if (record.clockIn) {
+          // Plain string like "09:05" — build a full date
+          const [h, m] = String(record.clockIn).split(":").map(Number);
+          clockInDate = new Date(closeTimestamp);
+          clockInDate.setHours(h, m, 0, 0);
+        } else {
+          clockInDate = new Date(closeTimestamp);
+          clockInDate.setHours(9, 0, 0, 0); // Default 9am if no clockIn
+        }
+
+        let ms = closeTimestamp - clockInDate;
+
+        // Subtract lunch break if staff went on lunch but did not return
+        const lunchOut = record.lunchOut?.toDate ? record.lunchOut.toDate() : null;
+        const lunchIn = record.lunchIn?.toDate ? record.lunchIn.toDate() : null;
+        if (lunchOut && lunchIn) {
+          ms -= (lunchIn - lunchOut); // Subtract full lunch duration
+        } else if (lunchOut && !lunchIn) {
+          // Staff went to lunch but never came back — subtract lunch to close time
+          ms -= (closeTimestamp - lunchOut);
+        }
+
+        if (ms < 0) ms = 0;
+
+        const totalHours = parseFloat((ms / 3600000).toFixed(2));
+        const overtimeHours = parseFloat(Math.max(0, totalHours - OVERTIME_AFTER_HOURS).toFixed(2));
+
+        // Update the attendance record
+        await db.collection("attendance").doc(recordDoc.id).update({
+          clockOut: closeTimestamp,
+          clockOutLat: null,
+          clockOutLng: null,
+          totalHours,
+          overtimeHours,
+          status: "completed",
+          autoClosedBySystem: true,
+          autoCloseReason: "No clock-out recorded by 6:30pm — system auto-closed at 6:00pm",
+          autoClosedAt: FieldValue.serverTimestamp(),
+        });
+
+        console.log(`[AutoClose] ✅ Auto-closed: ${userName} — ${totalHours}h worked, ${overtimeHours}h overtime`);
+
+        // Save audit log
+        await db.collection("auditLogs").add({
+          action: "AUTO_CLOCK_OUT",
+          uid,
+          userName,
+          date: today,
+          clockOutTime: "18:00",
+          totalHours,
+          overtimeHours,
+          reason: "System auto-close — no clock-out by 6:30pm",
+          timestamp: FieldValue.serverTimestamp(),
+        });
+
+        // Notify the staff member
+        if (uid) {
+          const title = "🏁 Attendance Auto-Closed";
+          const body = `You forgot to clock out. Your attendance for today has been automatically closed at 6:00pm (${totalHours}h worked). If this is wrong, please inform admin.`;
+          await sendPush(uid, title, body, { type: "auto_close" });
+          await saveNotification(uid, title, body, "auto_close");
+        }
+
+      } catch(err) {
+        console.error(`[AutoClose] Failed for ${userName}:`, err.message);
+      }
     }
-  </style>
-</head>
-<body>
-  <div class="card">
-    <div class="logo-wrapper">
-      <img src="/icons/logo%20copfy.png" alt="Sparkals Tasks"
-    </div>
-    <h1>Sparkals Tasks</h1>
-    <p>Your staff management app is being built. Big things coming!</p>
-    <div class="status">✅ App is live and running</div>
-    <div class="coming-soon">
-      🔐 Staff login &nbsp;·&nbsp; ✅ Tasks &nbsp;·&nbsp; 📍 GPS tracking<br/>
-      📊 Reports &nbsp;·&nbsp; 💬 Team chat &nbsp;·&nbsp; 🕐 Attendance
-    </div>
-    <div class="version">Version 0.1 — Foundation</div>
-  </div>
-  <script>
-    // Register service worker for offline mode
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/sw.js')
-        .then(() => console.log('Service Worker registered'))
-        .catch(err => console.log('SW registration failed:', err));
+
+    // Notify admin with a summary
+    const adminUids = await getAdminUids();
+    if (openRecords.length > 0 && adminUids.length > 0) {
+      const title = `🔔 ${openRecords.length} Auto-Close${openRecords.length > 1 ? "s" : ""} Today`;
+      const body = `${openRecords.length} staff member${openRecords.length > 1 ? "s" : ""} did not clock out. Attendance auto-closed at 6:00pm.`;
+      for (const adminUid of adminUids) {
+        await sendPush(adminUid, title, body, { type: "auto_close_summary" });
+        await saveNotification(adminUid, title, body, "auto_close_summary");
+      }
     }
-    // Redirect to login page after 2 seconds
-    setTimeout(() => {
-      window.location.href = 'login.html';
-    }, 2000);
-  </script>
-</body>
-</html>
+
+    console.log(`[AutoClose] Complete — ${openRecords.length} record(s) closed`);
+  }
+);
