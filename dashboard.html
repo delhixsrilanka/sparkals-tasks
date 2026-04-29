@@ -34,6 +34,7 @@
     .clock-btn.clock-in { background: #22c55e; color: white; }
     .clock-btn.clock-out { background: #ef4444; color: white; }
     .clock-btn:active { opacity: 0.85; transform: scale(0.97); }
+    .clock-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
     .section-title { font-size: 15px; font-weight: 700; color: #1a1a2e; margin-bottom: 12px; margin-top: 4px; }
     .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
@@ -49,7 +50,7 @@
 
     .tasks-card { background: white; border-radius: 20px; padding: 20px; margin-bottom: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
     .tasks-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
-    .view-all-link { font-size: 13px; color: #3b82f6; font-weight: 600; text-decoration: none; cursor: pointer; }
+    .view-all-link { font-size: 13px; color: #3b82f6; font-weight: 600; text-decoration: none; }
     .task-item { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid #f0f0f0; cursor: pointer; }
     .task-item:last-child { border-bottom: none; }
     .task-priority { width: 4px; height: 40px; border-radius: 2px; flex-shrink: 0; }
@@ -67,7 +68,7 @@
     .empty-tasks { text-align: center; padding: 24px; color: #888; font-size: 14px; }
 
     .quick-actions { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 16px; }
-    .quick-action { background: white; border-radius: 16px; padding: 14px 8px; text-align: center; cursor: pointer; box-shadow: 0 4px 20px rgba(0,0,0,0.06); text-decoration: none; transition: transform 0.2s; }
+    .quick-action { background: white; border-radius: 16px; padding: 14px 8px; text-align: center; cursor: pointer; box-shadow: 0 4px 20px rgba(0,0,0,0.06); text-decoration: none; transition: transform 0.2s; display: block; }
     .quick-action:active { transform: scale(0.95); }
     .qa-icon { font-size: 24px; margin-bottom: 6px; }
     .qa-label { font-size: 11px; color: #444; font-weight: 600; line-height: 1.3; }
@@ -87,39 +88,41 @@
     .nav-label { font-size: 10px; font-weight: 600; color: #888; }
     .nav-item.active .nav-label { color: #1a1a2e; }
 
+    .offline-pill { display: none; position: fixed; top: 12px; left: 50%; transform: translateX(-50%); background: #ef4444; color: white; padding: 6px 16px; border-radius: 20px; font-size: 12px; font-weight: 700; z-index: 9999; }
+    .offline-pill.show { display: block; }
+
     .toast { position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%); background: #1a1a2e; color: white; padding: 12px 24px; border-radius: 24px; font-size: 14px; font-weight: 600; z-index: 999; opacity: 0; transition: opacity 0.3s; white-space: nowrap; }
     .toast.show { opacity: 1; }
 
-    /* Auto-update banner */
-    #spkUpdateBanner { display: none; position: fixed; top: 0; left: 0; right: 0; background: #7c6af7; color: #fff; padding: 12px 20px; font-family: 'Segoe UI', sans-serif; font-size: 13px; font-weight: 500; z-index: 99999; align-items: center; justify-content: space-between; gap: 12px; box-shadow: 0 2px 12px rgba(124,106,247,0.4); }
+    #spkUpdateBanner { display: none; position: fixed; top: 0; left: 0; right: 0; background: #7c6af7; color: #fff; padding: 12px 20px; font-size: 13px; font-weight: 500; z-index: 99999; align-items: center; justify-content: space-between; gap: 12px; }
   </style>
 </head>
 <body>
 
-<!-- AUTO-UPDATE BANNER -->
 <div id="spkUpdateBanner">
   <span>✨ App updated — tap to get the latest version</span>
-  <button onclick="spkApplyUpdate()" style="background:#fff;color:#7c6af7;border:none;padding:6px 14px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;flex-shrink:0;">Refresh Now</button>
+  <button onclick="spkApplyUpdate()" style="background:#fff;color:#7c6af7;border:none;padding:6px 14px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;">Refresh Now</button>
 </div>
 
-<!-- HEADER -->
+<div class="offline-pill" id="offlinePill">● Offline</div>
+
 <div class="header">
   <div class="header-top">
     <div class="logo-small">
-      <img src="/icons/logo%20copfy.png" alt="Sparkals" />
+      <img src="/icons/logo%20copfy.png" alt="Sparkals" onerror="this.style.display='none'" />
     </div>
     <div class="header-icons">
-      <a href="notifications.html" class="icon-btn" title="Notifications" style="text-decoration:none;">
+      <a href="notifications.html" class="icon-btn" style="text-decoration:none;">
         🔔
         <span id="notifBadge" style="display:none;position:absolute;top:-4px;right:-4px;background:#ef4444;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:10px;min-width:16px;text-align:center;"></span>
       </a>
-      <button class="icon-btn" onclick="showProfile()" title="Profile">👤</button>
+      <button class="icon-btn" onclick="showProfile()">👤</button>
     </div>
   </div>
   <div class="welcome-section">
     <div class="welcome-greeting" id="greeting-text">Good Morning ☀️</div>
     <div class="welcome-name" id="staff-name">Loading...</div>
-    <div class="welcome-message">Welcome back! Your team needs you today! 💪</div>
+    <div class="welcome-message" id="welcome-msg">Welcome back! Your team needs you today! 💪</div>
     <div class="welcome-meta">
       <span class="meta-chip" id="today-date">📅 Loading...</span>
       <span class="meta-chip" id="dept-chip">🏢 Loading...</span>
@@ -128,10 +131,7 @@
   </div>
 </div>
 
-<!-- MAIN CONTENT -->
 <div class="main-content">
-
-  <!-- Clock In/Out Card -->
   <div class="clock-card">
     <div class="clock-info">
       <h3 id="clock-status-text">Not clocked in</h3>
@@ -143,7 +143,6 @@
     </div>
   </div>
 
-  <!-- Stats Grid -->
   <div class="section-title">Today's Overview</div>
   <div class="stats-grid">
     <div class="stat-card blue"><div class="stat-icon">📋</div><div class="stat-number" id="stat-total">0</div><div class="stat-label">Total Tasks</div></div>
@@ -152,16 +151,14 @@
     <div class="stat-card purple"><div class="stat-icon">🕐</div><div class="stat-number" id="stat-hours">0h</div><div class="stat-label">Hours Today</div></div>
   </div>
 
-  <!-- Quick Actions -->
   <div class="section-title">Quick Actions</div>
   <div class="quick-actions">
     <a class="quick-action" href="tasks.html"><div class="qa-icon">📋</div><div class="qa-label">My Tasks</div></a>
     <a class="quick-action" href="attendance.html"><div class="qa-icon">📅</div><div class="qa-label">Attendance</div></a>
     <a class="quick-action" href="chat.html"><div class="qa-icon">💬</div><div class="qa-label">Team Chat</div></a>
-    <a class="quick-action" href="profile.html"><div class="qa-icon">👤</div><div class="qa-label">My Profile</div></a>
+    <a class="quick-action" href="leave.html"><div class="qa-icon">🏖</div><div class="qa-label">Leave</div></a>
   </div>
 
-  <!-- Today's Tasks -->
   <div class="tasks-card">
     <div class="tasks-header">
       <div class="section-title" style="margin:0;">Today's Tasks</div>
@@ -170,26 +167,21 @@
     <div id="tasks-list"><div class="empty-tasks">⏳ Loading your tasks...</div></div>
   </div>
 
-  <!-- Announcements -->
   <div class="announce-card">
     <div class="announce-title">📢 Team Announcements</div>
     <div id="announcements-list"><div class="no-announce">No announcements yet</div></div>
   </div>
-
 </div>
 
-<!-- BOTTOM NAV -->
 <div class="bottom-nav">
   <a class="nav-item active" href="dashboard.html"><span class="nav-icon">🏠</span><span class="nav-label">Home</span></a>
   <a class="nav-item" href="tasks.html"><span class="nav-icon">✅</span><span class="nav-label">Tasks</span></a>
   <a class="nav-item" href="chat.html"><span class="nav-icon">💬</span><span class="nav-label">Chat</span></a>
   <a class="nav-item" href="attendance.html"><span class="nav-icon">🕐</span><span class="nav-label">Attendance</span></a>
-  <a class="nav-item" href="profile.html"><span class="nav-icon">👤</span><span class="nav-label">Profile</span></a>
   <a class="nav-item" href="leave.html"><span class="nav-icon">🏖</span><span class="nav-label">Leave</span></a>
   <a class="nav-item" href="admin.html" id="adminNavLink" style="display:none"><span class="nav-icon">⚙️</span><span class="nav-label">Admin</span></a>
 </div>
 
-<!-- Toast -->
 <div class="toast" id="toast"></div>
 
 <script type="module">
@@ -198,7 +190,7 @@ import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/fi
 import {
   getFirestore, doc, getDoc, collection,
   query, where, getDocs, addDoc, updateDoc,
-  serverTimestamp, orderBy, limit, setDoc, onSnapshot
+  serverTimestamp, orderBy, limit, setDoc, onSnapshot, Timestamp
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -214,91 +206,103 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-let currentUser = null;
-let userProfile = null;
-let isClockedIn = false;
+const ADMIN_EMAILS = ['sandeepgemologist@gmail.com','sparkals.design@gmail.com'];
+const COMPLETED_STAGES = ["Won","Lost","Verified","Closed","Confirmed","Done","Reported","Received","Dispatched"];
+
+let currentUser = null, userProfile = null, isClockedIn = false, attendanceDocId = null;
+
+// ── OFFLINE DETECTION ──
+window.addEventListener('online',  () => document.getElementById('offlinePill').classList.remove('show'));
+window.addEventListener('offline', () => document.getElementById('offlinePill').classList.add('show'));
+if (!navigator.onLine) document.getElementById('offlinePill').classList.add('show');
 
 // ── LIVE CLOCK ──
 function updateClock() {
   const now = new Date();
-  const h = String(now.getHours()).padStart(2,'0');
-  const m = String(now.getMinutes()).padStart(2,'0');
-  document.getElementById('live-clock').textContent = `${h}:${m}`;
+  document.getElementById('live-clock').textContent =
+    `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
 }
-setInterval(updateClock, 1000);
-updateClock();
+setInterval(updateClock, 1000); updateClock();
 
-// ── GREETING ──
+// ── GREETING + DATE ──
 function setGreeting() {
-  const hour = new Date().getHours();
-  let g = hour < 12 ? 'Good Morning ☀️' : hour < 17 ? 'Good Afternoon 🌤️' : 'Good Evening 🌙';
-  document.getElementById('greeting-text').textContent = g;
+  const h = new Date().getHours();
+  document.getElementById('greeting-text').textContent =
+    h < 12 ? 'Good Morning ☀️' : h < 17 ? 'Good Afternoon 🌤️' : 'Good Evening 🌙';
 }
-setGreeting();
-
-// ── DATE ──
 function setDate() {
-  const now = new Date();
   document.getElementById('today-date').textContent =
-    '📅 ' + now.toLocaleDateString('en-IN', { weekday:'long', day:'numeric', month:'long' });
+    '📅 ' + new Date().toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long'});
 }
-setDate();
+setGreeting(); setDate();
 
 // ── AUTH ──
-onAuthStateChanged(auth, async (user) => {
+onAuthStateChanged(auth, async user => {
   if (!user) { window.location.href = 'login.html'; return; }
   currentUser = user;
-  await loadUserProfile(user.uid);
-  await loadTodaysTasks(user.uid);
-  await loadAttendanceStatus(user.uid);
-  await loadAnnouncements();
-  startLocationTracking(user.uid);
-  setupNotifications(user.uid);
-  loadNotifBadge();
-  if (userProfile && userProfile.role === 'admin') {
-    document.getElementById('adminNavLink').style.display = 'flex';
+  try {
+    await loadUserProfile(user.uid);
+    await loadTodaysTasks(user.uid);
+    await loadAttendanceStatus(user.uid);
+    await loadAnnouncements();
+    startLocationTracking(user.uid);
+    setupNotifications(user.uid);
+    loadNotifBadge();
+    if (userProfile?.role === 'admin' || ADMIN_EMAILS.includes(user.email)) {
+      document.getElementById('adminNavLink').style.display = 'flex';
+    }
+  } catch(e) {
+    console.error('Dashboard load error:', e);
   }
 });
 
-// ── LOAD USER PROFILE ──
+// ── LOAD USER PROFILE — robust with email fallback ──
 async function loadUserProfile(uid) {
   try {
-    const snap = await getDoc(doc(db, 'users', uid));
+    // Try direct UID lookup first
+    let snap = await getDoc(doc(db, 'users', uid));
     if (snap.exists()) {
-      userProfile = snap.data();
-      document.getElementById('staff-name').textContent = userProfile.name || 'Team Member';
+      userProfile = { id: snap.id, ...snap.data() };
+    } else {
+      // Fallback: search by email
+      const q = query(collection(db,'users'), where('email','==',currentUser.email));
+      const qs = await getDocs(q);
+      if (!qs.empty) userProfile = { id: qs.docs[0].id, ...qs.docs[0].data() };
+    }
+
+    if (userProfile?.name) {
+      document.getElementById('staff-name').textContent = userProfile.name;
       document.getElementById('dept-chip').textContent = '🏢 ' + (userProfile.department || 'Sparkals Tasks');
     } else {
-      document.getElementById('staff-name').textContent = 'Team Member';
+      // Last resort: use email prefix
+      document.getElementById('staff-name').textContent = currentUser.email.split('@')[0];
       document.getElementById('dept-chip').textContent = '🏢 Sparkals Tasks';
     }
   } catch(e) {
-    document.getElementById('staff-name').textContent = 'Team Member';
+    console.error('loadUserProfile error:', e);
+    document.getElementById('staff-name').textContent = currentUser.email?.split('@')[0] || 'Staff';
+    document.getElementById('dept-chip').textContent = '🏢 Sparkals Tasks';
   }
 }
 
-// ── LOAD TODAY'S TASKS ──
+// ── LOAD TASKS ──
 async function loadTodaysTasks(uid) {
   try {
     const snap = await getDocs(query(collection(db,'tasks'), where('assigneeId','==',uid)));
-    const tasks = snap.docs.map(d => ({ id:d.id, ...d.data() }));
-    const DONE = ["Won","Lost","Verified","Closed","Confirmed","Done","Reported","Received","Dispatched"];
-    const pending = tasks.filter(t => !DONE.includes(t.stage)).length;
-    const done = tasks.filter(t => DONE.includes(t.stage)).length;
+    const tasks = snap.docs.map(d => ({id:d.id,...d.data()}));
+    const pending = tasks.filter(t => !COMPLETED_STAGES.includes(t.stage)).length;
+    const done = tasks.filter(t => COMPLETED_STAGES.includes(t.stage)).length;
     document.getElementById('stat-total').textContent = tasks.length;
     document.getElementById('stat-pending').textContent = pending;
     document.getElementById('stat-done').textContent = done;
-    document.getElementById('tasks-chip').textContent = `✅ ${tasks.length} task${tasks.length!==1?'s':''} today`;
+    document.getElementById('tasks-chip').textContent = `✅ ${tasks.length} task${tasks.length!==1?'s':''}`;
 
-    const tasksList = document.getElementById('tasks-list');
-    if (!tasks.length) {
-      tasksList.innerHTML = `<div class="empty-tasks">🎉 No tasks assigned yet!<br/><small>Your manager will assign tasks soon.</small></div>`;
-      return;
-    }
+    const el = document.getElementById('tasks-list');
+    if (!tasks.length) { el.innerHTML=`<div class="empty-tasks">🎉 No tasks assigned yet!<br/><small>Your manager will assign tasks soon.</small></div>`; return; }
     const today = new Date().toISOString().split('T')[0];
-    tasksList.innerHTML = tasks.slice(0,5).map(t => {
+    el.innerHTML = tasks.slice(0,5).map(t => {
       const dl = t.deadline?.toDate ? t.deadline.toDate().toISOString().split('T')[0] : '';
-      let bc = 'badge-upcoming', bt = 'Upcoming';
+      let bc='badge-upcoming', bt='Upcoming';
       if (dl && dl < today) { bc='badge-overdue'; bt='Overdue'; }
       else if (dl === today) { bc='badge-today'; bt='Due Today'; }
       return `<div class="task-item" onclick="window.location.href='tasks.html'">
@@ -310,73 +314,122 @@ async function loadTodaysTasks(uid) {
         <span class="task-badge ${bc}">${bt}</span>
       </div>`;
     }).join('');
-  } catch(e) {
-    document.getElementById('tasks-list').innerHTML = `<div class="empty-tasks">Could not load tasks.</div>`;
-  }
+  } catch(e) { document.getElementById('tasks-list').innerHTML=`<div class="empty-tasks">Could not load tasks.</div>`; }
 }
 
-// ── LOAD ATTENDANCE ──
+// ── LOAD ATTENDANCE — checks both uid and userId fields ──
 async function loadAttendanceStatus(uid) {
   try {
     const today = new Date().toISOString().split('T')[0];
-    const snap = await getDocs(query(collection(db,'attendance'), where('userId','==',uid), where('date','==',today)));
+
+    // Try uid first (new schema), then userId (old schema)
+    let snap = await getDocs(query(collection(db,'attendance'), where('uid','==',uid), where('date','==',today)));
+    if (snap.empty) snap = await getDocs(query(collection(db,'attendance'), where('userId','==',uid), where('date','==',today)));
+
     if (!snap.empty) {
-      const att = snap.docs[0].data();
-      if (att.clockIn && att.clockIn !== 'none') {
-        isClockedIn = !att.clockOut || att.clockOut === 'none';
-        if (isClockedIn) {
-          document.getElementById('clock-status-text').textContent = '✅ Clocked In';
-          document.getElementById('clock-status-sub').textContent = `Since ${att.clockIn}`;
-          const btn = document.getElementById('clock-btn');
-          btn.textContent = 'Clock Out';
-          btn.className = 'clock-btn clock-out';
-          const [h,m] = att.clockIn.split(':');
-          const ci = new Date(); ci.setHours(parseInt(h),parseInt(m),0);
-          const diff = Math.floor((new Date()-ci)/3600000);
-          document.getElementById('stat-hours').textContent = `${diff}h`;
-        } else {
-          document.getElementById('clock-status-text').textContent = '🏁 Day Complete';
-          document.getElementById('clock-status-sub').textContent = `Clocked out at ${att.clockOut}`;
-          document.getElementById('clock-btn').style.display = 'none';
+      const attDoc = snap.docs[0];
+      const att = attDoc.data();
+      attendanceDocId = attDoc.id;
+
+      // Parse clockIn — handles both Timestamp and plain "HH:MM" string
+      let clockInDisplay = '—';
+      if (att.clockIn) {
+        if (typeof att.clockIn.toDate === 'function') {
+          const d = att.clockIn.toDate();
+          clockInDisplay = `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+        } else if (typeof att.clockIn === 'string' && att.clockIn !== 'none') {
+          clockInDisplay = att.clockIn;
+        } else if (att.clockIn?.seconds) {
+          const d = new Date(att.clockIn.seconds * 1000);
+          clockInDisplay = `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
         }
       }
+
+      const hasClockOut = att.clockOut && att.clockOut !== 'none';
+      isClockedIn = att.clockIn && !hasClockOut;
+
+      if (isClockedIn) {
+        document.getElementById('clock-status-text').textContent = '✅ Clocked In';
+        document.getElementById('clock-status-sub').textContent = `Since ${clockInDisplay}`;
+        const btn = document.getElementById('clock-btn');
+        btn.textContent = 'Clock Out';
+        btn.className = 'clock-btn clock-out';
+
+        // Calculate hours worked
+        let hoursWorked = 0;
+        if (att.clockIn) {
+          const ciDate = att.clockIn?.toDate ? att.clockIn.toDate() :
+            (typeof att.clockIn === 'string' && att.clockIn.includes(':') ?
+              (() => { const [h,m]=att.clockIn.split(':').map(Number); const d=new Date(); d.setHours(h,m,0); return d; })() : null);
+          if (ciDate) hoursWorked = Math.floor((new Date()-ciDate)/3600000);
+        }
+        document.getElementById('stat-hours').textContent = `${hoursWorked}h`;
+      } else if (hasClockOut) {
+        document.getElementById('clock-status-text').textContent = '🏁 Day Complete';
+        const coDisplay = typeof att.clockOut === 'string' ? att.clockOut :
+          att.clockOut?.toDate ? `${String(att.clockOut.toDate().getHours()).padStart(2,'0')}:${String(att.clockOut.toDate().getMinutes()).padStart(2,'0')}` : '—';
+        document.getElementById('clock-status-sub').textContent = `Clocked out at ${coDisplay}`;
+        document.getElementById('clock-btn').style.display = 'none';
+        if (att.totalHours) document.getElementById('stat-hours').textContent = `${Math.floor(att.totalHours)}h`;
+      }
     }
-  } catch(e) { console.log('Attendance load error:', e); }
+  } catch(e) { console.error('Attendance load error:', e); }
 }
 
-// ── CLOCK IN / OUT ──
+// ── CLOCK IN / OUT — saves Firestore Timestamp (not plain string) ──
 window.handleClockAction = async function() {
   if (!currentUser) return;
   const btn = document.getElementById('clock-btn');
   btn.disabled = true;
   const now = new Date();
+  const today = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
   const timeStr = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
-  const today = now.toISOString().split('T')[0];
+  const isLate = now.getHours() > 9 || (now.getHours() === 9 && now.getMinutes() > 15);
+  const userName = userProfile?.name || currentUser.email.split('@')[0];
+
   try {
     if (!isClockedIn) {
-      await addDoc(collection(db,'attendance'), {
-        userId: currentUser.uid,
+      // CLOCK IN — save proper Firestore Timestamp
+      const ref = await addDoc(collection(db,'attendance'), {
         uid: currentUser.uid,
-        userName: userProfile?.name || 'Staff',
-        name: userProfile?.name || 'Staff',
+        userId: currentUser.uid,
+        userEmail: currentUser.email,
+        userName, name: userName,
         department: userProfile?.department || '',
         date: today,
-        clockIn: timeStr,
-        clockOut: 'none',
-        isLate: now.getHours() > 9 || (now.getHours() === 9 && now.getMinutes() > 15),
-        gpsLocation: '0,0',
+        clockIn: Timestamp.fromDate(now), // ✅ Proper Timestamp — not plain string
+        status: 'active',
+        isLate,
+        clockInLat: null, clockInLng: null,
         createdAt: serverTimestamp()
       });
+      attendanceDocId = ref.id;
       isClockedIn = true;
       document.getElementById('clock-status-text').textContent = '✅ Clocked In';
       document.getElementById('clock-status-sub').textContent = `Since ${timeStr}`;
-      btn.textContent = 'Clock Out';
-      btn.className = 'clock-btn clock-out';
-      showToast(`✅ Clocked in at ${timeStr}`);
+      btn.textContent = 'Clock Out'; btn.className = 'clock-btn clock-out';
+      showToast(`✅ Clocked in at ${timeStr}${isLate?' — marked late':''}`);
     } else {
-      const snap = await getDocs(query(collection(db,'attendance'), where('userId','==',currentUser.uid), where('date','==',today)));
-      if (!snap.empty) {
-        await updateDoc(doc(db,'attendance',snap.docs[0].id), { clockOut: timeStr });
+      // CLOCK OUT
+      if (!attendanceDocId) {
+        // Find the doc if we don't have the id
+        const snap = await getDocs(query(collection(db,'attendance'), where('uid','==',currentUser.uid), where('date','==',today)));
+        if (!snap.empty) attendanceDocId = snap.docs[0].id;
+      }
+      if (attendanceDocId) {
+        const ciSnap = await getDoc(doc(db,'attendance',attendanceDocId));
+        const ciData = ciSnap.data();
+        let ms = 0;
+        if (ciData?.clockIn) {
+          const ci = ciData.clockIn?.toDate ? ciData.clockIn.toDate() : new Date();
+          ms = now - ci;
+        }
+        const totalHours = Math.max(0, ms/3600000);
+        await updateDoc(doc(db,'attendance',attendanceDocId), {
+          clockOut: Timestamp.fromDate(now),
+          totalHours: parseFloat(totalHours.toFixed(2)),
+          status: 'completed'
+        });
       }
       isClockedIn = false;
       document.getElementById('clock-status-text').textContent = '🏁 Day Complete';
@@ -385,151 +438,101 @@ window.handleClockAction = async function() {
       showToast(`👋 Clocked out at ${timeStr}. Great work today!`);
     }
   } catch(e) {
-    showToast('❌ Could not save attendance. Try again.');
     console.error('Clock error:', e);
+    showToast('❌ Could not save. Try again.');
   }
   btn.disabled = false;
 };
 
-// ── LOAD ANNOUNCEMENTS ──
+// ── ANNOUNCEMENTS ──
 async function loadAnnouncements() {
   try {
-    const snap = await getDocs(query(
-      collection(db,'notifications'),
-      where('type','==','announcement'),
-      orderBy('createdAt','desc'),
-      limit(3)
-    ));
+    const snap = await getDocs(query(collection(db,'notifications'), where('type','==','announcement'), orderBy('createdAt','desc'), limit(3)));
     if (snap.empty) return;
-    const list = document.getElementById('announcements-list');
-    list.innerHTML = '';
+    document.getElementById('announcements-list').innerHTML = '';
     snap.forEach(d => {
-      const data = d.data();
-      const time = data.createdAt?.toDate ? data.createdAt.toDate().toLocaleDateString('en-IN') : 'Recently';
-      list.innerHTML += `<div class="announce-item"><div class="announce-text">${data.message||data.title||'Announcement'}</div><div class="announce-time">${time}</div></div>`;
+      const data=d.data();
+      const time=data.createdAt?.toDate?data.createdAt.toDate().toLocaleDateString('en-IN'):'Recently';
+      document.getElementById('announcements-list').innerHTML += `<div class="announce-item"><div class="announce-text">${data.message||data.title||'Announcement'}</div><div class="announce-time">${time}</div></div>`;
     });
-  } catch(e) { console.log('Announcements load error:', e); }
+  } catch(e) {}
 }
 
 // ── LOCATION TRACKING ──
 function startLocationTracking(uid) {
-  function isWorkHours() {
-    const now = new Date();
-    return now.getDay() >= 1 && now.getDay() <= 6 && now.getHours() >= 9 && now.getHours() < 18;
-  }
+  function isWorkHours() { const n=new Date(); return n.getDay()>=1&&n.getDay()<=6&&n.getHours()>=9&&n.getHours()<18; }
   function saveLocation() {
-    if (!isWorkHours() || !navigator.geolocation) return;
-    navigator.geolocation.getCurrentPosition(async (pos) => {
-      const now = new Date();
-      const today = now.toISOString().split('T')[0];
-      try {
-        await setDoc(doc(db,'locations',`${uid}_${today}`), {
-          uid, lat: pos.coords.latitude, lng: pos.coords.longitude,
-          accuracy: pos.coords.accuracy, date: today, timestamp: serverTimestamp()
-        });
-      } catch(e) {}
-    }, (e) => {}, { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 });
+    if (!isWorkHours()||!navigator.geolocation) return;
+    navigator.geolocation.getCurrentPosition(async pos => {
+      const today=new Date().toISOString().split('T')[0];
+      try { await setDoc(doc(db,'locations',`${uid}_${today}`),{uid,lat:pos.coords.latitude,lng:pos.coords.longitude,accuracy:pos.coords.accuracy,date:today,timestamp:serverTimestamp()}); } catch(e) {}
+    },()=>{},{enableHighAccuracy:true,timeout:10000,maximumAge:60000});
   }
-  saveLocation();
-  setInterval(saveLocation, 5*60*1000);
+  saveLocation(); setInterval(saveLocation,5*60*1000);
 }
 
-// ── NOTIFICATIONS SETUP ──
+// ── NOTIFICATIONS — uses correct SDK version 10.8.0 ──
 async function setupNotifications(uid) {
   try {
-    if (!('Notification' in window)) return;
-    if (!('serviceWorker' in navigator)) return;
-    if (Notification.permission === 'default') {
-      await Notification.requestPermission();
-    }
-    if (Notification.permission !== 'granted') return;
-    const { getMessaging, getToken } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging.js');
+    if (!('Notification' in window)||!('serviceWorker' in navigator)) return;
+    if (Notification.permission==='default') await Notification.requestPermission();
+    if (Notification.permission!=='granted') return;
+    const {getMessaging,getToken} = await import('https://www.gstatic.com/firebasejs/10.8.0/firebase-messaging.js');
     const messaging = getMessaging(app);
-    const token = await getToken(messaging, {
-      vapidKey: "BOXrLFERjiJgpy7hOlHjJOKQaW_TuYJCcVftAmjOHhmkqSgpkQ3HjGizTJT6UNyGxrydI9rVkjSo7zspWocHEPU"
-    });
-    if (token) {
-      await setDoc(doc(db,'fcmTokens',uid), {
-        uid, token, updatedAt: serverTimestamp(),
-        device: navigator.userAgent.includes('Mobile') ? 'mobile' : 'desktop'
-      }, { merge: true });
-    }
+    const token = await getToken(messaging,{vapidKey:"BOXrLFERjiJgpy7hOlHjJOKQaW_TuYJCcVftAmjOHhmkqSgpkQ3HjGizTJT6UNyGxrydI9rVkjSo7zspWocHEPU"});
+    if (token) await setDoc(doc(db,'fcmTokens',uid),{uid,token,updatedAt:serverTimestamp(),device:navigator.userAgent.includes('Mobile')?'mobile':'desktop'},{merge:true});
   } catch(e) { console.log('Notification setup skipped:', e.message); }
 }
 
-// ── LIVE UNREAD NOTIFICATION BADGE ──
+// ── NOTIFICATION BADGE ──
 function loadNotifBadge() {
   try {
-    const nq = query(
-      collection(db, "notifications"),
-      where("uid", "==", currentUser.uid),
-      where("read", "==", false)
-    );
-    onSnapshot(nq, snap => {
-      const badge = document.getElementById("notifBadge");
-      if (!badge) return;
-      const count = snap.size;
-      badge.textContent = count > 99 ? "99+" : count;
-      badge.style.display = count > 0 ? "block" : "none";
+    onSnapshot(query(collection(db,'notifications'),where('uid','==',currentUser.uid),where('read','==',false)), snap => {
+      const badge=document.getElementById('notifBadge');
+      if(!badge) return;
+      const count=snap.size;
+      badge.textContent=count>99?'99+':count;
+      badge.style.display=count>0?'block':'none';
     });
-  } catch(e) { console.error("Badge error:", e); }
+  } catch(e) {}
 }
 
 // ── PROFILE / LOGOUT ──
 window.showProfile = function() {
-  if (confirm('Sign out of Sparkals Tasks?')) {
-    signOut(auth).then(() => window.location.href = 'login.html');
-  }
+  if (confirm('Sign out of Sparkals Tasks?')) signOut(auth).then(()=>window.location.href='login.html');
 };
 
-// ── TOAST ──
-window.showToast = function(message) {
-  const toast = document.getElementById('toast');
-  toast.textContent = message;
-  toast.classList.add('show');
-  setTimeout(() => toast.classList.remove('show'), 3000);
+window.showToast = function(msg) {
+  const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),3000);
 };
 
-// expose requestPushPermission for welcome overlay
 window.requestPushPermission = async function() {
-  if (!currentUser) return;
-  await setupNotifications(currentUser.uid);
+  if (currentUser) await setupNotifications(currentUser.uid);
 };
 </script>
 
 <script>
-// ── SERVICE WORKER + AUTO-UPDATE ──
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('/sw.js')
-    .then(reg => {
-      reg.update();
-      reg.addEventListener('updatefound', () => {
-        const nw = reg.installing;
-        if (!nw) return;
-        nw.addEventListener('statechange', () => {
-          if (nw.state === 'installed' && navigator.serviceWorker.controller) {
-            const banner = document.getElementById('spkUpdateBanner');
-            if (banner) banner.style.display = 'flex';
-          }
-        });
+  navigator.serviceWorker.register('/sw.js').then(reg => {
+    reg.update();
+    reg.addEventListener('updatefound', () => {
+      const nw = reg.installing; if (!nw) return;
+      nw.addEventListener('statechange', () => {
+        if (nw.state==='installed'&&navigator.serviceWorker.controller) {
+          const b=document.getElementById('spkUpdateBanner'); if(b) b.style.display='flex';
+        }
       });
-    })
-    .catch(err => console.log('[SW] Registration failed:', err));
-
-  let refreshing = false;
-  navigator.serviceWorker.addEventListener('controllerchange', () => {
-    if (!refreshing) { refreshing = true; window.location.reload(); }
-  });
+    });
+  }).catch(e=>console.log('[SW] failed:',e));
+  let refreshing=false;
+  navigator.serviceWorker.addEventListener('controllerchange',()=>{if(!refreshing){refreshing=true;window.location.reload();}});
 }
-
-function spkApplyUpdate() {
-  navigator.serviceWorker.ready.then(reg => {
-    if (reg.waiting) reg.waiting.postMessage('SKIP_WAITING');
-  });
-  document.getElementById('spkUpdateBanner').style.display = 'none';
+function spkApplyUpdate(){
+  navigator.serviceWorker.ready.then(reg=>{if(reg.waiting)reg.waiting.postMessage('SKIP_WAITING');});
+  document.getElementById('spkUpdateBanner').style.display='none';
 }
 </script>
-
 <script src="welcome-overlay.js"></script>
 <script src="offline-sync.js"></script>
 </body>
