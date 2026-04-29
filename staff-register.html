@@ -64,6 +64,12 @@
       margin-bottom: 6px;
     }
     .required { color: #ef4444; }
+    .optional-tag {
+      font-size: 10px;
+      font-weight: 400;
+      color: #aaa;
+      margin-left: 4px;
+    }
     input, select {
       width: 100%;
       padding: 13px 14px;
@@ -79,6 +85,25 @@
       border-color: #1a1a2e;
       background: #fff;
     }
+    .field-hint {
+      font-size: 11px;
+      color: #aaa;
+      margin-top: 4px;
+      padding-left: 2px;
+    }
+    .section-divider {
+      border: none;
+      border-top: 1.5px dashed #e8e8e8;
+      margin: 18px 0 16px;
+    }
+    .section-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: #aaa;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 14px;
+    }
     .btn {
       width: 100%;
       padding: 15px;
@@ -90,8 +115,10 @@
       font-weight: 700;
       cursor: pointer;
       margin-top: 8px;
+      transition: opacity 0.2s;
     }
-    .btn:disabled { opacity: 0.5; }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn:active { opacity: 0.85; }
     .error-msg {
       background: #fff0f0;
       border: 1.5px solid #fca5a5;
@@ -106,6 +133,19 @@
     .success-icon { font-size: 64px; margin-bottom: 16px; }
     .success-title { font-size: 22px; font-weight: 700; color: #1a1a2e; margin-bottom: 8px; }
     .success-msg { font-size: 14px; color: #666; line-height: 1.6; }
+    .success-steps {
+      background: #f0fdf4;
+      border: 1.5px solid #bbf7d0;
+      border-radius: 12px;
+      padding: 14px 16px;
+      margin-top: 16px;
+      text-align: left;
+    }
+    .success-steps p {
+      font-size: 13px;
+      color: #166534;
+      line-height: 1.8;
+    }
     .spinner {
       display: inline-block;
       width: 18px; height: 18px;
@@ -128,6 +168,7 @@
 <body>
 <div class="card">
 
+  <!-- REGISTRATION FORM -->
   <div id="form-screen">
     <div class="logo-wrapper">
       <img src="/icons/logo%20copfy.png" alt="Sparkals Tasks"
@@ -136,47 +177,64 @@
     <h1>Join Sparkals Tasks</h1>
     <p class="subtitle">Fill in your details to get started.<br/>Your manager will approve your account.</p>
 
+    <!-- PERSONAL DETAILS -->
+    <div class="section-label">Personal Details</div>
+
     <div class="form-group">
       <label class="form-label">Full Name <span class="required">*</span></label>
-      <input type="text" id="name" placeholder="Your full name" />
+      <input type="text" id="name" placeholder="Your full name" autocomplete="name" />
     </div>
 
     <div class="form-group">
       <label class="form-label">Work Email Address <span class="required">*</span></label>
-      <input type="email" id="email" placeholder="yourname@email.com" />
+      <input type="email" id="email" placeholder="yourname@email.com" autocomplete="email" />
     </div>
 
     <div class="form-group">
       <label class="form-label">Mobile Number <span class="required">*</span></label>
-      <input type="tel" id="phone" placeholder="98765 43210" maxlength="10" />
+      <input type="tel" id="phone" placeholder="98765 43210" maxlength="10" autocomplete="tel" />
     </div>
 
     <div class="form-group">
-      <label class="form-label">Department <span class="required">*</span></label>
-      <select id="department">
-        <option value="">Select your department</option>
-        <option value="Sales & Marketing">Sales & Marketing</option>
-        <option value="Operations">Operations</option>
-        <option value="Accounts & Finance">Accounts & Finance</option>
-        <option value="Logistics & Delivery">Logistics & Delivery</option>
-        <option value="IT & Technology">IT & Technology</option>
-        <option value="Customer Support">Customer Support</option>
-        <option value="Field / Site Work">Field / Site Work</option>
-        <option value="Management">Management</option>
-        <option value="Production & Manufacturing">Production & Manufacturing</option>
-        <option value="Purchase">Purchase</option>
-      </select>
-    </div>
-
-    <div class="form-group">
-      <label class="form-label">Job Title</label>
-      <input type="text" id="jobtitle" placeholder="e.g. Sales Executive" />
+      <label class="form-label">
+        Emergency Contact Number <span class="required">*</span>
+      </label>
+      <input type="tel" id="emergencyPhone" placeholder="Family member mobile number" maxlength="10" />
+      <div class="field-hint">A family member or friend we can contact if needed</div>
     </div>
 
     <div class="form-group">
       <label class="form-label">Aadhaar Number <span class="required">*</span></label>
       <input type="text" id="aadhaar" placeholder="XXXX XXXX XXXX"
         maxlength="14" oninput="formatAadhaar(this)" />
+    </div>
+
+    <hr class="section-divider" />
+
+    <!-- WORK DETAILS -->
+    <div class="section-label">Work Details</div>
+
+    <div class="form-group">
+      <label class="form-label">Department <span class="required">*</span></label>
+      <select id="department">
+        <option value="">Select your department</option>
+        <option value="Sales & Marketing">Sales &amp; Marketing</option>
+        <option value="Operations">Operations</option>
+        <option value="Accounts & Finance">Accounts &amp; Finance</option>
+        <option value="Logistics & Delivery">Logistics &amp; Delivery</option>
+        <option value="IT & Technology">IT &amp; Technology</option>
+        <option value="Customer Support">Customer Support</option>
+        <option value="Field / Site Work">Field / Site Work</option>
+        <option value="Management">Management</option>
+        <option value="Production & Manufacturing">Production &amp; Manufacturing</option>
+        <option value="Purchase">Purchase</option>
+      </select>
+      <div class="field-hint">Your manager can change this after approval if needed</div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Job Title <span class="optional-tag">(optional)</span></label>
+      <input type="text" id="jobtitle" placeholder="e.g. Sales Executive" />
     </div>
 
     <button class="btn" id="submit-btn" onclick="submitRegistration()">
@@ -187,12 +245,23 @@
     <div class="footer-note">🔐 Your details are safe and secure</div>
   </div>
 
+  <!-- SUCCESS SCREEN -->
   <div class="success-screen" id="success-screen">
     <div class="success-icon">🎉</div>
     <div class="success-title">Registration Submitted!</div>
     <p class="success-msg">
-      Your details have been sent to the admin for approval.<br/><br/>
-      You will receive an email with your login link once approved.<br/><br/>
+      Your details have been sent to the admin for approval.
+    </p>
+    <div class="success-steps">
+      <p>
+        ✅ Step 1 — Admin reviews and approves your account<br/>
+        📧 Step 2 — You get an email with your login link<br/>
+        🔑 Step 3 — Set your password from the email<br/>
+        📱 Step 4 — Open the app in Chrome and log in<br/>
+        🏠 Step 5 — Tap "Add to Home Screen" to install
+      </p>
+    </div>
+    <p class="success-msg" style="margin-top:14px;font-size:13px;color:#888;">
       <strong>Welcome to the Sparkals Tasks team!</strong>
     </p>
   </div>
@@ -202,7 +271,7 @@
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
   import {
-    getFirestore, collection, addDoc, serverTimestamp
+    getFirestore, collection, addDoc, query, where, getDocs, serverTimestamp
   } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
   const firebaseConfig = {
@@ -225,31 +294,45 @@
   };
 
   window.submitRegistration = async function() {
-    const name = document.getElementById('name').value.trim();
-    const email = document.getElementById('email').value.trim();
-    const phone = document.getElementById('phone').value.trim();
-    const department = document.getElementById('department').value;
-    const jobtitle = document.getElementById('jobtitle').value.trim();
-    const aadhaar = document.getElementById('aadhaar').value.replace(/\s/g,'').trim();
-    const errorDiv = document.getElementById('error-msg');
-    const btn = document.getElementById('submit-btn');
+    const name           = document.getElementById('name').value.trim();
+    const email          = document.getElementById('email').value.trim().toLowerCase();
+    const phone          = document.getElementById('phone').value.trim();
+    const emergencyPhone = document.getElementById('emergencyPhone').value.trim();
+    const department     = document.getElementById('department').value;
+    const jobtitle       = document.getElementById('jobtitle').value.trim();
+    const aadhaar        = document.getElementById('aadhaar').value.replace(/\s/g,'').trim();
+    const errorDiv       = document.getElementById('error-msg');
+    const btn            = document.getElementById('submit-btn');
 
     errorDiv.style.display = 'none';
 
-    if (!name) { errorDiv.textContent = '⚠️ Please enter your full name'; errorDiv.style.display = 'block'; return; }
-    if (!email || !email.includes('@')) { errorDiv.textContent = '⚠️ Please enter a valid email address'; errorDiv.style.display = 'block'; return; }
-    if (!phone || phone.length < 10) { errorDiv.textContent = '⚠️ Please enter a valid 10-digit mobile number'; errorDiv.style.display = 'block'; return; }
-    if (!department) { errorDiv.textContent = '⚠️ Please select your department'; errorDiv.style.display = 'block'; return; }
-    if (!aadhaar || aadhaar.length !== 12) { errorDiv.textContent = '⚠️ Please enter a valid 12-digit Aadhaar number'; errorDiv.style.display = 'block'; return; }
+    // Validation
+    if (!name)                          { showError('⚠️ Please enter your full name'); return; }
+    if (!email || !email.includes('@')) { showError('⚠️ Please enter a valid email address'); return; }
+    if (!phone || phone.length < 10)    { showError('⚠️ Please enter a valid 10-digit mobile number'); return; }
+    if (!emergencyPhone || emergencyPhone.length < 10) { showError('⚠️ Please enter a valid emergency contact number (10 digits)'); return; }
+    if (phone === emergencyPhone)       { showError('⚠️ Emergency contact must be a different number from your own'); return; }
+    if (!department)                    { showError('⚠️ Please select your department'); return; }
+    if (!aadhaar || aadhaar.length !== 12) { showError('⚠️ Please enter a valid 12-digit Aadhaar number'); return; }
 
     btn.disabled = true;
     btn.innerHTML = '<span class="spinner"></span>Submitting...';
 
     try {
+      // Check if email already submitted
+      const existing = await getDocs(query(collection(db,'pendingStaff'), where('email','==',email)));
+      if (!existing.empty) {
+        showError('⚠️ This email has already been submitted. Please wait for admin approval or contact your manager.');
+        btn.disabled = false;
+        btn.innerHTML = 'Submit Registration →';
+        return;
+      }
+
       await addDoc(collection(db, 'pendingStaff'), {
         name,
         email,
         phone,
+        emergencyPhone,
         department,
         jobtitle: jobtitle || 'Staff',
         aadhaar,
@@ -263,10 +346,16 @@
       document.getElementById('success-screen').style.display = 'block';
 
     } catch(e) {
-      errorDiv.textContent = '⚠️ Could not submit. Please try again.';
-      errorDiv.style.display = 'block';
+      console.error('Registration error:', e);
+      showError('⚠️ Could not submit. Please check your internet and try again.');
       btn.disabled = false;
       btn.innerHTML = 'Submit Registration →';
+    }
+
+    function showError(msg) {
+      errorDiv.textContent = msg;
+      errorDiv.style.display = 'block';
+      errorDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
   };
 </script>
