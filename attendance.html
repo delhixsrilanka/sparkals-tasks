@@ -257,18 +257,24 @@ window.downloadSalaryPDF = () => { if(window._dlPDF) window._dlPDF(); };
 onAuthStateChanged(auth, async user => {
   if (!user) { window.location.href = 'login.html'; return; }
   currentUser = user;
-  await loadUserData();
-  await loadStaff();
-  await loadTodayRecord();
-  await loadWeekData();
-  await loadHistory();
-  setupMonthDropdown();
-  setupSalarySection();
-  startClock();
-  renderButtons();
-  updateStatusBanner();
-  if (isAdmin()) document.getElementById('adminNavLink').style.display = 'flex';
-  document.getElementById('loadingOverlay').style.display = 'none';
+  try {
+    await loadUserData();
+    await loadStaff();
+    await loadTodayRecord();
+    await loadWeekData();
+    await loadHistory();
+    setupMonthDropdown();
+    setupSalarySection();
+    startClock();
+    renderButtons();
+    updateStatusBanner();
+    if (isAdmin()) document.getElementById('adminNavLink').style.display = 'flex';
+  } catch(e) {
+    console.error('Attendance load error:', e);
+  } finally {
+    // Always hide loading — even if errors occur
+    document.getElementById('loadingOverlay').style.display = 'none';
+  }
 });
 
 async function loadUserData() {
@@ -326,7 +332,7 @@ async function loadTodayRecord() {
       }
       renderTimeline();
     }
-  } catch(e) { console.error('loadTodayRecord error:', e); }
+  } catch(e) { console.error('loadTodayRecord error:', e); document.getElementById('loadingOverlay').style.display = 'none'; }
 }
 
 function startClock() {
