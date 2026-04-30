@@ -16,6 +16,7 @@
     .logo-small img { width: 30px; height: 30px; border-radius: 50%; object-fit: cover; }
     .header-icons { display: flex; gap: 12px; }
     .icon-btn { width: 38px; height: 38px; background: rgba(255,255,255,0.1); border-radius: 10px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 18px; text-decoration: none; border: none; color: white; position: relative; }
+    .role-chip { background: rgba(167,139,250,0.2); border: 1px solid rgba(167,139,250,0.4); color: #a78bfa; font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 20px; margin-bottom: 8px; display: inline-block; }
 
     .welcome-section { color: white; }
     .welcome-greeting { font-size: 13px; color: rgba(255,255,255,0.6); margin-bottom: 4px; }
@@ -26,11 +27,22 @@
 
     .main-content { padding: 0 16px; margin-top: -12px; }
 
-    /* ── NOTIFICATION BANNER ── */
+    /* Notification banner */
     .notif-banner { background: #fef3c7; border: 1.5px solid #fcd34d; border-radius: 14px; padding: 14px 16px; margin-bottom: 14px; display: none; align-items: center; gap: 12px; }
     .notif-banner.show { display: flex; }
     .notif-banner-text { flex: 1; font-size: 13px; color: #92400e; line-height: 1.4; }
     .notif-banner-btn { padding: 8px 14px; background: #f59e0b; color: white; border: none; border-radius: 10px; font-size: 12px; font-weight: 700; cursor: pointer; white-space: nowrap; }
+
+    /* Manager team overview panel */
+    .manager-panel { background: linear-gradient(135deg, #1e1b4b, #2d1b69); border: 1px solid rgba(139,92,246,0.3); border-radius: 20px; padding: 18px; margin-bottom: 16px; }
+    .manager-panel-title { font-size: 13px; font-weight: 700; color: #a78bfa; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+    .manager-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 14px; }
+    .mgr-stat { background: rgba(255,255,255,0.07); border-radius: 12px; padding: 12px; text-align: center; }
+    .mgr-stat-num { font-size: 22px; font-weight: 700; font-family: 'Courier New', monospace; color: white; }
+    .mgr-stat-label { font-size: 10px; color: rgba(255,255,255,0.6); margin-top: 3px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .mgr-quick-links { display: flex; gap: 8px; flex-wrap: wrap; }
+    .mgr-link { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15); border-radius: 10px; padding: 8px 14px; font-size: 12px; font-weight: 600; color: white; text-decoration: none; display: flex; align-items: center; gap: 6px; cursor: pointer; }
+    .mgr-link:hover { background: rgba(255,255,255,0.18); }
 
     .clock-card { background: white; border-radius: 20px; padding: 20px; margin-bottom: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); display: flex; align-items: center; justify-content: space-between; }
     .clock-info h3 { font-size: 15px; font-weight: 700; color: #1a1a2e; margin-bottom: 4px; }
@@ -96,10 +108,8 @@
 
     .offline-pill { display: none; position: fixed; top: 12px; left: 50%; transform: translateX(-50%); background: #ef4444; color: white; padding: 6px 16px; border-radius: 20px; font-size: 12px; font-weight: 700; z-index: 9999; }
     .offline-pill.show { display: block; }
-
     .toast { position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%); background: #1a1a2e; color: white; padding: 12px 24px; border-radius: 24px; font-size: 14px; font-weight: 600; z-index: 999; opacity: 0; transition: opacity 0.3s; white-space: nowrap; max-width: 90vw; text-align: center; }
     .toast.show { opacity: 1; }
-
     #spkUpdateBanner { display: none; position: fixed; top: 0; left: 0; right: 0; background: #7c6af7; color: #fff; padding: 12px 20px; font-size: 13px; font-weight: 500; z-index: 99999; align-items: center; justify-content: space-between; gap: 12px; }
   </style>
 </head>
@@ -118,8 +128,7 @@
       <img src="/icons/logo%20copfy.png" alt="Sparkals" onerror="this.style.display='none'" />
     </div>
     <div class="header-icons">
-      <!-- Bell icon — tapping this enables notifications -->
-      <button class="icon-btn" id="notifBtn" onclick="handleNotifBell()" title="Enable notifications">
+      <button class="icon-btn" id="notifBtn" onclick="handleNotifBell()" title="Notifications">
         🔔
         <span id="notifBadge" style="display:none;position:absolute;top:-4px;right:-4px;background:#ef4444;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:10px;min-width:16px;text-align:center;"></span>
       </button>
@@ -127,6 +136,7 @@
     </div>
   </div>
   <div class="welcome-section">
+    <div id="role-chip-wrap"></div>
     <div class="welcome-greeting" id="greeting-text">Good Morning ☀️</div>
     <div class="welcome-name" id="staff-name">Loading...</div>
     <div class="welcome-message" id="welcome-msg">Welcome back! Your team needs you today! 💪</div>
@@ -139,14 +149,27 @@
 </div>
 
 <div class="main-content">
-
-  <!-- Notification permission banner — shows if notifications not yet enabled -->
+  <!-- Notification banner -->
   <div class="notif-banner" id="notifBanner">
     <span style="font-size:20px;">🔔</span>
-    <div class="notif-banner-text">
-      <strong>Enable notifications</strong> to get alerts when tasks are assigned or deadlines are near.
-    </div>
+    <div class="notif-banner-text"><strong>Enable notifications</strong> to get alerts when tasks are assigned or deadlines are near.</div>
     <button class="notif-banner-btn" onclick="handleNotifBell()">Enable</button>
+  </div>
+
+  <!-- Manager Panel — only visible to managers -->
+  <div class="manager-panel" id="managerPanel" style="display:none;">
+    <div class="manager-panel-title">⭐ Manager Overview — Your Team Today</div>
+    <div class="manager-stats">
+      <div class="mgr-stat"><div class="mgr-stat-num" id="mgrPresent">—</div><div class="mgr-stat-label">Present</div></div>
+      <div class="mgr-stat"><div class="mgr-stat-num" id="mgrTasks">—</div><div class="mgr-stat-label">Active Tasks</div></div>
+      <div class="mgr-stat"><div class="mgr-stat-num" id="mgrOverdue">—</div><div class="mgr-stat-label">Overdue</div></div>
+    </div>
+    <div class="mgr-quick-links">
+      <a class="mgr-link" href="tasks.html">📋 All Tasks</a>
+      <a class="mgr-link" href="leave.html">🌴 Leave Requests</a>
+      <a class="mgr-link" href="attendance.html">📅 Attendance</a>
+      <a class="mgr-link" href="reports.html">📊 Reports</a>
+    </div>
   </div>
 
   <div class="clock-card">
@@ -169,7 +192,7 @@
   </div>
 
   <div class="section-title">Quick Actions</div>
-  <div class="quick-actions">
+  <div class="quick-actions" id="quickActions">
     <a class="quick-action" href="tasks.html"><div class="qa-icon">📋</div><div class="qa-label">My Tasks</div></a>
     <a class="quick-action" href="attendance.html"><div class="qa-icon">📅</div><div class="qa-label">Attendance</div></a>
     <a class="quick-action" href="chat.html"><div class="qa-icon">💬</div><div class="qa-label">Team Chat</div></a>
@@ -178,7 +201,7 @@
 
   <div class="tasks-card">
     <div class="tasks-header">
-      <div class="section-title" style="margin:0;">Today's Tasks</div>
+      <div class="section-title" style="margin:0;" id="tasksCardTitle">Today's Tasks</div>
       <a class="view-all-link" href="tasks.html">View all →</a>
     </div>
     <div id="tasks-list"><div class="empty-tasks">⏳ Loading your tasks...</div></div>
@@ -190,11 +213,12 @@
   </div>
 </div>
 
+<!-- Bottom nav — admin link hidden by default, shown for admin/manager -->
 <div class="bottom-nav">
   <a class="nav-item active" href="dashboard.html"><span class="nav-icon">🏠</span><span class="nav-label">Home</span></a>
   <a class="nav-item" href="tasks.html"><span class="nav-icon">✅</span><span class="nav-label">Tasks</span></a>
   <a class="nav-item" href="chat.html"><span class="nav-icon">💬</span><span class="nav-label">Chat</span></a>
-  <a class="nav-item" href="attendance.html"><span class="nav-icon">🕐</span><span class="nav-label">Attendance</span></a>
+  <a class="nav-item" href="attendance.html"><span class="nav-icon">🕐</span><span class="nav-label">Attend.</span></a>
   <a class="nav-item" href="leave.html"><span class="nav-icon">🏖</span><span class="nav-label">Leave</span></a>
   <a class="nav-item" href="admin.html" id="adminNavLink" style="display:none"><span class="nav-icon">⚙️</span><span class="nav-label">Admin</span></a>
 </div>
@@ -218,383 +242,340 @@ const firebaseConfig = {
   messagingSenderId: "147179987231",
   appId: "1:147179987231:web:c6ffa484f33a2ca420d02a"
 };
-
 const VAPID_KEY = "BOXrLFERjiJgpy7hOlHjJOKQaW_TuYJCcVftAmjOHhmkqSgpkQ3HjGizTJT6UNyGxrydI9rVkjSo7zspWocHEPU";
-const app = initializeApp(firebaseConfig);
+const app  = initializeApp(firebaseConfig);
 const auth = getAuth(app);
-const db = getFirestore(app);
+const db   = getFirestore(app);
 
 const ADMIN_EMAILS = ['sandeepgemologist@gmail.com','sparkals.design@gmail.com'];
 const COMPLETED_STAGES = ["Won","Lost","Verified","Closed","Confirmed","Done","Reported","Received","Dispatched"];
 
-let currentUser = null, userProfile = null, isClockedIn = false, attendanceDocId = null;
+let currentUser=null, userProfile=null, isClockedIn=false, attendanceDocId=null;
 
-// ── OFFLINE DETECTION ──
-window.addEventListener('online',  () => document.getElementById('offlinePill').classList.remove('show'));
-window.addEventListener('offline', () => document.getElementById('offlinePill').classList.add('show'));
+window.addEventListener('online',  ()=>document.getElementById('offlinePill').classList.remove('show'));
+window.addEventListener('offline', ()=>document.getElementById('offlinePill').classList.add('show'));
 if (!navigator.onLine) document.getElementById('offlinePill').classList.add('show');
 
-// ── LIVE CLOCK ──
 function updateClock() {
-  const now = new Date();
-  document.getElementById('live-clock').textContent =
-    `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+  const now=new Date();
+  document.getElementById('live-clock').textContent=`${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
 }
-setInterval(updateClock, 1000); updateClock();
+setInterval(updateClock,1000); updateClock();
 
-// ── GREETING + DATE ──
 function setGreeting() {
-  const h = new Date().getHours();
-  document.getElementById('greeting-text').textContent =
-    h < 12 ? 'Good Morning ☀️' : h < 17 ? 'Good Afternoon 🌤️' : 'Good Evening 🌙';
+  const h=new Date().getHours();
+  document.getElementById('greeting-text').textContent=h<12?'Good Morning ☀️':h<17?'Good Afternoon 🌤️':'Good Evening 🌙';
 }
 function setDate() {
-  document.getElementById('today-date').textContent =
-    '📅 ' + new Date().toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long'});
+  document.getElementById('today-date').textContent='📅 '+new Date().toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long'});
 }
 setGreeting(); setDate();
 
-// ── CHECK NOTIFICATION STATUS — show banner if not granted ──
 function checkNotifStatus() {
   if (!('Notification' in window)) return;
-  const banner = document.getElementById('notifBanner');
-  if (Notification.permission !== 'granted') {
-    banner.classList.add('show');
-  } else {
-    banner.classList.remove('show');
-  }
+  if (Notification.permission!=='granted') document.getElementById('notifBanner').classList.add('show');
+  else document.getElementById('notifBanner').classList.remove('show');
 }
 
-// ── BELL ICON + ENABLE BUTTON — both call this ──
 window.handleNotifBell = async function() {
-  // If already granted — go to notifications page
-  if (Notification.permission === 'granted') {
-    window.location.href = 'notifications.html';
-    return;
-  }
-  // If blocked — tell user how to fix it
-  if (Notification.permission === 'denied') {
-    showToast('⚙️ Open Chrome Settings → Site Settings → Notifications → Allow sparkals-tasks.vercel.app');
-    setTimeout(() => showToast('Or tap the 🔒 lock icon in your address bar → Notifications → Allow'), 3500);
-    return;
-  }
-  // Default — request permission
+  if (Notification.permission==='granted') { window.location.href='notifications.html'; return; }
+  if (Notification.permission==='denied') { showToast('⚙️ Go to Chrome Settings → Site Settings → Notifications → Allow'); return; }
   try {
-    const permission = await Notification.requestPermission();
-    if (permission === 'granted') {
+    const permission=await Notification.requestPermission();
+    if (permission==='granted') {
       document.getElementById('notifBanner').classList.remove('show');
       showToast('✅ Notifications enabled!');
       if (currentUser) await setupNotifications(currentUser.uid);
-    } else {
-      showToast('❌ Notifications blocked. Go to Chrome Settings to enable.');
-    }
-  } catch(e) {
-    console.error('Notification permission error:', e);
-  }
+    } else { showToast('❌ Notifications blocked. Check Chrome Settings.'); }
+  } catch(e) { console.error(e); }
 };
 
 // ── AUTH ──
 onAuthStateChanged(auth, async user => {
-  if (!user) { window.location.href = 'login.html'; return; }
-  currentUser = user;
+  if (!user) { window.location.href='login.html'; return; }
+  currentUser=user;
   try {
     await loadUserProfile(user.uid);
     await loadTodaysTasks(user.uid);
     await loadAttendanceStatus(user.uid);
     await loadAnnouncements();
     startLocationTracking(user.uid);
-    checkNotifStatus(); // Show banner if notifications not enabled
-    setupNotifications(user.uid); // Try to set up silently if already granted
+    checkNotifStatus();
+    setupNotifications(user.uid);
     loadNotifBadge();
-    if (userProfile?.role === 'admin' || ADMIN_EMAILS.includes(user.email)) {
-      document.getElementById('adminNavLink').style.display = 'flex';
+
+    const role = userProfile?.role;
+    const isAdmin = role==='admin' || ADMIN_EMAILS.includes(user.email);
+    const isManager = role==='manager';
+
+    // Show admin nav link for both admin and manager
+    if (isAdmin || isManager) {
+      document.getElementById('adminNavLink').style.display='flex';
     }
-  } catch(e) {
-    console.error('Dashboard load error:', e);
-  }
+
+    // Show role chip
+    if (isManager) {
+      document.getElementById('role-chip-wrap').innerHTML='<span class="role-chip">⭐ Manager</span>';
+      document.getElementById('welcome-msg').textContent='You have full team access. Manage tasks and monitor your team today! 💪';
+      // Load manager panel
+      document.getElementById('managerPanel').style.display='block';
+      await loadManagerPanel();
+      // Change tasks section title
+      document.getElementById('tasksCardTitle').textContent='Team Tasks Overview';
+    } else if (isAdmin) {
+      document.getElementById('role-chip-wrap').innerHTML='<span class="role-chip" style="background:rgba(124,58,237,0.2);border-color:rgba(124,58,237,0.4);">👑 Admin</span>';
+    }
+  } catch(e) { console.error('Dashboard load error:',e); }
 });
+
+// ── LOAD MANAGER PANEL ──
+async function loadManagerPanel() {
+  try {
+    const today=new Date().toISOString().split('T')[0];
+    const [attSnap, tasksSnap] = await Promise.all([
+      getDocs(query(collection(db,'attendance'),where('date','==',today))),
+      getDocs(collection(db,'tasks'))
+    ]);
+    const presentCount = attSnap.docs.filter(d=>d.data().clockIn&&d.data().clockIn!=='none').length;
+    const allTasks = tasksSnap.docs.map(d=>({...d.data()}));
+    const activeTasks = allTasks.filter(t=>!COMPLETED_STAGES.includes(t.stage)).length;
+    const now = new Date();
+    const overdue = allTasks.filter(t=>{
+      if (COMPLETED_STAGES.includes(t.stage)||!t.deadline) return false;
+      const dl=t.deadline.toDate?t.deadline.toDate():new Date(t.deadline?.seconds*1000);
+      return dl<now;
+    }).length;
+    document.getElementById('mgrPresent').textContent=presentCount;
+    document.getElementById('mgrTasks').textContent=activeTasks;
+    document.getElementById('mgrOverdue').textContent=overdue;
+  } catch(e) { console.error('Manager panel error:',e); }
+}
 
 // ── LOAD USER PROFILE ──
 async function loadUserProfile(uid) {
   try {
-    let snap = await getDoc(doc(db, 'users', uid));
-    if (snap.exists()) {
-      userProfile = { id: snap.id, ...snap.data() };
-    } else {
-      const q = query(collection(db,'users'), where('email','==',currentUser.email));
-      const qs = await getDocs(q);
-      if (!qs.empty) userProfile = { id: qs.docs[0].id, ...qs.docs[0].data() };
+    let snap=await getDoc(doc(db,'users',uid));
+    if (snap.exists()) { userProfile={id:snap.id,...snap.data()}; }
+    else {
+      const q=query(collection(db,'users'),where('email','==',currentUser.email));
+      const qs=await getDocs(q);
+      if (!qs.empty) userProfile={id:qs.docs[0].id,...qs.docs[0].data()};
     }
     if (userProfile?.name) {
-      document.getElementById('staff-name').textContent = userProfile.name;
-      document.getElementById('dept-chip').textContent = '🏢 ' + (userProfile.department || 'Sparkals Tasks');
+      document.getElementById('staff-name').textContent=userProfile.name;
+      document.getElementById('dept-chip').textContent='🏢 '+(userProfile.department||'Sparkals Tasks');
     } else {
-      document.getElementById('staff-name').textContent = currentUser.email.split('@')[0];
-      document.getElementById('dept-chip').textContent = '🏢 Sparkals Tasks';
+      document.getElementById('staff-name').textContent=currentUser.email.split('@')[0];
+      document.getElementById('dept-chip').textContent='🏢 Sparkals Tasks';
     }
   } catch(e) {
-    console.error('loadUserProfile error:', e);
-    document.getElementById('staff-name').textContent = currentUser.email?.split('@')[0] || 'Staff';
-    document.getElementById('dept-chip').textContent = '🏢 Sparkals Tasks';
+    document.getElementById('staff-name').textContent=currentUser.email?.split('@')[0]||'Staff';
+    document.getElementById('dept-chip').textContent='🏢 Sparkals Tasks';
   }
 }
 
 // ── LOAD TASKS ──
+// Managers see ALL tasks, staff see only their own
 async function loadTodaysTasks(uid) {
   try {
-    const snap = await getDocs(query(collection(db,'tasks'), where('assigneeId','==',uid)));
-    const tasks = snap.docs.map(d => ({id:d.id,...d.data()}));
-    const pending = tasks.filter(t => !COMPLETED_STAGES.includes(t.stage)).length;
-    const done    = tasks.filter(t =>  COMPLETED_STAGES.includes(t.stage)).length;
-    document.getElementById('stat-total').textContent   = tasks.length;
-    document.getElementById('stat-pending').textContent = pending;
-    document.getElementById('stat-done').textContent    = done;
-    document.getElementById('tasks-chip').textContent   = `✅ ${tasks.length} task${tasks.length!==1?'s':''}`;
+    const role=userProfile?.role;
+    const isPrivileged=role==='admin'||role==='manager'||ADMIN_EMAILS.includes(currentUser.email);
+    let snap;
+    if (isPrivileged) {
+      snap=await getDocs(collection(db,'tasks'));
+    } else {
+      snap=await getDocs(query(collection(db,'tasks'),where('assigneeId','==',uid)));
+    }
+    const tasks=snap.docs.map(d=>({id:d.id,...d.data()}));
+    const pending=tasks.filter(t=>!COMPLETED_STAGES.includes(t.stage)).length;
+    const done=tasks.filter(t=>COMPLETED_STAGES.includes(t.stage)).length;
+    document.getElementById('stat-total').textContent=tasks.length;
+    document.getElementById('stat-pending').textContent=pending;
+    document.getElementById('stat-done').textContent=done;
+    document.getElementById('tasks-chip').textContent=`✅ ${tasks.length} task${tasks.length!==1?'s':''}`;
 
-    const el = document.getElementById('tasks-list');
+    const el=document.getElementById('tasks-list');
     if (!tasks.length) {
-      el.innerHTML = `<div class="empty-tasks">🎉 No tasks assigned yet!<br/><small>Your manager will assign tasks soon.</small></div>`;
+      el.innerHTML=`<div class="empty-tasks">🎉 ${isPrivileged?'No tasks in the system yet!':'No tasks assigned yet!'}</div>`;
       return;
     }
-    const today = new Date().toISOString().split('T')[0];
-    el.innerHTML = tasks.slice(0,5).map(t => {
-      const dl = t.deadline?.toDate ? t.deadline.toDate().toISOString().split('T')[0] : '';
-      let bc='badge-upcoming', bt='Upcoming';
-      if (dl && dl < today) { bc='badge-overdue'; bt='Overdue'; }
-      else if (dl === today) { bc='badge-today'; bt='Due Today'; }
+    const today=new Date().toISOString().split('T')[0];
+    // For managers/admin show recent tasks, sorted by creation
+    const displayTasks=isPrivileged
+      ? tasks.sort((a,b)=>{
+          const da=a.createdAt?.seconds||0,db2=b.createdAt?.seconds||0;
+          return db2-da;
+        }).slice(0,6)
+      : tasks.slice(0,5);
+
+    el.innerHTML=displayTasks.map(t=>{
+      const dl=t.deadline?.toDate?t.deadline.toDate().toISOString().split('T')[0]:'';
+      let bc='badge-upcoming',bt='Upcoming';
+      if(dl&&dl<today){bc='badge-overdue';bt='Overdue';}
+      else if(dl===today){bc='badge-today';bt='Due Today';}
       return `<div class="task-item" onclick="window.location.href='tasks.html'">
         <div class="task-priority priority-${t.priority||'normal'}"></div>
         <div class="task-content">
           <div class="task-name">${t.name||'Untitled Task'}</div>
-          <div class="task-meta">${dl?'📅 '+dl:'No deadline'} · ${t.stage||'—'}</div>
+          <div class="task-meta">${dl?'📅 '+dl:'No deadline'} · ${t.stage||'—'}${isPrivileged&&t.department?' · '+t.department:''}</div>
         </div>
         <span class="task-badge ${bc}">${bt}</span>
       </div>`;
     }).join('');
   } catch(e) {
-    document.getElementById('tasks-list').innerHTML = `<div class="empty-tasks">Could not load tasks.</div>`;
+    document.getElementById('tasks-list').innerHTML=`<div class="empty-tasks">Could not load tasks.</div>`;
   }
 }
 
 // ── LOAD ATTENDANCE ──
 async function loadAttendanceStatus(uid) {
   try {
-    const today = new Date().toISOString().split('T')[0];
-    let snap = await getDocs(query(collection(db,'attendance'), where('uid','==',uid), where('date','==',today)));
-    if (snap.empty) snap = await getDocs(query(collection(db,'attendance'), where('userId','==',uid), where('date','==',today)));
-
-    if (!snap.empty) {
-      const attDoc = snap.docs[0];
-      const att = attDoc.data();
-      attendanceDocId = attDoc.id;
-
-      let clockInDisplay = '—';
-      if (att.clockIn) {
-        if (typeof att.clockIn.toDate === 'function') {
-          const d = att.clockIn.toDate();
-          clockInDisplay = `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
-        } else if (typeof att.clockIn === 'string' && att.clockIn !== 'none') {
-          clockInDisplay = att.clockIn;
-        } else if (att.clockIn?.seconds) {
-          const d = new Date(att.clockIn.seconds * 1000);
-          clockInDisplay = `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
-        }
+    const today=new Date().toISOString().split('T')[0];
+    let snap=await getDocs(query(collection(db,'attendance'),where('uid','==',uid),where('date','==',today)));
+    if(snap.empty)snap=await getDocs(query(collection(db,'attendance'),where('userId','==',uid),where('date','==',today)));
+    if(!snap.empty){
+      const attDoc=snap.docs[0],att=attDoc.data();
+      attendanceDocId=attDoc.id;
+      let clockInDisplay='—';
+      if(att.clockIn){
+        if(typeof att.clockIn.toDate==='function'){const d=att.clockIn.toDate();clockInDisplay=`${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;}
+        else if(typeof att.clockIn==='string'&&att.clockIn!=='none'){clockInDisplay=att.clockIn;}
+        else if(att.clockIn?.seconds){const d=new Date(att.clockIn.seconds*1000);clockInDisplay=`${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;}
       }
-
-      const hasClockOut = att.clockOut && att.clockOut !== 'none';
-      isClockedIn = att.clockIn && !hasClockOut;
-
-      if (isClockedIn) {
-        document.getElementById('clock-status-text').textContent = '✅ Clocked In';
-        document.getElementById('clock-status-sub').textContent = `Since ${clockInDisplay}`;
-        const btn = document.getElementById('clock-btn');
-        btn.textContent = 'Clock Out'; btn.className = 'clock-btn clock-out';
-        let hoursWorked = 0;
-        if (att.clockIn) {
-          const ciDate = att.clockIn?.toDate ? att.clockIn.toDate() :
-            (typeof att.clockIn === 'string' && att.clockIn.includes(':') ?
-              (() => { const [h,m]=att.clockIn.split(':').map(Number); const d=new Date(); d.setHours(h,m,0); return d; })() : null);
-          if (ciDate) hoursWorked = Math.floor((new Date()-ciDate)/3600000);
+      const hasClockOut=att.clockOut&&att.clockOut!=='none';
+      isClockedIn=att.clockIn&&!hasClockOut;
+      if(isClockedIn){
+        document.getElementById('clock-status-text').textContent='✅ Clocked In';
+        document.getElementById('clock-status-sub').textContent=`Since ${clockInDisplay}`;
+        const btn=document.getElementById('clock-btn');
+        btn.textContent='Clock Out';btn.className='clock-btn clock-out';
+        let hoursWorked=0;
+        if(att.clockIn){
+          const ciDate=att.clockIn?.toDate?att.clockIn.toDate():(typeof att.clockIn==='string'&&att.clockIn.includes(':')?(()=>{const[h,m]=att.clockIn.split(':').map(Number);const d=new Date();d.setHours(h,m,0);return d;})():null);
+          if(ciDate)hoursWorked=Math.floor((new Date()-ciDate)/3600000);
         }
-        document.getElementById('stat-hours').textContent = `${hoursWorked}h`;
-      } else if (hasClockOut) {
-        document.getElementById('clock-status-text').textContent = '🏁 Day Complete';
-        const coDisplay = typeof att.clockOut === 'string' ? att.clockOut :
-          att.clockOut?.toDate ? `${String(att.clockOut.toDate().getHours()).padStart(2,'0')}:${String(att.clockOut.toDate().getMinutes()).padStart(2,'0')}` : '—';
-        document.getElementById('clock-status-sub').textContent = `Clocked out at ${coDisplay}`;
-        document.getElementById('clock-btn').style.display = 'none';
-        if (att.totalHours) document.getElementById('stat-hours').textContent = `${Math.floor(att.totalHours)}h`;
+        document.getElementById('stat-hours').textContent=`${hoursWorked}h`;
+      } else if(hasClockOut){
+        document.getElementById('clock-status-text').textContent='🏁 Day Complete';
+        const coDisplay=typeof att.clockOut==='string'?att.clockOut:att.clockOut?.toDate?`${String(att.clockOut.toDate().getHours()).padStart(2,'0')}:${String(att.clockOut.toDate().getMinutes()).padStart(2,'0')}`:'—';
+        document.getElementById('clock-status-sub').textContent=`Clocked out at ${coDisplay}`;
+        document.getElementById('clock-btn').style.display='none';
+        if(att.totalHours)document.getElementById('stat-hours').textContent=`${Math.floor(att.totalHours)}h`;
       }
     }
-  } catch(e) { console.error('Attendance load error:', e); }
+  } catch(e){console.error('Attendance load error:',e);}
 }
 
-// ── CLOCK IN / OUT ──
-window.handleClockAction = async function() {
-  if (!currentUser) return;
-  const btn = document.getElementById('clock-btn');
-  btn.disabled = true;
-  const now = new Date();
-  const today = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
-  const timeStr = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
-  const isLate = now.getHours() > 9 || (now.getHours() === 9 && now.getMinutes() > 15);
-  const userName = userProfile?.name || currentUser.email.split('@')[0];
-
-  try {
-    if (!isClockedIn) {
-      const ref = await addDoc(collection(db,'attendance'), {
-        uid: currentUser.uid, userId: currentUser.uid,
-        userEmail: currentUser.email, userName, name: userName,
-        department: userProfile?.department || '',
-        date: today, clockIn: Timestamp.fromDate(now),
-        status: 'active', isLate,
-        clockInLat: null, clockInLng: null,
-        createdAt: serverTimestamp()
+// ── CLOCK IN/OUT ──
+window.handleClockAction=async function(){
+  if(!currentUser)return;
+  const btn=document.getElementById('clock-btn');
+  btn.disabled=true;
+  const now=new Date();
+  const today=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+  const timeStr=`${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+  const isLate=now.getHours()>9||(now.getHours()===9&&now.getMinutes()>15);
+  const userName=userProfile?.name||currentUser.email.split('@')[0];
+  try{
+    if(!isClockedIn){
+      const ref=await addDoc(collection(db,'attendance'),{
+        uid:currentUser.uid,userId:currentUser.uid,userEmail:currentUser.email,userName,name:userName,
+        department:userProfile?.department||'',date:today,clockIn:Timestamp.fromDate(now),
+        status:'active',isLate,clockInLat:null,clockInLng:null,createdAt:serverTimestamp()
       });
-      attendanceDocId = ref.id;
-      isClockedIn = true;
-      document.getElementById('clock-status-text').textContent = '✅ Clocked In';
-      document.getElementById('clock-status-sub').textContent = `Since ${timeStr}`;
-      btn.textContent = 'Clock Out'; btn.className = 'clock-btn clock-out';
+      attendanceDocId=ref.id;isClockedIn=true;
+      document.getElementById('clock-status-text').textContent='✅ Clocked In';
+      document.getElementById('clock-status-sub').textContent=`Since ${timeStr}`;
+      btn.textContent='Clock Out';btn.className='clock-btn clock-out';
       showToast(`✅ Clocked in at ${timeStr}${isLate?' — marked late':''}`);
     } else {
-      if (!attendanceDocId) {
-        const snap = await getDocs(query(collection(db,'attendance'), where('uid','==',currentUser.uid), where('date','==',today)));
-        if (!snap.empty) attendanceDocId = snap.docs[0].id;
+      if(!attendanceDocId){const snap=await getDocs(query(collection(db,'attendance'),where('uid','==',currentUser.uid),where('date','==',today)));if(!snap.empty)attendanceDocId=snap.docs[0].id;}
+      if(attendanceDocId){
+        const ciSnap=await getDoc(doc(db,'attendance',attendanceDocId));const ciData=ciSnap.data();
+        let ms=0;if(ciData?.clockIn){const ci=ciData.clockIn?.toDate?ciData.clockIn.toDate():new Date();ms=now-ci;}
+        const totalHours=Math.max(0,ms/3600000);
+        await updateDoc(doc(db,'attendance',attendanceDocId),{clockOut:Timestamp.fromDate(now),totalHours:parseFloat(totalHours.toFixed(2)),status:'completed'});
       }
-      if (attendanceDocId) {
-        const ciSnap = await getDoc(doc(db,'attendance',attendanceDocId));
-        const ciData = ciSnap.data();
-        let ms = 0;
-        if (ciData?.clockIn) {
-          const ci = ciData.clockIn?.toDate ? ciData.clockIn.toDate() : new Date();
-          ms = now - ci;
-        }
-        const totalHours = Math.max(0, ms/3600000);
-        await updateDoc(doc(db,'attendance',attendanceDocId), {
-          clockOut: Timestamp.fromDate(now),
-          totalHours: parseFloat(totalHours.toFixed(2)),
-          status: 'completed'
-        });
-      }
-      isClockedIn = false;
-      document.getElementById('clock-status-text').textContent = '🏁 Day Complete';
-      document.getElementById('clock-status-sub').textContent = `Clocked out at ${timeStr}`;
-      btn.style.display = 'none';
+      isClockedIn=false;
+      document.getElementById('clock-status-text').textContent='🏁 Day Complete';
+      document.getElementById('clock-status-sub').textContent=`Clocked out at ${timeStr}`;
+      btn.style.display='none';
       showToast(`👋 Clocked out at ${timeStr}. Great work today!`);
     }
-  } catch(e) {
-    console.error('Clock error:', e);
-    showToast('❌ Could not save. Try again.');
-  }
-  btn.disabled = false;
+  }catch(e){console.error(e);showToast('❌ Could not save. Try again.');}
+  btn.disabled=false;
 };
 
 // ── ANNOUNCEMENTS ──
-async function loadAnnouncements() {
-  try {
-    const snap = await getDocs(query(collection(db,'notifications'), where('type','==','announcement'), orderBy('createdAt','desc'), limit(3)));
-    if (snap.empty) return;
-    document.getElementById('announcements-list').innerHTML = '';
-    snap.forEach(d => {
-      const data = d.data();
-      const time = data.createdAt?.toDate ? data.createdAt.toDate().toLocaleDateString('en-IN') : 'Recently';
-      document.getElementById('announcements-list').innerHTML +=
-        `<div class="announce-item"><div class="announce-text">${data.message||data.title||'Announcement'}</div><div class="announce-time">${time}</div></div>`;
+async function loadAnnouncements(){
+  try{
+    const snap=await getDocs(query(collection(db,'notifications'),where('type','==','announcement'),orderBy('createdAt','desc'),limit(3)));
+    if(snap.empty)return;
+    document.getElementById('announcements-list').innerHTML='';
+    snap.forEach(d=>{
+      const data=d.data();const time=data.createdAt?.toDate?data.createdAt.toDate().toLocaleDateString('en-IN'):'Recently';
+      document.getElementById('announcements-list').innerHTML+=`<div class="announce-item"><div class="announce-text">${data.message||data.title||'Announcement'}</div><div class="announce-time">${time}</div></div>`;
     });
-  } catch(e) {}
+  }catch(e){}
 }
 
-// ── LOCATION TRACKING ──
-function startLocationTracking(uid) {
-  function isWorkHours() { const n=new Date(); return n.getDay()>=1&&n.getDay()<=6&&n.getHours()>=9&&n.getHours()<18; }
-  function saveLocation() {
-    if (!isWorkHours()||!navigator.geolocation) return;
-    navigator.geolocation.getCurrentPosition(async pos => {
-      const today = new Date().toISOString().split('T')[0];
-      try {
-        await setDoc(doc(db,'locations',`${uid}_${today}`),{
-          uid, lat:pos.coords.latitude, lng:pos.coords.longitude,
-          accuracy:pos.coords.accuracy, date:today, timestamp:serverTimestamp()
-        });
-      } catch(e) {}
+// ── LOCATION ──
+function startLocationTracking(uid){
+  function isWorkHours(){const n=new Date();return n.getDay()>=1&&n.getDay()<=6&&n.getHours()>=9&&n.getHours()<18;}
+  function saveLocation(){
+    if(!isWorkHours()||!navigator.geolocation)return;
+    navigator.geolocation.getCurrentPosition(async pos=>{
+      const today=new Date().toISOString().split('T')[0];
+      try{await setDoc(doc(db,'locations',`${uid}_${today}`),{uid,lat:pos.coords.latitude,lng:pos.coords.longitude,accuracy:pos.coords.accuracy,date:today,timestamp:serverTimestamp()});}catch(e){}
     },()=>{},{enableHighAccuracy:true,timeout:10000,maximumAge:60000});
   }
-  saveLocation(); setInterval(saveLocation, 5*60*1000);
+  saveLocation();setInterval(saveLocation,5*60*1000);
 }
 
-// ── SETUP NOTIFICATIONS — silent if already granted, waits for user tap if not ──
-async function setupNotifications(uid) {
-  try {
-    if (!('Notification' in window) || !('serviceWorker' in navigator)) return;
-    // Only proceed if already granted — don't auto-prompt on page load
-    if (Notification.permission !== 'granted') return;
-    const { getMessaging, getToken } = await import('https://www.gstatic.com/firebasejs/10.8.0/firebase-messaging.js');
-    const messaging = getMessaging(app);
-    const swReg = await navigator.serviceWorker.ready;
-    const token = await getToken(messaging, { vapidKey: VAPID_KEY, serviceWorkerRegistration: swReg });
-    if (token) {
-      await setDoc(doc(db,'fcmTokens',uid), {
-        uid, token, updatedAt: serverTimestamp(),
-        device: navigator.userAgent.includes('Mobile') ? 'mobile' : 'desktop'
-      }, { merge: true });
-      console.log('✅ FCM token saved');
-    }
-  } catch(e) {
-    console.log('Notification setup skipped:', e.message);
-  }
+// ── NOTIFICATIONS ──
+async function setupNotifications(uid){
+  try{
+    if(!('Notification' in window)||!('serviceWorker' in navigator))return;
+    if(Notification.permission!=='granted')return;
+    const{getMessaging,getToken}=await import('https://www.gstatic.com/firebasejs/10.8.0/firebase-messaging.js');
+    const messaging=getMessaging(app);
+    const swReg=await navigator.serviceWorker.ready;
+    const token=await getToken(messaging,{vapidKey:VAPID_KEY,serviceWorkerRegistration:swReg});
+    if(token)await setDoc(doc(db,'fcmTokens',uid),{uid,token,updatedAt:serverTimestamp(),device:navigator.userAgent.includes('Mobile')?'mobile':'desktop'},{merge:true});
+  }catch(e){console.log('Notification setup skipped:',e.message);}
 }
 
-// ── NOTIFICATION BADGE ──
-function loadNotifBadge() {
-  try {
-    onSnapshot(
-      query(collection(db,'notifications'), where('uid','==',currentUser.uid), where('read','==',false)),
-      snap => {
-        const badge = document.getElementById('notifBadge');
-        if (!badge) return;
-        const count = snap.size;
-        badge.textContent = count > 99 ? '99+' : count;
-        badge.style.display = count > 0 ? 'block' : 'none';
-      }
-    );
-  } catch(e) {}
+function loadNotifBadge(){
+  try{
+    onSnapshot(query(collection(db,'notifications'),where('uid','==',currentUser.uid),where('read','==',false)),snap=>{
+      const badge=document.getElementById('notifBadge');if(!badge)return;
+      const count=snap.size;badge.textContent=count>99?'99+':count;badge.style.display=count>0?'block':'none';
+    });
+  }catch(e){}
 }
 
-// ── PROFILE / LOGOUT ──
-window.showProfile = function() {
-  if (confirm('Sign out of Sparkals Tasks?')) signOut(auth).then(() => window.location.href = 'login.html');
-};
-
-window.showToast = function(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg; t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 3500);
-};
+window.showProfile=function(){if(confirm('Sign out of Sparkals Tasks?'))signOut(auth).then(()=>window.location.href='login.html');};
+window.showToast=function(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3500);};
+function showToast(msg){window.showToast(msg);}
 </script>
 
 <script>
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('/sw.js').then(reg => {
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('/sw.js').then(reg=>{
     reg.update();
-    reg.addEventListener('updatefound', () => {
-      const nw = reg.installing; if (!nw) return;
-      nw.addEventListener('statechange', () => {
-        if (nw.state==='installed' && navigator.serviceWorker.controller) {
-          const b = document.getElementById('spkUpdateBanner'); if(b) b.style.display='flex';
+    reg.addEventListener('updatefound',()=>{
+      const nw=reg.installing;if(!nw)return;
+      nw.addEventListener('statechange',()=>{
+        if(nw.state==='installed'&&navigator.serviceWorker.controller){
+          const b=document.getElementById('spkUpdateBanner');if(b)b.style.display='flex';
         }
       });
     });
-  }).catch(e => console.log('[SW] failed:', e));
-  let refreshing = false;
-  navigator.serviceWorker.addEventListener('controllerchange', () => {
-    if (!refreshing) { refreshing = true; window.location.reload(); }
-  });
+  }).catch(e=>console.log('[SW] failed:',e));
+  let refreshing=false;
+  navigator.serviceWorker.addEventListener('controllerchange',()=>{if(!refreshing){refreshing=true;window.location.reload();}});
 }
-function spkApplyUpdate() {
-  navigator.serviceWorker.ready.then(reg => { if(reg.waiting) reg.waiting.postMessage('SKIP_WAITING'); });
-  document.getElementById('spkUpdateBanner').style.display = 'none';
-}
+function spkApplyUpdate(){navigator.serviceWorker.ready.then(reg=>{if(reg.waiting)reg.waiting.postMessage('SKIP_WAITING');});document.getElementById('spkUpdateBanner').style.display='none';}
 </script>
 <script src="welcome-overlay.js"></script>
 <script src="offline-sync.js"></script>
