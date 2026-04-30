@@ -16,8 +16,7 @@
     }
     #auth-loading .spin {
       width: 44px; height: 44px; border: 3px solid rgba(255,255,255,0.2);
-      border-top-color: white; border-radius: 50%;
-      animation: spin 0.8s linear infinite;
+      border-top-color: white; border-radius: 50%; animation: spin 0.8s linear infinite;
     }
     #auth-loading p { color: rgba(255,255,255,0.7); font-size: 14px; }
     @keyframes spin { to { transform: rotate(360deg); } }
@@ -43,16 +42,18 @@
     .tab-content.active { display: block; }
 
     .staff-card { background: white; border-radius: 20px; padding: 18px; margin-bottom: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); }
-    .pending-card { border-left: 4px solid #f59e0b; }
+    .pending-card  { border-left: 4px solid #f59e0b; }
     .approved-card { border-left: 4px solid #22c55e; }
     .rejected-card { border-left: 4px solid #ef4444; }
+    .inactive-card { border-left: 4px solid #9ca3af; opacity: 0.75; }
 
     .card-top { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
     .avatar { width: 52px; height: 52px; border-radius: 14px; background: #1a1a2e; color: white; display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 700; flex-shrink: 0; }
-    .avatar.green { background: #22c55e; }
-    .avatar.red { background: #ef4444; }
+    .avatar.green  { background: #22c55e; }
+    .avatar.red    { background: #ef4444; }
+    .avatar.gray   { background: #9ca3af; }
     .staff-name { font-size: 16px; font-weight: 700; color: #1a1a2e; margin-bottom: 3px; }
-    .staff-sub { font-size: 13px; color: #888; }
+    .staff-sub  { font-size: 13px; color: #888; }
 
     .key-info { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
     .info-box { background: #f8f8f8; border-radius: 12px; padding: 10px 12px; }
@@ -74,8 +75,19 @@
     .edit-btn { width: 100%; padding: 10px; background: #f0f2ff; color: #1a1a2e; border: 2px solid #c7c7ff; border-radius: 12px; font-size: 14px; font-weight: 700; cursor: pointer; }
     .approve-reject-row { display: flex; gap: 8px; }
     .btn-approve { flex: 1; padding: 12px; background: #22c55e; color: white; border: none; border-radius: 12px; font-size: 14px; font-weight: 700; cursor: pointer; }
-    .btn-reject { flex: 1; padding: 12px; background: #ef4444; color: white; border: none; border-radius: 12px; font-size: 14px; font-weight: 700; cursor: pointer; }
+    .btn-reject  { flex: 1; padding: 12px; background: #ef4444; color: white; border: none; border-radius: 12px; font-size: 14px; font-weight: 700; cursor: pointer; }
     .btn-approve:disabled, .btn-reject:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* ── DEACTIVATE / DELETE BUTTONS ── */
+    .manage-row { display: flex; gap: 8px; margin-top: 12px; }
+    .btn-deactivate { flex: 1; padding: 10px; background: #fff7ed; color: #c2410c; border: 2px solid #fed7aa; border-radius: 12px; font-size: 13px; font-weight: 700; cursor: pointer; }
+    .btn-deactivate:hover { background: #ffedd5; }
+    .btn-reactivate { flex: 1; padding: 10px; background: #f0fdf4; color: #15803d; border: 2px solid #86efac; border-radius: 12px; font-size: 13px; font-weight: 700; cursor: pointer; }
+    .btn-delete { flex: 1; padding: 10px; background: #fff0f0; color: #dc2626; border: 2px solid #fca5a5; border-radius: 12px; font-size: 13px; font-weight: 700; cursor: pointer; }
+    .btn-delete:hover { background: #fee2e2; }
+    .btn-deactivate:disabled, .btn-delete:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .inactive-banner { background: #f3f4f6; border: 1.5px solid #d1d5db; border-radius: 10px; padding: 10px 14px; margin-bottom: 12px; font-size: 13px; color: #6b7280; text-align: center; }
 
     .wa-box { display: none; background: #f0fdf4; border: 1.5px solid #86efac; border-radius: 14px; padding: 14px; margin-top: 10px; }
     .wa-box.show { display: block; }
@@ -84,8 +96,9 @@
     .btn-copy-wa { width: 100%; margin-top: 10px; padding: 10px; background: #25D366; color: white; border: none; border-radius: 10px; font-size: 13px; font-weight: 700; cursor: pointer; }
 
     .status-badge { padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; }
-    .badge-approved { background: #dcfce7; color: #15803d; }
-    .badge-rejected { background: #fee2e2; color: #dc2626; }
+    .badge-approved  { background: #dcfce7; color: #15803d; }
+    .badge-rejected  { background: #fee2e2; color: #dc2626; }
+    .badge-inactive  { background: #f3f4f6; color: #6b7280; }
 
     .empty-state { text-align: center; padding: 40px 20px; color: #888; font-size: 14px; background: white; border-radius: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); }
     .empty-icon { font-size: 48px; margin-bottom: 12px; }
@@ -140,10 +153,9 @@ import { initializeApp }   from "https://www.gstatic.com/firebasejs/10.8.0/fireb
 import { getAuth, onAuthStateChanged }
                            from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 import { getFirestore, collection, getDocs, doc,
-         updateDoc, setDoc, serverTimestamp }
+         updateDoc, deleteDoc, setDoc, serverTimestamp }
                            from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-// ── ONE Firebase app only — no secondary app, no session conflicts ──
 const app  = initializeApp({
   apiKey:            "AIzaSyDNwQYXcwZrAh4cTfRyhOVk_pRod9p4CRM",
   authDomain:        "sparkals-tasks-app.firebaseapp.com",
@@ -155,59 +167,39 @@ const app  = initializeApp({
 const auth = getAuth(app);
 const db   = getFirestore(app);
 
-// Firebase REST API — creates staff accounts WITHOUT touching admin session
-const FB_KEY      = "AIzaSyDNwQYXcwZrAh4cTfRyhOVk_pRod9p4CRM";
-const SIGNUP_URL  = `https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${FB_KEY}`;
-
-const ADMIN_EMAILS = ['sandeepgemologist@gmail.com', 'sparkals.design@gmail.com'];
+const FB_KEY     = "AIzaSyDNwQYXcwZrAh4cTfRyhOVk_pRod9p4CRM";
+const SIGNUP_URL = `https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${FB_KEY}`;
+const ADMIN_EMAILS = ['sandeepgemologist@gmail.com','sparkals.design@gmail.com'];
 const DEPTS = ['Sales & Marketing','Operations','Accounts & Finance','Logistics & Delivery',
   'IT & Technology','Customer Support','Field / Site Work','Management',
   'Production & Manufacturing','Purchase'];
 
 let pendingStaffList = [];
 
-// ── WAIT for Firebase to confirm who is logged in before doing anything ──
 onAuthStateChanged(auth, async (user) => {
   const loadingEl = document.getElementById('auth-loading');
   const mainEl    = document.getElementById('main-page');
-
-  if (!user) {
-    // Not logged in at all
-    window.location.replace('login.html');
-    return;
-  }
-
-  if (!ADMIN_EMAILS.includes(user.email.toLowerCase())) {
-    // Logged in but not admin
-    window.location.replace('dashboard.html');
-    return;
-  }
-
-  // ✅ Confirmed admin — show page
+  if (!user) { window.location.replace('login.html'); return; }
+  if (!ADMIN_EMAILS.includes(user.email.toLowerCase())) { window.location.replace('dashboard.html'); return; }
   loadingEl.style.display = 'none';
   mainEl.style.display    = 'block';
   document.getElementById('header-sub').textContent = 'Admin: ' + user.email;
   await loadAllStaff();
 });
 
-// ── CREATE STAFF ACCOUNT via REST (never logs admin out) ──
 async function createStaffAccount(email, password) {
   try {
     const res  = await fetch(SIGNUP_URL, {
-      method:  'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body:    JSON.stringify({ email, password, returnSecureToken: true })
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password, returnSecureToken: true })
     });
     const data = await res.json();
     if (data.error) {
-      if (data.error.message === 'EMAIL_EXISTS') return null; // Already exists — that's fine
+      if (data.error.message === 'EMAIL_EXISTS') return null;
       throw new Error(data.error.message);
     }
-    return data.localId; // New staff UID
-  } catch(e) {
-    console.error('createStaffAccount error:', e);
-    return null;
-  }
+    return data.localId;
+  } catch(e) { console.error('createStaffAccount:', e); return null; }
 }
 
 async function loadAllStaff() {
@@ -217,7 +209,7 @@ async function loadAllStaff() {
     snapshot.forEach(d => {
       const data = { id: d.id, ...d.data() };
       if      (data.status === 'pending')  pending.push(data);
-      else if (data.status === 'approved') approved.push(data);
+      else if (data.status === 'approved' || data.status === 'inactive') approved.push(data);
       else if (data.status === 'rejected') rejected.push(data);
     });
     pendingStaffList = pending;
@@ -231,6 +223,7 @@ async function loadAllStaff() {
   }
 }
 
+// ── RENDER PENDING ──
 function renderPending(list) {
   const c = document.getElementById('pending-list');
   if (!list.length) { c.innerHTML = `<div class="empty-state"><div class="empty-icon">🎉</div>No pending registrations!</div>`; return; }
@@ -238,10 +231,8 @@ function renderPending(list) {
     <div class="staff-card pending-card" id="card-${s.id}">
       <div class="card-top">
         <div class="avatar">${(s.name||'S').charAt(0).toUpperCase()}</div>
-        <div>
-          <div class="staff-name">${s.name||'Unknown'}</div>
-          <div class="staff-sub">Applied ${s.submittedAt?.toDate ? s.submittedAt.toDate().toLocaleDateString('en-IN') : 'recently'}</div>
-        </div>
+        <div><div class="staff-name">${s.name||'Unknown'}</div>
+        <div class="staff-sub">Applied ${s.submittedAt?.toDate ? s.submittedAt.toDate().toLocaleDateString('en-IN') : 'recently'}</div></div>
       </div>
       <div class="key-info">
         <div class="info-box full"><div class="info-label">👤 Full Name</div><div class="info-value" id="display-name-${s.id}">${s.name||'—'}</div></div>
@@ -278,15 +269,21 @@ function renderPending(list) {
     </div>`).join('');
 }
 
+// ── RENDER APPROVED — with Deactivate and Delete buttons ──
 function renderApproved(list) {
   const c = document.getElementById('approved-list');
   if (!list.length) { c.innerHTML = `<div class="empty-state"><div class="empty-icon">👥</div>No approved staff yet.</div>`; return; }
-  c.innerHTML = list.map(s => `
-    <div class="staff-card approved-card">
+  c.innerHTML = list.map(s => {
+    const isInactive = s.status === 'inactive';
+    return `
+    <div class="staff-card ${isInactive ? 'inactive-card' : 'approved-card'}" id="approved-card-${s.id}">
       <div class="card-top">
-        <div class="avatar green">${(s.name||'S').charAt(0).toUpperCase()}</div>
-        <div style="flex:1;"><div class="staff-name">${s.name||'Unknown'}</div><div class="staff-sub">${s.department||''} · ${s.phone||''}</div></div>
-        <span class="status-badge badge-approved">✅ Approved</span>
+        <div class="avatar ${isInactive ? 'gray' : 'green'}">${(s.name||'S').charAt(0).toUpperCase()}</div>
+        <div style="flex:1;">
+          <div class="staff-name">${s.name||'Unknown'}</div>
+          <div class="staff-sub">${s.department||''} · ${s.phone||''}</div>
+        </div>
+        <span class="status-badge ${isInactive ? 'badge-inactive' : 'badge-approved'}">${isInactive ? '⏸ Inactive' : '✅ Active'}</span>
       </div>
       <div class="key-info">
         <div class="info-box"><div class="info-label">📧 Email</div><div class="info-value">${s.email||'—'}</div></div>
@@ -294,7 +291,16 @@ function renderApproved(list) {
         <div class="info-box"><div class="info-label">📱 Mobile</div><div class="info-value">${s.phone||'—'}</div></div>
         <div class="info-box"><div class="info-label">🆘 Emergency</div><div class="info-value">${s.emergencyPhone||'—'}</div></div>
       </div>
-    </div>`).join('');
+      ${isInactive ? `<div class="inactive-banner">⏸ This staff member is deactivated — they cannot log in</div>` : ''}
+      <div class="manage-row">
+        ${isInactive
+          ? `<button class="btn-reactivate" onclick="reactivateStaff('${s.id}','${(s.name||'').replace(/'/g,"\\'")}','${s.uid||''}')">✅ Reactivate</button>`
+          : `<button class="btn-deactivate" onclick="deactivateStaff('${s.id}','${(s.name||'').replace(/'/g,"\\'")}','${s.uid||''}')">⏸ Deactivate</button>`
+        }
+        <button class="btn-delete" onclick="deleteStaff('${s.id}','${(s.name||'').replace(/'/g,"\\'")}','${s.uid||''}')">🗑️ Delete</button>
+      </div>
+    </div>`;
+  }).join('');
 }
 
 function renderRejected(list) {
@@ -310,6 +316,81 @@ function renderRejected(list) {
     </div>`).join('');
 }
 
+// ── DEACTIVATE — blocks login, keeps all records ──
+window.deactivateStaff = async function(pendingId, name, uid) {
+  if (!confirm(`⏸ Deactivate ${name}?\n\nThey will NOT be able to log in.\nAll their attendance, tasks and records are kept.\n\nYou can reactivate them any time.`)) return;
+  try {
+    // Update pendingStaff record
+    await updateDoc(doc(db, 'pendingStaff', pendingId), {
+      status: 'inactive', deactivatedAt: serverTimestamp()
+    });
+    // Update users collection so login is blocked
+    if (uid) {
+      await updateDoc(doc(db, 'users', uid), {
+        status: 'inactive', deactivatedAt: serverTimestamp()
+      });
+    }
+    showToast(`⏸ ${name} deactivated — they can no longer log in`);
+    await loadAllStaff();
+    // Stay on Approved tab
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+    document.querySelector('.tabs .tab:nth-child(2)').classList.add('active');
+    document.getElementById('tab-approved').classList.add('active');
+  } catch(e) {
+    console.error('deactivateStaff:', e);
+    showToast('❌ Could not deactivate. Try again.');
+  }
+};
+
+// ── REACTIVATE — restores login access ──
+window.reactivateStaff = async function(pendingId, name, uid) {
+  if (!confirm(`✅ Reactivate ${name}?\n\nThey will be able to log in again.`)) return;
+  try {
+    await updateDoc(doc(db, 'pendingStaff', pendingId), {
+      status: 'approved', reactivatedAt: serverTimestamp()
+    });
+    if (uid) {
+      await updateDoc(doc(db, 'users', uid), {
+        status: 'approved', reactivatedAt: serverTimestamp()
+      });
+    }
+    showToast(`✅ ${name} reactivated — they can log in again`);
+    await loadAllStaff();
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+    document.querySelector('.tabs .tab:nth-child(2)').classList.add('active');
+    document.getElementById('tab-approved').classList.add('active');
+  } catch(e) {
+    console.error('reactivateStaff:', e);
+    showToast('❌ Could not reactivate. Try again.');
+  }
+};
+
+// ── DELETE — permanently removes from Firestore ──
+// Note: Firebase Auth account deletion requires Admin SDK (Cloud Function)
+// For now we delete Firestore records and block login via status
+window.deleteStaff = async function(pendingId, name, uid) {
+  if (!confirm(`🗑️ PERMANENTLY DELETE ${name}?\n\nThis will:\n• Remove them from the staff list\n• Delete their user profile\n• Block their login forever\n• Their past attendance records are kept for audit\n\nThis CANNOT be undone. Are you sure?`)) return;
+  // Second confirmation for safety
+  if (!confirm(`Last warning — permanently delete ${name}? Tap OK to confirm.`)) return;
+  try {
+    // Delete from pendingStaff
+    await deleteDoc(doc(db, 'pendingStaff', pendingId));
+    // Delete from users collection
+    if (uid) {
+      await deleteDoc(doc(db, 'users', uid));
+    }
+    showToast(`🗑️ ${name} deleted permanently`);
+    // Remove card from UI immediately
+    const card = document.getElementById(`approved-card-${pendingId}`);
+    if (card) { card.style.opacity = '0'; card.style.transition = 'opacity 0.3s'; setTimeout(() => card.remove(), 300); }
+  } catch(e) {
+    console.error('deleteStaff:', e);
+    showToast('❌ Could not delete. Try again.');
+  }
+};
+
 function buildWAMessage(name, email, phone) {
   return `Hi ${name}! 👋\n\nYour Sparkals Tasks account has been approved! ✅\n\nHere's how to log in:\n\n🌐 Open in Chrome on your phone:\n👉 https://sparkals-tasks.vercel.app/login.html\n\n📧 Email: ${email}\n🔑 Password: ${phone}\n\nAfter logging in:\n1️⃣ Tap "Add to Home Screen" to install the app\n2️⃣ Change your password in Profile settings\n\nWelcome to the team! 🎉\n— Sparkals Tasks`;
 }
@@ -322,29 +403,20 @@ async function doApprove(s) {
   const phone  = document.getElementById(`display-phone-${id}`)?.textContent  || s.phone      || '';
   const job    = document.getElementById(`display-job-${id}`)?.textContent    || s.jobtitle   || 'Staff';
   const salary = parseFloat(document.getElementById(`edit-salary-${id}`)?.value) || s.salary || 0;
-
   if (!email || email === '—') throw new Error('No email found');
-
   const newUid = await createStaffAccount(email, phone || 'Sparkals@1234');
-
-  await updateDoc(doc(db, 'pendingStaff', id), {
-    status: 'approved', approvedAt: serverTimestamp(),
-    ...(newUid ? { uid: newUid } : {})
-  });
-
+  await updateDoc(doc(db,'pendingStaff',id), { status:'approved', approvedAt:serverTimestamp(), ...(newUid?{uid:newUid}:{}) });
   if (newUid) {
-    await setDoc(doc(db, 'users', newUid), {
-      name, email, department: dept, phone, jobtitle: job, salary,
-      role: 'staff', status: 'approved', uid: newUid, userId: newUid,
-      joinDate: new Date().toISOString().split('T')[0],
-      companyName: 'Sparkals Tasks', mustChangePassword: true,
-      createdAt: serverTimestamp()
+    await setDoc(doc(db,'users',newUid), {
+      name, email, department:dept, phone, jobtitle:job, salary,
+      role:'staff', status:'approved', uid:newUid, userId:newUid,
+      joinDate:new Date().toISOString().split('T')[0],
+      companyName:'Sparkals Tasks', mustChangePassword:true, createdAt:serverTimestamp()
     });
   }
-
   const waMsgEl = document.getElementById(`wa-msg-${id}`);
   const waBox   = document.getElementById(`wa-box-${id}`);
-  if (waMsgEl && waBox) { waMsgEl.textContent = buildWAMessage(name, email, phone); waBox.classList.add('show'); }
+  if (waMsgEl && waBox) { waMsgEl.textContent = buildWAMessage(name,email,phone); waBox.classList.add('show'); }
   return name;
 }
 
@@ -357,8 +429,7 @@ window.approveStaff = async function(id) {
     showToast(`✅ ${name} approved!`);
     ab.textContent = '✅ Approved'; ab.style.background = '#86efac'; ab.style.color = '#166534';
     rb.style.display = 'none';
-    const eb = document.querySelector(`#card-${id} .edit-btn`);
-    if (eb) eb.style.display = 'none';
+    const eb = document.querySelector(`#card-${id} .edit-btn`); if (eb) eb.style.display = 'none';
     pendingStaffList = pendingStaffList.filter(x => x.id !== id);
     updateBulkBar();
   } catch(e) {
@@ -373,7 +444,7 @@ window.rejectStaff = async function(id) {
   const rb = document.getElementById(`reject-btn-${id}`);
   rb.disabled = true; rb.innerHTML = '<span class="spinner"></span>';
   try {
-    await updateDoc(doc(db, 'pendingStaff', id), { status: 'rejected', rejectedAt: serverTimestamp() });
+    await updateDoc(doc(db,'pendingStaff',id), { status:'rejected', rejectedAt:serverTimestamp() });
     showToast(`❌ ${name} rejected.`);
     const card = document.getElementById(`card-${id}`);
     card.style.opacity = '0'; card.style.transition = 'opacity 0.3s';
@@ -404,12 +475,12 @@ function updateBulkBar() {
   const b = document.getElementById('bulk-bar');
   if (pendingStaffList.length > 0) {
     b.classList.add('show');
-    document.getElementById('bulk-bar-text').textContent = `⏳ ${pendingStaffList.length} pending registration${pendingStaffList.length > 1 ? 's' : ''} waiting`;
+    document.getElementById('bulk-bar-text').textContent = `⏳ ${pendingStaffList.length} pending registration${pendingStaffList.length>1?'s':''} waiting`;
   } else { b.classList.remove('show'); }
   document.getElementById('pending-count').textContent = pendingStaffList.length > 0 ? `(${pendingStaffList.length})` : '';
 }
 
-window.toggleEdit    = id => document.getElementById(`edit-section-${id}`).classList.toggle('open');
+window.toggleEdit = id => document.getElementById(`edit-section-${id}`).classList.toggle('open');
 
 window.saveEdits = async function(id) {
   const name = document.getElementById(`edit-name-${id}`).value.trim();
