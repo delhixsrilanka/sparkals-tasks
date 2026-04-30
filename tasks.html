@@ -658,10 +658,15 @@ window.filterDept=function(dept,el){
 
 async function loadTasks(){
   let q = currentRole==="admin" || currentRole==="manager"
-    ? query(collection(db,"tasks"),orderBy("createdAt","desc"))
-    : query(collection(db,"tasks"),where("assigneeId","==",currentUser.uid),orderBy("createdAt","desc"));
+    ? query(collection(db,"tasks"))
+    : query(collection(db,"tasks"),where("assigneeId","==",currentUser.uid));
   const snap=await getDocs(q);
-  allTasks=snap.docs.map(d=>({id:d.id,...d.data()}));
+  allTasks=snap.docs.map(d=>({id:d.id,...d.data()}))
+    .sort((a,b)=>{
+      const ta=a.createdAt?.seconds||0;
+      const tb=b.createdAt?.seconds||0;
+      return tb-ta;
+    });
   updateStats();applyFilters();
 }
 
