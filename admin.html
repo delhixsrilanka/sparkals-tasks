@@ -8,17 +8,18 @@
 <link rel="manifest" href="/manifest.json"/>
 <link rel="icon" href="/icons/logo%20copfy.png"/>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 :root{
   --bg:#0f0f1a;--surface:#1a1a2e;--surface2:#22223a;--surface3:#2a2a45;
   --border:#2d2d44;--accent:#7c3aed;--accent2:#a78bfa;
   --green:#10b981;--red:#ef4444;--amber:#f59e0b;--blue:#3b82f6;
+  --teal:#22d3ee;--purple:#8b5cf6;
   --text:#f1f5f9;--text2:#94a3b8;--text3:#64748b;
   --radius:14px;--radius-sm:8px;
 }
 body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;padding-bottom:80px;}
-
 .topnav{background:var(--surface);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;}
 .topnav-left{display:flex;align-items:center;gap:12px;}
 .topnav img{width:36px;height:36px;border-radius:8px;}
@@ -72,14 +73,19 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 .staff-name{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .staff-dept{font-size:12px;color:var(--text2);margin-top:2px;}
 .staff-time{font-family:'Space Mono',monospace;font-size:11px;color:var(--text2);margin-top:3px;}
-.staff-actions{display:flex;gap:8px;flex-shrink:0;align-items:center;}
+.staff-actions{display:flex;gap:8px;flex-shrink:0;align-items:center;flex-wrap:wrap;}
 .btn-manual{background:#10b98115;border:1px solid var(--green);color:var(--green);padding:6px 12px;border-radius:var(--radius-sm);cursor:pointer;font-size:12px;font-weight:600;font-family:'DM Sans',sans-serif;white-space:nowrap;}
 
-/* ── MANAGE ROW — deactivate / delete ── */
-.staff-manage-row{display:flex;gap:8px;margin-top:10px;padding-top:10px;border-top:1px solid var(--border);}
-.btn-sm-deactivate{flex:1;padding:7px 10px;background:#f59e0b15;border:1px solid #f59e0b40;color:var(--amber);border-radius:var(--radius-sm);cursor:pointer;font-size:12px;font-weight:600;font-family:'DM Sans',sans-serif;white-space:nowrap;}
-.btn-sm-reactivate{flex:1;padding:7px 10px;background:#10b98115;border:1px solid var(--green);color:var(--green);border-radius:var(--radius-sm);cursor:pointer;font-size:12px;font-weight:600;font-family:'DM Sans',sans-serif;white-space:nowrap;}
-.btn-sm-delete{flex:1;padding:7px 10px;background:#ef444415;border:1px solid #ef444440;color:var(--red);border-radius:var(--radius-sm);cursor:pointer;font-size:12px;font-weight:600;font-family:'DM Sans',sans-serif;white-space:nowrap;}
+/* ── MANAGER BADGE ── */
+.manager-badge{background:rgba(139,92,246,0.15);border:1px solid rgba(139,92,246,0.4);color:#a78bfa;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;white-space:nowrap;}
+
+/* ── MANAGE ROW ── */
+.staff-manage-row{display:flex;gap:6px;margin-top:10px;padding-top:10px;border-top:1px solid var(--border);flex-wrap:wrap;}
+.btn-sm-promote{flex:1;min-width:100px;padding:7px 10px;background:rgba(139,92,246,0.12);border:1px solid rgba(139,92,246,0.4);color:#a78bfa;border-radius:var(--radius-sm);cursor:pointer;font-size:12px;font-weight:600;font-family:'DM Sans',sans-serif;white-space:nowrap;}
+.btn-sm-demote{flex:1;min-width:100px;padding:7px 10px;background:rgba(100,116,139,0.12);border:1px solid rgba(100,116,139,0.4);color:var(--text3);border-radius:var(--radius-sm);cursor:pointer;font-size:12px;font-weight:600;font-family:'DM Sans',sans-serif;white-space:nowrap;}
+.btn-sm-deactivate{flex:1;min-width:100px;padding:7px 10px;background:#f59e0b15;border:1px solid #f59e0b40;color:var(--amber);border-radius:var(--radius-sm);cursor:pointer;font-size:12px;font-weight:600;font-family:'DM Sans',sans-serif;white-space:nowrap;}
+.btn-sm-reactivate{flex:1;min-width:100px;padding:7px 10px;background:#10b98115;border:1px solid var(--green);color:var(--green);border-radius:var(--radius-sm);cursor:pointer;font-size:12px;font-weight:600;font-family:'DM Sans',sans-serif;white-space:nowrap;}
+.btn-sm-delete{flex:1;min-width:100px;padding:7px 10px;background:#ef444415;border:1px solid #ef444440;color:var(--red);border-radius:var(--radius-sm);cursor:pointer;font-size:12px;font-weight:600;font-family:'DM Sans',sans-serif;white-space:nowrap;}
 
 .status-badge{font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;}
 .badge-present{background:#10b98120;color:var(--green);}
@@ -101,6 +107,48 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 .spinner{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--accent2);border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 12px;}
 @keyframes spin{to{transform:rotate(360deg);}}
 .last-updated{text-align:center;font-size:11px;color:var(--text2);margin-top:16px;padding-bottom:16px;}
+
+/* ── INSIGHTS TAB ── */
+#view-insights{display:none;}
+.insights-header{background:linear-gradient(135deg,#1a1a2e,#2d1b69);border:1px solid #4c1d95;border-radius:var(--radius);padding:20px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;}
+.insights-title{font-size:18px;font-weight:700;color:var(--accent2);}
+.insights-sub{font-size:12px;color:var(--text2);margin-top:3px;}
+.btn-refresh-insights{background:var(--accent);color:white;border:none;padding:10px 18px;border-radius:var(--radius-sm);font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;}
+.insights-kpi-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:20px;}
+@media(min-width:600px){.insights-kpi-grid{grid-template-columns:repeat(4,1fr);}}
+.kpi-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;position:relative;overflow:hidden;}
+.kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:var(--radius) var(--radius) 0 0;}
+.kpi-card.c-green::before{background:var(--green);}.kpi-card.c-blue::before{background:var(--blue);}.kpi-card.c-amber::before{background:var(--amber);}.kpi-card.c-teal::before{background:var(--teal);}
+.kpi-label{font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;}
+.kpi-value{font-family:'Space Mono',monospace;font-size:28px;font-weight:700;line-height:1;}
+.kpi-value.green{color:var(--green);}.kpi-value.blue{color:var(--blue);}.kpi-value.amber{color:var(--amber);}.kpi-value.teal{color:var(--teal);}
+.kpi-trend{font-size:11px;margin-top:6px;}
+.trend-up{color:var(--green);}.trend-down{color:var(--red);}.trend-flat{color:var(--text3);}
+.chart-grid{display:grid;grid-template-columns:1fr;gap:16px;margin-bottom:20px;}
+@media(min-width:700px){.chart-grid{grid-template-columns:1fr 1fr;}}
+.chart-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;}
+.chart-card.full{grid-column:1/-1;}
+.chart-card-title{font-size:14px;font-weight:700;margin-bottom:4px;}
+.chart-card-sub{font-size:11px;color:var(--text2);margin-bottom:16px;}
+.chart-wrap{position:relative;height:220px;}
+.chart-wrap.tall{height:260px;}
+.observations-card{background:linear-gradient(135deg,#1a1a2e,#1e1b4b);border:1px solid #3730a3;border-radius:var(--radius);padding:20px;margin-bottom:20px;}
+.observations-title{font-size:14px;font-weight:700;color:var(--accent2);margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+.observation-item{background:rgba(255,255,255,0.04);border:1px solid rgba(167,139,250,0.2);border-radius:10px;padding:12px 14px;margin-bottom:10px;font-size:13px;color:var(--text);line-height:1.6;display:flex;gap:10px;align-items:flex-start;}
+.observation-item:last-child{margin-bottom:0;}
+.obs-icon{font-size:18px;flex-shrink:0;margin-top:1px;}
+.obs-loading{color:var(--text2);font-size:13px;text-align:center;padding:20px;}
+.dept-table-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:20px;}
+.dept-table-head{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.dept-table-head h3{font-size:14px;font-weight:700;}
+.dept-table{width:100%;border-collapse:collapse;font-size:13px;}
+.dept-table thead{background:var(--surface2);}
+.dept-table th{padding:10px 14px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--text2);white-space:nowrap;}
+.dept-table td{padding:10px 14px;border-bottom:1px solid var(--border);vertical-align:middle;}
+.dept-table tr:last-child td{border-bottom:none;}
+.dept-table tr:hover td{background:var(--surface2);}
+.mini-progress{height:6px;background:var(--surface3);border-radius:3px;overflow:hidden;width:80px;}
+.mini-progress-fill{height:100%;border-radius:3px;}
 
 .modal-overlay{position:fixed;inset:0;background:#000000bb;display:flex;align-items:center;justify-content:center;z-index:200;padding:20px;}
 .modal-overlay.hidden{display:none;}
@@ -139,33 +187,32 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 </div>
 
 <div class="nav-tabs">
-  <button class="nav-tab active" onclick="showTab(this)">👥 Staff Status</button>
+  <button class="nav-tab active" onclick="switchMainTab('staff',this)">👥 Staff Status</button>
   <button class="nav-tab" onclick="window.location.href='map.html'">🗺️ Live Map</button>
   <button class="nav-tab" onclick="window.location.href='tasks.html'">✅ Tasks</button>
   <button class="nav-tab" onclick="window.location.href='attendance.html'">📅 Attendance</button>
   <button class="nav-tab" onclick="window.location.href='leave.html'">🌴 Leaves</button>
   <button class="nav-tab" onclick="window.location.href='staff-approval.html'">🆕 New Staff</button>
   <button class="nav-tab" onclick="window.location.href='reports.html'">📊 Reports</button>
+  <button class="nav-tab" onclick="switchMainTab('insights',this)">✨ Insights</button>
 </div>
 
-<div class="main">
+<!-- ── STAFF STATUS VIEW ── -->
+<div class="main" id="view-staff">
   <div class="stat-grid">
     <div class="stat-card"><div class="stat-icon green">✅</div><div><div class="stat-num green" id="countPresent">—</div><div class="stat-label">Present</div></div></div>
     <div class="stat-card"><div class="stat-icon red">🔴</div><div><div class="stat-num red" id="countAbsent">—</div><div class="stat-label">Not In Yet</div></div></div>
     <div class="stat-card"><div class="stat-icon amber">⏰</div><div><div class="stat-num amber" id="countLate">—</div><div class="stat-label">Late Today</div></div></div>
     <div class="stat-card"><div class="stat-icon blue">🌴</div><div><div class="stat-num blue" id="countLeave">—</div><div class="stat-label">On Leave</div></div></div>
   </div>
-
   <div class="alert-panel" id="latePanel" style="display:none">
     <div class="alert-panel-title">⚠️ Late Arrivals Today</div>
     <div id="lateList"></div>
   </div>
-
   <div class="section-header">
     <div><div class="section-title">Staff Status — Today</div><div class="section-sub" id="dateLabel">Loading...</div></div>
     <button class="refresh-btn" onclick="loadDashboard()">↻ Refresh</button>
   </div>
-
   <div class="filter-bar">
     <button class="filter-chip fc-all active" onclick="setFilter('all',this)">All</button>
     <button class="filter-chip fc-present"    onclick="setFilter('present',this)">✅ Present</button>
@@ -173,20 +220,59 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
     <button class="filter-chip fc-late"       onclick="setFilter('late',this)">⏰ Late</button>
     <button class="filter-chip fc-leave"      onclick="setFilter('leave',this)">🌴 Leave</button>
   </div>
-
   <div class="staff-list" id="staffList">
     <div class="loading-state"><div class="spinner"></div>Loading staff status...</div>
   </div>
   <div class="last-updated" id="lastUpdated"></div>
 </div>
 
+<!-- ── INSIGHTS VIEW ── -->
+<div class="main" id="view-insights">
+  <div class="insights-header">
+    <div>
+      <div class="insights-title">✨ Insights with AI</div>
+      <div class="insights-sub" id="insightsPeriodLabel">Analysing last 6 months of your team data</div>
+    </div>
+    <button class="btn-refresh-insights" onclick="loadInsights()">🔄 Refresh</button>
+  </div>
+  <div class="insights-kpi-grid">
+    <div class="kpi-card c-green"><div class="kpi-label">Tasks Completed</div><div class="kpi-value green" id="kpiTasksDone">—</div><div class="kpi-trend" id="kpiTasksTrend">Loading...</div></div>
+    <div class="kpi-card c-blue"><div class="kpi-label">Completion Rate</div><div class="kpi-value blue" id="kpiCompRate">—</div><div class="kpi-trend" id="kpiCompTrend">Loading...</div></div>
+    <div class="kpi-card c-amber"><div class="kpi-label">Avg Attendance</div><div class="kpi-value amber" id="kpiAttRate">—</div><div class="kpi-trend" id="kpiAttTrend">Loading...</div></div>
+    <div class="kpi-card c-teal"><div class="kpi-label">Late Arrivals</div><div class="kpi-value teal" id="kpiLate">—</div><div class="kpi-trend" id="kpiLateTrend">Loading...</div></div>
+  </div>
+  <div class="chart-grid">
+    <div class="chart-card"><div class="chart-card-title">🥧 Task Status Breakdown</div><div class="chart-card-sub">Completed vs in-progress vs overdue</div><div class="chart-wrap"><canvas id="pieChart"></canvas></div></div>
+    <div class="chart-card"><div class="chart-card-title">📊 Department Performance</div><div class="chart-card-sub">Completion rate % by department</div><div class="chart-wrap"><canvas id="barChart"></canvas></div></div>
+  </div>
+  <div class="chart-card full" style="margin-bottom:20px;">
+    <div class="chart-card-title">📈 6-Month Efficiency Trend</div>
+    <div class="chart-card-sub">Task completion rate & attendance month by month</div>
+    <div class="chart-wrap tall"><canvas id="trendChart"></canvas></div>
+  </div>
+  <div class="observations-card">
+    <div class="observations-title">🤖 AI Observations</div>
+    <div id="observationsList"><div class="obs-loading">⏳ Analysing your team data...</div></div>
+  </div>
+  <div class="dept-table-card">
+    <div class="dept-table-head"><h3>🏢 Department Breakdown — This Month</h3><span style="font-size:11px;color:var(--text2)" id="deptTableMeta"></span></div>
+    <div style="overflow-x:auto;">
+      <table class="dept-table">
+        <thead><tr><th>Department</th><th>Staff</th><th>Tasks Done</th><th>Total</th><th>Completion</th><th>Late</th><th>Trend</th></tr></thead>
+        <tbody id="deptTableBody"><tr><td colspan="7" style="text-align:center;padding:20px;color:var(--text2)">Loading...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Modal -->
 <div class="modal-overlay hidden" id="manualModal">
   <div class="modal">
     <div class="modal-title">Manual Clock-In</div>
     <div class="modal-sub" id="modalStaffName">Recording for: —</div>
     <input type="time" class="modal-input" id="manualTime"/>
     <input type="text" class="modal-input" id="manualReason" placeholder="Reason (e.g. App issue, Network problem)"/>
-    <div class="modal-note">⚠️ This will be logged in the audit trail with your name as the admin who recorded it.</div>
+    <div class="modal-note">⚠️ This will be logged in the audit trail.</div>
     <div class="modal-actions">
       <button class="btn-cancel" onclick="closeModal()">Cancel</button>
       <button class="btn-confirm" onclick="confirmManualClockIn()">✅ Clock In</button>
@@ -211,7 +297,7 @@ import { getFirestore, collection, doc, getDoc, getDocs,
          setDoc, updateDoc, deleteDoc, query, where, serverTimestamp }
   from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-const app  = initializeApp({
+const app = initializeApp({
   apiKey:"AIzaSyDNwQYXcwZrAh4cTfRyhOVk_pRod9p4CRM",
   authDomain:"sparkals-tasks-app.firebaseapp.com",
   projectId:"sparkals-tasks-app",
@@ -223,130 +309,132 @@ const auth = getAuth(app);
 const db   = getFirestore(app);
 
 const ADMIN_EMAILS = ['sandeepgemologist@gmail.com','sparkals.design@gmail.com'];
-let allStaffData = [], currentFilter = "all";
-let manualTargetUid = null, manualTargetName = null, manualTargetPendingId = null;
-let autoRefreshTimer = null;
+const COMPLETED_STAGES = ["Won","Lost","Verified","Closed","Confirmed","Done","Reported","Received","Dispatched"];
+
+let allStaffData=[], currentFilter="all";
+let manualTargetUid=null, manualTargetName=null;
+let autoRefreshTimer=null;
+let pieChartInst=null, barChartInst=null, trendChartInst=null;
+let insightsLoaded=false;
+
+Chart.defaults.color='#94a3b8';
+Chart.defaults.borderColor='#2d2d44';
+Chart.defaults.font.family="'DM Sans', sans-serif";
 
 function tsToHHMM(ts) {
   if (!ts) return null;
   try {
-    let d = null;
-    if (typeof ts.toDate === 'function') d = ts.toDate();
-    else if (ts instanceof Date)         d = ts;
-    else if (typeof ts === 'number')     d = new Date(ts);
-    else if (ts.seconds !== undefined)   d = new Date(ts.seconds * 1000);
-    else if (typeof ts === 'string') {
-      if (/^\d{1,2}:\d{2}/.test(ts)) return ts.slice(0,5);
-      d = new Date(ts);
-    }
-    if (!d || isNaN(d)) return null;
+    let d=null;
+    if (typeof ts.toDate==='function') d=ts.toDate();
+    else if (ts instanceof Date) d=ts;
+    else if (typeof ts==='number') d=new Date(ts);
+    else if (ts.seconds!==undefined) d=new Date(ts.seconds*1000);
+    else if (typeof ts==='string') { if (/^\d{1,2}:\d{2}/.test(ts)) return ts.slice(0,5); d=new Date(ts); }
+    if (!d||isNaN(d)) return null;
     return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
   } catch(e) { return null; }
 }
-
 function getTodayKey() {
-  const d = new Date();
+  const d=new Date();
   return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 }
-
 function minutesLate(hhmm) {
   if (!hhmm) return 0;
-  const [h,m] = hhmm.split(':').map(Number);
+  const [h,m]=hhmm.split(':').map(Number);
   return Math.max(0,(h*60+m)-(9*60+15));
 }
+function fmtMonth(d) { return d.toLocaleDateString('en-IN',{month:'short',year:'numeric'}); }
 
+// ── AUTH ──
 onAuthStateChanged(auth, async user => {
-  if (!user) { window.location.href = 'login.html'; return; }
-  const isAdminEmail = ADMIN_EMAILS.includes(user.email.toLowerCase());
+  if (!user) { window.location.href='login.html'; return; }
+  const isAdminEmail=ADMIN_EMAILS.includes(user.email.toLowerCase());
   if (!isAdminEmail) {
     try {
-      const snap = await getDoc(doc(db,'users',user.uid));
-      if (!snap.exists() || snap.data().role !== 'admin') { window.location.href = 'dashboard.html'; return; }
-    } catch(e) { window.location.href = 'dashboard.html'; return; }
+      const snap=await getDoc(doc(db,'users',user.uid));
+      if (!snap.exists()||snap.data().role!=='admin') { window.location.href='dashboard.html'; return; }
+    } catch(e) { window.location.href='dashboard.html'; return; }
   }
   loadDashboard();
-  autoRefreshTimer = setInterval(loadDashboard, 60000);
+  autoRefreshTimer=setInterval(loadDashboard,60000);
 });
 
+// ── TAB SWITCHER ──
+window.switchMainTab = function(tab, el) {
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('view-staff').style.display    = tab==='staff'    ? 'block' : 'none';
+  document.getElementById('view-insights').style.display = tab==='insights' ? 'block' : 'none';
+  if (tab==='insights' && !insightsLoaded) { loadInsights(); insightsLoaded=true; }
+};
+
+// ════════════════════════════════════════
+// STAFF DASHBOARD
+// ════════════════════════════════════════
 window.loadDashboard = async function() {
-  const today = getTodayKey();
-  const now   = new Date();
-  document.getElementById('dateLabel').textContent =
-    now.toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  const today=getTodayKey(), now=new Date();
+  document.getElementById('dateLabel').textContent=now.toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
   try {
-    const usersSnap = await getDocs(collection(db,'users'));
-    const staffList = [];
-    usersSnap.forEach(d => {
-      const data = d.data();
-      if (data.status === 'approved' || data.status === 'inactive' || data.role === 'admin')
-        staffList.push({ uid: d.id, ...data });
+    const usersSnap=await getDocs(collection(db,'users'));
+    const staffList=[];
+    usersSnap.forEach(d=>{
+      const data=d.data();
+      if (data.status==='approved'||data.status==='inactive'||data.role==='admin'||data.role==='manager')
+        staffList.push({uid:d.id,...data});
     });
+    const attSnap=await getDocs(query(collection(db,'attendance'),where('date','==',today)));
+    const attMap={};
+    attSnap.forEach(d=>{const data=d.data();const uid=data.uid||data.userId;if(uid)attMap[uid]=data;});
+    const leaveSnap=await getDocs(query(collection(db,'leaves'),where('status','==','approved')));
+    const leaveMap={};
+    leaveSnap.forEach(d=>{const data=d.data();if(data.fromDate<=today&&data.toDate>=today)leaveMap[data.uid]=data;});
+    const pendingSnap=await getDocs(collection(db,'pendingStaff'));
+    const pendingByUid={};
+    pendingSnap.forEach(d=>{const data=d.data();if(data.uid)pendingByUid[data.uid]=d.id;});
 
-    const attSnap = await getDocs(query(collection(db,'attendance'),where('date','==',today)));
-    const attMap  = {};
-    attSnap.forEach(d => { const data=d.data(); const uid=data.uid||data.userId; if(uid) attMap[uid]=data; });
-
-    const leaveSnap = await getDocs(query(collection(db,'leaves'),where('status','==','approved')));
-    const leaveMap  = {};
-    leaveSnap.forEach(d => { const data=d.data(); if(data.fromDate<=today&&data.toDate>=today) leaveMap[data.uid]=data; });
-
-    // Also get pendingStaff ids so we can find the pendingId for manage actions
-    const pendingSnap = await getDocs(collection(db,'pendingStaff'));
-    const pendingByUid = {};
-    pendingSnap.forEach(d => { const data=d.data(); if(data.uid) pendingByUid[data.uid]=d.id; });
-
-    allStaffData = staffList.map(staff => {
-      const att=attMap[staff.uid], onLeave=!!leaveMap[staff.uid];
-      let status, clockInHHMM=null, clockOutHHMM=null, isLate=false;
-      if (staff.status === 'inactive') {
-        status = 'inactive';
-      } else if (onLeave) {
-        status = 'leave';
-      } else if (att) {
-        clockInHHMM  = tsToHHMM(att.clockIn);
-        clockOutHHMM = att.clockOut ? tsToHHMM(att.clockOut) : null;
-        if (clockInHHMM) { const [h,m]=clockInHHMM.split(':').map(Number); isLate=(h>9)||(h===9&&m>=15); }
-        if (att.lunchOut&&!att.lunchIn) status='lunch';
-        else if (clockOutHHMM)          status='left';
-        else                            status=isLate?'late':'present';
-      } else {
-        status='absent';
-      }
-      return { ...staff, status, clockInHHMM, clockOutHHMM, isLate,
-               leaveData:leaveMap[staff.uid]||null,
-               pendingId:pendingByUid[staff.uid]||null };
+    allStaffData=staffList.map(staff=>{
+      const att=attMap[staff.uid],onLeave=!!leaveMap[staff.uid];
+      let status,clockInHHMM=null,clockOutHHMM=null,isLate=false;
+      if (staff.status==='inactive'){status='inactive';}
+      else if (onLeave){status='leave';}
+      else if (att){
+        clockInHHMM=tsToHHMM(att.clockIn);
+        clockOutHHMM=att.clockOut?tsToHHMM(att.clockOut):null;
+        if (clockInHHMM){const[h,m]=clockInHHMM.split(':').map(Number);isLate=(h>9)||(h===9&&m>=15);}
+        if (att.lunchOut&&!att.lunchIn)status='lunch';
+        else if (clockOutHHMM)status='left';
+        else status=isLate?'late':'present';
+      } else {status='absent';}
+      return {...staff,status,clockInHHMM,clockOutHHMM,isLate,
+               leaveData:leaveMap[staff.uid]||null,pendingId:pendingByUid[staff.uid]||null};
     });
-
-    allStaffData.sort((a,b) => {
-      if (a.clockInHHMM&&b.clockInHHMM) return a.clockInHHMM.localeCompare(b.clockInHHMM);
-      if (a.clockInHHMM) return -1; if (b.clockInHHMM) return 1; return 0;
+    allStaffData.sort((a,b)=>{
+      if(a.clockInHHMM&&b.clockInHHMM)return a.clockInHHMM.localeCompare(b.clockInHHMM);
+      if(a.clockInHHMM)return -1;if(b.clockInHHMM)return 1;return 0;
     });
-
     let present=0,absent=0,late=0,leave=0;
-    allStaffData.forEach(s => {
-      if (['present','lunch','left','late'].includes(s.status)) present++;
-      if (s.status==='absent') absent++;
-      if (s.isLate) late++;
-      if (s.status==='leave') leave++;
+    allStaffData.forEach(s=>{
+      if(['present','lunch','left','late'].includes(s.status))present++;
+      if(s.status==='absent')absent++;
+      if(s.isLate)late++;
+      if(s.status==='leave')leave++;
     });
     document.getElementById('countPresent').textContent=present;
     document.getElementById('countAbsent').textContent=absent;
     document.getElementById('countLate').textContent=late;
     document.getElementById('countLeave').textContent=leave;
-
     const lateStaff=allStaffData.filter(s=>s.isLate);
     const latePanel=document.getElementById('latePanel');
-    if (lateStaff.length>0) {
+    if(lateStaff.length>0){
       latePanel.style.display='block';
       document.getElementById('lateList').innerHTML=lateStaff.map(s=>
         `<div class="alert-item"><span>${s.name||s.email}</span>
          <span style="color:var(--amber)">${s.clockInHHMM} (${minutesLate(s.clockInHHMM)} min late)</span></div>`
       ).join('');
-    } else { latePanel.style.display='none'; }
-
+    } else {latePanel.style.display='none';}
     renderList();
     document.getElementById('lastUpdated').textContent='Last updated: '+now.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
-  } catch(err) {
+  } catch(err){
     console.error(err);
     document.getElementById('staffList').innerHTML=`<div class="empty-state"><div class="emoji">⚠️</div><p>Could not load staff data.</p></div>`;
   }
@@ -355,14 +443,11 @@ window.loadDashboard = async function() {
 function renderList() {
   const list=document.getElementById('staffList');
   let filtered=[...allStaffData];
-  if      (currentFilter==='present') filtered=filtered.filter(s=>['present','lunch','left','late'].includes(s.status));
-  else if (currentFilter==='absent')  filtered=filtered.filter(s=>s.status==='absent');
-  else if (currentFilter==='late')    filtered=filtered.filter(s=>s.isLate);
-  else if (currentFilter==='leave')   filtered=filtered.filter(s=>s.status==='leave');
-  if (!filtered.length) {
-    list.innerHTML=`<div class="empty-state"><div class="emoji">🎉</div><p>No staff in this category today.</p></div>`;
-    return;
-  }
+  if(currentFilter==='present')filtered=filtered.filter(s=>['present','lunch','left','late'].includes(s.status));
+  else if(currentFilter==='absent')filtered=filtered.filter(s=>s.status==='absent');
+  else if(currentFilter==='late')filtered=filtered.filter(s=>s.isLate);
+  else if(currentFilter==='leave')filtered=filtered.filter(s=>s.status==='leave');
+  if(!filtered.length){list.innerHTML=`<div class="empty-state"><div class="emoji">🎉</div><p>No staff in this category today.</p></div>`;return;}
   list.innerHTML=filtered.map(s=>buildStaffCard(s)).join('');
 }
 
@@ -370,39 +455,43 @@ function buildStaffCard(s) {
   const initials=(s.name||s.email||'?').split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
   const palette=['#7c3aed','#0891b2','#059669','#d97706','#dc2626','#0284c7'];
   const color=palette[(s.name||'').charCodeAt(0)%palette.length]||'#7c3aed';
-  const isInactive = s.status === 'inactive';
+  const isInactive=s.status==='inactive';
+  const isManager=s.role==='manager';
 
   let badgeClass='',badgeText='',dotColor='';
-  if      (s.status==='present')  {badgeClass='badge-present';badgeText='Present'; dotColor='#10b981';}
-  else if (s.status==='late')     {badgeClass='badge-late';   badgeText='Late';    dotColor='#f59e0b';}
-  else if (s.status==='lunch')    {badgeClass='badge-lunch';  badgeText='Lunch';   dotColor='#f59e0b';}
-  else if (s.status==='left')     {badgeClass='badge-present';badgeText='Left';    dotColor='#64748b';}
-  else if (s.status==='absent')   {badgeClass='badge-absent'; badgeText='Not In';  dotColor='#ef4444';}
-  else if (s.status==='leave')    {badgeClass='badge-leave';  badgeText='On Leave';dotColor='#3b82f6';}
-  else if (s.status==='inactive') {badgeClass='badge-inactive';badgeText='Inactive';dotColor='#64748b';}
+  if(s.status==='present'){badgeClass='badge-present';badgeText='Present';dotColor='#10b981';}
+  else if(s.status==='late'){badgeClass='badge-late';badgeText='Late';dotColor='#f59e0b';}
+  else if(s.status==='lunch'){badgeClass='badge-lunch';badgeText='Lunch';dotColor='#f59e0b';}
+  else if(s.status==='left'){badgeClass='badge-present';badgeText='Left';dotColor='#64748b';}
+  else if(s.status==='absent'){badgeClass='badge-absent';badgeText='Not In';dotColor='#ef4444';}
+  else if(s.status==='leave'){badgeClass='badge-leave';badgeText='On Leave';dotColor='#3b82f6';}
+  else if(s.status==='inactive'){badgeClass='badge-inactive';badgeText='Inactive';dotColor='#64748b';}
 
   let timeInfo='Not clocked in yet';
-  if (s.clockInHHMM) {
+  if(s.clockInHHMM){
     timeInfo=`Clocked in: ${s.clockInHHMM}`;
-    if (s.clockOutHHMM) timeInfo+=` · Left: ${s.clockOutHHMM}`;
-    if (s.isLate) timeInfo+=` · <span style="color:var(--amber)">${minutesLate(s.clockInHHMM)} min late</span>`;
-  } else if (s.status==='leave') {
+    if(s.clockOutHHMM)timeInfo+=` · Left: ${s.clockOutHHMM}`;
+    if(s.isLate)timeInfo+=` · <span style="color:var(--amber)">${minutesLate(s.clockInHHMM)} min late</span>`;
+  } else if(s.status==='leave'){
     timeInfo=s.leaveData?`${s.leaveData.leaveType||'Leave'} · ${s.leaveData.payType==='lop'?'LOP':'Paid'}`:'Approved leave';
-  } else if (isInactive) {
-    timeInfo='Account deactivated';
-  }
+  } else if(isInactive){timeInfo='Account deactivated';}
 
   const safeName=(s.name||s.email||'').replace(/'/g,"\\'");
   const pendingId=s.pendingId||'';
+  const isAdmin=s.role==='admin';
 
-  // Manage row — deactivate or reactivate + delete
-  const manageRow = `
+  // ── MANAGE ROW with promote/demote ──
+  const manageRow=`
     <div class="staff-manage-row">
+      ${!isAdmin && !isInactive ? (
+        isManager
+          ? `<button class="btn-sm-demote" onclick="changeRole('${s.uid}','${safeName}','staff')">👤 Demote to Staff</button>`
+          : `<button class="btn-sm-promote" onclick="changeRole('${s.uid}','${safeName}','manager')">⭐ Make Manager</button>`
+      ) : ''}
       ${isInactive
         ? `<button class="btn-sm-reactivate" onclick="reactivateStaff('${s.uid}','${safeName}','${pendingId}')">✅ Reactivate</button>`
-        : `<button class="btn-sm-deactivate" onclick="deactivateStaff('${s.uid}','${safeName}','${pendingId}')">⏸ Deactivate</button>`
-      }
-      <button class="btn-sm-delete" onclick="deleteStaff('${s.uid}','${safeName}','${pendingId}')">🗑️ Delete</button>
+        : (!isAdmin ? `<button class="btn-sm-deactivate" onclick="deactivateStaff('${s.uid}','${safeName}','${pendingId}')">⏸ Deactivate</button>` : '')}
+      ${!isAdmin ? `<button class="btn-sm-delete" onclick="deleteStaff('${s.uid}','${safeName}','${pendingId}')">🗑️ Delete</button>` : ''}
     </div>`;
 
   return `
@@ -412,85 +501,89 @@ function buildStaffCard(s) {
         ${initials}<div class="status-dot" style="background:${dotColor}"></div>
       </div>
       <div class="staff-info">
-        <div class="staff-name">${s.name||s.email}</div>
+        <div class="staff-name">
+          ${s.name||s.email}
+          ${isManager?'<span class="manager-badge" style="margin-left:6px">⭐ Manager</span>':''}
+          ${isAdmin?'<span class="manager-badge" style="margin-left:6px;background:rgba(124,58,237,0.15);border-color:rgba(124,58,237,0.4);color:#a78bfa">👑 Admin</span>':''}
+        </div>
         <div class="staff-dept">${s.department||'—'} · ${s.jobtitle||s.role||''}</div>
         <div class="staff-time">${timeInfo}</div>
       </div>
       <div class="staff-actions">
         <span class="status-badge ${badgeClass}">${badgeText}</span>
-        ${s.status==='absent'?`<button class="btn-manual" onclick="openManual('${s.uid}','${safeName}')">Clock In</button>`:''}
+        ${s.status==='absent'&&!isInactive?`<button class="btn-manual" onclick="openManual('${s.uid}','${safeName}')">Clock In</button>`:''}
       </div>
     </div>
     ${manageRow}
   </div>`;
 }
 
-// ── DEACTIVATE from admin dashboard ──
-window.deactivateStaff = async function(uid, name, pendingId) {
-  if (!confirm(`⏸ Deactivate ${name}?\n\nThey cannot log in until reactivated.\nAll records are kept.`)) return;
+// ── PROMOTE / DEMOTE ROLE ──
+window.changeRole = async function(uid, name, newRole) {
+  const action = newRole==='manager' ? `Make ${name} a Manager?` : `Demote ${name} back to Staff?`;
+  const detail = newRole==='manager'
+    ? `${name} will be able to:\n• Assign tasks to any staff\n• See all tasks across departments\n• Approve/reject leave requests\n• Manually clock in absent staff`
+    : `${name} will go back to regular staff access.`;
+  if (!confirm(`${action}\n\n${detail}`)) return;
   try {
+    await updateDoc(doc(db,'users',uid),{role:newRole,roleUpdatedAt:serverTimestamp()});
+    // Also update pendingStaff if exists
+    const pSnap=await getDocs(query(collection(db,'pendingStaff'),where('uid','==',uid)));
+    if (!pSnap.empty) await updateDoc(doc(db,'pendingStaff',pSnap.docs[0].id),{role:newRole});
+    showToast(newRole==='manager'?`⭐ ${name} is now a Manager!`:`👤 ${name} is now Staff`,'success');
+    loadDashboard();
+  } catch(e){console.error(e);showToast('❌ Could not update role.','error');}
+};
+
+window.deactivateStaff = async function(uid,name,pendingId) {
+  if(!confirm(`⏸ Deactivate ${name}?\n\nThey cannot log in until reactivated.`))return;
+  try{
     await updateDoc(doc(db,'users',uid),{status:'inactive',deactivatedAt:serverTimestamp()});
-    if (pendingId) await updateDoc(doc(db,'pendingStaff',pendingId),{status:'inactive',deactivatedAt:serverTimestamp()});
-    showToast(`⏸ ${name} deactivated`,'');
-    loadDashboard();
-  } catch(e) { console.error(e); showToast('❌ Could not deactivate.','error'); }
+    if(pendingId)await updateDoc(doc(db,'pendingStaff',pendingId),{status:'inactive',deactivatedAt:serverTimestamp()});
+    showToast(`⏸ ${name} deactivated`,'');loadDashboard();
+  }catch(e){showToast('❌ Could not deactivate.','error');}
 };
-
-// ── REACTIVATE from admin dashboard ──
-window.reactivateStaff = async function(uid, name, pendingId) {
-  if (!confirm(`✅ Reactivate ${name}? They will be able to log in again.`)) return;
-  try {
+window.reactivateStaff = async function(uid,name,pendingId) {
+  if(!confirm(`✅ Reactivate ${name}?`))return;
+  try{
     await updateDoc(doc(db,'users',uid),{status:'approved',reactivatedAt:serverTimestamp()});
-    if (pendingId) await updateDoc(doc(db,'pendingStaff',pendingId),{status:'approved',reactivatedAt:serverTimestamp()});
-    showToast(`✅ ${name} reactivated`,'success');
-    loadDashboard();
-  } catch(e) { console.error(e); showToast('❌ Could not reactivate.','error'); }
+    if(pendingId)await updateDoc(doc(db,'pendingStaff',pendingId),{status:'approved',reactivatedAt:serverTimestamp()});
+    showToast(`✅ ${name} reactivated`,'success');loadDashboard();
+  }catch(e){showToast('❌ Could not reactivate.','error');}
 };
-
-// ── DELETE from admin dashboard ──
-window.deleteStaff = async function(uid, name, pendingId) {
-  if (!confirm(`🗑️ PERMANENTLY DELETE ${name}?\n\nThis removes them from the staff list and blocks login forever.\nPast attendance records are kept.\n\nThis CANNOT be undone.`)) return;
-  if (!confirm(`Last warning — permanently delete ${name}?`)) return;
-  try {
+window.deleteStaff = async function(uid,name,pendingId) {
+  if(!confirm(`🗑️ PERMANENTLY DELETE ${name}?\n\nThis cannot be undone.`))return;
+  if(!confirm(`Last warning — permanently delete ${name}?`))return;
+  try{
     await deleteDoc(doc(db,'users',uid));
-    if (pendingId) await deleteDoc(doc(db,'pendingStaff',pendingId));
-    showToast(`🗑️ ${name} deleted permanently`,'');
+    if(pendingId)await deleteDoc(doc(db,'pendingStaff',pendingId));
+    showToast(`🗑️ ${name} deleted`,'');
     const card=document.getElementById(`staff-card-${uid}`);
-    if (card) { card.style.opacity='0'; card.style.transition='opacity 0.3s'; setTimeout(()=>card.remove(),300); }
-  } catch(e) { console.error(e); showToast('❌ Could not delete.','error'); }
+    if(card){card.style.opacity='0';card.style.transition='opacity 0.3s';setTimeout(()=>card.remove(),300);}
+  }catch(e){showToast('❌ Could not delete.','error');}
 };
 
-window.setFilter = function(filter,el) {
+window.setFilter=function(filter,el){
   currentFilter=filter;
   document.querySelectorAll('.filter-chip').forEach(c=>c.classList.remove('active'));
-  el.classList.add('active'); renderList();
+  el.classList.add('active');renderList();
 };
-
-window.showTab = function(el) {
-  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
-  el.classList.add('active');
-};
-
-window.openManual = function(uid,name) {
-  manualTargetUid=uid; manualTargetName=name;
+window.openManual=function(uid,name){
+  manualTargetUid=uid;manualTargetName=name;
   document.getElementById('modalStaffName').textContent='Recording for: '+name;
   const now=new Date();
   document.getElementById('manualTime').value=`${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
   document.getElementById('manualReason').value='';
   document.getElementById('manualModal').classList.remove('hidden');
 };
-
-window.closeModal = function() {
-  document.getElementById('manualModal').classList.add('hidden'); manualTargetUid=null;
-};
-
-window.confirmManualClockIn = async function() {
+window.closeModal=function(){document.getElementById('manualModal').classList.add('hidden');manualTargetUid=null;};
+window.confirmManualClockIn=async function(){
   const time=document.getElementById('manualTime').value;
   const reason=document.getElementById('manualReason').value.trim();
-  if (!time)   {showToast('Please set a clock-in time','error');return;}
-  if (!reason) {showToast('Please enter a reason','error');return;}
-  const today=getTodayKey(), adminUser=auth.currentUser;
-  try {
+  if(!time){showToast('Please set a clock-in time','error');return;}
+  if(!reason){showToast('Please enter a reason','error');return;}
+  const today=getTodayKey(),adminUser=auth.currentUser;
+  try{
     await setDoc(doc(db,'attendance',`${manualTargetUid}_${today}`),{
       uid:manualTargetUid,userId:manualTargetUid,date:today,
       clockIn:time,clockOut:null,manualEntry:true,manualReason:reason,
@@ -500,19 +593,117 @@ window.confirmManualClockIn = async function() {
       action:'MANUAL_CLOCK_IN',targetUid:manualTargetUid,targetName:manualTargetName,
       performedBy:adminUser.email,reason,clockInTime:time,date:today,timestamp:serverTimestamp()
     });
-    closeModal();
-    showToast(`✅ ${manualTargetName} clocked in at ${time}`,'success');
-    loadDashboard();
-  } catch(err) { console.error(err); showToast('Error saving. Try again.','error'); }
+    closeModal();showToast(`✅ ${manualTargetName} clocked in at ${time}`,'success');loadDashboard();
+  }catch(err){showToast('Error saving. Try again.','error');}
+};
+window.handleLogout=async function(){clearInterval(autoRefreshTimer);await signOut(auth);window.location.href='login.html';};
+
+// ════════════════════════════════════════
+// INSIGHTS WITH AI
+// ════════════════════════════════════════
+window.loadInsights=async function(){
+  document.getElementById('observationsList').innerHTML='<div class="obs-loading">⏳ Analysing your team data...</div>';
+  const now=new Date();
+  const months=[];
+  for(let i=5;i>=0;i--){
+    const d=new Date(now.getFullYear(),now.getMonth()-i,1);
+    const lastDay=new Date(d.getFullYear(),d.getMonth()+1,0).getDate();
+    months.push({label:fmtMonth(d),from:`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-01`,to:`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(lastDay).padStart(2,'0')}`,year:d.getFullYear(),month:d.getMonth()+1});
+  }
+  document.getElementById('insightsPeriodLabel').textContent=`Analysing ${months[0].label} → ${months[5].label} · Your real team data`;
+  const[tasksSnap,attSnap,usersSnap]=await Promise.all([getDocs(collection(db,'tasks')),getDocs(collection(db,'attendance')),getDocs(query(collection(db,'users'),where('status','==','approved')))]);
+  const allTasks=tasksSnap.docs.map(d=>({id:d.id,...d.data()}));
+  const allAtt=attSnap.docs.map(d=>({id:d.id,...d.data()}));
+  const allStaff=usersSnap.docs.map(d=>({id:d.id,...d.data()}));
+  const totalStaff=allStaff.length;
+  const curMonth=months[5],prevMonth=months[4];
+  function getMonthTasks(m){return allTasks.filter(t=>{const created=t.createdAt?.toDate?t.createdAt.toDate():t.createdAt?.seconds?new Date(t.createdAt.seconds*1000):null;if(!created)return false;const key=`${created.getFullYear()}-${String(created.getMonth()+1).padStart(2,'0')}`;return key===`${m.year}-${String(m.month).padStart(2,'0')}`});}
+  function getMonthAtt(m){return allAtt.filter(a=>a.date&&a.date.startsWith(`${m.year}-${String(m.month).padStart(2,'0')}`));}
+  function workingDaysInMonth(year,month){let count=0;const d=new Date(year,month-1,1);while(d.getMonth()===month-1){if(d.getDay()!==0)count++;d.setDate(d.getDate()+1);}return count;}
+  const curTasks=getMonthTasks(curMonth),prevTasks=getMonthTasks(prevMonth);
+  const curDone=curTasks.filter(t=>COMPLETED_STAGES.includes(t.stage)).length;
+  const prevDone=prevTasks.filter(t=>COMPLETED_STAGES.includes(t.stage)).length;
+  const curRate=curTasks.length?Math.round((curDone/curTasks.length)*100):0;
+  const prevRate=prevTasks.length?Math.round((prevDone/prevTasks.length)*100):0;
+  const rateDiff=curRate-prevRate;
+  const curAtt=getMonthAtt(curMonth),prevAtt=getMonthAtt(prevMonth);
+  const curWorkDays=workingDaysInMonth(curMonth.year,curMonth.month);
+  const prevWorkDays=workingDaysInMonth(prevMonth.year,prevMonth.month);
+  const curAttRate=curWorkDays>0&&totalStaff>0?Math.round((curAtt.length/(curWorkDays*totalStaff))*100):0;
+  const prevAttRate=prevWorkDays>0&&totalStaff>0?Math.round((prevAtt.length/(prevWorkDays*totalStaff))*100):0;
+  const attDiff=curAttRate-prevAttRate;
+  const curLate=curAtt.filter(a=>{const t=tsToHHMM(a.clockIn)||'';return t>'09:15';}).length;
+  const prevLate=prevAtt.filter(a=>{const t=tsToHHMM(a.clockIn)||'';return t>'09:15';}).length;
+  const lateDiff=curLate-prevLate;
+
+  document.getElementById('kpiTasksDone').textContent=curDone;
+  document.getElementById('kpiCompRate').textContent=curRate+'%';
+  document.getElementById('kpiAttRate').textContent=curAttRate+'%';
+  document.getElementById('kpiLate').textContent=curLate;
+  const trendHTML=(diff,goodDir,unit='')=>{
+    if(diff===0)return`<span class="trend-flat">→ Same as last month</span>`;
+    const up=diff>0,good=goodDir==='up'?up:!up,cls=good?'trend-up':'trend-down',arrow=up?'↑':'↓';
+    return`<span class="${cls}">${arrow} ${Math.abs(diff)}${unit} vs last month</span>`;
+  };
+  document.getElementById('kpiTasksTrend').innerHTML=trendHTML(curDone-prevDone,'up',' tasks');
+  document.getElementById('kpiCompTrend').innerHTML=trendHTML(rateDiff,'up','%');
+  document.getElementById('kpiAttTrend').innerHTML=trendHTML(attDiff,'up','%');
+  document.getElementById('kpiLateTrend').innerHTML=trendHTML(lateDiff,'down');
+
+  const totalAll=allTasks.length,doneAll=allTasks.filter(t=>COMPLETED_STAGES.includes(t.stage)).length;
+  const overdueAll=allTasks.filter(t=>{if(COMPLETED_STAGES.includes(t.stage)||!t.deadline)return false;const dl=t.deadline.toDate?t.deadline.toDate():new Date(t.deadline?.seconds*1000);return dl<now;}).length;
+  const activeAll=totalAll-doneAll-overdueAll;
+
+  if(pieChartInst)pieChartInst.destroy();
+  pieChartInst=new Chart(document.getElementById('pieChart'),{type:'doughnut',data:{labels:['Completed','In Progress','Overdue'],datasets:[{data:[doneAll,activeAll,overdueAll],backgroundColor:['#10b981cc','#3b82f6cc','#ef4444cc'],borderColor:['#10b981','#3b82f6','#ef4444'],borderWidth:2,hoverOffset:8}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{padding:16,font:{size:12}}},tooltip:{callbacks:{label:ctx=>` ${ctx.label}: ${ctx.raw} tasks`}}},cutout:'60%'}});
+
+  const deptData={};
+  allTasks.forEach(t=>{const dept=t.department||'Unknown';if(!deptData[dept])deptData[dept]={total:0,done:0};deptData[dept].total++;if(COMPLETED_STAGES.includes(t.stage))deptData[dept].done++;});
+  const deptLabels=Object.keys(deptData).map(d=>d.length>12?d.slice(0,12)+'…':d);
+  const deptRates=Object.values(deptData).map(d=>d.total?Math.round((d.done/d.total)*100):0);
+  const barColors=deptRates.map(r=>r>=70?'#10b981cc':r>=50?'#f59e0bcc':'#ef4444cc');
+  if(barChartInst)barChartInst.destroy();
+  barChartInst=new Chart(document.getElementById('barChart'),{type:'bar',data:{labels:deptLabels,datasets:[{label:'Completion %',data:deptRates,backgroundColor:barColors,borderColor:barColors.map(c=>c.replace('cc','')),borderWidth:1,borderRadius:6}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,max:100,ticks:{callback:v=>v+'%'},grid:{color:'#2d2d44'}},x:{grid:{display:false},ticks:{font:{size:10}}}}}});
+
+  const trendRates=months.map(m=>{const mt=getMonthTasks(m);const md=mt.filter(t=>COMPLETED_STAGES.includes(t.stage)).length;return mt.length?Math.round((md/mt.length)*100):0;});
+  const trendAtt=months.map(m=>{const ma=getMonthAtt(m);const wd=workingDaysInMonth(m.year,m.month);return wd>0&&totalStaff>0?Math.round((ma.length/(wd*totalStaff))*100):0;});
+  if(trendChartInst)trendChartInst.destroy();
+  trendChartInst=new Chart(document.getElementById('trendChart'),{type:'line',data:{labels:months.map(m=>m.label),datasets:[{label:'Task Completion %',data:trendRates,borderColor:'#a78bfa',backgroundColor:'rgba(167,139,250,0.1)',borderWidth:2.5,pointBackgroundColor:'#a78bfa',pointRadius:5,tension:0.4,fill:true},{label:'Attendance %',data:trendAtt,borderColor:'#10b981',backgroundColor:'rgba(16,185,129,0.08)',borderWidth:2.5,pointBackgroundColor:'#10b981',pointRadius:5,tension:0.4,fill:true}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{padding:16,font:{size:12}}},tooltip:{callbacks:{label:ctx=>` ${ctx.dataset.label}: ${ctx.raw}%`}}},scales:{y:{beginAtZero:true,max:100,ticks:{callback:v=>v+'%'},grid:{color:'#2d2d44'}},x:{grid:{color:'#2d2d4430'}}}}});
+
+  const deptEntries=Object.entries(deptData).map(([dept,d])=>({dept,staff:allStaff.filter(s=>s.department===dept).length,done:d.done,total:d.total,rate:d.total?Math.round((d.done/d.total)*100):0,late:curAtt.filter(a=>{const uid=a.uid||a.userId;const staff=allStaff.find(s=>s.id===uid);const t=tsToHHMM(a.clockIn)||'';return staff?.department===dept&&t>'09:15';}).length})).sort((a,b)=>b.rate-a.rate);
+  document.getElementById('deptTableMeta').textContent=curMonth.label;
+  document.getElementById('deptTableBody').innerHTML=deptEntries.map(d=>{
+    const fillColor=d.rate>=70?'#10b981':d.rate>=50?'#f59e0b':'#ef4444';
+    const rateColor=d.rate>=70?'var(--green)':d.rate>=50?'var(--amber)':'var(--red)';
+    const prevMonthTasks=prevTasks.filter(t=>t.department===d.dept);
+    const prevMonthDone=prevMonthTasks.filter(t=>COMPLETED_STAGES.includes(t.stage)).length;
+    const prevMonthRate=prevMonthTasks.length?Math.round((prevMonthDone/prevMonthTasks.length)*100):0;
+    const diff=d.rate-prevMonthRate;
+    const trendArrow=diff>0?`<span style="color:var(--green)">↑ ${diff}%</span>`:diff<0?`<span style="color:var(--red)">↓ ${Math.abs(diff)}%</span>`:`<span style="color:var(--text3)">→</span>`;
+    return`<tr><td style="font-weight:600">${d.dept}</td><td style="color:var(--text2)">${d.staff}</td><td style="color:var(--green);font-family:'Space Mono',monospace">${d.done}</td><td style="font-family:'Space Mono',monospace">${d.total}</td><td><div style="display:flex;align-items:center;gap:8px"><div class="mini-progress"><div class="mini-progress-fill" style="width:${d.rate}%;background:${fillColor}"></div></div><span style="color:${rateColor};font-weight:700;font-family:'Space Mono',monospace;font-size:12px">${d.rate}%</span></div></td><td style="color:${d.late>3?'var(--amber)':'var(--text2)'};font-family:'Space Mono',monospace">${d.late}</td><td>${trendArrow}</td></tr>`;
+  }).join('');
+
+  function generateObservations(d){
+    const obs=[];
+    if(d.rateDiff>0)obs.push({icon:'📈',text:`<strong>Company efficiency improving!</strong> Task completion rate rose from ${d.prevRate}% last month to ${d.curRate}% this month — a ${d.rateDiff}% improvement.`});
+    else if(d.rateDiff<0)obs.push({icon:'📉',text:`<strong>Completion rate dropped this month.</strong> From ${d.prevRate}% to ${d.curRate}% — a ${Math.abs(d.rateDiff)}% decline. Review task assignments.`});
+    else obs.push({icon:'➡️',text:`<strong>Completion rate stable</strong> at ${d.curRate}% — same as last month.`});
+    if(d.attDiff>0)obs.push({icon:'✅',text:`<strong>Attendance improved</strong> from ${d.prevAttRate}% to ${d.curAttRate}% this month.`});
+    else if(d.attDiff<0)obs.push({icon:'⚠️',text:`<strong>Attendance slipped</strong> from ${d.prevAttRate}% to ${d.curAttRate}% this month.`});
+    if(d.lateDiff<0)obs.push({icon:'🎉',text:`<strong>Late arrivals reduced!</strong> Down from ${d.prevLate} to ${d.curLate} this month.`});
+    else if(d.lateDiff>0)obs.push({icon:'⏰',text:`<strong>Late arrivals increased</strong> from ${d.prevLate} to ${d.curLate} this month.`});
+    if(d.deptEntries.length>1){const best=d.deptEntries[0],worst=d.deptEntries[d.deptEntries.length-1];obs.push({icon:'🏆',text:`<strong>${best.dept}</strong> is your top department at ${best.rate}% completion. <strong>${worst.dept}</strong> needs attention at ${worst.rate}%.`});}
+    if(d.overdueAll>0){const pct=d.totalAll?Math.round((d.overdueAll/d.totalAll)*100):0;obs.push({icon:'🚨',text:`<strong>${d.overdueAll} tasks are overdue</strong> (${pct}% of all tasks). Review in Tasks page.`});}
+    else obs.push({icon:'🎯',text:`<strong>Zero overdue tasks!</strong> Excellent task management by your team.`});
+    return obs.slice(0,5);
+  }
+  const obs=generateObservations({curRate,prevRate,rateDiff,curAttRate,prevAttRate,attDiff,curLate,prevLate,lateDiff,curDone,prevDone,totalStaff,deptEntries,trendRates,overdueAll,activeAll,doneAll,totalAll});
+  document.getElementById('observationsList').innerHTML=obs.map(o=>`<div class="observation-item"><div class="obs-icon">${o.icon}</div><div class="obs-text">${o.text}</div></div>`).join('');
 };
 
-window.handleLogout = async function() {
-  clearInterval(autoRefreshTimer); await signOut(auth); window.location.href='login.html';
-};
-
-function showToast(msg,type='') {
+function showToast(msg,type=''){
   const t=document.getElementById('toast');
-  t.textContent=msg; t.className='toast show '+type;
+  t.textContent=msg;t.className='toast show '+type;
   setTimeout(()=>{t.className='toast';},3500);
 }
 </script>
