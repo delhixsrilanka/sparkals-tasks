@@ -26,6 +26,12 @@
 
     .main-content { padding: 0 16px; margin-top: -12px; }
 
+    /* ── NOTIFICATION BANNER ── */
+    .notif-banner { background: #fef3c7; border: 1.5px solid #fcd34d; border-radius: 14px; padding: 14px 16px; margin-bottom: 14px; display: none; align-items: center; gap: 12px; }
+    .notif-banner.show { display: flex; }
+    .notif-banner-text { flex: 1; font-size: 13px; color: #92400e; line-height: 1.4; }
+    .notif-banner-btn { padding: 8px 14px; background: #f59e0b; color: white; border: none; border-radius: 10px; font-size: 12px; font-weight: 700; cursor: pointer; white-space: nowrap; }
+
     .clock-card { background: white; border-radius: 20px; padding: 20px; margin-bottom: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); display: flex; align-items: center; justify-content: space-between; }
     .clock-info h3 { font-size: 15px; font-weight: 700; color: #1a1a2e; margin-bottom: 4px; }
     .clock-info p { font-size: 13px; color: #888; }
@@ -91,7 +97,7 @@
     .offline-pill { display: none; position: fixed; top: 12px; left: 50%; transform: translateX(-50%); background: #ef4444; color: white; padding: 6px 16px; border-radius: 20px; font-size: 12px; font-weight: 700; z-index: 9999; }
     .offline-pill.show { display: block; }
 
-    .toast { position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%); background: #1a1a2e; color: white; padding: 12px 24px; border-radius: 24px; font-size: 14px; font-weight: 600; z-index: 999; opacity: 0; transition: opacity 0.3s; white-space: nowrap; }
+    .toast { position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%); background: #1a1a2e; color: white; padding: 12px 24px; border-radius: 24px; font-size: 14px; font-weight: 600; z-index: 999; opacity: 0; transition: opacity 0.3s; white-space: nowrap; max-width: 90vw; text-align: center; }
     .toast.show { opacity: 1; }
 
     #spkUpdateBanner { display: none; position: fixed; top: 0; left: 0; right: 0; background: #7c6af7; color: #fff; padding: 12px 20px; font-size: 13px; font-weight: 500; z-index: 99999; align-items: center; justify-content: space-between; gap: 12px; }
@@ -112,10 +118,11 @@
       <img src="/icons/logo%20copfy.png" alt="Sparkals" onerror="this.style.display='none'" />
     </div>
     <div class="header-icons">
-      <a href="notifications.html" class="icon-btn" style="text-decoration:none;">
+      <!-- Bell icon — tapping this enables notifications -->
+      <button class="icon-btn" id="notifBtn" onclick="handleNotifBell()" title="Enable notifications">
         🔔
         <span id="notifBadge" style="display:none;position:absolute;top:-4px;right:-4px;background:#ef4444;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:10px;min-width:16px;text-align:center;"></span>
-      </a>
+      </button>
       <button class="icon-btn" onclick="showProfile()">👤</button>
     </div>
   </div>
@@ -126,12 +133,22 @@
     <div class="welcome-meta">
       <span class="meta-chip" id="today-date">📅 Loading...</span>
       <span class="meta-chip" id="dept-chip">🏢 Loading...</span>
-      <span class="meta-chip" id="tasks-chip">✅ 0 tasks today</span>
+      <span class="meta-chip" id="tasks-chip">✅ 0 tasks</span>
     </div>
   </div>
 </div>
 
 <div class="main-content">
+
+  <!-- Notification permission banner — shows if notifications not yet enabled -->
+  <div class="notif-banner" id="notifBanner">
+    <span style="font-size:20px;">🔔</span>
+    <div class="notif-banner-text">
+      <strong>Enable notifications</strong> to get alerts when tasks are assigned or deadlines are near.
+    </div>
+    <button class="notif-banner-btn" onclick="handleNotifBell()">Enable</button>
+  </div>
+
   <div class="clock-card">
     <div class="clock-info">
       <h3 id="clock-status-text">Not clocked in</h3>
@@ -202,6 +219,7 @@ const firebaseConfig = {
   appId: "1:147179987231:web:c6ffa484f33a2ca420d02a"
 };
 
+const VAPID_KEY = "BOXrLFERjiJgpy7hOlHjJOKQaW_TuYJCcVftAmjOHhmkqSgpkQ3HjGizTJT6UNyGxrydI9rVkjSo7zspWocHEPU";
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
@@ -236,6 +254,45 @@ function setDate() {
 }
 setGreeting(); setDate();
 
+// ── CHECK NOTIFICATION STATUS — show banner if not granted ──
+function checkNotifStatus() {
+  if (!('Notification' in window)) return;
+  const banner = document.getElementById('notifBanner');
+  if (Notification.permission !== 'granted') {
+    banner.classList.add('show');
+  } else {
+    banner.classList.remove('show');
+  }
+}
+
+// ── BELL ICON + ENABLE BUTTON — both call this ──
+window.handleNotifBell = async function() {
+  // If already granted — go to notifications page
+  if (Notification.permission === 'granted') {
+    window.location.href = 'notifications.html';
+    return;
+  }
+  // If blocked — tell user how to fix it
+  if (Notification.permission === 'denied') {
+    showToast('⚙️ Open Chrome Settings → Site Settings → Notifications → Allow sparkals-tasks.vercel.app');
+    setTimeout(() => showToast('Or tap the 🔒 lock icon in your address bar → Notifications → Allow'), 3500);
+    return;
+  }
+  // Default — request permission
+  try {
+    const permission = await Notification.requestPermission();
+    if (permission === 'granted') {
+      document.getElementById('notifBanner').classList.remove('show');
+      showToast('✅ Notifications enabled!');
+      if (currentUser) await setupNotifications(currentUser.uid);
+    } else {
+      showToast('❌ Notifications blocked. Go to Chrome Settings to enable.');
+    }
+  } catch(e) {
+    console.error('Notification permission error:', e);
+  }
+};
+
 // ── AUTH ──
 onAuthStateChanged(auth, async user => {
   if (!user) { window.location.href = 'login.html'; return; }
@@ -246,7 +303,8 @@ onAuthStateChanged(auth, async user => {
     await loadAttendanceStatus(user.uid);
     await loadAnnouncements();
     startLocationTracking(user.uid);
-    setupNotifications(user.uid);
+    checkNotifStatus(); // Show banner if notifications not enabled
+    setupNotifications(user.uid); // Try to set up silently if already granted
     loadNotifBadge();
     if (userProfile?.role === 'admin' || ADMIN_EMAILS.includes(user.email)) {
       document.getElementById('adminNavLink').style.display = 'flex';
@@ -256,25 +314,21 @@ onAuthStateChanged(auth, async user => {
   }
 });
 
-// ── LOAD USER PROFILE — robust with email fallback ──
+// ── LOAD USER PROFILE ──
 async function loadUserProfile(uid) {
   try {
-    // Try direct UID lookup first
     let snap = await getDoc(doc(db, 'users', uid));
     if (snap.exists()) {
       userProfile = { id: snap.id, ...snap.data() };
     } else {
-      // Fallback: search by email
       const q = query(collection(db,'users'), where('email','==',currentUser.email));
       const qs = await getDocs(q);
       if (!qs.empty) userProfile = { id: qs.docs[0].id, ...qs.docs[0].data() };
     }
-
     if (userProfile?.name) {
       document.getElementById('staff-name').textContent = userProfile.name;
       document.getElementById('dept-chip').textContent = '🏢 ' + (userProfile.department || 'Sparkals Tasks');
     } else {
-      // Last resort: use email prefix
       document.getElementById('staff-name').textContent = currentUser.email.split('@')[0];
       document.getElementById('dept-chip').textContent = '🏢 Sparkals Tasks';
     }
@@ -291,14 +345,17 @@ async function loadTodaysTasks(uid) {
     const snap = await getDocs(query(collection(db,'tasks'), where('assigneeId','==',uid)));
     const tasks = snap.docs.map(d => ({id:d.id,...d.data()}));
     const pending = tasks.filter(t => !COMPLETED_STAGES.includes(t.stage)).length;
-    const done = tasks.filter(t => COMPLETED_STAGES.includes(t.stage)).length;
-    document.getElementById('stat-total').textContent = tasks.length;
+    const done    = tasks.filter(t =>  COMPLETED_STAGES.includes(t.stage)).length;
+    document.getElementById('stat-total').textContent   = tasks.length;
     document.getElementById('stat-pending').textContent = pending;
-    document.getElementById('stat-done').textContent = done;
-    document.getElementById('tasks-chip').textContent = `✅ ${tasks.length} task${tasks.length!==1?'s':''}`;
+    document.getElementById('stat-done').textContent    = done;
+    document.getElementById('tasks-chip').textContent   = `✅ ${tasks.length} task${tasks.length!==1?'s':''}`;
 
     const el = document.getElementById('tasks-list');
-    if (!tasks.length) { el.innerHTML=`<div class="empty-tasks">🎉 No tasks assigned yet!<br/><small>Your manager will assign tasks soon.</small></div>`; return; }
+    if (!tasks.length) {
+      el.innerHTML = `<div class="empty-tasks">🎉 No tasks assigned yet!<br/><small>Your manager will assign tasks soon.</small></div>`;
+      return;
+    }
     const today = new Date().toISOString().split('T')[0];
     el.innerHTML = tasks.slice(0,5).map(t => {
       const dl = t.deadline?.toDate ? t.deadline.toDate().toISOString().split('T')[0] : '';
@@ -314,15 +371,15 @@ async function loadTodaysTasks(uid) {
         <span class="task-badge ${bc}">${bt}</span>
       </div>`;
     }).join('');
-  } catch(e) { document.getElementById('tasks-list').innerHTML=`<div class="empty-tasks">Could not load tasks.</div>`; }
+  } catch(e) {
+    document.getElementById('tasks-list').innerHTML = `<div class="empty-tasks">Could not load tasks.</div>`;
+  }
 }
 
-// ── LOAD ATTENDANCE — checks both uid and userId fields ──
+// ── LOAD ATTENDANCE ──
 async function loadAttendanceStatus(uid) {
   try {
     const today = new Date().toISOString().split('T')[0];
-
-    // Try uid first (new schema), then userId (old schema)
     let snap = await getDocs(query(collection(db,'attendance'), where('uid','==',uid), where('date','==',today)));
     if (snap.empty) snap = await getDocs(query(collection(db,'attendance'), where('userId','==',uid), where('date','==',today)));
 
@@ -331,7 +388,6 @@ async function loadAttendanceStatus(uid) {
       const att = attDoc.data();
       attendanceDocId = attDoc.id;
 
-      // Parse clockIn — handles both Timestamp and plain "HH:MM" string
       let clockInDisplay = '—';
       if (att.clockIn) {
         if (typeof att.clockIn.toDate === 'function') {
@@ -352,10 +408,7 @@ async function loadAttendanceStatus(uid) {
         document.getElementById('clock-status-text').textContent = '✅ Clocked In';
         document.getElementById('clock-status-sub').textContent = `Since ${clockInDisplay}`;
         const btn = document.getElementById('clock-btn');
-        btn.textContent = 'Clock Out';
-        btn.className = 'clock-btn clock-out';
-
-        // Calculate hours worked
+        btn.textContent = 'Clock Out'; btn.className = 'clock-btn clock-out';
         let hoursWorked = 0;
         if (att.clockIn) {
           const ciDate = att.clockIn?.toDate ? att.clockIn.toDate() :
@@ -376,7 +429,7 @@ async function loadAttendanceStatus(uid) {
   } catch(e) { console.error('Attendance load error:', e); }
 }
 
-// ── CLOCK IN / OUT — saves Firestore Timestamp (not plain string) ──
+// ── CLOCK IN / OUT ──
 window.handleClockAction = async function() {
   if (!currentUser) return;
   const btn = document.getElementById('clock-btn');
@@ -389,17 +442,12 @@ window.handleClockAction = async function() {
 
   try {
     if (!isClockedIn) {
-      // CLOCK IN — save proper Firestore Timestamp
       const ref = await addDoc(collection(db,'attendance'), {
-        uid: currentUser.uid,
-        userId: currentUser.uid,
-        userEmail: currentUser.email,
-        userName, name: userName,
+        uid: currentUser.uid, userId: currentUser.uid,
+        userEmail: currentUser.email, userName, name: userName,
         department: userProfile?.department || '',
-        date: today,
-        clockIn: Timestamp.fromDate(now), // ✅ Proper Timestamp — not plain string
-        status: 'active',
-        isLate,
+        date: today, clockIn: Timestamp.fromDate(now),
+        status: 'active', isLate,
         clockInLat: null, clockInLng: null,
         createdAt: serverTimestamp()
       });
@@ -410,9 +458,7 @@ window.handleClockAction = async function() {
       btn.textContent = 'Clock Out'; btn.className = 'clock-btn clock-out';
       showToast(`✅ Clocked in at ${timeStr}${isLate?' — marked late':''}`);
     } else {
-      // CLOCK OUT
       if (!attendanceDocId) {
-        // Find the doc if we don't have the id
         const snap = await getDocs(query(collection(db,'attendance'), where('uid','==',currentUser.uid), where('date','==',today)));
         if (!snap.empty) attendanceDocId = snap.docs[0].id;
       }
@@ -451,9 +497,10 @@ async function loadAnnouncements() {
     if (snap.empty) return;
     document.getElementById('announcements-list').innerHTML = '';
     snap.forEach(d => {
-      const data=d.data();
-      const time=data.createdAt?.toDate?data.createdAt.toDate().toLocaleDateString('en-IN'):'Recently';
-      document.getElementById('announcements-list').innerHTML += `<div class="announce-item"><div class="announce-text">${data.message||data.title||'Announcement'}</div><div class="announce-time">${time}</div></div>`;
+      const data = d.data();
+      const time = data.createdAt?.toDate ? data.createdAt.toDate().toLocaleDateString('en-IN') : 'Recently';
+      document.getElementById('announcements-list').innerHTML +=
+        `<div class="announce-item"><div class="announce-text">${data.message||data.title||'Announcement'}</div><div class="announce-time">${time}</div></div>`;
     });
   } catch(e) {}
 }
@@ -464,51 +511,65 @@ function startLocationTracking(uid) {
   function saveLocation() {
     if (!isWorkHours()||!navigator.geolocation) return;
     navigator.geolocation.getCurrentPosition(async pos => {
-      const today=new Date().toISOString().split('T')[0];
-      try { await setDoc(doc(db,'locations',`${uid}_${today}`),{uid,lat:pos.coords.latitude,lng:pos.coords.longitude,accuracy:pos.coords.accuracy,date:today,timestamp:serverTimestamp()}); } catch(e) {}
+      const today = new Date().toISOString().split('T')[0];
+      try {
+        await setDoc(doc(db,'locations',`${uid}_${today}`),{
+          uid, lat:pos.coords.latitude, lng:pos.coords.longitude,
+          accuracy:pos.coords.accuracy, date:today, timestamp:serverTimestamp()
+        });
+      } catch(e) {}
     },()=>{},{enableHighAccuracy:true,timeout:10000,maximumAge:60000});
   }
-  saveLocation(); setInterval(saveLocation,5*60*1000);
+  saveLocation(); setInterval(saveLocation, 5*60*1000);
 }
 
-// ── NOTIFICATIONS — uses correct SDK version 10.8.0 ──
+// ── SETUP NOTIFICATIONS — silent if already granted, waits for user tap if not ──
 async function setupNotifications(uid) {
   try {
-    if (!('Notification' in window)||!('serviceWorker' in navigator)) return;
-    if (Notification.permission==='default') await Notification.requestPermission();
-    if (Notification.permission!=='granted') return;
-    const {getMessaging,getToken} = await import('https://www.gstatic.com/firebasejs/10.8.0/firebase-messaging.js');
+    if (!('Notification' in window) || !('serviceWorker' in navigator)) return;
+    // Only proceed if already granted — don't auto-prompt on page load
+    if (Notification.permission !== 'granted') return;
+    const { getMessaging, getToken } = await import('https://www.gstatic.com/firebasejs/10.8.0/firebase-messaging.js');
     const messaging = getMessaging(app);
-    const token = await getToken(messaging,{vapidKey:"BOXrLFERjiJgpy7hOlHjJOKQaW_TuYJCcVftAmjOHhmkqSgpkQ3HjGizTJT6UNyGxrydI9rVkjSo7zspWocHEPU"});
-    if (token) await setDoc(doc(db,'fcmTokens',uid),{uid,token,updatedAt:serverTimestamp(),device:navigator.userAgent.includes('Mobile')?'mobile':'desktop'},{merge:true});
-  } catch(e) { console.log('Notification setup skipped:', e.message); }
+    const swReg = await navigator.serviceWorker.ready;
+    const token = await getToken(messaging, { vapidKey: VAPID_KEY, serviceWorkerRegistration: swReg });
+    if (token) {
+      await setDoc(doc(db,'fcmTokens',uid), {
+        uid, token, updatedAt: serverTimestamp(),
+        device: navigator.userAgent.includes('Mobile') ? 'mobile' : 'desktop'
+      }, { merge: true });
+      console.log('✅ FCM token saved');
+    }
+  } catch(e) {
+    console.log('Notification setup skipped:', e.message);
+  }
 }
 
 // ── NOTIFICATION BADGE ──
 function loadNotifBadge() {
   try {
-    onSnapshot(query(collection(db,'notifications'),where('uid','==',currentUser.uid),where('read','==',false)), snap => {
-      const badge=document.getElementById('notifBadge');
-      if(!badge) return;
-      const count=snap.size;
-      badge.textContent=count>99?'99+':count;
-      badge.style.display=count>0?'block':'none';
-    });
+    onSnapshot(
+      query(collection(db,'notifications'), where('uid','==',currentUser.uid), where('read','==',false)),
+      snap => {
+        const badge = document.getElementById('notifBadge');
+        if (!badge) return;
+        const count = snap.size;
+        badge.textContent = count > 99 ? '99+' : count;
+        badge.style.display = count > 0 ? 'block' : 'none';
+      }
+    );
   } catch(e) {}
 }
 
 // ── PROFILE / LOGOUT ──
 window.showProfile = function() {
-  if (confirm('Sign out of Sparkals Tasks?')) signOut(auth).then(()=>window.location.href='login.html');
+  if (confirm('Sign out of Sparkals Tasks?')) signOut(auth).then(() => window.location.href = 'login.html');
 };
 
 window.showToast = function(msg) {
-  const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'),3000);
-};
-
-window.requestPushPermission = async function() {
-  if (currentUser) await setupNotifications(currentUser.uid);
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3500);
 };
 </script>
 
@@ -519,18 +580,20 @@ if ('serviceWorker' in navigator) {
     reg.addEventListener('updatefound', () => {
       const nw = reg.installing; if (!nw) return;
       nw.addEventListener('statechange', () => {
-        if (nw.state==='installed'&&navigator.serviceWorker.controller) {
-          const b=document.getElementById('spkUpdateBanner'); if(b) b.style.display='flex';
+        if (nw.state==='installed' && navigator.serviceWorker.controller) {
+          const b = document.getElementById('spkUpdateBanner'); if(b) b.style.display='flex';
         }
       });
     });
-  }).catch(e=>console.log('[SW] failed:',e));
-  let refreshing=false;
-  navigator.serviceWorker.addEventListener('controllerchange',()=>{if(!refreshing){refreshing=true;window.location.reload();}});
+  }).catch(e => console.log('[SW] failed:', e));
+  let refreshing = false;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (!refreshing) { refreshing = true; window.location.reload(); }
+  });
 }
-function spkApplyUpdate(){
-  navigator.serviceWorker.ready.then(reg=>{if(reg.waiting)reg.waiting.postMessage('SKIP_WAITING');});
-  document.getElementById('spkUpdateBanner').style.display='none';
+function spkApplyUpdate() {
+  navigator.serviceWorker.ready.then(reg => { if(reg.waiting) reg.waiting.postMessage('SKIP_WAITING'); });
+  document.getElementById('spkUpdateBanner').style.display = 'none';
 }
 </script>
 <script src="welcome-overlay.js"></script>
