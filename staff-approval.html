@@ -8,6 +8,33 @@
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; min-height: 100vh; padding-bottom: 40px; }
+
+    /* ── LOADING SCREEN — shown until Firebase confirms admin ── */
+    #auth-loading {
+      position: fixed; inset: 0; background: #1a1a2e;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      z-index: 9999; gap: 16px;
+    }
+    #auth-loading .spin {
+      width: 44px; height: 44px; border: 3px solid rgba(255,255,255,0.2);
+      border-top-color: white; border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    #auth-loading p { color: rgba(255,255,255,0.7); font-size: 14px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── ACCESS DENIED screen ── */
+    #access-denied {
+      display: none; position: fixed; inset: 0; background: #1a1a2e;
+      flex-direction: column; align-items: center; justify-content: center;
+      gap: 12px; z-index: 9999;
+    }
+    #access-denied p { color: white; font-size: 16px; text-align: center; }
+    #access-denied a { color: #f59e0b; font-size: 14px; text-decoration: underline; }
+
+    /* ── MAIN PAGE — hidden until auth confirmed ── */
+    #main-page { display: none; }
+
     .header { background: #1a1a2e; padding: 20px; display: flex; align-items: center; gap: 12px; }
     .back-btn { color: white; background: rgba(255,255,255,0.1); border: none; border-radius: 10px; padding: 8px 14px; font-size: 14px; cursor: pointer; text-decoration: none; }
     .header-title { color: white; font-size: 18px; font-weight: 700; }
@@ -82,7 +109,6 @@
     .empty-icon { font-size: 48px; margin-bottom: 12px; }
 
     .spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.8s linear infinite; vertical-align: middle; margin-right: 6px; }
-    @keyframes spin { to { transform: rotate(360deg); } }
 
     .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: #1a1a2e; color: white; padding: 12px 24px; border-radius: 24px; font-size: 14px; font-weight: 600; z-index: 999; opacity: 0; transition: opacity 0.3s; white-space: nowrap; max-width: 90vw; text-align: center; }
     .toast.show { opacity: 1; }
@@ -90,44 +116,61 @@
 </head>
 <body>
 
-<div class="header">
-  <a href="admin.html" class="back-btn">← Back</a>
-  <div>
-    <div class="header-title">Staff Approval</div>
-    <div class="header-sub" id="header-sub">Loading...</div>
-  </div>
+<!-- ── LOADING SCREEN — shown while Firebase checks who you are ── -->
+<div id="auth-loading">
+  <div class="spin"></div>
+  <p>Checking admin access…</p>
 </div>
 
-<div class="main">
-  <div class="bulk-bar" id="bulk-bar">
-    <div class="bulk-bar-text" id="bulk-bar-text">⏳ pending registrations waiting</div>
-    <button class="btn-bulk-approve" id="bulk-approve-btn" onclick="bulkApproveAll()">✅ Approve All</button>
+<!-- ── ACCESS DENIED — only shows if not admin ── -->
+<div id="access-denied" style="display:none;">
+  <p>⛔ Admin access only.</p>
+  <a href="admin.html">← Back to Dashboard</a>
+</div>
+
+<!-- ── MAIN PAGE — only shows after admin confirmed ── -->
+<div id="main-page">
+  <div class="header">
+    <a href="admin.html" class="back-btn">← Back</a>
+    <div>
+      <div class="header-title">Staff Approval</div>
+      <div class="header-sub" id="header-sub">Loading…</div>
+    </div>
   </div>
 
-  <div class="tabs">
-    <div class="tab active" id="tab-btn-pending" onclick="switchTab('pending', this)">⏳ Pending <span id="pending-count"></span></div>
-    <div class="tab" id="tab-btn-approved" onclick="switchTab('approved', this)">✅ Approved</div>
-    <div class="tab" id="tab-btn-rejected" onclick="switchTab('rejected', this)">❌ Rejected</div>
-  </div>
+  <div class="main">
+    <div class="bulk-bar" id="bulk-bar">
+      <div class="bulk-bar-text" id="bulk-bar-text">⏳ pending registrations waiting</div>
+      <button class="btn-bulk-approve" id="bulk-approve-btn" onclick="bulkApproveAll()">✅ Approve All</button>
+    </div>
 
-  <div class="tab-content active" id="tab-pending">
-    <div id="pending-list"><div class="empty-state"><div class="empty-icon">⏳</div>Loading...</div></div>
-  </div>
-  <div class="tab-content" id="tab-approved">
-    <div id="approved-list"><div class="empty-state"><div class="empty-icon">✅</div>Loading...</div></div>
-  </div>
-  <div class="tab-content" id="tab-rejected">
-    <div id="rejected-list"><div class="empty-state"><div class="empty-icon">❌</div>Loading...</div></div>
+    <div class="tabs">
+      <div class="tab active" id="tab-btn-pending" onclick="switchTab('pending', this)">⏳ Pending <span id="pending-count"></span></div>
+      <div class="tab" id="tab-btn-approved" onclick="switchTab('approved', this)">✅ Approved</div>
+      <div class="tab" id="tab-btn-rejected" onclick="switchTab('rejected', this)">❌ Rejected</div>
+    </div>
+
+    <div class="tab-content active" id="tab-pending">
+      <div id="pending-list"><div class="empty-state"><div class="empty-icon">⏳</div>Loading…</div></div>
+    </div>
+    <div class="tab-content" id="tab-approved">
+      <div id="approved-list"><div class="empty-state"><div class="empty-icon">✅</div>Loading…</div></div>
+    </div>
+    <div class="tab-content" id="tab-rejected">
+      <div id="rejected-list"><div class="empty-state"><div class="empty-icon">❌</div>Loading…</div></div>
+    </div>
   </div>
 </div>
 
 <div class="toast" id="toast"></div>
 
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-import { createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-import { getFirestore, collection, getDocs, doc, updateDoc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { initializeApp }                          from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getAuth, onAuthStateChanged,
+         createUserWithEmailAndPassword }         from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import { getFirestore, collection, getDocs,
+         doc, updateDoc, setDoc,
+         serverTimestamp }                        from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 const FIREBASE_CONFIG = {
   apiKey: "AIzaSyDNwQYXcwZrAh4cTfRyhOVk_pRod9p4CRM",
@@ -139,58 +182,70 @@ const FIREBASE_CONFIG = {
 };
 
 // ── PRIMARY app — admin stays logged in here always ──
-const adminApp = initializeApp(FIREBASE_CONFIG, 'adminApp');
+const adminApp  = initializeApp(FIREBASE_CONFIG, 'adminApp');
 const adminAuth = getAuth(adminApp);
-const db = getFirestore(adminApp);
+const db        = getFirestore(adminApp);
 
 // ── SECONDARY app — used ONLY to create new staff accounts ──
-// This keeps admin session 100% safe on mobile
-const staffApp = initializeApp(FIREBASE_CONFIG, 'staffCreationApp');
+const staffApp  = initializeApp(FIREBASE_CONFIG, 'staffCreationApp');
 const staffAuth = getAuth(staffApp);
 
-const ADMIN_EMAILS = ['sandeepgemologist@gmail.com','sparkals.design@gmail.com'];
-// Password = staff's own mobile number (they know it, easy to remember)
+const ADMIN_EMAILS = ['sandeepgemologist@gmail.com', 'sparkals.design@gmail.com'];
 
 let pendingStaffList = [];
 
-onAuthStateChanged(adminAuth, (user) => {
-  if (!user || !ADMIN_EMAILS.includes(user.email.toLowerCase())) {
-    window.location.replace('login.html'); return;
+// ── KEY FIX: Wait for Firebase to fully confirm who is logged in ──
+// onAuthStateChanged fires ONCE when Firebase knows the answer.
+// Only THEN do we show the page or redirect.
+// This stops the "redirect after 1 second" bug completely.
+onAuthStateChanged(adminAuth, async (user) => {
+  const loadingEl     = document.getElementById('auth-loading');
+  const deniedEl      = document.getElementById('access-denied');
+  const mainEl        = document.getElementById('main-page');
+
+  // Case 1: Nobody logged in → go to login
+  if (!user) {
+    window.location.replace('login.html');
+    return;
   }
+
+  // Case 2: Logged in but NOT admin → show access denied (not a redirect loop)
+  if (!ADMIN_EMAILS.includes(user.email.toLowerCase())) {
+    loadingEl.style.display = 'none';
+    deniedEl.style.display  = 'flex';
+    return;
+  }
+
+  // Case 3: Confirmed admin → show the page
+  loadingEl.style.display = 'none';
+  mainEl.style.display    = 'block';
   document.getElementById('header-sub').textContent = `Logged in as ${user.email}`;
-  loadAllStaff();
+  await loadAllStaff();
 });
 
+// ── LOAD ALL STAFF FROM pendingStaff COLLECTION ──
 async function loadAllStaff() {
   try {
     const snapshot = await getDocs(collection(db, 'pendingStaff'));
     const pending = [], approved = [], rejected = [];
     snapshot.forEach(d => {
       const data = { id: d.id, ...d.data() };
-      if (data.status === 'pending') pending.push(data);
+      if      (data.status === 'pending')  pending.push(data);
       else if (data.status === 'approved') approved.push(data);
       else if (data.status === 'rejected') rejected.push(data);
     });
     pendingStaffList = pending;
-
-    const bulkBar = document.getElementById('bulk-bar');
-    if (pending.length > 0) {
-      bulkBar.classList.add('show');
-      document.getElementById('bulk-bar-text').textContent =
-        `⏳ ${pending.length} pending registration${pending.length > 1 ? 's' : ''} waiting`;
-    } else {
-      bulkBar.classList.remove('show');
-    }
-    document.getElementById('pending-count').textContent = pending.length > 0 ? `(${pending.length})` : '';
+    updateBulkBar();
     renderPending(pending);
     renderApproved(approved);
     renderRejected(rejected);
   } catch(e) {
-    console.error(e);
+    console.error('loadAllStaff error:', e);
     showToast('❌ Could not load staff. Check connection.');
   }
 }
 
+// ── RENDER PENDING TAB ──
 function renderPending(list) {
   const container = document.getElementById('pending-list');
   if (list.length === 0) {
@@ -222,7 +277,6 @@ function renderPending(list) {
         <span style="font-size:11px;color:#b45309;">Staff should change this after first login</span>
       </div>
 
-      <!-- Edit section -->
       <div class="edit-section" id="edit-section-${s.id}">
         <div class="edit-group"><label class="edit-label">Full Name</label><input class="edit-input" id="edit-name-${s.id}" value="${s.name||''}"/></div>
         <div class="edit-group">
@@ -244,11 +298,10 @@ function renderPending(list) {
         <button class="edit-btn" onclick="toggleEdit('${s.id}')">✏️ Edit Details Before Approving</button>
         <div class="approve-reject-row">
           <button class="btn-approve" id="approve-btn-${s.id}" onclick="approveStaff('${s.id}')">✅ Approve</button>
-          <button class="btn-reject" id="reject-btn-${s.id}" onclick="rejectStaff('${s.id}')">❌ Reject</button>
+          <button class="btn-reject"  id="reject-btn-${s.id}"  onclick="rejectStaff('${s.id}')">❌ Reject</button>
         </div>
       </div>
 
-      <!-- WhatsApp message — appears after approval -->
       <div class="wa-box" id="wa-box-${s.id}">
         <div class="wa-box-title">📱 WhatsApp Message Ready — tap Copy and send to staff</div>
         <div class="wa-message" id="wa-msg-${s.id}"></div>
@@ -258,6 +311,7 @@ function renderPending(list) {
   `).join('');
 }
 
+// ── RENDER APPROVED TAB ──
 function renderApproved(list) {
   const container = document.getElementById('approved-list');
   if (list.length === 0) {
@@ -284,6 +338,7 @@ function renderApproved(list) {
   `).join('');
 }
 
+// ── RENDER REJECTED TAB ──
 function renderRejected(list) {
   const container = document.getElementById('rejected-list');
   if (list.length === 0) {
@@ -304,6 +359,7 @@ function renderRejected(list) {
   `).join('');
 }
 
+// ── BUILD WHATSAPP MESSAGE ──
 function buildWAMessage(name, email, phone) {
   return `Hi ${name}! 👋
 
@@ -325,45 +381,42 @@ Welcome to the team! 🎉
 — Sparkals Tasks`;
 }
 
-// ── CORE APPROVE — uses secondary Firebase app so admin stays logged in ──
+// ── CORE APPROVE FUNCTION ──
 async function doApprove(s) {
   const id     = s.id;
-  const name   = document.getElementById(`display-name-${id}`)?.textContent || s.name || '';
-  const email  = document.getElementById(`display-email-${id}`)?.textContent || s.email || '';
-  const dept   = document.getElementById(`display-dept-${id}`)?.textContent || s.department || '';
-  const phone  = document.getElementById(`display-phone-${id}`)?.textContent || s.phone || '';
-  const job    = document.getElementById(`display-job-${id}`)?.textContent || s.jobtitle || 'Staff';
+  const name   = document.getElementById(`display-name-${id}`)?.textContent  || s.name       || '';
+  const email  = document.getElementById(`display-email-${id}`)?.textContent  || s.email      || '';
+  const dept   = document.getElementById(`display-dept-${id}`)?.textContent   || s.department || '';
+  const phone  = document.getElementById(`display-phone-${id}`)?.textContent  || s.phone      || '';
+  const job    = document.getElementById(`display-job-${id}`)?.textContent    || s.jobtitle   || 'Staff';
   const salary = parseFloat(document.getElementById(`edit-salary-${id}`)?.value) || s.salary || 0;
 
   if (!email || email === '—') throw new Error('No email found');
 
-  // ── Create Firebase Auth account using SECONDARY app ──
-  // This never touches admin session
   let newUid = null;
   try {
+    // Create Firebase account using SECONDARY app — admin session stays safe
     const cred = await createUserWithEmailAndPassword(staffAuth, email, phone || 'Sparkals@1234');
     newUid = cred.user.uid;
-    // Sign out of secondary app immediately
-    await staffAuth.signOut();
+    await staffAuth.signOut(); // Immediately sign out of secondary app
   } catch(e) {
     if (e.code === 'auth/email-already-in-use') {
-      // Account already exists — just approve, don't reset password
-      console.log('Account already exists for', email);
+      console.log('Account already exists for', email, '— approving without reset');
     } else {
       throw e;
     }
   }
 
-  // ── Update pendingStaff status ──
-  await updateDoc(doc(db,'pendingStaff',id), {
+  // Update pendingStaff status to approved
+  await updateDoc(doc(db, 'pendingStaff', id), {
     status: 'approved',
     approvedAt: serverTimestamp(),
     ...(newUid ? { uid: newUid } : {})
   });
 
-  // ── Create user profile in users collection ──
+  // Create user profile in users collection
   if (newUid) {
-    await setDoc(doc(db,'users',newUid), {
+    await setDoc(doc(db, 'users', newUid), {
       name, email, department: dept, phone,
       jobtitle: job, salary,
       role: 'staff', status: 'approved',
@@ -374,7 +427,7 @@ async function doApprove(s) {
     });
   }
 
-  // ── Show WhatsApp message ──
+  // Show WhatsApp message box
   const waMsg = buildWAMessage(name, email, phone);
   const waMsgEl = document.getElementById(`wa-msg-${id}`);
   const waBox   = document.getElementById(`wa-box-${id}`);
@@ -383,12 +436,12 @@ async function doApprove(s) {
   return name;
 }
 
+// ── APPROVE ONE STAFF ──
 window.approveStaff = async function(id) {
   const approveBtn = document.getElementById(`approve-btn-${id}`);
   const rejectBtn  = document.getElementById(`reject-btn-${id}`);
   approveBtn.disabled = true; rejectBtn.disabled = true;
-  approveBtn.innerHTML = '<span class="spinner"></span>Approving...';
-
+  approveBtn.innerHTML = '<span class="spinner"></span>Approving…';
   const s = pendingStaffList.find(x => x.id === id) || { id };
   try {
     const name = await doApprove(s);
@@ -409,13 +462,14 @@ window.approveStaff = async function(id) {
   }
 };
 
+// ── REJECT ONE STAFF ──
 window.rejectStaff = async function(id) {
   const name = document.getElementById(`display-name-${id}`)?.textContent || 'this staff';
   if (!confirm(`Reject ${name}'s registration? Record will be kept as log.`)) return;
   const rejectBtn = document.getElementById(`reject-btn-${id}`);
   rejectBtn.disabled = true; rejectBtn.innerHTML = '<span class="spinner"></span>';
   try {
-    await updateDoc(doc(db,'pendingStaff',id), { status:'rejected', rejectedAt:serverTimestamp() });
+    await updateDoc(doc(db, 'pendingStaff', id), { status: 'rejected', rejectedAt: serverTimestamp() });
     showToast(`❌ ${name} rejected.`);
     const card = document.getElementById(`card-${id}`);
     card.style.opacity = '0'; card.style.transition = 'opacity 0.3s';
@@ -426,39 +480,35 @@ window.rejectStaff = async function(id) {
   }
 };
 
+// ── BULK APPROVE ALL ──
 window.bulkApproveAll = async function() {
   if (pendingStaffList.length === 0) return;
-  if (!confirm(`Approve all ${pendingStaffList.length} pending staff?\n\nEach person's password = their own mobile number.\n\nWhatsApp messages will appear for each person.`)) return;
-
+  if (!confirm(`Approve all ${pendingStaffList.length} pending staff?\n\nEach person's password = their mobile number.\n\nWhatsApp messages will appear for each.`)) return;
   const btn = document.getElementById('bulk-approve-btn');
-  btn.disabled = true;
-  btn.innerHTML = '<span class="spinner"></span>Approving all...';
-
+  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>Approving all…';
   let successCount = 0, failCount = 0;
   const toProcess = [...pendingStaffList];
-
   for (const s of toProcess) {
     try {
       await doApprove(s);
       successCount++;
-      const approveBtn = document.getElementById(`approve-btn-${s.id}`);
-      const rejectBtn  = document.getElementById(`reject-btn-${s.id}`);
-      if (approveBtn) { approveBtn.textContent = '✅ Approved'; approveBtn.style.background = '#86efac'; approveBtn.style.color = '#166534'; approveBtn.disabled = true; }
-      if (rejectBtn)  rejectBtn.style.display = 'none';
+      const ab = document.getElementById(`approve-btn-${s.id}`);
+      const rb = document.getElementById(`reject-btn-${s.id}`);
+      if (ab) { ab.textContent = '✅ Approved'; ab.style.background = '#86efac'; ab.style.color = '#166534'; ab.disabled = true; }
+      if (rb) rb.style.display = 'none';
     } catch(e) {
       console.error(`Failed to approve ${s.name}:`, e);
       failCount++;
     }
   }
-
   pendingStaffList = [];
   updateBulkBar();
   btn.disabled = false; btn.innerHTML = '✅ Approve All';
-
-  if (failCount === 0) showToast(`✅ All ${successCount} staff approved! Send each person their WhatsApp message.`);
+  if (failCount === 0) showToast(`✅ All ${successCount} staff approved!`);
   else showToast(`✅ ${successCount} approved · ❌ ${failCount} failed`);
 };
 
+// ── UPDATE BULK BAR COUNT ──
 function updateBulkBar() {
   const bulkBar = document.getElementById('bulk-bar');
   if (pendingStaffList.length > 0) {
@@ -472,6 +522,7 @@ function updateBulkBar() {
     pendingStaffList.length > 0 ? `(${pendingStaffList.length})` : '';
 }
 
+// ── EDIT HELPERS ──
 window.toggleEdit = function(id) {
   document.getElementById(`edit-section-${id}`).classList.toggle('open');
 };
@@ -483,16 +534,17 @@ window.saveEdits = async function(id) {
   const job    = document.getElementById(`edit-job-${id}`).value.trim();
   const salary = parseFloat(document.getElementById(`edit-salary-${id}`).value) || 0;
   try {
-    await updateDoc(doc(db,'pendingStaff',id), { name, department:dept, phone, jobtitle:job, salary, editedAt:serverTimestamp() });
-    document.getElementById(`display-name-${id}`).textContent = name;
-    document.getElementById(`display-dept-${id}`).textContent = dept;
+    await updateDoc(doc(db, 'pendingStaff', id), { name, department: dept, phone, jobtitle: job, salary, editedAt: serverTimestamp() });
+    document.getElementById(`display-name-${id}`).textContent  = name;
+    document.getElementById(`display-dept-${id}`).textContent  = dept;
     document.getElementById(`display-phone-${id}`).textContent = phone;
-    document.getElementById(`display-job-${id}`).textContent = job;
+    document.getElementById(`display-job-${id}`).textContent   = job;
     document.getElementById(`edit-section-${id}`).classList.remove('open');
     showToast('✅ Details updated!');
   } catch(e) { showToast('❌ Could not save. Try again.'); }
 };
 
+// ── COPY WHATSAPP MESSAGE ──
 window.copyWAMessage = function(id) {
   const msg = document.getElementById(`wa-msg-${id}`)?.textContent;
   if (!msg) return;
@@ -506,6 +558,7 @@ window.copyWAMessage = function(id) {
   });
 };
 
+// ── TAB SWITCHER ──
 window.switchTab = function(tab, el) {
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
@@ -513,6 +566,7 @@ window.switchTab = function(tab, el) {
   document.getElementById(`tab-${tab}`).classList.add('active');
 };
 
+// ── TOAST ──
 window.showToast = function(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg; t.classList.add('show');
