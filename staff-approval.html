@@ -9,7 +9,6 @@
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; min-height: 100vh; padding-bottom: 40px; }
 
-    /* ── LOADING SCREEN — shown until Firebase confirms admin ── */
     #auth-loading {
       position: fixed; inset: 0; background: #1a1a2e;
       display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -23,16 +22,6 @@
     #auth-loading p { color: rgba(255,255,255,0.7); font-size: 14px; }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* ── ACCESS DENIED screen ── */
-    #access-denied {
-      display: none; position: fixed; inset: 0; background: #1a1a2e;
-      flex-direction: column; align-items: center; justify-content: center;
-      gap: 12px; z-index: 9999;
-    }
-    #access-denied p { color: white; font-size: 16px; text-align: center; }
-    #access-denied a { color: #f59e0b; font-size: 14px; text-decoration: underline; }
-
-    /* ── MAIN PAGE — hidden until auth confirmed ── */
     #main-page { display: none; }
 
     .header { background: #1a1a2e; padding: 20px; display: flex; align-items: center; gap: 12px; }
@@ -41,21 +30,18 @@
     .header-sub { color: rgba(255,255,255,0.6); font-size: 12px; }
     .main { padding: 16px; }
 
-    /* Bulk approve bar */
     .bulk-bar { background: #fff8e6; border: 1.5px solid #fcd34d; border-radius: 16px; padding: 14px 16px; margin-bottom: 14px; display: none; align-items: center; justify-content: space-between; gap: 12px; }
     .bulk-bar.show { display: flex; }
     .bulk-bar-text { font-size: 13px; font-weight: 600; color: #92400e; }
     .btn-bulk-approve { padding: 10px 18px; background: #22c55e; color: white; border: none; border-radius: 10px; font-size: 13px; font-weight: 700; cursor: pointer; white-space: nowrap; }
     .btn-bulk-approve:disabled { opacity: 0.5; cursor: not-allowed; }
 
-    /* Tabs */
     .tabs { display: flex; gap: 8px; margin-bottom: 16px; }
     .tab { padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 600; cursor: pointer; border: 2px solid #e8e8e8; background: white; color: #888; }
     .tab.active { background: #1a1a2e; color: white; border-color: #1a1a2e; }
     .tab-content { display: none; }
     .tab-content.active { display: block; }
 
-    /* Cards */
     .staff-card { background: white; border-radius: 20px; padding: 18px; margin-bottom: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); }
     .pending-card { border-left: 4px solid #f59e0b; }
     .approved-card { border-left: 4px solid #22c55e; }
@@ -74,11 +60,9 @@
     .info-value { font-size: 13px; font-weight: 700; color: #1a1a2e; word-break: break-all; }
     .info-box.full { grid-column: 1 / -1; }
 
-    /* Password info box */
     .pwd-info { background: #fffbeb; border: 1.5px solid #fde68a; border-radius: 12px; padding: 12px 14px; margin-bottom: 14px; font-size: 13px; color: #92400e; line-height: 1.6; }
     .pwd-info strong { color: #1a1a2e; font-family: monospace; font-size: 15px; background: #fef3c7; padding: 2px 8px; border-radius: 6px; }
 
-    /* Edit section */
     .edit-section { background: #f0f2ff; border: 1.5px solid #c7c7ff; border-radius: 14px; padding: 14px; margin-bottom: 14px; display: none; }
     .edit-section.open { display: block; }
     .edit-group { margin-bottom: 10px; }
@@ -86,7 +70,6 @@
     .edit-input, .edit-select { width: 100%; padding: 10px 12px; border: 1.5px solid #c7c7ff; border-radius: 10px; font-size: 14px; color: #1a1a2e; background: white; outline: none; font-family: 'Segoe UI', sans-serif; }
     .save-edit-btn { width: 100%; padding: 10px; background: #3b37c8; color: white; border: none; border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer; margin-top: 4px; }
 
-    /* Action buttons */
     .action-row { display: flex; gap: 8px; flex-direction: column; }
     .edit-btn { width: 100%; padding: 10px; background: #f0f2ff; color: #1a1a2e; border: 2px solid #c7c7ff; border-radius: 12px; font-size: 14px; font-weight: 700; cursor: pointer; }
     .approve-reject-row { display: flex; gap: 8px; }
@@ -94,7 +77,6 @@
     .btn-reject { flex: 1; padding: 12px; background: #ef4444; color: white; border: none; border-radius: 12px; font-size: 14px; font-weight: 700; cursor: pointer; }
     .btn-approve:disabled, .btn-reject:disabled { opacity: 0.5; cursor: not-allowed; }
 
-    /* WhatsApp message box */
     .wa-box { display: none; background: #f0fdf4; border: 1.5px solid #86efac; border-radius: 14px; padding: 14px; margin-top: 10px; }
     .wa-box.show { display: block; }
     .wa-box-title { font-size: 12px; font-weight: 700; color: #15803d; margin-bottom: 8px; }
@@ -110,25 +92,17 @@
 
     .spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.8s linear infinite; vertical-align: middle; margin-right: 6px; }
 
-    .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: #1a1a2e; color: white; padding: 12px 24px; border-radius: 24px; font-size: 14px; font-weight: 600; z-index: 999; opacity: 0; transition: opacity 0.3s; white-space: nowrap; max-width: 90vw; text-align: center; }
+    .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: #1a1a2e; color: white; padding: 12px 24px; border-radius: 24px; font-size: 14px; font-weight: 600; z-index: 9998; opacity: 0; transition: opacity 0.3s; white-space: nowrap; max-width: 90vw; text-align: center; }
     .toast.show { opacity: 1; }
   </style>
 </head>
 <body>
 
-<!-- ── LOADING SCREEN — shown while Firebase checks who you are ── -->
 <div id="auth-loading">
   <div class="spin"></div>
   <p>Checking admin access…</p>
 </div>
 
-<!-- ── ACCESS DENIED — only shows if not admin ── -->
-<div id="access-denied" style="display:none;">
-  <p>⛔ Admin access only.</p>
-  <a href="admin.html">← Back to Dashboard</a>
-</div>
-
-<!-- ── MAIN PAGE — only shows after admin confirmed ── -->
 <div id="main-page">
   <div class="header">
     <a href="admin.html" class="back-btn">← Back</a>
@@ -137,19 +111,16 @@
       <div class="header-sub" id="header-sub">Loading…</div>
     </div>
   </div>
-
   <div class="main">
     <div class="bulk-bar" id="bulk-bar">
       <div class="bulk-bar-text" id="bulk-bar-text">⏳ pending registrations waiting</div>
       <button class="btn-bulk-approve" id="bulk-approve-btn" onclick="bulkApproveAll()">✅ Approve All</button>
     </div>
-
     <div class="tabs">
-      <div class="tab active" id="tab-btn-pending" onclick="switchTab('pending', this)">⏳ Pending <span id="pending-count"></span></div>
-      <div class="tab" id="tab-btn-approved" onclick="switchTab('approved', this)">✅ Approved</div>
-      <div class="tab" id="tab-btn-rejected" onclick="switchTab('rejected', this)">❌ Rejected</div>
+      <div class="tab active" onclick="switchTab('pending', this)">⏳ Pending <span id="pending-count"></span></div>
+      <div class="tab" onclick="switchTab('approved', this)">✅ Approved</div>
+      <div class="tab" onclick="switchTab('rejected', this)">❌ Rejected</div>
     </div>
-
     <div class="tab-content active" id="tab-pending">
       <div id="pending-list"><div class="empty-state"><div class="empty-icon">⏳</div>Loading…</div></div>
     </div>
@@ -165,65 +136,80 @@
 <div class="toast" id="toast"></div>
 
 <script type="module">
-import { initializeApp }                          from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getAuth, onAuthStateChanged,
-         createUserWithEmailAndPassword }         from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-import { getFirestore, collection, getDocs,
-         doc, updateDoc, setDoc,
-         serverTimestamp }                        from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { initializeApp }   from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getAuth, onAuthStateChanged }
+                           from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import { getFirestore, collection, getDocs, doc,
+         updateDoc, setDoc, serverTimestamp }
+                           from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-const FIREBASE_CONFIG = {
-  apiKey: "AIzaSyDNwQYXcwZrAh4cTfRyhOVk_pRod9p4CRM",
-  authDomain: "sparkals-tasks-app.firebaseapp.com",
-  projectId: "sparkals-tasks-app",
-  storageBucket: "sparkals-tasks-app.firebasestorage.app",
+// ── ONE Firebase app only — no secondary app, no session conflicts ──
+const app  = initializeApp({
+  apiKey:            "AIzaSyDNwQYXcwZrAh4cTfRyhOVk_pRod9p4CRM",
+  authDomain:        "sparkals-tasks-app.firebaseapp.com",
+  projectId:         "sparkals-tasks-app",
+  storageBucket:     "sparkals-tasks-app.firebasestorage.app",
   messagingSenderId: "147179987231",
-  appId: "1:147179987231:web:c6ffa484f33a2ca420d02a"
-};
+  appId:             "1:147179987231:web:c6ffa484f33a2ca420d02a"
+});
+const auth = getAuth(app);
+const db   = getFirestore(app);
 
-// ── PRIMARY app — admin stays logged in here always ──
-const adminApp  = initializeApp(FIREBASE_CONFIG, 'adminApp');
-const adminAuth = getAuth(adminApp);
-const db        = getFirestore(adminApp);
-
-// ── SECONDARY app — used ONLY to create new staff accounts ──
-const staffApp  = initializeApp(FIREBASE_CONFIG, 'staffCreationApp');
-const staffAuth = getAuth(staffApp);
+// Firebase REST API — creates staff accounts WITHOUT touching admin session
+const FB_KEY      = "AIzaSyDNwQYXcwZrAh4cTfRyhOVk_pRod9p4CRM";
+const SIGNUP_URL  = `https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${FB_KEY}`;
 
 const ADMIN_EMAILS = ['sandeepgemologist@gmail.com', 'sparkals.design@gmail.com'];
+const DEPTS = ['Sales & Marketing','Operations','Accounts & Finance','Logistics & Delivery',
+  'IT & Technology','Customer Support','Field / Site Work','Management',
+  'Production & Manufacturing','Purchase'];
 
 let pendingStaffList = [];
 
-// ── KEY FIX: Wait for Firebase to fully confirm who is logged in ──
-// onAuthStateChanged fires ONCE when Firebase knows the answer.
-// Only THEN do we show the page or redirect.
-// This stops the "redirect after 1 second" bug completely.
-onAuthStateChanged(adminAuth, async (user) => {
-  const loadingEl     = document.getElementById('auth-loading');
-  const deniedEl      = document.getElementById('access-denied');
-  const mainEl        = document.getElementById('main-page');
+// ── WAIT for Firebase to confirm who is logged in before doing anything ──
+onAuthStateChanged(auth, async (user) => {
+  const loadingEl = document.getElementById('auth-loading');
+  const mainEl    = document.getElementById('main-page');
 
-  // Case 1: Nobody logged in → go to login
   if (!user) {
+    // Not logged in at all
     window.location.replace('login.html');
     return;
   }
 
-  // Case 2: Logged in but NOT admin → show access denied (not a redirect loop)
   if (!ADMIN_EMAILS.includes(user.email.toLowerCase())) {
-    loadingEl.style.display = 'none';
-    deniedEl.style.display  = 'flex';
+    // Logged in but not admin
+    window.location.replace('dashboard.html');
     return;
   }
 
-  // Case 3: Confirmed admin → show the page
+  // ✅ Confirmed admin — show page
   loadingEl.style.display = 'none';
   mainEl.style.display    = 'block';
-  document.getElementById('header-sub').textContent = `Logged in as ${user.email}`;
+  document.getElementById('header-sub').textContent = 'Admin: ' + user.email;
   await loadAllStaff();
 });
 
-// ── LOAD ALL STAFF FROM pendingStaff COLLECTION ──
+// ── CREATE STAFF ACCOUNT via REST (never logs admin out) ──
+async function createStaffAccount(email, password) {
+  try {
+    const res  = await fetch(SIGNUP_URL, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ email, password, returnSecureToken: true })
+    });
+    const data = await res.json();
+    if (data.error) {
+      if (data.error.message === 'EMAIL_EXISTS') return null; // Already exists — that's fine
+      throw new Error(data.error.message);
+    }
+    return data.localId; // New staff UID
+  } catch(e) {
+    console.error('createStaffAccount error:', e);
+    return null;
+  }
+}
+
 async function loadAllStaff() {
   try {
     const snapshot = await getDocs(collection(db, 'pendingStaff'));
@@ -240,19 +226,15 @@ async function loadAllStaff() {
     renderApproved(approved);
     renderRejected(rejected);
   } catch(e) {
-    console.error('loadAllStaff error:', e);
+    console.error('loadAllStaff:', e);
     showToast('❌ Could not load staff. Check connection.');
   }
 }
 
-// ── RENDER PENDING TAB ──
 function renderPending(list) {
-  const container = document.getElementById('pending-list');
-  if (list.length === 0) {
-    container.innerHTML = `<div class="empty-state"><div class="empty-icon">🎉</div>No pending registrations!</div>`;
-    return;
-  }
-  container.innerHTML = list.map(s => `
+  const c = document.getElementById('pending-list');
+  if (!list.length) { c.innerHTML = `<div class="empty-state"><div class="empty-icon">🎉</div>No pending registrations!</div>`; return; }
+  c.innerHTML = list.map(s => `
     <div class="staff-card pending-card" id="card-${s.id}">
       <div class="card-top">
         <div class="avatar">${(s.name||'S').charAt(0).toUpperCase()}</div>
@@ -261,7 +243,6 @@ function renderPending(list) {
           <div class="staff-sub">Applied ${s.submittedAt?.toDate ? s.submittedAt.toDate().toLocaleDateString('en-IN') : 'recently'}</div>
         </div>
       </div>
-
       <div class="key-info">
         <div class="info-box full"><div class="info-label">👤 Full Name</div><div class="info-value" id="display-name-${s.id}">${s.name||'—'}</div></div>
         <div class="info-box"><div class="info-label">🏢 Department</div><div class="info-value" id="display-dept-${s.id}">${s.department||'—'}</div></div>
@@ -271,29 +252,17 @@ function renderPending(list) {
         <div class="info-box full"><div class="info-label">📧 Email</div><div class="info-value" id="display-email-${s.id}">${s.email||'—'}</div></div>
         <div class="info-box full"><div class="info-label">🪪 Aadhaar</div><div class="info-value">${s.aadhaar ? s.aadhaar.replace(/(\d{4})(\d{4})(\d{4})/,'$1 $2 $3') : '—'}</div></div>
       </div>
-
-      <div class="pwd-info">
-        🔑 First-time login password: <strong id="pwd-display-${s.id}">${s.phone||'See phone above'}</strong><br/>
-        <span style="font-size:11px;color:#b45309;">Staff should change this after first login</span>
-      </div>
-
+      <div class="pwd-info">🔑 First-time password: <strong>${s.phone||'See phone above'}</strong><br/><span style="font-size:11px;color:#b45309;">Staff changes this after first login</span></div>
       <div class="edit-section" id="edit-section-${s.id}">
         <div class="edit-group"><label class="edit-label">Full Name</label><input class="edit-input" id="edit-name-${s.id}" value="${s.name||''}"/></div>
-        <div class="edit-group">
-          <label class="edit-label">Department</label>
-          <select class="edit-select" id="edit-dept-${s.id}">
-            ${['Sales & Marketing','Operations','Accounts & Finance','Logistics & Delivery','IT & Technology','Customer Support','Field / Site Work','Management','Production & Manufacturing','Purchase'].map(d=>`<option value="${d}" ${s.department===d?'selected':''}>${d}</option>`).join('')}
-          </select>
+        <div class="edit-group"><label class="edit-label">Department</label>
+          <select class="edit-select" id="edit-dept-${s.id}">${DEPTS.map(d=>`<option value="${d}"${s.department===d?' selected':''}>${d}</option>`).join('')}</select>
         </div>
         <div class="edit-group"><label class="edit-label">Mobile Number</label><input class="edit-input" id="edit-phone-${s.id}" value="${s.phone||''}" maxlength="10"/></div>
         <div class="edit-group"><label class="edit-label">Job Title</label><input class="edit-input" id="edit-job-${s.id}" value="${s.jobtitle||''}"/></div>
-        <div class="edit-group">
-          <label class="edit-label">Monthly Gross Salary (₹) <span style="font-size:11px;color:#888;">— for salary reports</span></label>
-          <input class="edit-input" type="number" id="edit-salary-${s.id}" value="${s.salary||''}" placeholder="e.g. 18000"/>
-        </div>
+        <div class="edit-group"><label class="edit-label">Monthly Gross Salary (₹)</label><input class="edit-input" type="number" id="edit-salary-${s.id}" value="${s.salary||''}" placeholder="e.g. 18000"/></div>
         <button class="save-edit-btn" onclick="saveEdits('${s.id}')">💾 Save Changes</button>
       </div>
-
       <div class="action-row">
         <button class="edit-btn" onclick="toggleEdit('${s.id}')">✏️ Edit Details Before Approving</button>
         <div class="approve-reject-row">
@@ -301,31 +270,22 @@ function renderPending(list) {
           <button class="btn-reject"  id="reject-btn-${s.id}"  onclick="rejectStaff('${s.id}')">❌ Reject</button>
         </div>
       </div>
-
       <div class="wa-box" id="wa-box-${s.id}">
         <div class="wa-box-title">📱 WhatsApp Message Ready — tap Copy and send to staff</div>
         <div class="wa-message" id="wa-msg-${s.id}"></div>
         <button class="btn-copy-wa" onclick="copyWAMessage('${s.id}')">📋 Copy WhatsApp Message</button>
       </div>
-    </div>
-  `).join('');
+    </div>`).join('');
 }
 
-// ── RENDER APPROVED TAB ──
 function renderApproved(list) {
-  const container = document.getElementById('approved-list');
-  if (list.length === 0) {
-    container.innerHTML = `<div class="empty-state"><div class="empty-icon">👥</div>No approved staff yet.</div>`;
-    return;
-  }
-  container.innerHTML = list.map(s => `
+  const c = document.getElementById('approved-list');
+  if (!list.length) { c.innerHTML = `<div class="empty-state"><div class="empty-icon">👥</div>No approved staff yet.</div>`; return; }
+  c.innerHTML = list.map(s => `
     <div class="staff-card approved-card">
       <div class="card-top">
         <div class="avatar green">${(s.name||'S').charAt(0).toUpperCase()}</div>
-        <div style="flex:1;">
-          <div class="staff-name">${s.name||'Unknown'}</div>
-          <div class="staff-sub">${s.department||''} · ${s.phone||''}</div>
-        </div>
+        <div style="flex:1;"><div class="staff-name">${s.name||'Unknown'}</div><div class="staff-sub">${s.department||''} · ${s.phone||''}</div></div>
         <span class="status-badge badge-approved">✅ Approved</span>
       </div>
       <div class="key-info">
@@ -334,54 +294,26 @@ function renderApproved(list) {
         <div class="info-box"><div class="info-label">📱 Mobile</div><div class="info-value">${s.phone||'—'}</div></div>
         <div class="info-box"><div class="info-label">🆘 Emergency</div><div class="info-value">${s.emergencyPhone||'—'}</div></div>
       </div>
-    </div>
-  `).join('');
+    </div>`).join('');
 }
 
-// ── RENDER REJECTED TAB ──
 function renderRejected(list) {
-  const container = document.getElementById('rejected-list');
-  if (list.length === 0) {
-    container.innerHTML = `<div class="empty-state"><div class="empty-icon">📋</div>No rejected registrations.</div>`;
-    return;
-  }
-  container.innerHTML = list.map(s => `
+  const c = document.getElementById('rejected-list');
+  if (!list.length) { c.innerHTML = `<div class="empty-state"><div class="empty-icon">📋</div>No rejected registrations.</div>`; return; }
+  c.innerHTML = list.map(s => `
     <div class="staff-card rejected-card">
       <div class="card-top">
         <div class="avatar red">${(s.name||'S').charAt(0).toUpperCase()}</div>
-        <div style="flex:1;">
-          <div class="staff-name">${s.name||'Unknown'}</div>
-          <div class="staff-sub">${s.department||''} · ${s.phone||''}</div>
-        </div>
+        <div style="flex:1;"><div class="staff-name">${s.name||'Unknown'}</div><div class="staff-sub">${s.department||''}</div></div>
         <span class="status-badge badge-rejected">❌ Rejected</span>
       </div>
-    </div>
-  `).join('');
+    </div>`).join('');
 }
 
-// ── BUILD WHATSAPP MESSAGE ──
 function buildWAMessage(name, email, phone) {
-  return `Hi ${name}! 👋
-
-Your Sparkals Tasks account has been approved! ✅
-
-Here's how to log in right now:
-
-🌐 Open this link in Chrome on your phone:
-👉 https://sparkals-tasks.vercel.app/login.html
-
-📧 Email: ${email}
-🔑 Password: ${phone}
-
-After logging in:
-1️⃣ Tap "Add to Home Screen" when Chrome asks — this installs the app
-2️⃣ Go to your Profile and change your password
-
-Welcome to the team! 🎉
-— Sparkals Tasks`;
+  return `Hi ${name}! 👋\n\nYour Sparkals Tasks account has been approved! ✅\n\nHere's how to log in:\n\n🌐 Open in Chrome on your phone:\n👉 https://sparkals-tasks.vercel.app/login.html\n\n📧 Email: ${email}\n🔑 Password: ${phone}\n\nAfter logging in:\n1️⃣ Tap "Add to Home Screen" to install the app\n2️⃣ Change your password in Profile settings\n\nWelcome to the team! 🎉\n— Sparkals Tasks`;
 }
 
-// ── CORE APPROVE FUNCTION ──
 async function doApprove(s) {
   const id     = s.id;
   const name   = document.getElementById(`display-name-${id}`)?.textContent  || s.name       || '';
@@ -393,172 +325,116 @@ async function doApprove(s) {
 
   if (!email || email === '—') throw new Error('No email found');
 
-  let newUid = null;
-  try {
-    // Create Firebase account using SECONDARY app — admin session stays safe
-    const cred = await createUserWithEmailAndPassword(staffAuth, email, phone || 'Sparkals@1234');
-    newUid = cred.user.uid;
-    await staffAuth.signOut(); // Immediately sign out of secondary app
-  } catch(e) {
-    if (e.code === 'auth/email-already-in-use') {
-      console.log('Account already exists for', email, '— approving without reset');
-    } else {
-      throw e;
-    }
-  }
+  const newUid = await createStaffAccount(email, phone || 'Sparkals@1234');
 
-  // Update pendingStaff status to approved
   await updateDoc(doc(db, 'pendingStaff', id), {
-    status: 'approved',
-    approvedAt: serverTimestamp(),
+    status: 'approved', approvedAt: serverTimestamp(),
     ...(newUid ? { uid: newUid } : {})
   });
 
-  // Create user profile in users collection
   if (newUid) {
     await setDoc(doc(db, 'users', newUid), {
-      name, email, department: dept, phone,
-      jobtitle: job, salary,
-      role: 'staff', status: 'approved',
+      name, email, department: dept, phone, jobtitle: job, salary,
+      role: 'staff', status: 'approved', uid: newUid, userId: newUid,
       joinDate: new Date().toISOString().split('T')[0],
-      companyName: 'Sparkals Tasks',
-      mustChangePassword: true,
+      companyName: 'Sparkals Tasks', mustChangePassword: true,
       createdAt: serverTimestamp()
     });
   }
 
-  // Show WhatsApp message box
-  const waMsg = buildWAMessage(name, email, phone);
   const waMsgEl = document.getElementById(`wa-msg-${id}`);
   const waBox   = document.getElementById(`wa-box-${id}`);
-  if (waMsgEl && waBox) { waMsgEl.textContent = waMsg; waBox.classList.add('show'); }
-
+  if (waMsgEl && waBox) { waMsgEl.textContent = buildWAMessage(name, email, phone); waBox.classList.add('show'); }
   return name;
 }
 
-// ── APPROVE ONE STAFF ──
 window.approveStaff = async function(id) {
-  const approveBtn = document.getElementById(`approve-btn-${id}`);
-  const rejectBtn  = document.getElementById(`reject-btn-${id}`);
-  approveBtn.disabled = true; rejectBtn.disabled = true;
-  approveBtn.innerHTML = '<span class="spinner"></span>Approving…';
+  const ab = document.getElementById(`approve-btn-${id}`), rb = document.getElementById(`reject-btn-${id}`);
+  ab.disabled = true; rb.disabled = true; ab.innerHTML = '<span class="spinner"></span>Approving…';
   const s = pendingStaffList.find(x => x.id === id) || { id };
   try {
     const name = await doApprove(s);
-    showToast(`✅ ${name} approved! Copy the WhatsApp message below.`);
-    approveBtn.textContent = '✅ Approved';
-    approveBtn.style.background = '#86efac';
-    approveBtn.style.color = '#166534';
-    rejectBtn.style.display = 'none';
-    const editBtn = document.querySelector(`#card-${id} .edit-btn`);
-    if (editBtn) editBtn.style.display = 'none';
+    showToast(`✅ ${name} approved!`);
+    ab.textContent = '✅ Approved'; ab.style.background = '#86efac'; ab.style.color = '#166534';
+    rb.style.display = 'none';
+    const eb = document.querySelector(`#card-${id} .edit-btn`);
+    if (eb) eb.style.display = 'none';
     pendingStaffList = pendingStaffList.filter(x => x.id !== id);
     updateBulkBar();
   } catch(e) {
-    console.error('Approve error:', e);
-    showToast('❌ Could not approve. Try again.');
-    approveBtn.disabled = false; rejectBtn.disabled = false;
-    approveBtn.innerHTML = '✅ Approve';
+    console.error(e); showToast('❌ Could not approve: ' + e.message);
+    ab.disabled = false; rb.disabled = false; ab.innerHTML = '✅ Approve';
   }
 };
 
-// ── REJECT ONE STAFF ──
 window.rejectStaff = async function(id) {
   const name = document.getElementById(`display-name-${id}`)?.textContent || 'this staff';
-  if (!confirm(`Reject ${name}'s registration? Record will be kept as log.`)) return;
-  const rejectBtn = document.getElementById(`reject-btn-${id}`);
-  rejectBtn.disabled = true; rejectBtn.innerHTML = '<span class="spinner"></span>';
+  if (!confirm(`Reject ${name}'s registration?`)) return;
+  const rb = document.getElementById(`reject-btn-${id}`);
+  rb.disabled = true; rb.innerHTML = '<span class="spinner"></span>';
   try {
     await updateDoc(doc(db, 'pendingStaff', id), { status: 'rejected', rejectedAt: serverTimestamp() });
     showToast(`❌ ${name} rejected.`);
     const card = document.getElementById(`card-${id}`);
     card.style.opacity = '0'; card.style.transition = 'opacity 0.3s';
     setTimeout(() => { card.remove(); loadAllStaff(); }, 300);
-  } catch(e) {
-    showToast('❌ Could not reject. Try again.');
-    rejectBtn.disabled = false; rejectBtn.innerHTML = '❌ Reject';
-  }
+  } catch(e) { showToast('❌ Could not reject.'); rb.disabled = false; rb.innerHTML = '❌ Reject'; }
 };
 
-// ── BULK APPROVE ALL ──
 window.bulkApproveAll = async function() {
-  if (pendingStaffList.length === 0) return;
-  if (!confirm(`Approve all ${pendingStaffList.length} pending staff?\n\nEach person's password = their mobile number.\n\nWhatsApp messages will appear for each.`)) return;
+  if (!pendingStaffList.length) return;
+  if (!confirm(`Approve all ${pendingStaffList.length} pending staff?\nPassword = each person's mobile number.`)) return;
   const btn = document.getElementById('bulk-approve-btn');
   btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>Approving all…';
-  let successCount = 0, failCount = 0;
-  const toProcess = [...pendingStaffList];
-  for (const s of toProcess) {
+  let ok = 0, fail = 0;
+  for (const s of [...pendingStaffList]) {
     try {
-      await doApprove(s);
-      successCount++;
-      const ab = document.getElementById(`approve-btn-${s.id}`);
-      const rb = document.getElementById(`reject-btn-${s.id}`);
+      await doApprove(s); ok++;
+      const ab = document.getElementById(`approve-btn-${s.id}`), rb = document.getElementById(`reject-btn-${s.id}`);
       if (ab) { ab.textContent = '✅ Approved'; ab.style.background = '#86efac'; ab.style.color = '#166534'; ab.disabled = true; }
       if (rb) rb.style.display = 'none';
-    } catch(e) {
-      console.error(`Failed to approve ${s.name}:`, e);
-      failCount++;
-    }
+    } catch(e) { console.error(s.name, e); fail++; }
   }
-  pendingStaffList = [];
-  updateBulkBar();
+  pendingStaffList = []; updateBulkBar();
   btn.disabled = false; btn.innerHTML = '✅ Approve All';
-  if (failCount === 0) showToast(`✅ All ${successCount} staff approved!`);
-  else showToast(`✅ ${successCount} approved · ❌ ${failCount} failed`);
+  showToast(fail === 0 ? `✅ All ${ok} staff approved!` : `✅ ${ok} approved · ❌ ${fail} failed`);
 };
 
-// ── UPDATE BULK BAR COUNT ──
 function updateBulkBar() {
-  const bulkBar = document.getElementById('bulk-bar');
+  const b = document.getElementById('bulk-bar');
   if (pendingStaffList.length > 0) {
-    bulkBar.classList.add('show');
-    document.getElementById('bulk-bar-text').textContent =
-      `⏳ ${pendingStaffList.length} pending registration${pendingStaffList.length > 1 ? 's' : ''} waiting`;
-  } else {
-    bulkBar.classList.remove('show');
-  }
-  document.getElementById('pending-count').textContent =
-    pendingStaffList.length > 0 ? `(${pendingStaffList.length})` : '';
+    b.classList.add('show');
+    document.getElementById('bulk-bar-text').textContent = `⏳ ${pendingStaffList.length} pending registration${pendingStaffList.length > 1 ? 's' : ''} waiting`;
+  } else { b.classList.remove('show'); }
+  document.getElementById('pending-count').textContent = pendingStaffList.length > 0 ? `(${pendingStaffList.length})` : '';
 }
 
-// ── EDIT HELPERS ──
-window.toggleEdit = function(id) {
-  document.getElementById(`edit-section-${id}`).classList.toggle('open');
-};
+window.toggleEdit    = id => document.getElementById(`edit-section-${id}`).classList.toggle('open');
 
 window.saveEdits = async function(id) {
-  const name   = document.getElementById(`edit-name-${id}`).value.trim();
-  const dept   = document.getElementById(`edit-dept-${id}`).value;
-  const phone  = document.getElementById(`edit-phone-${id}`).value.trim();
-  const job    = document.getElementById(`edit-job-${id}`).value.trim();
+  const name = document.getElementById(`edit-name-${id}`).value.trim();
+  const dept = document.getElementById(`edit-dept-${id}`).value;
+  const phone = document.getElementById(`edit-phone-${id}`).value.trim();
+  const job = document.getElementById(`edit-job-${id}`).value.trim();
   const salary = parseFloat(document.getElementById(`edit-salary-${id}`).value) || 0;
   try {
-    await updateDoc(doc(db, 'pendingStaff', id), { name, department: dept, phone, jobtitle: job, salary, editedAt: serverTimestamp() });
+    await updateDoc(doc(db,'pendingStaff',id),{name,department:dept,phone,jobtitle:job,salary,editedAt:serverTimestamp()});
     document.getElementById(`display-name-${id}`).textContent  = name;
     document.getElementById(`display-dept-${id}`).textContent  = dept;
     document.getElementById(`display-phone-${id}`).textContent = phone;
     document.getElementById(`display-job-${id}`).textContent   = job;
     document.getElementById(`edit-section-${id}`).classList.remove('open');
     showToast('✅ Details updated!');
-  } catch(e) { showToast('❌ Could not save. Try again.'); }
+  } catch(e) { showToast('❌ Could not save.'); }
 };
 
-// ── COPY WHATSAPP MESSAGE ──
 window.copyWAMessage = function(id) {
   const msg = document.getElementById(`wa-msg-${id}`)?.textContent;
   if (!msg) return;
-  navigator.clipboard.writeText(msg).then(() => {
-    showToast('✅ Copied! Paste into WhatsApp now.');
-  }).catch(() => {
-    const ta = document.createElement('textarea');
-    ta.value = msg; document.body.appendChild(ta);
-    ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
-    showToast('✅ Copied! Paste into WhatsApp now.');
-  });
+  navigator.clipboard.writeText(msg).then(() => showToast('✅ Copied! Paste into WhatsApp.'))
+  .catch(() => { const ta = document.createElement('textarea'); ta.value = msg; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); showToast('✅ Copied!'); });
 };
 
-// ── TAB SWITCHER ──
 window.switchTab = function(tab, el) {
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
@@ -566,7 +442,6 @@ window.switchTab = function(tab, el) {
   document.getElementById(`tab-${tab}`).classList.add('active');
 };
 
-// ── TOAST ──
 window.showToast = function(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg; t.classList.add('show');
