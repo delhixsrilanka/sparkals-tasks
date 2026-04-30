@@ -11,28 +11,14 @@
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 :root{
-  --bg:#0f0f1a;
-  --surface:#1a1a2e;
-  --surface2:#22223a;
-  --surface3:#2a2a45;
-  --border:#2d2d44;
-  --accent:#7c3aed;
-  --accent2:#a78bfa;
-  --green:#10b981;
-  --red:#ef4444;
-  --amber:#f59e0b;
-  --blue:#3b82f6;
-  --teal:#22d3ee;
-  --text:#f1f5f9;
-  --text2:#94a3b8;
-  --text3:#64748b;
-  --radius:14px;
-  --radius-sm:8px;
-  --shadow:0 4px 20px rgba(0,0,0,0.3);
+  --bg:#0f0f1a;--surface:#1a1a2e;--surface2:#22223a;--surface3:#2a2a45;
+  --border:#2d2d44;--accent:#7c3aed;--accent2:#a78bfa;
+  --green:#10b981;--red:#ef4444;--amber:#f59e0b;--blue:#3b82f6;
+  --text:#f1f5f9;--text2:#94a3b8;--text3:#64748b;
+  --radius:14px;--radius-sm:8px;--shadow:0 4px 20px rgba(0,0,0,0.3);
 }
 body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;padding-bottom:80px;}
 
-/* ── TOPNAV ── */
 .topnav{background:var(--surface);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;}
 .topnav-left{display:flex;align-items:center;gap:12px;}
 .topnav img{width:36px;height:36px;border-radius:8px;}
@@ -45,36 +31,30 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 .btn-logout{background:transparent;border:1px solid var(--border);color:var(--text2);padding:6px 14px;border-radius:var(--radius-sm);cursor:pointer;font-size:13px;font-family:'DM Sans',sans-serif;transition:all 0.2s;}
 .btn-logout:hover{border-color:var(--red);color:var(--red);}
 
-/* ── NAV TABS ── */
 .nav-tabs{background:var(--surface);display:flex;overflow-x:auto;border-bottom:1px solid var(--border);scrollbar-width:none;}
 .nav-tabs::-webkit-scrollbar{display:none;}
 .nav-tab{padding:12px 18px;font-size:13px;font-weight:500;color:var(--text2);cursor:pointer;white-space:nowrap;border-bottom:2px solid transparent;transition:all 0.2s;border:none;background:none;font-family:'DM Sans',sans-serif;}
 .nav-tab.active{color:var(--accent2);border-bottom:2px solid var(--accent2);}
 .nav-tab:hover{color:var(--text);}
 
-/* ── MAIN ── */
 .main{padding:20px 16px;max-width:900px;margin:0 auto;}
 
-/* ── STAT CARDS ── */
 .stat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:24px;}
 @media(min-width:600px){.stat-grid{grid-template-columns:repeat(4,1fr);}}
 .stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;display:flex;align-items:center;gap:14px;}
 .stat-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
-.stat-icon.green{background:#10b98120;} .stat-icon.red{background:#ef444420;} .stat-icon.amber{background:#f59e0b20;} .stat-icon.blue{background:#3b82f620;}
+.stat-icon.green{background:#10b98120;}.stat-icon.red{background:#ef444420;}.stat-icon.amber{background:#f59e0b20;}.stat-icon.blue{background:#3b82f620;}
 .stat-num{font-family:'Space Mono',monospace;font-size:26px;font-weight:700;line-height:1;}
-.stat-num.green{color:var(--green);} .stat-num.red{color:var(--red);} .stat-num.amber{color:var(--amber);} .stat-num.blue{color:var(--blue);}
+.stat-num.green{color:var(--green);}.stat-num.red{color:var(--red);}.stat-num.amber{color:var(--amber);}.stat-num.blue{color:var(--blue);}
 .stat-label{font-size:12px;color:var(--text2);margin-top:3px;}
 
-/* ── SECTION HEADER ── */
 .section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
 .section-title{font-size:15px;font-weight:600;color:var(--text);}
 .section-sub{font-size:12px;color:var(--text2);margin-top:2px;}
 .refresh-btn{background:transparent;border:1px solid var(--border);color:var(--text2);padding:6px 12px;border-radius:var(--radius-sm);cursor:pointer;font-size:12px;font-family:'DM Sans',sans-serif;transition:all 0.2s;}
 .refresh-btn:hover{color:var(--accent2);border-color:var(--accent2);}
 
-/* ── FILTER BAR ── */
 .filter-bar{display:flex;gap:8px;margin-bottom:14px;overflow-x:auto;scrollbar-width:none;flex-wrap:wrap;}
-.filter-bar::-webkit-scrollbar{display:none;}
 .filter-chip{padding:6px 14px;border-radius:20px;font-size:12px;font-weight:500;cursor:pointer;white-space:nowrap;border:1px solid var(--border);color:var(--text2);background:transparent;font-family:'DM Sans',sans-serif;transition:all 0.2s;}
 .fc-all.active{background:var(--accent);border-color:var(--accent);color:white;}
 .fc-present.active{background:#10b98120;border-color:var(--green);color:var(--green);}
@@ -82,7 +62,6 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 .fc-late.active{background:#f59e0b20;border-color:var(--amber);color:var(--amber);}
 .fc-leave.active{background:#3b82f620;border-color:var(--blue);color:var(--blue);}
 
-/* ── STAFF LIST ── */
 .staff-list{display:flex;flex-direction:column;gap:10px;}
 .staff-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;display:flex;align-items:center;gap:14px;transition:border-color 0.2s;}
 .staff-card:hover{border-color:var(--accent);}
@@ -93,10 +72,8 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 .staff-dept{font-size:12px;color:var(--text2);margin-top:2px;}
 .staff-time{font-family:'Space Mono',monospace;font-size:11px;color:var(--text2);margin-top:3px;}
 .staff-actions{display:flex;gap:8px;flex-shrink:0;align-items:center;}
-.btn-manual{background:#10b98115;border:1px solid var(--green);color:var(--green);padding:6px 12px;border-radius:var(--radius-sm);cursor:pointer;font-size:12px;font-weight:600;font-family:'DM Sans',sans-serif;white-space:nowrap;transition:background 0.2s;}
-.btn-manual:hover{background:#10b98130;}
+.btn-manual{background:#10b98115;border:1px solid var(--green);color:var(--green);padding:6px 12px;border-radius:var(--radius-sm);cursor:pointer;font-size:12px;font-weight:600;font-family:'DM Sans',sans-serif;white-space:nowrap;}
 
-/* ── STATUS BADGES ── */
 .status-badge{font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;}
 .badge-present{background:#10b98120;color:var(--green);}
 .badge-absent{background:#ef444420;color:var(--red);}
@@ -104,13 +81,11 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 .badge-leave{background:#3b82f620;color:var(--blue);}
 .badge-lunch{background:#f59e0b20;color:var(--amber);}
 
-/* ── LATE ALERT PANEL ── */
 .alert-panel{background:#ef444410;border:1px solid #ef444440;border-radius:var(--radius);padding:16px;margin-bottom:20px;}
-.alert-panel-title{font-size:13px;font-weight:600;color:var(--red);margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+.alert-panel-title{font-size:13px;font-weight:600;color:var(--red);margin-bottom:10px;}
 .alert-item{font-size:13px;color:var(--text);padding:6px 0;border-bottom:1px solid #ef444420;display:flex;justify-content:space-between;}
 .alert-item:last-child{border-bottom:none;}
 
-/* ── EMPTY / LOADING ── */
 .empty-state{text-align:center;padding:40px 20px;color:var(--text2);}
 .empty-state .emoji{font-size:40px;margin-bottom:12px;}
 .empty-state p{font-size:14px;}
@@ -119,7 +94,6 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 @keyframes spin{to{transform:rotate(360deg);}}
 .last-updated{text-align:center;font-size:11px;color:var(--text2);margin-top:16px;padding-bottom:16px;}
 
-/* ── MODAL ── */
 .modal-overlay{position:fixed;inset:0;background:#000000bb;display:flex;align-items:center;justify-content:center;z-index:200;padding:20px;}
 .modal-overlay.hidden{display:none;}
 .modal{background:var(--surface2);border:1px solid var(--border);border-radius:18px;padding:24px;width:100%;max-width:380px;}
@@ -132,27 +106,22 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 .btn-confirm{flex:1;background:var(--green);color:white;border:none;padding:12px;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;}
 .btn-cancel{flex:1;background:transparent;color:var(--text2);border:1px solid var(--border);padding:12px;border-radius:10px;font-size:14px;cursor:pointer;font-family:'DM Sans',sans-serif;}
 
-/* ── TOAST ── */
 .toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:var(--surface);border:1px solid var(--border);color:var(--text);padding:12px 20px;border-radius:12px;font-size:14px;font-weight:500;z-index:300;opacity:0;transition:opacity 0.3s;white-space:nowrap;pointer-events:none;}
 .toast.show{opacity:1;}
 .toast.success{border-color:var(--green);color:var(--green);}
 .toast.error{border-color:var(--red);color:var(--red);}
 
-/* ── BOTTOM NAV ── */
 .bottom-nav{position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:1px solid var(--border);display:flex;justify-content:space-around;padding:10px 0 16px;z-index:100;}
 .nav-item{display:flex;flex-direction:column;align-items:center;gap:3px;text-decoration:none;color:var(--text3);cursor:pointer;padding:4px 10px;border-radius:10px;transition:color 0.2s;}
 .nav-item.active{color:var(--accent2);}
-.nav-item:hover{color:var(--text);}
-.nav-icon{font-size:20px;}
-.nav-label{font-size:10px;font-weight:600;}
+.nav-icon{font-size:20px;}.nav-label{font-size:10px;font-weight:600;}
 </style>
 </head>
 <body>
 
-<!-- TOP NAV -->
 <div class="topnav">
   <div class="topnav-left">
-    <img src="/icons/logo%20copfy.png" alt="Sparkals"/>
+    <img src="/icons/logo%20copfy.png" alt="Sparkals" onerror="this.style.display='none'"/>
     <div>
       <div class="topnav-title">Sparkals Tasks</div>
       <div class="topnav-sub">Admin Dashboard</div>
@@ -164,9 +133,9 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
   </div>
 </div>
 
-<!-- NAV TABS -->
+<!-- NAV TABS — all use direct href links, no onclick navigation -->
 <div class="nav-tabs">
-  <button class="nav-tab active" onclick="showTab('staff',this)">👥 Staff Status</button>
+  <button class="nav-tab active"                                    onclick="showTab(this)">👥 Staff Status</button>
   <button class="nav-tab" onclick="window.location.href='map.html'">🗺️ Live Map</button>
   <button class="nav-tab" onclick="window.location.href='tasks.html'">✅ Tasks</button>
   <button class="nav-tab" onclick="window.location.href='attendance.html'">📅 Attendance</button>
@@ -175,36 +144,19 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
   <button class="nav-tab" onclick="window.location.href='reports.html'">📊 Reports</button>
 </div>
 
-<!-- MAIN -->
 <div class="main">
-
-  <!-- STAT CARDS -->
   <div class="stat-grid">
-    <div class="stat-card">
-      <div class="stat-icon green">✅</div>
-      <div><div class="stat-num green" id="countPresent">—</div><div class="stat-label">Present</div></div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-icon red">🔴</div>
-      <div><div class="stat-num red" id="countAbsent">—</div><div class="stat-label">Not In Yet</div></div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-icon amber">⏰</div>
-      <div><div class="stat-num amber" id="countLate">—</div><div class="stat-label">Late Today</div></div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-icon blue">🌴</div>
-      <div><div class="stat-num blue" id="countLeave">—</div><div class="stat-label">On Leave</div></div>
-    </div>
+    <div class="stat-card"><div class="stat-icon green">✅</div><div><div class="stat-num green" id="countPresent">—</div><div class="stat-label">Present</div></div></div>
+    <div class="stat-card"><div class="stat-icon red">🔴</div><div><div class="stat-num red" id="countAbsent">—</div><div class="stat-label">Not In Yet</div></div></div>
+    <div class="stat-card"><div class="stat-icon amber">⏰</div><div><div class="stat-num amber" id="countLate">—</div><div class="stat-label">Late Today</div></div></div>
+    <div class="stat-card"><div class="stat-icon blue">🌴</div><div><div class="stat-num blue" id="countLeave">—</div><div class="stat-label">On Leave</div></div></div>
   </div>
 
-  <!-- LATE ALERT PANEL -->
   <div class="alert-panel" id="latePanel" style="display:none">
     <div class="alert-panel-title">⚠️ Late Arrivals Today</div>
     <div id="lateList"></div>
   </div>
 
-  <!-- SECTION HEADER -->
   <div class="section-header">
     <div>
       <div class="section-title">Staff Status — Today</div>
@@ -213,24 +165,20 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
     <button class="refresh-btn" onclick="loadDashboard()">↻ Refresh</button>
   </div>
 
-  <!-- FILTER CHIPS -->
   <div class="filter-bar">
     <button class="filter-chip fc-all active" onclick="setFilter('all',this)">All</button>
-    <button class="filter-chip fc-present" onclick="setFilter('present',this)">✅ Present</button>
-    <button class="filter-chip fc-absent" onclick="setFilter('absent',this)">🔴 Not In</button>
-    <button class="filter-chip fc-late" onclick="setFilter('late',this)">⏰ Late</button>
-    <button class="filter-chip fc-leave" onclick="setFilter('leave',this)">🌴 Leave</button>
+    <button class="filter-chip fc-present"    onclick="setFilter('present',this)">✅ Present</button>
+    <button class="filter-chip fc-absent"     onclick="setFilter('absent',this)">🔴 Not In</button>
+    <button class="filter-chip fc-late"       onclick="setFilter('late',this)">⏰ Late</button>
+    <button class="filter-chip fc-leave"      onclick="setFilter('leave',this)">🌴 Leave</button>
   </div>
 
-  <!-- STAFF LIST -->
   <div class="staff-list" id="staffList">
     <div class="loading-state"><div class="spinner"></div>Loading staff status...</div>
   </div>
-
   <div class="last-updated" id="lastUpdated"></div>
 </div>
 
-<!-- MANUAL CLOCK-IN MODAL -->
 <div class="modal-overlay hidden" id="manualModal">
   <div class="modal">
     <div class="modal-title">Manual Clock-In</div>
@@ -245,10 +193,8 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
   </div>
 </div>
 
-<!-- TOAST -->
 <div class="toast" id="toast"></div>
 
-<!-- BOTTOM NAV -->
 <nav class="bottom-nav">
   <a class="nav-item" href="dashboard.html"><span class="nav-icon">🏠</span><span class="nav-label">Home</span></a>
   <a class="nav-item active" href="admin.html"><span class="nav-icon">⚙️</span><span class="nav-label">Admin</span></a>
@@ -257,205 +203,224 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
   <a class="nav-item" href="notifications.html"><span class="nav-icon">🔔</span><span class="nav-label">Alerts</span></a>
 </nav>
 
+<!-- ── IMPORTANT: Firebase SDK 10.8.0 — same as every other page ── -->
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import {
-  getFirestore, collection, doc, getDoc, getDocs, setDoc,
-  query, where, serverTimestamp
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import { getFirestore, collection, doc, getDoc, getDocs,
+         setDoc, query, where, serverTimestamp }
+  from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyDNwQYXcwZrAh4cTfRyhOVk_pRod9p4CRM",
-  authDomain: "sparkals-tasks-app.firebaseapp.com",
-  projectId: "sparkals-tasks-app",
-  storageBucket: "sparkals-tasks-app.firebasestorage.app",
+const app  = initializeApp({
+  apiKey:            "AIzaSyDNwQYXcwZrAh4cTfRyhOVk_pRod9p4CRM",
+  authDomain:        "sparkals-tasks-app.firebaseapp.com",
+  projectId:         "sparkals-tasks-app",
+  storageBucket:     "sparkals-tasks-app.firebasestorage.app",
   messagingSenderId: "147179987231",
-  appId: "1:147179987231:web:c6ffa484f33a2ca420d02a"
-};
-
-const app = initializeApp(firebaseConfig);
+  appId:             "1:147179987231:web:c6ffa484f33a2ca420d02a"
+});
 const auth = getAuth(app);
-const db = getFirestore(app);
+const db   = getFirestore(app);
 
+const ADMIN_EMAILS = ['sandeepgemologist@gmail.com','sparkals.design@gmail.com'];
 let allStaffData = [];
 let currentFilter = "all";
-let manualTargetUid = null;
-let manualTargetName = null;
+let manualTargetUid = null, manualTargetName = null;
 let autoRefreshTimer = null;
+
+// ── UNIVERSAL TIMESTAMP → "HH:MM" string ──
+// Handles Firestore Timestamp, {seconds,nanoseconds}, Date, ISO string, "HH:MM" string
+function tsToHHMM(ts) {
+  if (!ts) return null;
+  try {
+    let d = null;
+    if (typeof ts.toDate === 'function') d = ts.toDate();
+    else if (ts instanceof Date)         d = ts;
+    else if (typeof ts === 'number')     d = new Date(ts);
+    else if (ts.seconds !== undefined)   d = new Date(ts.seconds * 1000);
+    else if (typeof ts === 'string') {
+      if (/^\d{1,2}:\d{2}/.test(ts)) return ts.slice(0,5); // already "HH:MM"
+      d = new Date(ts);
+    }
+    if (!d || isNaN(d)) return null;
+    return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+  } catch(e) { return null; }
+}
+
+function getTodayKey() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+function minutesLate(hhmm) {
+  if (!hhmm) return 0;
+  const [h, m] = hhmm.split(':').map(Number);
+  return Math.max(0, (h * 60 + m) - (9 * 60 + 15));
+}
 
 // ── AUTH GUARD ──
 onAuthStateChanged(auth, async user => {
-  if (!user) { window.location.href = "/login.html"; return; }
-  // Verify admin role
-  try {
-    const snap = await getDoc(doc(db, "users", user.uid));
-    if (!snap.exists() || snap.data().role !== "admin") {
-      window.location.href = "/dashboard.html";
-      return;
-    }
-  } catch(e) {}
+  if (!user) { window.location.href = 'login.html'; return; }
+  // Allow both admin email list AND role:admin in Firestore
+  const isAdminEmail = ADMIN_EMAILS.includes(user.email.toLowerCase());
+  if (!isAdminEmail) {
+    try {
+      const snap = await getDoc(doc(db, 'users', user.uid));
+      if (!snap.exists() || snap.data().role !== 'admin') {
+        window.location.href = 'dashboard.html'; return;
+      }
+    } catch(e) { window.location.href = 'dashboard.html'; return; }
+  }
   loadDashboard();
   autoRefreshTimer = setInterval(loadDashboard, 60000);
 });
 
-// ── HELPERS ──
-function getTodayKey() {
-  const d = new Date();
-  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
-}
-
-function minutesLate(timeStr) {
-  if (!timeStr) return 0;
-  const [h, m] = timeStr.split(":").map(Number);
-  return Math.max(0, (h*60+m) - (9*60+15));
-}
-
 // ── LOAD DASHBOARD ──
 window.loadDashboard = async function() {
   const today = getTodayKey();
-  const now = new Date();
-  document.getElementById("dateLabel").textContent =
-    now.toLocaleDateString("en-IN", { weekday:"long", day:"numeric", month:"long", year:"numeric" });
+  const now   = new Date();
+  document.getElementById('dateLabel').textContent =
+    now.toLocaleDateString('en-IN', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
 
   try {
     // 1. All approved staff
-    const usersSnap = await getDocs(collection(db, "users"));
+    const usersSnap = await getDocs(collection(db, 'users'));
     const staffList = [];
     usersSnap.forEach(d => {
       const data = d.data();
-      if (data.status === "approved" || data.role === "admin") {
+      if (data.status === 'approved' || data.role === 'admin') {
         staffList.push({ uid: d.id, ...data });
       }
     });
 
     // 2. Today's attendance
-    const attSnap = await getDocs(query(collection(db,"attendance"), where("date","==",today)));
-    const attMap = {};
+    const attSnap = await getDocs(query(collection(db,'attendance'), where('date','==',today)));
+    const attMap  = {};
     attSnap.forEach(d => {
       const data = d.data();
-      const uid = data.uid || data.userId;
+      const uid  = data.uid || data.userId;
       if (uid) attMap[uid] = data;
     });
 
     // 3. Approved leaves covering today
-    const leaveSnap = await getDocs(query(collection(db,"leaves"), where("status","==","approved")));
-    const leaveMap = {};
+    const leaveSnap = await getDocs(query(collection(db,'leaves'), where('status','==','approved')));
+    const leaveMap  = {};
     leaveSnap.forEach(d => {
       const data = d.data();
-      if (data.fromDate <= today && data.toDate >= today) {
-        leaveMap[data.uid] = data;
-      }
+      if (data.fromDate <= today && data.toDate >= today) leaveMap[data.uid] = data;
     });
 
-    // 4. Build staff status
-    const LATE_THRESHOLD = "09:15";
+    // 4. Build staff status — using tsToHHMM so Timestamps work correctly
     allStaffData = staffList.map(staff => {
-      const att = attMap[staff.uid];
+      const att     = attMap[staff.uid];
       const onLeave = !!leaveMap[staff.uid];
-      let status, clockInTime = null, clockOutTime = null, isLate = false;
+      let status, clockInHHMM = null, clockOutHHMM = null, isLate = false;
 
       if (onLeave) {
-        status = "leave";
+        status = 'leave';
       } else if (att) {
-        clockInTime = att.clockIn || null;
-        clockOutTime = (att.clockOut && att.clockOut !== "none") ? att.clockOut : null;
-        isLate = clockInTime && clockInTime > LATE_THRESHOLD;
-        if (att.onLunch) status = "lunch";
-        else if (clockOutTime) status = "left";
-        else status = isLate ? "late" : "present";
+        clockInHHMM  = tsToHHMM(att.clockIn);
+        clockOutHHMM = att.clockOut ? tsToHHMM(att.clockOut) : null;
+        // Late = clocked in after 09:15
+        if (clockInHHMM) {
+          const [h, m] = clockInHHMM.split(':').map(Number);
+          isLate = (h > 9) || (h === 9 && m >= 15);
+        }
+        if (att.lunchOut && !att.lunchIn) status = 'lunch';
+        else if (clockOutHHMM)            status = 'left';
+        else                              status = isLate ? 'late' : 'present';
       } else {
-        status = "absent";
+        status = 'absent';
       }
 
-      return { ...staff, status, clockInTime, clockOutTime, isLate, leaveData: leaveMap[staff.uid] || null };
+      return { ...staff, status, clockInHHMM, clockOutHHMM, isLate, leaveData: leaveMap[staff.uid] || null };
     });
 
-    // 5. Sort — clocked in first, then absent
-    allStaffData.sort((a,b) => {
-      if (a.clockInTime && b.clockInTime) return a.clockInTime.localeCompare(b.clockInTime);
-      if (a.clockInTime) return -1;
-      if (b.clockInTime) return 1;
+    // 5. Sort — clocked in first
+    allStaffData.sort((a, b) => {
+      if (a.clockInHHMM && b.clockInHHMM) return a.clockInHHMM.localeCompare(b.clockInHHMM);
+      if (a.clockInHHMM) return -1;
+      if (b.clockInHHMM) return 1;
       return 0;
     });
 
-    // 6. Update stat counts
-    let present=0, absent=0, late=0, leave=0;
+    // 6. Counts
+    let present = 0, absent = 0, late = 0, leave = 0;
     allStaffData.forEach(s => {
-      if (["present","lunch","left","late"].includes(s.status)) present++;
-      if (s.status === "absent") absent++;
-      if (s.isLate) late++;
-      if (s.status === "leave") leave++;
+      if (['present','lunch','left','late'].includes(s.status)) present++;
+      if (s.status === 'absent') absent++;
+      if (s.isLate)  late++;
+      if (s.status === 'leave') leave++;
     });
-    document.getElementById("countPresent").textContent = present;
-    document.getElementById("countAbsent").textContent = absent;
-    document.getElementById("countLate").textContent = late;
-    document.getElementById("countLeave").textContent = leave;
+    document.getElementById('countPresent').textContent = present;
+    document.getElementById('countAbsent').textContent  = absent;
+    document.getElementById('countLate').textContent    = late;
+    document.getElementById('countLeave').textContent   = leave;
 
     // 7. Late alert panel
     const lateStaff = allStaffData.filter(s => s.isLate);
-    const latePanel = document.getElementById("latePanel");
+    const latePanel = document.getElementById('latePanel');
     if (lateStaff.length > 0) {
-      latePanel.style.display = "block";
-      document.getElementById("lateList").innerHTML = lateStaff.map(s =>
+      latePanel.style.display = 'block';
+      document.getElementById('lateList').innerHTML = lateStaff.map(s =>
         `<div class="alert-item">
           <span>${s.name || s.email}</span>
-          <span style="color:var(--amber)">${s.clockInTime} (${minutesLate(s.clockInTime)} min late)</span>
-        </div>`
-      ).join("");
+          <span style="color:var(--amber)">${s.clockInHHMM} (${minutesLate(s.clockInHHMM)} min late)</span>
+        </div>`).join('');
     } else {
-      latePanel.style.display = "none";
+      latePanel.style.display = 'none';
     }
 
     renderList();
-    document.getElementById("lastUpdated").textContent =
-      "Last updated: " + now.toLocaleTimeString("en-IN", { hour:"2-digit", minute:"2-digit" });
+    document.getElementById('lastUpdated').textContent =
+      'Last updated: ' + now.toLocaleTimeString('en-IN', { hour:'2-digit', minute:'2-digit' });
 
   } catch(err) {
-    console.error(err);
-    document.getElementById("staffList").innerHTML =
+    console.error('loadDashboard error:', err);
+    document.getElementById('staffList').innerHTML =
       `<div class="empty-state"><div class="emoji">⚠️</div><p>Could not load staff data.<br>Check connection and try again.</p></div>`;
   }
 };
 
 // ── RENDER LIST ──
 function renderList() {
-  const list = document.getElementById("staffList");
+  const list = document.getElementById('staffList');
   let filtered = [...allStaffData];
-  if (currentFilter === "present") filtered = filtered.filter(s => ["present","lunch","left","late"].includes(s.status));
-  else if (currentFilter === "absent") filtered = filtered.filter(s => s.status === "absent");
-  else if (currentFilter === "late") filtered = filtered.filter(s => s.isLate);
-  else if (currentFilter === "leave") filtered = filtered.filter(s => s.status === "leave");
+  if      (currentFilter === 'present') filtered = filtered.filter(s => ['present','lunch','left','late'].includes(s.status));
+  else if (currentFilter === 'absent')  filtered = filtered.filter(s => s.status === 'absent');
+  else if (currentFilter === 'late')    filtered = filtered.filter(s => s.isLate);
+  else if (currentFilter === 'leave')   filtered = filtered.filter(s => s.status === 'leave');
 
   if (!filtered.length) {
     list.innerHTML = `<div class="empty-state"><div class="emoji">🎉</div><p>No staff in this category today.</p></div>`;
     return;
   }
-  list.innerHTML = filtered.map(s => buildStaffCard(s)).join("");
+  list.innerHTML = filtered.map(s => buildStaffCard(s)).join('');
 }
 
 function buildStaffCard(s) {
-  const initials = (s.name || s.email || "?").split(" ").map(w=>w[0]).join("").toUpperCase().slice(0,2);
-  const palette = ["#7c3aed","#0891b2","#059669","#d97706","#dc2626","#0284c7"];
-  const color = palette[(s.name||"").charCodeAt(0) % palette.length] || "#7c3aed";
+  const initials = (s.name || s.email || '?').split(' ').map(w => w[0]).join('').toUpperCase().slice(0,2);
+  const palette  = ['#7c3aed','#0891b2','#059669','#d97706','#dc2626','#0284c7'];
+  const color    = palette[(s.name || '').charCodeAt(0) % palette.length] || '#7c3aed';
 
-  let badgeClass="", badgeText="", dotColor="";
-  if (s.status==="present")      { badgeClass="badge-present"; badgeText="Present";  dotColor="#10b981"; }
-  else if (s.status==="late")    { badgeClass="badge-late";    badgeText="Late";     dotColor="#f59e0b"; }
-  else if (s.status==="lunch")   { badgeClass="badge-lunch";   badgeText="Lunch";    dotColor="#f59e0b"; }
-  else if (s.status==="left")    { badgeClass="badge-present"; badgeText="Left";     dotColor="#64748b"; }
-  else if (s.status==="absent")  { badgeClass="badge-absent";  badgeText="Not In";   dotColor="#ef4444"; }
-  else if (s.status==="leave")   { badgeClass="badge-leave";   badgeText="On Leave"; dotColor="#3b82f6"; }
+  let badgeClass='', badgeText='', dotColor='';
+  if      (s.status==='present') { badgeClass='badge-present'; badgeText='Present';  dotColor='#10b981'; }
+  else if (s.status==='late')    { badgeClass='badge-late';    badgeText='Late';     dotColor='#f59e0b'; }
+  else if (s.status==='lunch')   { badgeClass='badge-lunch';   badgeText='Lunch';    dotColor='#f59e0b'; }
+  else if (s.status==='left')    { badgeClass='badge-present'; badgeText='Left';     dotColor='#64748b'; }
+  else if (s.status==='absent')  { badgeClass='badge-absent';  badgeText='Not In';   dotColor='#ef4444'; }
+  else if (s.status==='leave')   { badgeClass='badge-leave';   badgeText='On Leave'; dotColor='#3b82f6'; }
 
-  let timeInfo = "Not clocked in yet";
-  if (s.clockInTime) {
-    timeInfo = `Clocked in: ${s.clockInTime}`;
-    if (s.clockOutTime) timeInfo += ` · Left: ${s.clockOutTime}`;
-    if (s.isLate) timeInfo += ` · <span style="color:var(--amber)">${minutesLate(s.clockInTime)} min late</span>`;
-  } else if (s.status === "leave") {
-    timeInfo = s.leaveData ? `${s.leaveData.leaveType||"Leave"} · ${s.leaveData.payType==="lop"?"LOP":"Paid"}` : "Approved leave";
+  let timeInfo = 'Not clocked in yet';
+  if (s.clockInHHMM) {
+    timeInfo = `Clocked in: ${s.clockInHHMM}`;
+    if (s.clockOutHHMM) timeInfo += ` · Left: ${s.clockOutHHMM}`;
+    if (s.isLate) timeInfo += ` · <span style="color:var(--amber)">${minutesLate(s.clockInHHMM)} min late</span>`;
+  } else if (s.status === 'leave') {
+    timeInfo = s.leaveData ? `${s.leaveData.leaveType||'Leave'} · ${s.leaveData.payType==='lop'?'LOP':'Paid'}` : 'Approved leave';
   }
 
+  const safeName = (s.name || s.email || '').replace(/'/g, "\\'");
   return `
   <div class="staff-card">
     <div class="staff-avatar" style="background:${color}22;color:${color}">
@@ -464,12 +429,12 @@ function buildStaffCard(s) {
     </div>
     <div class="staff-info">
       <div class="staff-name">${s.name || s.email}</div>
-      <div class="staff-dept">${s.department||"—"} · ${s.jobTitle||s.role||""}</div>
+      <div class="staff-dept">${s.department||'—'} · ${s.jobtitle||s.role||''}</div>
       <div class="staff-time">${timeInfo}</div>
     </div>
     <div class="staff-actions">
       <span class="status-badge ${badgeClass}">${badgeText}</span>
-      ${s.status==="absent" ? `<button class="btn-manual" onclick="openManual('${s.uid}','${(s.name||s.email).replace(/'/g,"\\'")}')">Clock In</button>` : ""}
+      ${s.status==='absent' ? `<button class="btn-manual" onclick="openManual('${s.uid}','${safeName}')">Clock In</button>` : ''}
     </div>
   </div>`;
 }
@@ -477,73 +442,60 @@ function buildStaffCard(s) {
 // ── FILTER ──
 window.setFilter = function(filter, el) {
   currentFilter = filter;
-  document.querySelectorAll(".filter-chip").forEach(c => c.classList.remove("active"));
-  el.classList.add("active");
+  document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
   renderList();
 };
 
-// ── TAB ──
-window.showTab = function(tab, el) {
-  document.querySelectorAll(".nav-tab").forEach(t => t.classList.remove("active"));
-  if (el) el.classList.add("active");
+// ── TAB (Staff Status tab only — others navigate away) ──
+window.showTab = function(el) {
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
 };
 
-// ── MANUAL CLOCK-IN ──
+// ── MANUAL CLOCK-IN MODAL ──
 window.openManual = function(uid, name) {
-  manualTargetUid = uid;
+  manualTargetUid  = uid;
   manualTargetName = name;
-  document.getElementById("modalStaffName").textContent = "Recording for: " + name;
+  document.getElementById('modalStaffName').textContent = 'Recording for: ' + name;
   const now = new Date();
-  document.getElementById("manualTime").value =
-    `${String(now.getHours()).padStart(2,"0")}:${String(now.getMinutes()).padStart(2,"0")}`;
-  document.getElementById("manualReason").value = "";
-  document.getElementById("manualModal").classList.remove("hidden");
+  document.getElementById('manualTime').value =
+    `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+  document.getElementById('manualReason').value = '';
+  document.getElementById('manualModal').classList.remove('hidden');
 };
 
 window.closeModal = function() {
-  document.getElementById("manualModal").classList.add("hidden");
+  document.getElementById('manualModal').classList.add('hidden');
   manualTargetUid = null;
 };
 
 window.confirmManualClockIn = async function() {
-  const time = document.getElementById("manualTime").value;
-  const reason = document.getElementById("manualReason").value.trim();
-  if (!time) { showToast("Please set a clock-in time", "error"); return; }
-  if (!reason) { showToast("Please enter a reason", "error"); return; }
+  const time   = document.getElementById('manualTime').value;
+  const reason = document.getElementById('manualReason').value.trim();
+  if (!time)   { showToast('Please set a clock-in time', 'error'); return; }
+  if (!reason) { showToast('Please enter a reason', 'error'); return; }
 
-  const today = getTodayKey();
+  const today     = getTodayKey();
   const adminUser = auth.currentUser;
-
   try {
-    await setDoc(doc(db, "attendance", `${manualTargetUid}_${today}`), {
-      uid: manualTargetUid,
-      userId: manualTargetUid,
-      date: today,
-      clockIn: time,
-      clockOut: null,
-      manualEntry: true,
-      manualReason: reason,
-      recordedBy: adminUser.email,
-      recordedAt: serverTimestamp()
+    await setDoc(doc(db, 'attendance', `${manualTargetUid}_${today}`), {
+      uid: manualTargetUid, userId: manualTargetUid,
+      date: today, clockIn: time, clockOut: null,
+      manualEntry: true, manualReason: reason,
+      recordedBy: adminUser.email, recordedAt: serverTimestamp()
     });
-
-    await setDoc(doc(collection(db, "auditLogs")), {
-      action: "MANUAL_CLOCK_IN",
-      targetUid: manualTargetUid,
-      targetName: manualTargetName,
-      performedBy: adminUser.email,
-      reason,
-      clockInTime: time,
-      date: today,
-      timestamp: serverTimestamp()
+    await setDoc(doc(collection(db, 'auditLogs')), {
+      action: 'MANUAL_CLOCK_IN', targetUid: manualTargetUid,
+      targetName: manualTargetName, performedBy: adminUser.email,
+      reason, clockInTime: time, date: today, timestamp: serverTimestamp()
     });
-
     closeModal();
-    showToast(`✅ ${manualTargetName} clocked in at ${time}`, "success");
+    showToast(`✅ ${manualTargetName} clocked in at ${time}`, 'success');
     loadDashboard();
   } catch(err) {
     console.error(err);
-    showToast("Error saving. Try again.", "error");
+    showToast('Error saving. Try again.', 'error');
   }
 };
 
@@ -551,15 +503,15 @@ window.confirmManualClockIn = async function() {
 window.handleLogout = async function() {
   clearInterval(autoRefreshTimer);
   await signOut(auth);
-  window.location.href = "/login.html";
+  window.location.href = 'login.html';
 };
 
 // ── TOAST ──
-function showToast(msg, type="") {
-  const t = document.getElementById("toast");
+function showToast(msg, type='') {
+  const t = document.getElementById('toast');
   t.textContent = msg;
-  t.className = "toast show " + type;
-  setTimeout(() => { t.className = "toast"; }, 3500);
+  t.className   = 'toast show ' + type;
+  setTimeout(() => { t.className = 'toast'; }, 3500);
 }
 </script>
 </body>
