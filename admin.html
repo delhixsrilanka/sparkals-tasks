@@ -15,7 +15,7 @@
   --border:#2d2d44;--accent:#7c3aed;--accent2:#a78bfa;
   --green:#10b981;--red:#ef4444;--amber:#f59e0b;--blue:#3b82f6;
   --text:#f1f5f9;--text2:#94a3b8;--text3:#64748b;
-  --radius:14px;--radius-sm:8px;--shadow:0 4px 20px rgba(0,0,0,0.3);
+  --radius:14px;--radius-sm:8px;
 }
 body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;padding-bottom:80px;}
 
@@ -28,7 +28,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 .live-badge{background:#10b98115;border:1px solid var(--green);color:var(--green);font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px;display:flex;align-items:center;gap:5px;}
 .live-dot{width:7px;height:7px;background:var(--green);border-radius:50%;animation:pulse 1.5s infinite;}
 @keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.3;}}
-.btn-logout{background:transparent;border:1px solid var(--border);color:var(--text2);padding:6px 14px;border-radius:var(--radius-sm);cursor:pointer;font-size:13px;font-family:'DM Sans',sans-serif;transition:all 0.2s;}
+.btn-logout{background:transparent;border:1px solid var(--border);color:var(--text2);padding:6px 14px;border-radius:var(--radius-sm);cursor:pointer;font-size:13px;font-family:'DM Sans',sans-serif;}
 .btn-logout:hover{border-color:var(--red);color:var(--red);}
 
 .nav-tabs{background:var(--surface);display:flex;overflow-x:auto;border-bottom:1px solid var(--border);scrollbar-width:none;}
@@ -49,13 +49,13 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 .stat-label{font-size:12px;color:var(--text2);margin-top:3px;}
 
 .section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
-.section-title{font-size:15px;font-weight:600;color:var(--text);}
+.section-title{font-size:15px;font-weight:600;}
 .section-sub{font-size:12px;color:var(--text2);margin-top:2px;}
-.refresh-btn{background:transparent;border:1px solid var(--border);color:var(--text2);padding:6px 12px;border-radius:var(--radius-sm);cursor:pointer;font-size:12px;font-family:'DM Sans',sans-serif;transition:all 0.2s;}
+.refresh-btn{background:transparent;border:1px solid var(--border);color:var(--text2);padding:6px 12px;border-radius:var(--radius-sm);cursor:pointer;font-size:12px;font-family:'DM Sans',sans-serif;}
 .refresh-btn:hover{color:var(--accent2);border-color:var(--accent2);}
 
 .filter-bar{display:flex;gap:8px;margin-bottom:14px;overflow-x:auto;scrollbar-width:none;flex-wrap:wrap;}
-.filter-chip{padding:6px 14px;border-radius:20px;font-size:12px;font-weight:500;cursor:pointer;white-space:nowrap;border:1px solid var(--border);color:var(--text2);background:transparent;font-family:'DM Sans',sans-serif;transition:all 0.2s;}
+.filter-chip{padding:6px 14px;border-radius:20px;font-size:12px;font-weight:500;cursor:pointer;white-space:nowrap;border:1px solid var(--border);color:var(--text2);background:transparent;font-family:'DM Sans',sans-serif;}
 .fc-all.active{background:var(--accent);border-color:var(--accent);color:white;}
 .fc-present.active{background:#10b98120;border-color:var(--green);color:var(--green);}
 .fc-absent.active{background:#ef444420;border-color:var(--red);color:var(--red);}
@@ -63,8 +63,9 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 .fc-leave.active{background:#3b82f620;border-color:var(--blue);color:var(--blue);}
 
 .staff-list{display:flex;flex-direction:column;gap:10px;}
-.staff-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;display:flex;align-items:center;gap:14px;transition:border-color 0.2s;}
+.staff-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;transition:border-color 0.2s;}
 .staff-card:hover{border-color:var(--accent);}
+.staff-card-top{display:flex;align-items:center;gap:14px;}
 .staff-avatar{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:16px;flex-shrink:0;position:relative;}
 .status-dot{width:11px;height:11px;border-radius:50%;border:2px solid var(--bg);position:absolute;bottom:0;right:0;}
 .staff-info{flex:1;min-width:0;}
@@ -74,12 +75,19 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 .staff-actions{display:flex;gap:8px;flex-shrink:0;align-items:center;}
 .btn-manual{background:#10b98115;border:1px solid var(--green);color:var(--green);padding:6px 12px;border-radius:var(--radius-sm);cursor:pointer;font-size:12px;font-weight:600;font-family:'DM Sans',sans-serif;white-space:nowrap;}
 
+/* ── MANAGE ROW — deactivate / delete ── */
+.staff-manage-row{display:flex;gap:8px;margin-top:10px;padding-top:10px;border-top:1px solid var(--border);}
+.btn-sm-deactivate{flex:1;padding:7px 10px;background:#f59e0b15;border:1px solid #f59e0b40;color:var(--amber);border-radius:var(--radius-sm);cursor:pointer;font-size:12px;font-weight:600;font-family:'DM Sans',sans-serif;white-space:nowrap;}
+.btn-sm-reactivate{flex:1;padding:7px 10px;background:#10b98115;border:1px solid var(--green);color:var(--green);border-radius:var(--radius-sm);cursor:pointer;font-size:12px;font-weight:600;font-family:'DM Sans',sans-serif;white-space:nowrap;}
+.btn-sm-delete{flex:1;padding:7px 10px;background:#ef444415;border:1px solid #ef444440;color:var(--red);border-radius:var(--radius-sm);cursor:pointer;font-size:12px;font-weight:600;font-family:'DM Sans',sans-serif;white-space:nowrap;}
+
 .status-badge{font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;}
 .badge-present{background:#10b98120;color:var(--green);}
 .badge-absent{background:#ef444420;color:var(--red);}
 .badge-late{background:#f59e0b20;color:var(--amber);}
 .badge-leave{background:#3b82f620;color:var(--blue);}
 .badge-lunch{background:#f59e0b20;color:var(--amber);}
+.badge-inactive{background:#64748b20;color:var(--text3);}
 
 .alert-panel{background:#ef444410;border:1px solid #ef444440;border-radius:var(--radius);padding:16px;margin-bottom:20px;}
 .alert-panel-title{font-size:13px;font-weight:600;color:var(--red);margin-bottom:10px;}
@@ -106,7 +114,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 .btn-confirm{flex:1;background:var(--green);color:white;border:none;padding:12px;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;}
 .btn-cancel{flex:1;background:transparent;color:var(--text2);border:1px solid var(--border);padding:12px;border-radius:10px;font-size:14px;cursor:pointer;font-family:'DM Sans',sans-serif;}
 
-.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:var(--surface);border:1px solid var(--border);color:var(--text);padding:12px 20px;border-radius:12px;font-size:14px;font-weight:500;z-index:300;opacity:0;transition:opacity 0.3s;white-space:nowrap;pointer-events:none;}
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:var(--surface);border:1px solid var(--border);color:var(--text);padding:12px 20px;border-radius:12px;font-size:14px;font-weight:500;z-index:300;opacity:0;transition:opacity 0.3s;white-space:nowrap;pointer-events:none;max-width:90vw;text-align:center;}
 .toast.show{opacity:1;}
 .toast.success{border-color:var(--green);color:var(--green);}
 .toast.error{border-color:var(--red);color:var(--red);}
@@ -122,10 +130,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 <div class="topnav">
   <div class="topnav-left">
     <img src="/icons/logo%20copfy.png" alt="Sparkals" onerror="this.style.display='none'"/>
-    <div>
-      <div class="topnav-title">Sparkals Tasks</div>
-      <div class="topnav-sub">Admin Dashboard</div>
-    </div>
+    <div><div class="topnav-title">Sparkals Tasks</div><div class="topnav-sub">Admin Dashboard</div></div>
   </div>
   <div class="topnav-right">
     <div class="live-badge"><div class="live-dot"></div>LIVE</div>
@@ -133,9 +138,8 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
   </div>
 </div>
 
-<!-- NAV TABS — all use direct href links, no onclick navigation -->
 <div class="nav-tabs">
-  <button class="nav-tab active"                                    onclick="showTab(this)">👥 Staff Status</button>
+  <button class="nav-tab active" onclick="showTab(this)">👥 Staff Status</button>
   <button class="nav-tab" onclick="window.location.href='map.html'">🗺️ Live Map</button>
   <button class="nav-tab" onclick="window.location.href='tasks.html'">✅ Tasks</button>
   <button class="nav-tab" onclick="window.location.href='attendance.html'">📅 Attendance</button>
@@ -158,10 +162,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
   </div>
 
   <div class="section-header">
-    <div>
-      <div class="section-title">Staff Status — Today</div>
-      <div class="section-sub" id="dateLabel">Loading...</div>
-    </div>
+    <div><div class="section-title">Staff Status — Today</div><div class="section-sub" id="dateLabel">Loading...</div></div>
     <button class="refresh-btn" onclick="loadDashboard()">↻ Refresh</button>
   </div>
 
@@ -203,33 +204,29 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
   <a class="nav-item" href="notifications.html"><span class="nav-icon">🔔</span><span class="nav-label">Alerts</span></a>
 </nav>
 
-<!-- ── IMPORTANT: Firebase SDK 10.8.0 — same as every other page ── -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 import { getFirestore, collection, doc, getDoc, getDocs,
-         setDoc, query, where, serverTimestamp }
+         setDoc, updateDoc, deleteDoc, query, where, serverTimestamp }
   from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 const app  = initializeApp({
-  apiKey:            "AIzaSyDNwQYXcwZrAh4cTfRyhOVk_pRod9p4CRM",
-  authDomain:        "sparkals-tasks-app.firebaseapp.com",
-  projectId:         "sparkals-tasks-app",
-  storageBucket:     "sparkals-tasks-app.firebasestorage.app",
-  messagingSenderId: "147179987231",
-  appId:             "1:147179987231:web:c6ffa484f33a2ca420d02a"
+  apiKey:"AIzaSyDNwQYXcwZrAh4cTfRyhOVk_pRod9p4CRM",
+  authDomain:"sparkals-tasks-app.firebaseapp.com",
+  projectId:"sparkals-tasks-app",
+  storageBucket:"sparkals-tasks-app.firebasestorage.app",
+  messagingSenderId:"147179987231",
+  appId:"1:147179987231:web:c6ffa484f33a2ca420d02a"
 });
 const auth = getAuth(app);
 const db   = getFirestore(app);
 
 const ADMIN_EMAILS = ['sandeepgemologist@gmail.com','sparkals.design@gmail.com'];
-let allStaffData = [];
-let currentFilter = "all";
-let manualTargetUid = null, manualTargetName = null;
+let allStaffData = [], currentFilter = "all";
+let manualTargetUid = null, manualTargetName = null, manualTargetPendingId = null;
 let autoRefreshTimer = null;
 
-// ── UNIVERSAL TIMESTAMP → "HH:MM" string ──
-// Handles Firestore Timestamp, {seconds,nanoseconds}, Date, ISO string, "HH:MM" string
 function tsToHHMM(ts) {
   if (!ts) return null;
   try {
@@ -239,7 +236,7 @@ function tsToHHMM(ts) {
     else if (typeof ts === 'number')     d = new Date(ts);
     else if (ts.seconds !== undefined)   d = new Date(ts.seconds * 1000);
     else if (typeof ts === 'string') {
-      if (/^\d{1,2}:\d{2}/.test(ts)) return ts.slice(0,5); // already "HH:MM"
+      if (/^\d{1,2}:\d{2}/.test(ts)) return ts.slice(0,5);
       d = new Date(ts);
     }
     if (!d || isNaN(d)) return null;
@@ -254,264 +251,269 @@ function getTodayKey() {
 
 function minutesLate(hhmm) {
   if (!hhmm) return 0;
-  const [h, m] = hhmm.split(':').map(Number);
-  return Math.max(0, (h * 60 + m) - (9 * 60 + 15));
+  const [h,m] = hhmm.split(':').map(Number);
+  return Math.max(0,(h*60+m)-(9*60+15));
 }
 
-// ── AUTH GUARD ──
 onAuthStateChanged(auth, async user => {
   if (!user) { window.location.href = 'login.html'; return; }
-  // Allow both admin email list AND role:admin in Firestore
   const isAdminEmail = ADMIN_EMAILS.includes(user.email.toLowerCase());
   if (!isAdminEmail) {
     try {
-      const snap = await getDoc(doc(db, 'users', user.uid));
-      if (!snap.exists() || snap.data().role !== 'admin') {
-        window.location.href = 'dashboard.html'; return;
-      }
+      const snap = await getDoc(doc(db,'users',user.uid));
+      if (!snap.exists() || snap.data().role !== 'admin') { window.location.href = 'dashboard.html'; return; }
     } catch(e) { window.location.href = 'dashboard.html'; return; }
   }
   loadDashboard();
   autoRefreshTimer = setInterval(loadDashboard, 60000);
 });
 
-// ── LOAD DASHBOARD ──
 window.loadDashboard = async function() {
   const today = getTodayKey();
   const now   = new Date();
   document.getElementById('dateLabel').textContent =
-    now.toLocaleDateString('en-IN', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
-
+    now.toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
   try {
-    // 1. All approved staff
-    const usersSnap = await getDocs(collection(db, 'users'));
+    const usersSnap = await getDocs(collection(db,'users'));
     const staffList = [];
     usersSnap.forEach(d => {
       const data = d.data();
-      if (data.status === 'approved' || data.role === 'admin') {
+      if (data.status === 'approved' || data.status === 'inactive' || data.role === 'admin')
         staffList.push({ uid: d.id, ...data });
-      }
     });
 
-    // 2. Today's attendance
-    const attSnap = await getDocs(query(collection(db,'attendance'), where('date','==',today)));
+    const attSnap = await getDocs(query(collection(db,'attendance'),where('date','==',today)));
     const attMap  = {};
-    attSnap.forEach(d => {
-      const data = d.data();
-      const uid  = data.uid || data.userId;
-      if (uid) attMap[uid] = data;
-    });
+    attSnap.forEach(d => { const data=d.data(); const uid=data.uid||data.userId; if(uid) attMap[uid]=data; });
 
-    // 3. Approved leaves covering today
-    const leaveSnap = await getDocs(query(collection(db,'leaves'), where('status','==','approved')));
+    const leaveSnap = await getDocs(query(collection(db,'leaves'),where('status','==','approved')));
     const leaveMap  = {};
-    leaveSnap.forEach(d => {
-      const data = d.data();
-      if (data.fromDate <= today && data.toDate >= today) leaveMap[data.uid] = data;
-    });
+    leaveSnap.forEach(d => { const data=d.data(); if(data.fromDate<=today&&data.toDate>=today) leaveMap[data.uid]=data; });
 
-    // 4. Build staff status — using tsToHHMM so Timestamps work correctly
+    // Also get pendingStaff ids so we can find the pendingId for manage actions
+    const pendingSnap = await getDocs(collection(db,'pendingStaff'));
+    const pendingByUid = {};
+    pendingSnap.forEach(d => { const data=d.data(); if(data.uid) pendingByUid[data.uid]=d.id; });
+
     allStaffData = staffList.map(staff => {
-      const att     = attMap[staff.uid];
-      const onLeave = !!leaveMap[staff.uid];
-      let status, clockInHHMM = null, clockOutHHMM = null, isLate = false;
-
-      if (onLeave) {
+      const att=attMap[staff.uid], onLeave=!!leaveMap[staff.uid];
+      let status, clockInHHMM=null, clockOutHHMM=null, isLate=false;
+      if (staff.status === 'inactive') {
+        status = 'inactive';
+      } else if (onLeave) {
         status = 'leave';
       } else if (att) {
         clockInHHMM  = tsToHHMM(att.clockIn);
         clockOutHHMM = att.clockOut ? tsToHHMM(att.clockOut) : null;
-        // Late = clocked in after 09:15
-        if (clockInHHMM) {
-          const [h, m] = clockInHHMM.split(':').map(Number);
-          isLate = (h > 9) || (h === 9 && m >= 15);
-        }
-        if (att.lunchOut && !att.lunchIn) status = 'lunch';
-        else if (clockOutHHMM)            status = 'left';
-        else                              status = isLate ? 'late' : 'present';
+        if (clockInHHMM) { const [h,m]=clockInHHMM.split(':').map(Number); isLate=(h>9)||(h===9&&m>=15); }
+        if (att.lunchOut&&!att.lunchIn) status='lunch';
+        else if (clockOutHHMM)          status='left';
+        else                            status=isLate?'late':'present';
       } else {
-        status = 'absent';
+        status='absent';
       }
-
-      return { ...staff, status, clockInHHMM, clockOutHHMM, isLate, leaveData: leaveMap[staff.uid] || null };
+      return { ...staff, status, clockInHHMM, clockOutHHMM, isLate,
+               leaveData:leaveMap[staff.uid]||null,
+               pendingId:pendingByUid[staff.uid]||null };
     });
 
-    // 5. Sort — clocked in first
-    allStaffData.sort((a, b) => {
-      if (a.clockInHHMM && b.clockInHHMM) return a.clockInHHMM.localeCompare(b.clockInHHMM);
-      if (a.clockInHHMM) return -1;
-      if (b.clockInHHMM) return 1;
-      return 0;
+    allStaffData.sort((a,b) => {
+      if (a.clockInHHMM&&b.clockInHHMM) return a.clockInHHMM.localeCompare(b.clockInHHMM);
+      if (a.clockInHHMM) return -1; if (b.clockInHHMM) return 1; return 0;
     });
 
-    // 6. Counts
-    let present = 0, absent = 0, late = 0, leave = 0;
+    let present=0,absent=0,late=0,leave=0;
     allStaffData.forEach(s => {
       if (['present','lunch','left','late'].includes(s.status)) present++;
-      if (s.status === 'absent') absent++;
-      if (s.isLate)  late++;
-      if (s.status === 'leave') leave++;
+      if (s.status==='absent') absent++;
+      if (s.isLate) late++;
+      if (s.status==='leave') leave++;
     });
-    document.getElementById('countPresent').textContent = present;
-    document.getElementById('countAbsent').textContent  = absent;
-    document.getElementById('countLate').textContent    = late;
-    document.getElementById('countLeave').textContent   = leave;
+    document.getElementById('countPresent').textContent=present;
+    document.getElementById('countAbsent').textContent=absent;
+    document.getElementById('countLate').textContent=late;
+    document.getElementById('countLeave').textContent=leave;
 
-    // 7. Late alert panel
-    const lateStaff = allStaffData.filter(s => s.isLate);
-    const latePanel = document.getElementById('latePanel');
-    if (lateStaff.length > 0) {
-      latePanel.style.display = 'block';
-      document.getElementById('lateList').innerHTML = lateStaff.map(s =>
-        `<div class="alert-item">
-          <span>${s.name || s.email}</span>
-          <span style="color:var(--amber)">${s.clockInHHMM} (${minutesLate(s.clockInHHMM)} min late)</span>
-        </div>`).join('');
-    } else {
-      latePanel.style.display = 'none';
-    }
+    const lateStaff=allStaffData.filter(s=>s.isLate);
+    const latePanel=document.getElementById('latePanel');
+    if (lateStaff.length>0) {
+      latePanel.style.display='block';
+      document.getElementById('lateList').innerHTML=lateStaff.map(s=>
+        `<div class="alert-item"><span>${s.name||s.email}</span>
+         <span style="color:var(--amber)">${s.clockInHHMM} (${minutesLate(s.clockInHHMM)} min late)</span></div>`
+      ).join('');
+    } else { latePanel.style.display='none'; }
 
     renderList();
-    document.getElementById('lastUpdated').textContent =
-      'Last updated: ' + now.toLocaleTimeString('en-IN', { hour:'2-digit', minute:'2-digit' });
-
+    document.getElementById('lastUpdated').textContent='Last updated: '+now.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
   } catch(err) {
-    console.error('loadDashboard error:', err);
-    document.getElementById('staffList').innerHTML =
-      `<div class="empty-state"><div class="emoji">⚠️</div><p>Could not load staff data.<br>Check connection and try again.</p></div>`;
+    console.error(err);
+    document.getElementById('staffList').innerHTML=`<div class="empty-state"><div class="emoji">⚠️</div><p>Could not load staff data.</p></div>`;
   }
 };
 
-// ── RENDER LIST ──
 function renderList() {
-  const list = document.getElementById('staffList');
-  let filtered = [...allStaffData];
-  if      (currentFilter === 'present') filtered = filtered.filter(s => ['present','lunch','left','late'].includes(s.status));
-  else if (currentFilter === 'absent')  filtered = filtered.filter(s => s.status === 'absent');
-  else if (currentFilter === 'late')    filtered = filtered.filter(s => s.isLate);
-  else if (currentFilter === 'leave')   filtered = filtered.filter(s => s.status === 'leave');
-
+  const list=document.getElementById('staffList');
+  let filtered=[...allStaffData];
+  if      (currentFilter==='present') filtered=filtered.filter(s=>['present','lunch','left','late'].includes(s.status));
+  else if (currentFilter==='absent')  filtered=filtered.filter(s=>s.status==='absent');
+  else if (currentFilter==='late')    filtered=filtered.filter(s=>s.isLate);
+  else if (currentFilter==='leave')   filtered=filtered.filter(s=>s.status==='leave');
   if (!filtered.length) {
-    list.innerHTML = `<div class="empty-state"><div class="emoji">🎉</div><p>No staff in this category today.</p></div>`;
+    list.innerHTML=`<div class="empty-state"><div class="emoji">🎉</div><p>No staff in this category today.</p></div>`;
     return;
   }
-  list.innerHTML = filtered.map(s => buildStaffCard(s)).join('');
+  list.innerHTML=filtered.map(s=>buildStaffCard(s)).join('');
 }
 
 function buildStaffCard(s) {
-  const initials = (s.name || s.email || '?').split(' ').map(w => w[0]).join('').toUpperCase().slice(0,2);
-  const palette  = ['#7c3aed','#0891b2','#059669','#d97706','#dc2626','#0284c7'];
-  const color    = palette[(s.name || '').charCodeAt(0) % palette.length] || '#7c3aed';
+  const initials=(s.name||s.email||'?').split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+  const palette=['#7c3aed','#0891b2','#059669','#d97706','#dc2626','#0284c7'];
+  const color=palette[(s.name||'').charCodeAt(0)%palette.length]||'#7c3aed';
+  const isInactive = s.status === 'inactive';
 
-  let badgeClass='', badgeText='', dotColor='';
-  if      (s.status==='present') { badgeClass='badge-present'; badgeText='Present';  dotColor='#10b981'; }
-  else if (s.status==='late')    { badgeClass='badge-late';    badgeText='Late';     dotColor='#f59e0b'; }
-  else if (s.status==='lunch')   { badgeClass='badge-lunch';   badgeText='Lunch';    dotColor='#f59e0b'; }
-  else if (s.status==='left')    { badgeClass='badge-present'; badgeText='Left';     dotColor='#64748b'; }
-  else if (s.status==='absent')  { badgeClass='badge-absent';  badgeText='Not In';   dotColor='#ef4444'; }
-  else if (s.status==='leave')   { badgeClass='badge-leave';   badgeText='On Leave'; dotColor='#3b82f6'; }
+  let badgeClass='',badgeText='',dotColor='';
+  if      (s.status==='present')  {badgeClass='badge-present';badgeText='Present'; dotColor='#10b981';}
+  else if (s.status==='late')     {badgeClass='badge-late';   badgeText='Late';    dotColor='#f59e0b';}
+  else if (s.status==='lunch')    {badgeClass='badge-lunch';  badgeText='Lunch';   dotColor='#f59e0b';}
+  else if (s.status==='left')     {badgeClass='badge-present';badgeText='Left';    dotColor='#64748b';}
+  else if (s.status==='absent')   {badgeClass='badge-absent'; badgeText='Not In';  dotColor='#ef4444';}
+  else if (s.status==='leave')    {badgeClass='badge-leave';  badgeText='On Leave';dotColor='#3b82f6';}
+  else if (s.status==='inactive') {badgeClass='badge-inactive';badgeText='Inactive';dotColor='#64748b';}
 
-  let timeInfo = 'Not clocked in yet';
+  let timeInfo='Not clocked in yet';
   if (s.clockInHHMM) {
-    timeInfo = `Clocked in: ${s.clockInHHMM}`;
-    if (s.clockOutHHMM) timeInfo += ` · Left: ${s.clockOutHHMM}`;
-    if (s.isLate) timeInfo += ` · <span style="color:var(--amber)">${minutesLate(s.clockInHHMM)} min late</span>`;
-  } else if (s.status === 'leave') {
-    timeInfo = s.leaveData ? `${s.leaveData.leaveType||'Leave'} · ${s.leaveData.payType==='lop'?'LOP':'Paid'}` : 'Approved leave';
+    timeInfo=`Clocked in: ${s.clockInHHMM}`;
+    if (s.clockOutHHMM) timeInfo+=` · Left: ${s.clockOutHHMM}`;
+    if (s.isLate) timeInfo+=` · <span style="color:var(--amber)">${minutesLate(s.clockInHHMM)} min late</span>`;
+  } else if (s.status==='leave') {
+    timeInfo=s.leaveData?`${s.leaveData.leaveType||'Leave'} · ${s.leaveData.payType==='lop'?'LOP':'Paid'}`:'Approved leave';
+  } else if (isInactive) {
+    timeInfo='Account deactivated';
   }
 
-  const safeName = (s.name || s.email || '').replace(/'/g, "\\'");
+  const safeName=(s.name||s.email||'').replace(/'/g,"\\'");
+  const pendingId=s.pendingId||'';
+
+  // Manage row — deactivate or reactivate + delete
+  const manageRow = `
+    <div class="staff-manage-row">
+      ${isInactive
+        ? `<button class="btn-sm-reactivate" onclick="reactivateStaff('${s.uid}','${safeName}','${pendingId}')">✅ Reactivate</button>`
+        : `<button class="btn-sm-deactivate" onclick="deactivateStaff('${s.uid}','${safeName}','${pendingId}')">⏸ Deactivate</button>`
+      }
+      <button class="btn-sm-delete" onclick="deleteStaff('${s.uid}','${safeName}','${pendingId}')">🗑️ Delete</button>
+    </div>`;
+
   return `
-  <div class="staff-card">
-    <div class="staff-avatar" style="background:${color}22;color:${color}">
-      ${initials}
-      <div class="status-dot" style="background:${dotColor}"></div>
+  <div class="staff-card" id="staff-card-${s.uid}" style="${isInactive?'opacity:0.6;':''}">
+    <div class="staff-card-top">
+      <div class="staff-avatar" style="background:${color}22;color:${color}">
+        ${initials}<div class="status-dot" style="background:${dotColor}"></div>
+      </div>
+      <div class="staff-info">
+        <div class="staff-name">${s.name||s.email}</div>
+        <div class="staff-dept">${s.department||'—'} · ${s.jobtitle||s.role||''}</div>
+        <div class="staff-time">${timeInfo}</div>
+      </div>
+      <div class="staff-actions">
+        <span class="status-badge ${badgeClass}">${badgeText}</span>
+        ${s.status==='absent'?`<button class="btn-manual" onclick="openManual('${s.uid}','${safeName}')">Clock In</button>`:''}
+      </div>
     </div>
-    <div class="staff-info">
-      <div class="staff-name">${s.name || s.email}</div>
-      <div class="staff-dept">${s.department||'—'} · ${s.jobtitle||s.role||''}</div>
-      <div class="staff-time">${timeInfo}</div>
-    </div>
-    <div class="staff-actions">
-      <span class="status-badge ${badgeClass}">${badgeText}</span>
-      ${s.status==='absent' ? `<button class="btn-manual" onclick="openManual('${s.uid}','${safeName}')">Clock In</button>` : ''}
-    </div>
+    ${manageRow}
   </div>`;
 }
 
-// ── FILTER ──
-window.setFilter = function(filter, el) {
-  currentFilter = filter;
-  document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
-  el.classList.add('active');
-  renderList();
+// ── DEACTIVATE from admin dashboard ──
+window.deactivateStaff = async function(uid, name, pendingId) {
+  if (!confirm(`⏸ Deactivate ${name}?\n\nThey cannot log in until reactivated.\nAll records are kept.`)) return;
+  try {
+    await updateDoc(doc(db,'users',uid),{status:'inactive',deactivatedAt:serverTimestamp()});
+    if (pendingId) await updateDoc(doc(db,'pendingStaff',pendingId),{status:'inactive',deactivatedAt:serverTimestamp()});
+    showToast(`⏸ ${name} deactivated`,'');
+    loadDashboard();
+  } catch(e) { console.error(e); showToast('❌ Could not deactivate.','error'); }
 };
 
-// ── TAB (Staff Status tab only — others navigate away) ──
+// ── REACTIVATE from admin dashboard ──
+window.reactivateStaff = async function(uid, name, pendingId) {
+  if (!confirm(`✅ Reactivate ${name}? They will be able to log in again.`)) return;
+  try {
+    await updateDoc(doc(db,'users',uid),{status:'approved',reactivatedAt:serverTimestamp()});
+    if (pendingId) await updateDoc(doc(db,'pendingStaff',pendingId),{status:'approved',reactivatedAt:serverTimestamp()});
+    showToast(`✅ ${name} reactivated`,'success');
+    loadDashboard();
+  } catch(e) { console.error(e); showToast('❌ Could not reactivate.','error'); }
+};
+
+// ── DELETE from admin dashboard ──
+window.deleteStaff = async function(uid, name, pendingId) {
+  if (!confirm(`🗑️ PERMANENTLY DELETE ${name}?\n\nThis removes them from the staff list and blocks login forever.\nPast attendance records are kept.\n\nThis CANNOT be undone.`)) return;
+  if (!confirm(`Last warning — permanently delete ${name}?`)) return;
+  try {
+    await deleteDoc(doc(db,'users',uid));
+    if (pendingId) await deleteDoc(doc(db,'pendingStaff',pendingId));
+    showToast(`🗑️ ${name} deleted permanently`,'');
+    const card=document.getElementById(`staff-card-${uid}`);
+    if (card) { card.style.opacity='0'; card.style.transition='opacity 0.3s'; setTimeout(()=>card.remove(),300); }
+  } catch(e) { console.error(e); showToast('❌ Could not delete.','error'); }
+};
+
+window.setFilter = function(filter,el) {
+  currentFilter=filter;
+  document.querySelectorAll('.filter-chip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active'); renderList();
+};
+
 window.showTab = function(el) {
-  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
   el.classList.add('active');
 };
 
-// ── MANUAL CLOCK-IN MODAL ──
-window.openManual = function(uid, name) {
-  manualTargetUid  = uid;
-  manualTargetName = name;
-  document.getElementById('modalStaffName').textContent = 'Recording for: ' + name;
-  const now = new Date();
-  document.getElementById('manualTime').value =
-    `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
-  document.getElementById('manualReason').value = '';
+window.openManual = function(uid,name) {
+  manualTargetUid=uid; manualTargetName=name;
+  document.getElementById('modalStaffName').textContent='Recording for: '+name;
+  const now=new Date();
+  document.getElementById('manualTime').value=`${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+  document.getElementById('manualReason').value='';
   document.getElementById('manualModal').classList.remove('hidden');
 };
 
 window.closeModal = function() {
-  document.getElementById('manualModal').classList.add('hidden');
-  manualTargetUid = null;
+  document.getElementById('manualModal').classList.add('hidden'); manualTargetUid=null;
 };
 
 window.confirmManualClockIn = async function() {
-  const time   = document.getElementById('manualTime').value;
-  const reason = document.getElementById('manualReason').value.trim();
-  if (!time)   { showToast('Please set a clock-in time', 'error'); return; }
-  if (!reason) { showToast('Please enter a reason', 'error'); return; }
-
-  const today     = getTodayKey();
-  const adminUser = auth.currentUser;
+  const time=document.getElementById('manualTime').value;
+  const reason=document.getElementById('manualReason').value.trim();
+  if (!time)   {showToast('Please set a clock-in time','error');return;}
+  if (!reason) {showToast('Please enter a reason','error');return;}
+  const today=getTodayKey(), adminUser=auth.currentUser;
   try {
-    await setDoc(doc(db, 'attendance', `${manualTargetUid}_${today}`), {
-      uid: manualTargetUid, userId: manualTargetUid,
-      date: today, clockIn: time, clockOut: null,
-      manualEntry: true, manualReason: reason,
-      recordedBy: adminUser.email, recordedAt: serverTimestamp()
+    await setDoc(doc(db,'attendance',`${manualTargetUid}_${today}`),{
+      uid:manualTargetUid,userId:manualTargetUid,date:today,
+      clockIn:time,clockOut:null,manualEntry:true,manualReason:reason,
+      recordedBy:adminUser.email,recordedAt:serverTimestamp()
     });
-    await setDoc(doc(collection(db, 'auditLogs')), {
-      action: 'MANUAL_CLOCK_IN', targetUid: manualTargetUid,
-      targetName: manualTargetName, performedBy: adminUser.email,
-      reason, clockInTime: time, date: today, timestamp: serverTimestamp()
+    await setDoc(doc(collection(db,'auditLogs')),{
+      action:'MANUAL_CLOCK_IN',targetUid:manualTargetUid,targetName:manualTargetName,
+      performedBy:adminUser.email,reason,clockInTime:time,date:today,timestamp:serverTimestamp()
     });
     closeModal();
-    showToast(`✅ ${manualTargetName} clocked in at ${time}`, 'success');
+    showToast(`✅ ${manualTargetName} clocked in at ${time}`,'success');
     loadDashboard();
-  } catch(err) {
-    console.error(err);
-    showToast('Error saving. Try again.', 'error');
-  }
+  } catch(err) { console.error(err); showToast('Error saving. Try again.','error'); }
 };
 
-// ── LOGOUT ──
 window.handleLogout = async function() {
-  clearInterval(autoRefreshTimer);
-  await signOut(auth);
-  window.location.href = 'login.html';
+  clearInterval(autoRefreshTimer); await signOut(auth); window.location.href='login.html';
 };
 
-// ── TOAST ──
-function showToast(msg, type='') {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.className   = 'toast show ' + type;
-  setTimeout(() => { t.className = 'toast'; }, 3500);
+function showToast(msg,type='') {
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.className='toast show '+type;
+  setTimeout(()=>{t.className='toast';},3500);
 }
 </script>
 </body>
