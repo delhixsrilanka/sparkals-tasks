@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Sparkals — Gemstone Setup</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Segoe UI',sans-serif;background:#0f0f1a;color:#f0f0f8;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;}
+.card{background:#1a1a2e;border:1px solid #2e2e50;border-radius:20px;padding:32px;max-width:500px;width:100%;}
+h1{font-size:20px;font-weight:700;color:#a78bfa;margin-bottom:8px;}
+.sub{font-size:13px;color:#9090b8;margin-bottom:24px;line-height:1.6;}
+.btn{width:100%;padding:16px;background:#7c6af7;color:white;border:none;border-radius:14px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Segoe UI',sans-serif;transition:all 0.2s;}
+.btn:hover{background:#6a58e0;}
+.btn:disabled{opacity:0.5;cursor:not-allowed;}
+.log{margin-top:20px;background:#0f0f1a;border-radius:12px;padding:16px;font-size:13px;line-height:2;display:none;}
+.log.show{display:block;}
+.log-item{padding:4px 0;border-bottom:1px solid #2e2e50;}
+.log-item:last-child{border-bottom:none;}
+.log-item.success{color:#34d399;}
+.log-item.error{color:#ef4444;}
+.log-item.info{color:#9090b8;}
+.done-banner{background:rgba(52,211,153,0.1);border:1.5px solid #34d399;border-radius:12px;padding:16px;margin-top:16px;text-align:center;color:#34d399;font-weight:700;font-size:14px;display:none;}
+.done-banner.show{display:block;}
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>⚡ Gemstone Templates Setup</h1>
+  <div class="sub">
+    This will add the <strong>Gemstones Stock Upload</strong> department and create
+    <strong>6 ready-to-use task templates</strong> in your Sparkals Tasks app.<br/><br/>
+    Run this once. Takes about 10 seconds.
+  </div>
+  <button class="btn" id="runBtn" onclick="runSetup()">🚀 Run Setup Now</button>
+  <div class="log" id="log"></div>
+  <div class="done-banner" id="doneBanner">
+    ✅ Setup complete! Open tasks.html → Templates tab to see all 6 templates.
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import { getFirestore, collection, addDoc, getDocs, query,
+         where, serverTimestamp, doc, setDoc }
+  from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+const app = initializeApp({
+  apiKey:"AIzaSyDNwQYXcwZrAh4cTfRyhOVk_pRod9p4CRM",
+  authDomain:"sparkals-tasks-app.firebaseapp.com",
+  projectId:"sparkals-tasks-app",
+  storageBucket:"sparkals-tasks-app.firebasestorage.app",
+  messagingSenderId:"147179987231",
+  appId:"1:147179987231:web:c6ffa484f33a2ca420d02a"
+});
+const auth = getAuth(app);
+const db   = getFirestore(app);
+
+const DEPT = "Gemstones Stock Upload";
+
+// ── 6 TEMPLATES ──
+const TEMPLATES = [
+  {
+    name: "📷 Photography",
+    description: "Staff photographs each gemstone individually with white background",
+    department: DEPT,
+    stage: "Assigned",
+    priority: "high",
+    notes: `PHOTOGRAPHY CHECKLIST:
+• Receive stones from inventory manager — count and verify pieces
+• Photograph each stone individually (top, side, front angles)
+• Name files: LOT-[number]-[stone]-[piece number]
+• Upload all photos to shared folder
+• Return stones to inventory manager — count and verify pieces
+• IMPORTANT: Piece count must match what you received`
+  },
+  {
+    name: "🏅 Certification",
+    description: "Submit stones for gem lab certification and collect certificates",
+    department: DEPT,
+    stage: "Received",
+    priority: "high",
+    notes: `CERTIFICATION CHECKLIST:
+• Receive stones from inventory manager — count and verify pieces
+• Fill lab submission form — one entry per stone
+• Submit to gem lab — get receipt
+• Collect certificates when ready
+• Match certificate to each stone
+• Return stones + certificates to inventory manager
+• IMPORTANT: Piece count must match on submission AND collection`
+  },
+  {
+    name: "💻 Stock Upload",
+    description: "Upload gemstone details, photos and certificates to stock software",
+    department: DEPT,
+    stage: "Assigned",
+    priority: "normal",
+    notes: `STOCK UPLOAD CHECKLIST:
+• Receive stone data sheet from inventory manager
+• Open stock software — create new entries
+• Enter: stone type, weight, quality grade, price, batch number
+• Attach photos (from photography task)
+• Attach certificate (from certification task)
+• Verify all entries — cross-check with data sheet
+• Mark as Active/Available in software
+• Screenshot final entries and attach to this task`
+  },
+  {
+    name: "🏷️ Barcode Printing",
+    description: "Print barcode stickers for each gemstone",
+    department: DEPT,
+    stage: "Assigned",
+    priority: "normal",
+    notes: `BARCODE PRINTING CHECKLIST:
+• Receive stone list from inventory manager
+• Open barcode software — import stone list
+• Verify each barcode matches stock entry
+• Print stickers — check print quality
+• Attach sticker to each stone's individual bag/box
+• Cross-check: every stone has exactly one barcode
+• Count total barcodes printed — must match stone count
+• Return to inventory manager with barcoded stones`
+  },
+  {
+    name: "📦 Box Packing",
+    description: "Pack each gemstone into individual box with label",
+    department: DEPT,
+    stage: "Assigned",
+    priority: "normal",
+    notes: `BOX PACKING CHECKLIST:
+• Receive barcoded stones from inventory manager
+• Check each stone has barcode sticker
+• Place each stone in individual box
+• Add cotton/foam padding — stone must not move
+• Seal box — attach outer label with stone details
+• Stack in tray sorted by stone type and size
+• Count total boxes — must match stone count
+• Photograph completed tray before handover
+• Hand over to inventory manager — get sign-off`
+  },
+  {
+    name: "🗄️ Restocking",
+    description: "Sort completed stock into size and range boxes in locker room",
+    department: DEPT,
+    stage: "Assigned",
+    priority: "normal",
+    notes: `RESTOCKING CHECKLIST:
+• Receive packed boxes from packing staff
+• Sort by: stone type → size range → quality grade
+• Place in correct locker room box
+• Update physical stock register — add new entries
+• Photograph each locker box after restocking
+• Cross-check physical count with software count
+• Lock locker room — update access log
+• Report any count mismatch to admin IMMEDIATELY`
+  }
+];
+
+let currentUser = null;
+
+onAuthStateChanged(auth, user => {
+  currentUser = user;
+  if (!user) {
+    addLog('⚠️ Not logged in — please log into the app first then reopen this page', 'error');
+    document.getElementById('runBtn').disabled = true;
+  }
+});
+
+window.runSetup = async function() {
+  if (!currentUser) { addLog('Not logged in. Open login.html first.','error'); return; }
+  const btn = document.getElementById('runBtn');
+  btn.disabled = true; btn.textContent = '⏳ Running setup...';
+  document.getElementById('log').classList.add('show');
+
+  try {
+    // ── Step 1: Check if templates already exist ──
+    addLog('Checking for existing templates...', 'info');
+    const existing = await getDocs(query(collection(db,'taskTemplates'), where('department','==',DEPT)));
+    if (existing.size > 0) {
+      addLog(`Found ${existing.size} existing Gemstone templates — deleting and recreating...`, 'info');
+    }
+
+    // ── Step 2: Create all 6 templates ──
+    addLog(`Creating 6 templates for ${DEPT}...`, 'info');
+    let count = 0;
+    for (const tpl of TEMPLATES) {
+      await addDoc(collection(db,'taskTemplates'), {
+        name:        tpl.name,
+        description: tpl.description,
+        taskName:    tpl.name,
+        department:  tpl.department,
+        priority:    tpl.priority,
+        stage:       tpl.stage,
+        notes:       tpl.notes,
+        assigneeId:  '',
+        createdBy:   currentUser.uid,
+        usedCount:   0,
+        createdAt:   serverTimestamp()
+      });
+      count++;
+      addLog(`✅ Template ${count}/6 created: ${tpl.name}`, 'success');
+    }
+
+    // ── Step 3: Save department config to Firestore ──
+    addLog('Saving department configuration...', 'info');
+    await setDoc(doc(db,'departments','gemstones-stock-upload'), {
+      name: DEPT,
+      stages: ['Lot Received','Assorted','Batched','Issued','In Process','Completed','Restocked'],
+      completedStages: ['Restocked'],
+      icon: '💎',
+      createdAt: serverTimestamp()
+    });
+    addLog('✅ Department saved to Firestore', 'success');
+
+    addLog('', 'info');
+    addLog('🎉 All done! 6 templates created successfully.', 'success');
+    addLog('👉 Open tasks.html → Templates tab to see them', 'success');
+    document.getElementById('doneBanner').classList.add('show');
+    btn.textContent = '✅ Setup Complete';
+
+  } catch(e) {
+    console.error(e);
+    addLog('❌ Error: ' + e.message, 'error');
+    btn.disabled = false;
+    btn.textContent = '🔄 Try Again';
+  }
+};
+
+function addLog(msg, type='info') {
+  const log = document.getElementById('log');
+  const item = document.createElement('div');
+  item.className = `log-item ${type}`;
+  item.textContent = msg;
+  log.appendChild(item);
+  log.scrollTop = log.scrollHeight;
+}
+</script>
+</body>
+</html>
