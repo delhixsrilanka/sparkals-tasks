@@ -411,6 +411,7 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 
 const DEPT_STAGES = {
+  "Gemstones Stock Upload":["Lot Received","Assorted","Batched","Issued","In Process","Completed","Restocked"],
   "Sales & Marketing":["Prospect","Meeting","Proposal","Negotiation","Won","Lost"],
   "Operations":["Assigned","Started","Blocked","Completed","Verified"],
   "Accounts & Finance":["Received","Processing","Review","Approved","Closed"],
