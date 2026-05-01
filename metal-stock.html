@@ -1,0 +1,1162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Metal Stock — Sparkals Tasks</title>
+<link rel="manifest" href="manifest.json"/>
+<link rel="icon" href="/icons/logo%20copfy.png"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#0f0f1a;--surface:#1a1a2e;--surface2:#22223a;--surface3:#2a2a45;
+  --border:#2d2d44;--accent:#7c3aed;--accent2:#a78bfa;
+  --green:#10b981;--red:#ef4444;--amber:#f59e0b;--blue:#3b82f6;
+  --gold:#f0b429;--silver:#94a3b8;
+  --text:#f1f5f9;--text2:#94a3b8;--text3:#64748b;
+  --radius:14px;--radius-sm:8px;
+}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;padding-bottom:90px;}
+
+/* ── TOP NAV ── */
+.topnav{background:var(--surface);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;}
+.topnav-left{display:flex;align-items:center;gap:12px;}
+.back-btn{background:var(--surface3);border:1px solid var(--border);color:var(--text2);width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;text-decoration:none;}
+.topnav-title{font-family:'Space Mono',monospace;font-size:15px;font-weight:700;color:var(--gold);}
+.topnav-sub{font-size:11px;color:var(--text2);margin-top:1px;}
+.btn-add{background:var(--accent);color:white;border:none;padding:9px 16px;border-radius:var(--radius-sm);font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;display:flex;align-items:center;gap:6px;}
+
+/* ── TABS ── */
+.page-tabs{background:var(--surface);display:flex;overflow-x:auto;border-bottom:1px solid var(--border);scrollbar-width:none;}
+.page-tabs::-webkit-scrollbar{display:none;}
+.page-tab{padding:11px 16px;font-size:13px;font-weight:500;color:var(--text2);cursor:pointer;white-space:nowrap;border-bottom:2px solid transparent;border:none;background:none;font-family:'DM Sans',sans-serif;transition:all 0.2s;}
+.page-tab.active{color:var(--gold);border-bottom:2px solid var(--gold);}
+
+.main{padding:16px;max-width:900px;margin:0 auto;}
+
+/* ── STOCK BALANCE CARDS ── */
+.metal-section{margin-bottom:20px;}
+.metal-header{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+.metal-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;}
+.metal-icon.gold{background:rgba(240,180,41,0.2);}
+.metal-icon.silver{background:rgba(148,163,184,0.2);}
+.metal-name{font-size:15px;font-weight:700;}
+.ledger-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
+@media(min-width:600px){.ledger-grid{grid-template-columns:repeat(4,1fr);}}
+.ledger-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px;position:relative;overflow:hidden;}
+.ledger-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:var(--radius) var(--radius) 0 0;}
+.ledger-card.gold-card::before{background:var(--gold);}
+.ledger-card.silver-card::before{background:var(--silver);}
+.ledger-purity{font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;}
+.ledger-weight{font-family:'Space Mono',monospace;font-size:22px;font-weight:700;color:var(--gold);line-height:1;}
+.ledger-card.silver-card .ledger-weight{color:var(--silver);}
+.ledger-unit{font-size:11px;color:var(--text2);margin-top:3px;}
+.ledger-pending{font-size:10px;color:var(--amber);margin-top:4px;}
+
+/* ── WITH GOLDSMITH CARD ── */
+.with-smith-card{background:linear-gradient(135deg,#1a1a2e,#2d1b69);border:1px solid rgba(124,58,237,0.3);border-radius:var(--radius);padding:16px;margin-bottom:20px;}
+.with-smith-title{font-size:13px;font-weight:700;color:var(--accent2);margin-bottom:12px;}
+.smith-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.06);font-size:13px;}
+.smith-row:last-child{border-bottom:none;}
+.smith-name{font-weight:600;}
+.smith-meta{font-size:11px;color:var(--text2);margin-top:2px;}
+.smith-weight{font-family:'Space Mono',monospace;font-size:13px;color:var(--gold);}
+.overdue-tag{background:rgba(239,68,68,0.15);color:var(--red);font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;margin-left:6px;}
+
+/* ── FLAGS PANEL ── */
+.flags-panel{background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.3);border-radius:var(--radius);padding:14px;margin-bottom:20px;}
+.flags-title{font-size:13px;font-weight:700;color:var(--red);margin-bottom:10px;}
+.flag-item{font-size:13px;color:var(--text);padding:6px 0;border-bottom:1px solid rgba(239,68,68,0.15);display:flex;justify-content:space-between;align-items:center;}
+.flag-item:last-child{border-bottom:none;}
+.flag-action{font-size:11px;color:var(--accent2);cursor:pointer;}
+
+/* ── TRANSACTION LIST ── */
+.txn-list{display:flex;flex-direction:column;gap:10px;}
+.txn-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;}
+.txn-top{display:flex;align-items:center;gap:12px;}
+.txn-type-badge{padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;white-space:nowrap;flex-shrink:0;}
+.badge-in{background:rgba(16,185,129,0.15);color:var(--green);}
+.badge-out{background:rgba(239,68,68,0.15);color:var(--red);}
+.badge-pending{background:rgba(245,158,11,0.15);color:var(--amber);}
+.badge-adjust{background:rgba(100,116,139,0.15);color:var(--text2);}
+.txn-info{flex:1;min-width:0;}
+.txn-title{font-size:14px;font-weight:600;}
+.txn-meta{font-size:12px;color:var(--text2);margin-top:2px;}
+.txn-weight{font-family:'Space Mono',monospace;font-size:14px;font-weight:700;flex-shrink:0;}
+.txn-weight.gold{color:var(--gold);}
+.txn-weight.silver{color:var(--silver);}
+.txn-actions{display:flex;gap:8px;margin-top:10px;padding-top:10px;border-top:1px solid var(--border);}
+.btn-receipt{background:rgba(124,58,237,0.12);border:1px solid rgba(124,58,237,0.3);color:var(--accent2);padding:6px 12px;border-radius:var(--radius-sm);font-size:12px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;}
+.btn-complete{background:rgba(16,185,129,0.12);border:1px solid var(--green);color:var(--green);padding:6px 12px;border-radius:var(--radius-sm);font-size:12px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;}
+.btn-flag{background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.3);color:var(--amber);padding:6px 12px;border-radius:var(--radius-sm);font-size:12px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;}
+.photo-thumb{width:40px;height:40px;border-radius:6px;object-fit:cover;border:1px solid var(--border);}
+
+/* ── MODAL ── */
+.modal-overlay{position:fixed;inset:0;background:#000000cc;display:flex;align-items:flex-end;justify-content:center;z-index:200;padding:0;}
+.modal-overlay.hidden{display:none;}
+.modal{background:var(--surface2);border:1px solid var(--border);border-radius:20px 20px 0 0;padding:24px 20px 36px;width:100%;max-width:540px;max-height:92vh;overflow-y:auto;}
+.modal-title{font-size:17px;font-weight:700;margin-bottom:4px;}
+.modal-sub{font-size:13px;color:var(--text2);margin-bottom:20px;}
+.form-group{margin-bottom:14px;}
+.form-label{font-size:12px;font-weight:600;color:var(--text2);margin-bottom:6px;display:block;text-transform:uppercase;letter-spacing:0.4px;}
+.form-input{width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:12px 14px;border-radius:var(--radius-sm);font-size:14px;font-family:'DM Sans',sans-serif;outline:none;}
+.form-input:focus{border-color:var(--accent2);}
+.form-select{width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:12px 14px;border-radius:var(--radius-sm);font-size:14px;font-family:'DM Sans',sans-serif;outline:none;appearance:none;cursor:pointer;}
+.form-select:focus{border-color:var(--accent2);}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.fine-weight-display{background:rgba(240,180,41,0.08);border:1px solid rgba(240,180,41,0.3);border-radius:var(--radius-sm);padding:12px 14px;font-family:'Space Mono',monospace;font-size:16px;font-weight:700;color:var(--gold);text-align:center;margin-bottom:14px;}
+.fine-weight-label{font-size:11px;color:var(--text2);text-align:center;margin-top:4px;}
+.photo-upload-area{border:1.5px dashed var(--border);border-radius:var(--radius-sm);padding:16px;text-align:center;cursor:pointer;transition:border-color 0.2s;}
+.photo-upload-area:hover{border-color:var(--accent2);}
+.photo-upload-area input{display:none;}
+.photo-preview{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;}
+.photo-preview img{width:60px;height:60px;border-radius:6px;object-fit:cover;border:1px solid var(--border);}
+.modal-note{font-size:12px;color:var(--text2);background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);border-radius:var(--radius-sm);padding:10px 12px;margin-bottom:14px;line-height:1.6;}
+.modal-actions{display:flex;gap:10px;margin-top:4px;}
+.btn-save{flex:1;background:var(--accent);color:white;border:none;padding:14px;border-radius:var(--radius-sm);font-size:15px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;}
+.btn-save:disabled{opacity:0.5;cursor:not-allowed;}
+.btn-cancel{flex:0 0 auto;background:transparent;color:var(--text2);border:1px solid var(--border);padding:14px 20px;border-radius:var(--radius-sm);font-size:14px;cursor:pointer;font-family:'DM Sans',sans-serif;}
+.wastage-info{background:var(--surface3);border-radius:var(--radius-sm);padding:12px;margin-bottom:14px;font-size:13px;}
+.wastage-row{display:flex;justify-content:space-between;padding:3px 0;}
+.wastage-good{color:var(--green);font-weight:700;}
+.wastage-bad{color:var(--red);font-weight:700;}
+
+/* ── DAILY CLOSE ── */
+.daily-close-card{background:linear-gradient(135deg,#1a1a2e,#0f2a1a);border:1px solid rgba(16,185,129,0.3);border-radius:var(--radius);padding:16px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;}
+.daily-close-text{font-size:13px;color:var(--text2);}
+.daily-close-title{font-size:14px;font-weight:700;color:var(--green);margin-bottom:3px;}
+.btn-daily-close{background:var(--green);color:white;border:none;padding:10px 18px;border-radius:var(--radius-sm);font-size:13px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap;}
+
+.empty-state{text-align:center;padding:40px 20px;color:var(--text2);}
+.empty-state .emoji{font-size:40px;margin-bottom:12px;}
+.empty-state p{font-size:14px;}
+.spinner{width:28px;height:28px;border:3px solid var(--border);border-top-color:var(--accent2);border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 12px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:var(--surface);border:1px solid var(--green);color:var(--green);padding:12px 20px;border-radius:12px;font-size:14px;font-weight:500;z-index:300;opacity:0;transition:opacity 0.3s;white-space:nowrap;pointer-events:none;max-width:90vw;text-align:center;}
+.toast.show{opacity:1;}
+.toast.error{border-color:var(--red);color:var(--red);}
+
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:1px solid var(--border);display:flex;justify-content:space-around;padding:10px 0 16px;z-index:100;}
+.nav-item{display:flex;flex-direction:column;align-items:center;gap:3px;text-decoration:none;color:var(--text3);padding:4px 10px;}
+.nav-item.active{color:var(--gold);}
+.nav-icon{font-size:20px;}.nav-label{font-size:10px;font-weight:600;}
+
+/* FAB */
+.fab{position:fixed;bottom:76px;right:20px;background:var(--accent);color:white;border:none;width:52px;height:52px;border-radius:50%;font-size:24px;cursor:pointer;box-shadow:0 4px 20px rgba(124,58,237,0.4);z-index:99;display:flex;align-items:center;justify-content:center;}
+</style>
+</head>
+<body>
+
+<div class="topnav">
+  <div class="topnav-left">
+    <a class="back-btn" href="admin.html">←</a>
+    <div>
+      <div class="topnav-title">💎 METAL STOCK</div>
+      <div class="topnav-sub" id="stockDateLabel">Loading...</div>
+    </div>
+  </div>
+</div>
+
+<div class="page-tabs">
+  <button class="page-tab active" onclick="switchTab('dashboard',this)">📊 Dashboard</button>
+  <button class="page-tab" onclick="switchTab('transactions',this)">📋 Transactions</button>
+  <button class="page-tab" onclick="switchTab('goldsmiths',this)">⚒️ Goldsmiths</button>
+</div>
+
+<!-- ── DASHBOARD TAB ── -->
+<div class="main" id="tab-dashboard">
+
+  <!-- Daily close -->
+  <div class="daily-close-card">
+    <div>
+      <div class="daily-close-title">🌙 Daily Closing</div>
+      <div class="daily-close-text">Confirm physical stock matches system</div>
+    </div>
+    <button class="btn-daily-close" onclick="openDailyClose()">Close Day</button>
+  </div>
+
+  <!-- Flags -->
+  <div class="flags-panel" id="flagsPanel" style="display:none">
+    <div class="flags-title">⚠️ Requires Attention</div>
+    <div id="flagsList"></div>
+  </div>
+
+  <!-- Gold ledgers -->
+  <div class="metal-section">
+    <div class="metal-header">
+      <div class="metal-icon gold">🥇</div>
+      <div class="metal-name" style="color:var(--gold)">Gold Stock — Fine Grams</div>
+    </div>
+    <div class="ledger-grid">
+      <div class="ledger-card gold-card">
+        <div class="ledger-purity">24kt Pure (raw)</div>
+        <div class="ledger-weight" id="bal-gold-24">0.00</div>
+        <div class="ledger-unit">fine grams</div>
+      </div>
+      <div class="ledger-card gold-card">
+        <div class="ledger-purity">22kt (91.6%)</div>
+        <div class="ledger-weight" id="bal-gold-22">0.00</div>
+        <div class="ledger-unit">fine grams</div>
+      </div>
+      <div class="ledger-card gold-card">
+        <div class="ledger-purity">18kt (75.0%)</div>
+        <div class="ledger-weight" id="bal-gold-18">0.00</div>
+        <div class="ledger-unit">fine grams</div>
+      </div>
+      <div class="ledger-card gold-card">
+        <div class="ledger-purity">14kt (58.5%)</div>
+        <div class="ledger-weight" id="bal-gold-14">0.00</div>
+        <div class="ledger-unit">fine grams</div>
+      </div>
+    </div>
+    <div style="margin-top:8px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 14px;display:flex;justify-content:space-between;align-items:center;">
+      <span style="font-size:12px;color:var(--text2)">⚒️ With goldsmiths</span>
+      <span class="ledger-weight" id="bal-gold-smith" style="font-size:14px">0.00g</span>
+    </div>
+  </div>
+
+  <!-- Silver ledgers -->
+  <div class="metal-section">
+    <div class="metal-header">
+      <div class="metal-icon silver">🥈</div>
+      <div class="metal-name" style="color:var(--silver)">Silver Stock — Fine Grams</div>
+    </div>
+    <div class="ledger-grid" style="grid-template-columns:1fr 1fr;">
+      <div class="ledger-card silver-card">
+        <div class="ledger-purity">Pure (raw)</div>
+        <div class="ledger-weight" id="bal-silver-100">0.00</div>
+        <div class="ledger-unit">fine grams</div>
+      </div>
+      <div class="ledger-card silver-card">
+        <div class="ledger-purity">925 (92.5%)</div>
+        <div class="ledger-weight" id="bal-silver-925">0.00</div>
+        <div class="ledger-unit">fine grams</div>
+      </div>
+    </div>
+    <div style="margin-top:8px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 14px;display:flex;justify-content:space-between;align-items:center;">
+      <span style="font-size:12px;color:var(--text2)">⚒️ With silversmiths</span>
+      <span class="ledger-weight" id="bal-silver-smith" style="font-size:14px;color:var(--silver)">0.00g</span>
+    </div>
+  </div>
+
+  <!-- Today summary -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:20px;">
+    <div style="font-size:13px;font-weight:700;margin-bottom:12px;">📅 Today's Activity</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;text-align:center;">
+      <div><div style="font-family:'Space Mono',monospace;font-size:20px;font-weight:700;color:var(--green)" id="today-in">0</div><div style="font-size:11px;color:var(--text2)">Metal In (g)</div></div>
+      <div><div style="font-family:'Space Mono',monospace;font-size:20px;font-weight:700;color:var(--red)" id="today-out">0</div><div style="font-size:11px;color:var(--text2)">Metal Out (g)</div></div>
+      <div><div style="font-family:'Space Mono',monospace;font-size:20px;font-weight:700;color:var(--accent2)" id="today-txns">0</div><div style="font-size:11px;color:var(--text2)">Transactions</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── TRANSACTIONS TAB ── -->
+<div class="main" id="tab-transactions" style="display:none">
+  <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;">
+    <select id="txnFilter" class="form-select" style="flex:1;min-width:140px" onchange="loadTransactions()">
+      <option value="">All types</option>
+      <option value="metal_in">Metal In</option>
+      <option value="client_order">Client Order</option>
+      <option value="issue_goldsmith">Issue to Goldsmith</option>
+      <option value="goldsmith_return">Goldsmith Return</option>
+      <option value="adjustment">Adjustment</option>
+    </select>
+    <select id="metalFilter" class="form-select" style="flex:1;min-width:120px" onchange="loadTransactions()">
+      <option value="">All metals</option>
+      <option value="gold">Gold</option>
+      <option value="silver">Silver</option>
+    </select>
+  </div>
+  <div class="txn-list" id="txnList">
+    <div style="text-align:center;padding:30px;color:var(--text2)"><div class="spinner"></div>Loading...</div>
+  </div>
+</div>
+
+<!-- ── GOLDSMITHS TAB ── -->
+<div class="main" id="tab-goldsmiths" style="display:none">
+  <div class="with-smith-card">
+    <div class="with-smith-title">⚒️ Metal Currently With Goldsmiths/Silversmiths</div>
+    <div id="smithList"><div style="color:var(--text2);font-size:13px;text-align:center;padding:16px">Loading...</div></div>
+  </div>
+
+  <!-- Wastage settings -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:16px;">
+    <div style="font-size:13px;font-weight:700;margin-bottom:12px;">⚙️ Wastage Cap Settings</div>
+    <div class="form-row">
+      <div class="form-group" style="margin-bottom:0">
+        <label class="form-label">Gold max wastage %</label>
+        <input type="number" class="form-input" id="goldWastageCap" value="2" min="0" max="10" step="0.5"/>
+      </div>
+      <div class="form-group" style="margin-bottom:0">
+        <label class="form-label">Silver max wastage %</label>
+        <input type="number" class="form-input" id="silverWastageCap" value="3" min="0" max="10" step="0.5"/>
+      </div>
+    </div>
+    <button onclick="saveWastageCaps()" style="margin-top:12px;background:var(--accent);color:white;border:none;padding:10px 18px;border-radius:var(--radius-sm);font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;">Save Caps</button>
+  </div>
+</div>
+
+<!-- FAB -->
+<button class="fab" onclick="openAddTransaction()" title="Add transaction">+</button>
+
+<!-- ── ADD TRANSACTION MODAL ── -->
+<div class="modal-overlay hidden" id="txnModal">
+  <div class="modal">
+    <div class="modal-title" id="modalTitle">New Transaction</div>
+    <div class="modal-sub" id="modalSub">Record a metal movement</div>
+
+    <!-- Step 1: Choose type -->
+    <div id="step-type">
+      <div class="form-group">
+        <label class="form-label">Transaction Type</label>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+          <button class="txn-type-btn" onclick="selectTxnType('metal_in')" data-type="metal_in"
+            style="background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.3);color:var(--green);padding:12px;border-radius:var(--radius-sm);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;text-align:center;">
+            📥 Metal In<br/><span style="font-size:10px;opacity:0.7">Purchase / Opening</span>
+          </button>
+          <button class="txn-type-btn" onclick="selectTxnType('client_order')" data-type="client_order"
+            style="background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.3);color:var(--blue);padding:12px;border-radius:var(--radius-sm);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;text-align:center;">
+            👤 Client Order<br/><span style="font-size:10px;opacity:0.7">Receive old / Sell new</span>
+          </button>
+          <button class="txn-type-btn" onclick="selectTxnType('issue_goldsmith')" data-type="issue_goldsmith"
+            style="background:rgba(240,180,41,0.1);border:1px solid rgba(240,180,41,0.3);color:var(--gold);padding:12px;border-radius:var(--radius-sm);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;text-align:center;">
+            ⚒️ Issue to Smith<br/><span style="font-size:10px;opacity:0.7">Send for making</span>
+          </button>
+          <button class="txn-type-btn" onclick="selectTxnType('goldsmith_return')" data-type="goldsmith_return"
+            style="background:rgba(167,139,250,0.1);border:1px solid rgba(167,139,250,0.3);color:var(--accent2);padding:12px;border-radius:var(--radius-sm);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;text-align:center;">
+            ✅ Smith Return<br/><span style="font-size:10px;opacity:0.7">Jewellery received back</span>
+          </button>
+        </div>
+        <button class="txn-type-btn" onclick="selectTxnType('adjustment')" data-type="adjustment"
+          style="margin-top:8px;width:100%;background:rgba(100,116,139,0.1);border:1px solid rgba(100,116,139,0.3);color:var(--text2);padding:10px;border-radius:var(--radius-sm);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;">
+          ⚙️ Stock Adjustment (Admin only)
+        </button>
+      </div>
+    </div>
+
+    <!-- Step 2: Form fields (shown after type selected) -->
+    <div id="step-form" style="display:none">
+      <div id="formFields"></div>
+
+      <!-- Fine weight display -->
+      <div id="fineWeightBox" style="display:none">
+        <div class="fine-weight-display" id="fineWeightVal">0.000g</div>
+        <div class="fine-weight-label">Fine weight (pure metal equivalent)</div>
+      </div>
+
+      <!-- Wastage info (for goldsmith return) -->
+      <div id="wastageBox" style="display:none" class="wastage-info">
+        <div class="wastage-row"><span>Issued fine weight</span><span id="w-issued">—</span></div>
+        <div class="wastage-row"><span>Returned fine weight</span><span id="w-returned">—</span></div>
+        <div class="wastage-row"><span>Wastage</span><span id="w-wastage">—</span></div>
+        <div class="wastage-row"><span>Wastage %</span><span id="w-pct">—</span></div>
+        <div class="wastage-row"><span>Status</span><span id="w-status">—</span></div>
+      </div>
+
+      <!-- Photo upload -->
+      <div class="form-group">
+        <label class="form-label">📷 Photo Proof (Optional)</label>
+        <div class="photo-upload-area" onclick="document.getElementById('photoInput').click()">
+          <div style="font-size:24px;margin-bottom:4px">📷</div>
+          <div style="font-size:12px;color:var(--text2)">Tap to add photo</div>
+          <input type="file" id="photoInput" accept="image/*" multiple onchange="handlePhotoSelect(this)"/>
+        </div>
+        <div class="photo-preview" id="photoPreview"></div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+        <button class="btn-save" id="saveBtn" onclick="saveTransaction()">Save Transaction</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Daily Close Modal -->
+<div class="modal-overlay hidden" id="dailyCloseModal">
+  <div class="modal">
+    <div class="modal-title">🌙 Daily Closing</div>
+    <div class="modal-sub">Confirm physical stock matches the system</div>
+    <div id="dailyCloseFields"></div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="document.getElementById('dailyCloseModal').classList.add('hidden')">Cancel</button>
+      <button class="btn-save" onclick="saveDailyClose()">Confirm & Close Day</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<nav class="bottom-nav">
+  <a class="nav-item" href="dashboard.html"><span class="nav-icon">🏠</span><span class="nav-label">Home</span></a>
+  <a class="nav-item" href="tasks.html"><span class="nav-icon">✅</span><span class="nav-label">Tasks</span></a>
+  <a class="nav-item active" href="metal-stock.html"><span class="nav-icon">💎</span><span class="nav-label">Metal</span></a>
+  <a class="nav-item" href="admin.html"><span class="nav-icon">⚙️</span><span class="nav-label">Admin</span></a>
+  <a class="nav-item" href="reports.html"><span class="nav-icon">📊</span><span class="nav-label">Reports</span></a>
+</nav>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import {
+  getFirestore, collection, doc, getDoc, getDocs, addDoc, updateDoc,
+  query, where, orderBy, limit, serverTimestamp, setDoc, deleteDoc
+} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { getStorage, ref, uploadBytes, getDownloadURL }
+  from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
+
+const app = initializeApp({
+  apiKey:"AIzaSyDNwQYXcwZrAh4cTfRyhOVk_pRod9p4CRM",
+  authDomain:"sparkals-tasks-app.firebaseapp.com",
+  projectId:"sparkals-tasks-app",
+  storageBucket:"sparkals-tasks-app.firebasestorage.app",
+  messagingSenderId:"147179987231",
+  appId:"1:147179987231:web:c6ffa484f33a2ca420d02a"
+});
+const auth    = getAuth(app);
+const db      = getFirestore(app);
+const storage = getStorage(app);
+
+const ADMIN_EMAILS = ['sandeepgemologist@gmail.com','sparkals.design@gmail.com'];
+const PURITY_MAP = {
+  'gold-24':1.000,'gold-22':0.916,'gold-18':0.750,'gold-14':0.585,
+  'silver-100':1.000,'silver-925':0.925
+};
+const PURITY_LABELS = {
+  'gold-24':'Gold 24kt (Pure)','gold-22':'Gold 22kt (91.6%)','gold-18':'Gold 18kt (75%)','gold-14':'Gold 14kt (58.5%)',
+  'silver-100':'Silver Pure','silver-925':'Silver 925'
+};
+
+let currentUser = null, userProfile = null, currentTxnType = null;
+let selectedPhotos = [], openIssues = [], wastageCaps = {gold:2, silver:3};
+
+// ── AUTH ──
+onAuthStateChanged(auth, async user => {
+  if (!user) { window.location.href = 'login.html'; return; }
+  currentUser = user;
+  const snap = await getDoc(doc(db,'users',user.uid));
+  userProfile = snap.exists() ? snap.data() : {};
+  document.getElementById('stockDateLabel').textContent =
+    new Date().toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  await loadWastageCaps();
+  await loadDashboard();
+});
+
+// ── TAB SWITCHER ──
+window.switchTab = function(tab, el) {
+  document.querySelectorAll('.page-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  ['dashboard','transactions','goldsmiths'].forEach(t => {
+    document.getElementById('tab-'+t).style.display = t===tab ? 'block' : 'none';
+  });
+  if (tab==='transactions') loadTransactions();
+  if (tab==='goldsmiths')   loadGoldsmiths();
+};
+
+// ── FINE WEIGHT CALC ──
+function fineWeight(gross, purityKey) {
+  const factor = PURITY_MAP[purityKey] || 1;
+  return parseFloat((gross * factor).toFixed(3));
+}
+
+// ── LOAD WASTAGE CAPS ──
+async function loadWastageCaps() {
+  try {
+    const snap = await getDoc(doc(db,'appConfig','wastageCaps'));
+    if (snap.exists()) {
+      wastageCaps = snap.data();
+      document.getElementById('goldWastageCap').value   = wastageCaps.gold   || 2;
+      document.getElementById('silverWastageCap').value = wastageCaps.silver || 3;
+    }
+  } catch(e) {}
+}
+
+window.saveWastageCaps = async function() {
+  wastageCaps = {
+    gold:   parseFloat(document.getElementById('goldWastageCap').value)   || 2,
+    silver: parseFloat(document.getElementById('silverWastageCap').value) || 3
+  };
+  await setDoc(doc(db,'appConfig','wastageCaps'), wastageCaps, {merge:true});
+  showToast('✅ Wastage caps saved');
+};
+
+// ── LOAD DASHBOARD ──
+async function loadDashboard() {
+  try {
+    const snap = await getDocs(collection(db,'metalTransactions'));
+    const txns = snap.docs.map(d=>({id:d.id,...d.data()}));
+
+    // Build balances
+    const bal = {'gold-24':0,'gold-22':0,'gold-18':0,'gold-14':0,'silver-100':0,'silver-925':0};
+    const withSmith = {gold:0, silver:0};
+    const today = new Date().toISOString().split('T')[0];
+    let todayIn=0, todayOut=0, todayCount=0;
+
+    txns.forEach(t => {
+      const fw = parseFloat(t.fineWeight||0);
+      const metal = t.metal;
+      const pk = t.purityKey;
+      const isToday = t.date === today;
+
+      if (t.type === 'metal_in' || t.type === 'adjustment') {
+        if (bal[pk] !== undefined) bal[pk] += fw;
+        if (isToday) { todayIn += fw; todayCount++; }
+      }
+      if (t.type === 'client_order' && t.clientMetalIn) {
+        const cpk = t.clientPurityKey;
+        if (bal[cpk] !== undefined) bal[cpk] += parseFloat(t.clientFineWeight||0);
+        if (isToday) { todayIn += parseFloat(t.clientFineWeight||0); todayCount++; }
+      }
+      if (t.type === 'issue_goldsmith' && t.status !== 'returned') {
+        if (bal[pk] !== undefined) bal[pk] -= fw;
+        withSmith[metal] += fw;
+        if (isToday) { todayOut += fw; todayCount++; }
+      }
+      if (t.type === 'goldsmith_return') {
+        const rpk = t.returnedPurityKey;
+        if (bal[rpk] !== undefined) bal[rpk] += parseFloat(t.returnedFineWeight||0);
+        withSmith[metal] -= parseFloat(t.issuedFineWeight||0);
+        if (withSmith[metal] < 0) withSmith[metal] = 0;
+        if (isToday) { todayIn += parseFloat(t.returnedFineWeight||0); todayCount++; }
+      }
+      if (t.type === 'sale') {
+        if (bal[pk] !== undefined) bal[pk] -= fw;
+        if (isToday) { todayOut += fw; todayCount++; }
+      }
+    });
+
+    // Update UI
+    Object.entries(bal).forEach(([k,v]) => {
+      const el = document.getElementById('bal-'+k.replace('-','-'));
+      if (el) el.textContent = Math.max(0,v).toFixed(2);
+    });
+    document.getElementById('bal-gold-smith').textContent   = Math.max(0,withSmith.gold).toFixed(2)+'g';
+    document.getElementById('bal-silver-smith').textContent = Math.max(0,withSmith.silver).toFixed(2)+'g';
+    document.getElementById('today-in').textContent    = todayIn.toFixed(1);
+    document.getElementById('today-out').textContent   = todayOut.toFixed(1);
+    document.getElementById('today-txns').textContent  = todayCount;
+
+    // Check flags
+    const flags = [];
+    txns.filter(t=>t.type==='issue_goldsmith'&&t.status!=='returned').forEach(t=>{
+      if (!t.dueDate) return;
+      const due = new Date(t.dueDate);
+      if (due < new Date()) flags.push(`Overdue return: ${t.smithName} — ${t.fineWeight}g ${PURITY_LABELS[t.purityKey]||''}`);
+    });
+    txns.filter(t=>t.type==='client_order'&&t.clientPurityConfirmed===false).forEach(t=>{
+      flags.push(`Lab test pending: ${t.clientName} — ${t.clientGrossWeight}g`);
+    });
+    txns.filter(t=>t.type==='goldsmith_return'&&t.wastageExcess===true).forEach(t=>{
+      flags.push(`Excess wastage: ${t.smithName} — ${t.wastagePct}% (cap: ${wastageCaps[t.metal]}%)`);
+    });
+
+    const flagsPanel = document.getElementById('flagsPanel');
+    if (flags.length > 0) {
+      flagsPanel.style.display = 'block';
+      document.getElementById('flagsList').innerHTML = flags.map(f=>
+        `<div class="flag-item"><span>${f}</span><span class="flag-action">Review →</span></div>`
+      ).join('');
+    } else { flagsPanel.style.display = 'none'; }
+
+  } catch(e) { console.error('Dashboard error:', e); }
+}
+
+// ── LOAD TRANSACTIONS ──
+window.loadTransactions = async function() {
+  const typeFilter  = document.getElementById('txnFilter')?.value;
+  const metalFilter = document.getElementById('metalFilter')?.value;
+  const list = document.getElementById('txnList');
+  list.innerHTML = '<div style="text-align:center;padding:30px;color:var(--text2)"><div class="spinner"></div></div>';
+
+  try {
+    const snap = await getDocs(query(collection(db,'metalTransactions'), orderBy('createdAt','desc'), limit(50)));
+    let txns = snap.docs.map(d=>({id:d.id,...d.data()}));
+    if (typeFilter)  txns = txns.filter(t=>t.type===typeFilter);
+    if (metalFilter) txns = txns.filter(t=>t.metal===metalFilter);
+
+    if (!txns.length) {
+      list.innerHTML = '<div class="empty-state"><div class="emoji">📋</div><p>No transactions yet</p></div>';
+      return;
+    }
+
+    list.innerHTML = txns.map(t => buildTxnCard(t)).join('');
+  } catch(e) { list.innerHTML = '<div class="empty-state"><p>Could not load transactions</p></div>'; }
+};
+
+function buildTxnCard(t) {
+  const typeLabels = {
+    metal_in:'Metal In', client_order:'Client Order',
+    issue_goldsmith:'Issue to Smith', goldsmith_return:'Smith Return',
+    adjustment:'Adjustment', sale:'Sale'
+  };
+  const badgeCls = {
+    metal_in:'badge-in', client_order:'badge-in',
+    issue_goldsmith:'badge-out', sale:'badge-out',
+    goldsmith_return:'badge-in', adjustment:'badge-adjust'
+  };
+  const label = typeLabels[t.type] || t.type;
+  const badge = badgeCls[t.type] || 'badge-adjust';
+  const metal = t.metal || 'gold';
+  const fw    = parseFloat(t.fineWeight||t.returnedFineWeight||t.clientFineWeight||0).toFixed(3);
+  const date  = t.date || '—';
+
+  let title = '', meta = '';
+  if (t.type==='metal_in')        { title=`From: ${t.supplier||'—'}`; meta=`${PURITY_LABELS[t.purityKey]||''} · ${t.grossWeight||0}g gross · ${t.paymentMode||''}`;  }
+  if (t.type==='client_order')    { title=`Client: ${t.clientName||'—'}`; meta=`${t.orderType||''} · ${t.clientMetalIn?'Metal received':'Cash/Bank order'}`; }
+  if (t.type==='issue_goldsmith') { title=`To: ${t.smithName||'—'}`; meta=`${PURITY_LABELS[t.purityKey]||''} · Due: ${t.dueDate||'—'} · ${t.status==='returned'?'✅ Returned':'⏳ Pending'}`; }
+  if (t.type==='goldsmith_return'){ title=`From: ${t.smithName||'—'}`; meta=`Wastage: ${t.wastagePct||0}% ${t.wastageExcess?'⚠️ EXCESS':'✅'}`; }
+  if (t.type==='adjustment')      { title=`Adjustment`; meta=`Reason: ${t.reason||'—'}`; }
+  if (t.type==='sale')            { title=`Sale to: ${t.clientName||'—'}`; meta=`${PURITY_LABELS[t.purityKey]||''} · ${t.paymentMode||''}`; }
+
+  const hasReceipt = ['client_order','issue_goldsmith','goldsmith_return'].includes(t.type);
+  const isPending  = t.type==='issue_goldsmith' && t.status!=='returned';
+
+  return `<div class="txn-card">
+    <div class="txn-top">
+      <span class="txn-type-badge ${badge}">${label}</span>
+      <div class="txn-info">
+        <div class="txn-title">${title}</div>
+        <div class="txn-meta">${date} · ${meta}</div>
+      </div>
+      <div class="txn-weight ${metal}">${fw}g</div>
+    </div>
+    ${hasReceipt||isPending ? `<div class="txn-actions">
+      ${hasReceipt?`<button class="btn-receipt" onclick="viewReceipt('${t.id}')">🧾 Receipt</button>`:''}
+      ${isPending?`<button class="btn-complete" onclick="openGoldsmithReturn('${t.id}')">✅ Record Return</button>`:''}
+      ${t.type==='client_order'&&!t.clientPurityConfirmed?`<button class="btn-flag" onclick="confirmPurity('${t.id}')">🔬 Confirm Purity</button>`:''}
+    </div>` : ''}
+  </div>`;
+}
+
+// ── LOAD GOLDSMITHS ──
+async function loadGoldsmiths() {
+  const list = document.getElementById('smithList');
+  try {
+    const snap = await getDocs(query(collection(db,'metalTransactions'),
+      where('type','==','issue_goldsmith'), where('status','!=','returned')));
+    const pending = snap.docs.map(d=>({id:d.id,...d.data()}));
+    if (!pending.length) {
+      list.innerHTML = '<div style="color:var(--green);font-size:13px;text-align:center;padding:16px">✅ No metal currently with any goldsmith</div>';
+      return;
+    }
+    const today = new Date();
+    list.innerHTML = pending.map(t => {
+      const due = t.dueDate ? new Date(t.dueDate) : null;
+      const isOverdue = due && due < today;
+      const days = due ? Math.abs(Math.floor((today-due)/86400000)) : null;
+      return `<div class="smith-row">
+        <div>
+          <div class="smith-name">${t.smithName||'Unknown'}${isOverdue?`<span class="overdue-tag">OVERDUE ${days}d</span>`:''}</div>
+          <div class="smith-meta">${PURITY_LABELS[t.purityKey]||''} · Issued: ${t.date||'—'} · Due: ${t.dueDate||'—'}</div>
+        </div>
+        <div>
+          <div class="smith-weight">${parseFloat(t.fineWeight||0).toFixed(3)}g</div>
+          <div style="font-size:10px;color:var(--text2);text-align:right">${t.metal||''}</div>
+        </div>
+      </div>`;
+    }).join('');
+  } catch(e) { list.innerHTML = '<div style="color:var(--red);font-size:13px">Could not load</div>'; }
+}
+
+// ── OPEN ADD TRANSACTION ──
+window.openAddTransaction = function() {
+  currentTxnType = null;
+  selectedPhotos = [];
+  document.getElementById('step-type').style.display  = 'block';
+  document.getElementById('step-form').style.display  = 'none';
+  document.getElementById('fineWeightBox').style.display = 'none';
+  document.getElementById('wastageBox').style.display    = 'none';
+  document.getElementById('photoPreview').innerHTML = '';
+  document.getElementById('modalTitle').textContent = 'New Transaction';
+  document.getElementById('modalSub').textContent   = 'Choose transaction type';
+  document.getElementById('txnModal').classList.remove('hidden');
+};
+
+window.selectTxnType = function(type) {
+  currentTxnType = type;
+  document.getElementById('step-type').style.display = 'none';
+  document.getElementById('step-form').style.display = 'block';
+
+  const titles = {
+    metal_in:'📥 Metal In', client_order:'👤 Client Order',
+    issue_goldsmith:'⚒️ Issue to Goldsmith/Silversmith',
+    goldsmith_return:'✅ Goldsmith / Silversmith Return',
+    adjustment:'⚙️ Stock Adjustment'
+  };
+  document.getElementById('modalTitle').textContent = titles[type] || 'Transaction';
+  document.getElementById('formFields').innerHTML = buildFormFields(type);
+  recalcFineWeight();
+};
+
+function buildFormFields(type) {
+  const purityOptions = `
+    <optgroup label="Gold">
+      <option value="gold-24">Gold 24kt — Pure (100%)</option>
+      <option value="gold-22">Gold 22kt — 91.6%</option>
+      <option value="gold-18">Gold 18kt — 75.0%</option>
+      <option value="gold-14">Gold 14kt — 58.5%</option>
+    </optgroup>
+    <optgroup label="Silver">
+      <option value="silver-100">Silver Pure (100%)</option>
+      <option value="silver-925">Silver 925 — 92.5%</option>
+    </optgroup>`;
+
+  if (type === 'metal_in') return `
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Metal & Purity *</label>
+        <select class="form-select" id="f-purity" onchange="recalcFineWeight()">${purityOptions}</select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Gross Weight (g) *</label>
+        <input type="number" class="form-input" id="f-gross" placeholder="0.000" step="0.001" oninput="recalcFineWeight()"/>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Supplier Name *</label>
+        <input type="text" class="form-input" id="f-supplier" placeholder="Supplier or market name"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Payment Mode</label>
+        <select class="form-select" id="f-payment">
+          <option value="cash">Cash</option>
+          <option value="bank">Bank Transfer</option>
+          <option value="mixed">Mixed</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Notes (optional)</label>
+      <input type="text" class="form-input" id="f-notes" placeholder="Any notes..."/>
+    </div>`;
+
+  if (type === 'client_order') return `
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Client Name *</label>
+        <input type="text" class="form-input" id="f-client" placeholder="Client full name"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Client Phone</label>
+        <input type="tel" class="form-input" id="f-phone" placeholder="Mobile number"/>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Order Type *</label>
+      <select class="form-select" id="f-ordertype" onchange="toggleClientMetal()">
+        <option value="new_purchase">New purchase (cash/bank only)</option>
+        <option value="exchange">Exchange (old jewellery for new)</option>
+        <option value="mixed">Mixed (old jewellery + cash difference)</option>
+      </select>
+    </div>
+    <div id="clientMetalSection" style="display:none">
+      <div class="modal-note">📋 Client is giving old jewellery. Weigh it and record below.</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Client Metal Purity</label>
+          <select class="form-select" id="f-client-purity" onchange="recalcClientFine()">${purityOptions}
+            <option value="unknown">Unknown — Lab pending</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Client Metal Weight (g)</label>
+          <input type="number" class="form-input" id="f-client-gross" placeholder="0.000" step="0.001" oninput="recalcClientFine()"/>
+        </div>
+      </div>
+      <div id="clientFineBox" style="display:none" class="fine-weight-display"></div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Order Description</label>
+      <input type="text" class="form-input" id="f-order-desc" placeholder="e.g. 22kt necklace, custom design"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Payment Mode</label>
+      <select class="form-select" id="f-payment">
+        <option value="cash">Cash</option>
+        <option value="bank">Bank Transfer</option>
+        <option value="mixed">Mixed</option>
+      </select>
+    </div>`;
+
+  if (type === 'issue_goldsmith') return `
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Goldsmith / Silversmith Name *</label>
+        <input type="text" class="form-input" id="f-smith" placeholder="Goldsmith or silversmith name"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Phone (for WhatsApp receipt)</label>
+        <input type="tel" class="form-input" id="f-smith-phone" placeholder="Mobile number"/>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Metal & Purity *</label>
+        <select class="form-select" id="f-purity" onchange="recalcFineWeight()">${purityOptions}</select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Gross Weight (g) *</label>
+        <input type="number" class="form-input" id="f-gross" placeholder="0.000" step="0.001" oninput="recalcFineWeight()"/>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Due Date for Return *</label>
+        <input type="date" class="form-input" id="f-due"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Linked Client Order (optional)</label>
+        <input type="text" class="form-input" id="f-order-ref" placeholder="Client name or order ref"/>
+      </div>
+    </div>
+    <div class="modal-note">⚠️ A receipt will be generated for the goldsmith. Share via WhatsApp to confirm the handover.</div>`;
+
+  if (type === 'goldsmith_return') return `
+    <div class="form-group">
+      <label class="form-label">Select Pending Issue *</label>
+      <select class="form-select" id="f-issue-ref" onchange="loadIssueDetails()">
+        <option value="">— Loading pending issues... —</option>
+      </select>
+    </div>
+    <div id="issueDetailsBox" style="display:none;background:var(--surface3);border-radius:var(--radius-sm);padding:12px;margin-bottom:14px;font-size:13px;">
+      <div id="issueDetailsText" style="color:var(--text2)"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Returned Jewellery Purity *</label>
+        <select class="form-select" id="f-return-purity" onchange="recalcWastage()">${purityOptions}</select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Returned Weight (g) *</label>
+        <input type="number" class="form-input" id="f-return-gross" placeholder="0.000" step="0.001" oninput="recalcWastage()"/>
+      </div>
+    </div>`;
+
+  if (type === 'adjustment') return `
+    <div class="modal-note">⚠️ Admin only. Use this only to set opening stock or correct genuine errors.</div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Metal & Purity *</label>
+        <select class="form-select" id="f-purity" onchange="recalcFineWeight()">${purityOptions}</select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Adjustment (+ or -) grams *</label>
+        <input type="number" class="form-input" id="f-gross" placeholder="e.g. 50 or -5" step="0.001" oninput="recalcFineWeight()"/>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Reason * (mandatory)</label>
+      <input type="text" class="form-input" id="f-reason" placeholder="e.g. Opening stock entry, Correction after physical count"/>
+    </div>`;
+
+  return '';
+}
+
+window.toggleClientMetal = function() {
+  const type = document.getElementById('f-ordertype')?.value;
+  const show = type === 'exchange' || type === 'mixed';
+  document.getElementById('clientMetalSection').style.display = show ? 'block' : 'none';
+};
+
+window.recalcClientFine = function() {
+  const gross = parseFloat(document.getElementById('f-client-gross')?.value) || 0;
+  const pk    = document.getElementById('f-client-purity')?.value;
+  if (pk === 'unknown') {
+    document.getElementById('clientFineBox').style.display = 'block';
+    document.getElementById('clientFineBox').textContent = 'Purity unknown — credit after lab test';
+    document.getElementById('clientFineBox').style.color = 'var(--amber)';
+    return;
+  }
+  const fw = fineWeight(gross, pk);
+  document.getElementById('clientFineBox').style.display = 'block';
+  document.getElementById('clientFineBox').textContent = `${fw.toFixed(3)}g fine ${pk.includes('gold')?'gold':'silver'}`;
+  document.getElementById('clientFineBox').style.color = 'var(--gold)';
+};
+
+window.recalcFineWeight = function() {
+  const gross = parseFloat(document.getElementById('f-gross')?.value) || 0;
+  const pk    = document.getElementById('f-purity')?.value;
+  if (!pk || gross === 0) { document.getElementById('fineWeightBox').style.display='none'; return; }
+  const fw = fineWeight(gross, pk);
+  document.getElementById('fineWeightBox').style.display = 'block';
+  document.getElementById('fineWeightVal').textContent = `${fw.toFixed(3)}g`;
+};
+
+// Load pending issues for goldsmith return
+async function loadPendingIssues() {
+  try {
+    const snap = await getDocs(query(collection(db,'metalTransactions'),
+      where('type','==','issue_goldsmith'), where('status','!=','returned')));
+    openIssues = snap.docs.map(d=>({id:d.id,...d.data()}));
+    const sel = document.getElementById('f-issue-ref');
+    if (!sel) return;
+    sel.innerHTML = '<option value="">— Select goldsmith issue —</option>' +
+      openIssues.map(t=>`<option value="${t.id}">${t.smithName} — ${t.fineWeight}g ${PURITY_LABELS[t.purityKey]||''} (Due: ${t.dueDate||'—'})</option>`).join('');
+  } catch(e) {}
+}
+
+window.loadIssueDetails = function() {
+  const id = document.getElementById('f-issue-ref')?.value;
+  const t  = openIssues.find(i=>i.id===id);
+  const box = document.getElementById('issueDetailsBox');
+  if (!t) { box.style.display='none'; return; }
+  box.style.display='block';
+  document.getElementById('issueDetailsText').innerHTML =
+    `Issued: <strong>${t.grossWeight}g</strong> ${PURITY_LABELS[t.purityKey]||''} &nbsp;|&nbsp; Fine: <strong>${t.fineWeight}g</strong> &nbsp;|&nbsp; Date: ${t.date||'—'}`;
+};
+
+window.recalcWastage = function() {
+  const issueId = document.getElementById('f-issue-ref')?.value;
+  const issue   = openIssues.find(i=>i.id===issueId);
+  if (!issue) return;
+
+  const retGross = parseFloat(document.getElementById('f-return-gross')?.value) || 0;
+  const retPk    = document.getElementById('f-return-purity')?.value;
+  if (!retPk || retGross === 0) return;
+
+  const retFw    = fineWeight(retGross, retPk);
+  const issuedFw = parseFloat(issue.fineWeight || 0);
+  const wastage  = issuedFw - retFw;
+  const wastagePct = issuedFw > 0 ? (wastage/issuedFw*100) : 0;
+  const metal    = issue.metal || 'gold';
+  const cap      = wastageCaps[metal] || 2;
+  const isExcess = wastagePct > cap;
+
+  document.getElementById('wastageBox').style.display = 'block';
+  document.getElementById('w-issued').textContent    = issuedFw.toFixed(3)+'g';
+  document.getElementById('w-returned').textContent  = retFw.toFixed(3)+'g';
+  document.getElementById('w-wastage').textContent   = wastage.toFixed(3)+'g';
+  document.getElementById('w-pct').textContent       = wastagePct.toFixed(2)+'%';
+  document.getElementById('w-status').innerHTML = isExcess
+    ? `<span class="wastage-bad">⚠️ EXCESS (cap: ${cap}%)</span>`
+    : `<span class="wastage-good">✅ Within cap (${cap}%)</span>`;
+};
+
+// ── HANDLE PHOTO SELECT ──
+window.handlePhotoSelect = function(input) {
+  const preview = document.getElementById('photoPreview');
+  Array.from(input.files).forEach(file => {
+    selectedPhotos.push(file);
+    const img = document.createElement('img');
+    img.src = URL.createObjectURL(file);
+    preview.appendChild(img);
+  });
+};
+
+// ── SAVE TRANSACTION ──
+window.saveTransaction = async function() {
+  const btn = document.getElementById('saveBtn');
+  btn.disabled = true; btn.textContent = 'Saving...';
+  const today = new Date().toISOString().split('T')[0];
+  const metal = (document.getElementById('f-purity')?.value || document.getElementById('f-client-purity')?.value || 'gold-24').split('-')[0];
+
+  try {
+    // Upload photos if any
+    const photoUrls = [];
+    for (const file of selectedPhotos) {
+      try {
+        const storRef = ref(storage, `metalStock/${Date.now()}_${file.name}`);
+        await uploadBytes(storRef, file);
+        const url = await getDownloadURL(storRef);
+        photoUrls.push(url);
+      } catch(e) { console.log('Photo upload skipped (Storage not configured):', e.message); }
+    }
+
+    let data = {
+      type: currentTxnType, metal,
+      date: today,
+      recordedBy: currentUser.email,
+      recordedByUid: currentUser.uid,
+      photos: photoUrls,
+      createdAt: serverTimestamp()
+    };
+
+    if (currentTxnType === 'metal_in') {
+      const pk = document.getElementById('f-purity').value;
+      const gross = parseFloat(document.getElementById('f-gross').value);
+      if (!gross) { showToast('Enter gross weight','error'); btn.disabled=false; btn.textContent='Save Transaction'; return; }
+      const supplier = document.getElementById('f-supplier').value.trim();
+      if (!supplier) { showToast('Enter supplier name','error'); btn.disabled=false; btn.textContent='Save Transaction'; return; }
+      data = {...data, purityKey:pk, grossWeight:gross, fineWeight:fineWeight(gross,pk),
+               supplier, paymentMode:document.getElementById('f-payment').value,
+               notes:document.getElementById('f-notes').value};
+    }
+
+    if (currentTxnType === 'client_order') {
+      const clientName = document.getElementById('f-client').value.trim();
+      if (!clientName) { showToast('Enter client name','error'); btn.disabled=false; btn.textContent='Save Transaction'; return; }
+      const orderType = document.getElementById('f-ordertype').value;
+      const hasClientMetal = orderType !== 'new_purchase';
+      const cpk   = hasClientMetal ? document.getElementById('f-client-purity')?.value : null;
+      const cgross = hasClientMetal ? parseFloat(document.getElementById('f-client-gross')?.value||0) : 0;
+      const cfine  = (cpk && cpk !== 'unknown') ? fineWeight(cgross, cpk) : 0;
+      data = {...data, clientName, clientPhone:document.getElementById('f-phone').value,
+               orderType, clientMetalIn:hasClientMetal, clientPurityKey:cpk,
+               clientGrossWeight:cgross, clientFineWeight:cfine,
+               clientPurityConfirmed: cpk !== 'unknown',
+               orderDesc:document.getElementById('f-order-desc').value,
+               paymentMode:document.getElementById('f-payment').value,
+               status:'open', metal: cpk ? cpk.split('-')[0] : 'gold'};
+    }
+
+    if (currentTxnType === 'issue_goldsmith') {
+      const smithName = document.getElementById('f-smith').value.trim();
+      const pk = document.getElementById('f-purity').value;
+      const gross = parseFloat(document.getElementById('f-gross').value);
+      const dueDate = document.getElementById('f-due').value;
+      if (!smithName||!gross||!dueDate) { showToast('Fill all required fields','error'); btn.disabled=false; btn.textContent='Save Transaction'; return; }
+      data = {...data, smithName, smithPhone:document.getElementById('f-smith-phone').value,
+               purityKey:pk, grossWeight:gross, fineWeight:fineWeight(gross,pk),
+               dueDate, orderRef:document.getElementById('f-order-ref').value, status:'pending'};
+    }
+
+    if (currentTxnType === 'goldsmith_return') {
+      const issueId  = document.getElementById('f-issue-ref').value;
+      const issue    = openIssues.find(i=>i.id===issueId);
+      if (!issue) { showToast('Select a pending issue','error'); btn.disabled=false; btn.textContent='Save Transaction'; return; }
+      const retPk    = document.getElementById('f-return-purity').value;
+      const retGross = parseFloat(document.getElementById('f-return-gross').value||0);
+      if (!retGross) { showToast('Enter returned weight','error'); btn.disabled=false; btn.textContent='Save Transaction'; return; }
+      const retFw    = fineWeight(retGross, retPk);
+      const issuedFw = parseFloat(issue.fineWeight||0);
+      const wastage  = issuedFw - retFw;
+      const wastagePct = issuedFw>0 ? parseFloat((wastage/issuedFw*100).toFixed(2)) : 0;
+      const cap      = wastageCaps[metal] || 2;
+      const isExcess = wastagePct > cap;
+      data = {...data, smithName:issue.smithName, smithPhone:issue.smithPhone,
+               issueRef:issueId, issuedFineWeight:issuedFw,
+               returnedPurityKey:retPk, returnedGrossWeight:retGross, returnedFineWeight:retFw,
+               wastageFine:wastage, wastagePct, wastageExcess:isExcess};
+      // Mark original issue as returned
+      await updateDoc(doc(db,'metalTransactions',issueId),{status:'returned',returnedAt:serverTimestamp()});
+    }
+
+    if (currentTxnType === 'adjustment') {
+      const pk = document.getElementById('f-purity').value;
+      const gross = parseFloat(document.getElementById('f-gross').value);
+      const reason = document.getElementById('f-reason').value.trim();
+      if (!reason) { showToast('Reason is mandatory for adjustment','error'); btn.disabled=false; btn.textContent='Save Transaction'; return; }
+      data = {...data, purityKey:pk, grossWeight:gross, fineWeight:fineWeight(Math.abs(gross),pk)*Math.sign(gross), reason};
+    }
+
+    const ref2 = await addDoc(collection(db,'metalTransactions'), data);
+
+    closeModal();
+    showToast('✅ Transaction saved!');
+    await loadDashboard();
+
+    // Auto-open receipt for relevant types
+    if (['client_order','issue_goldsmith','goldsmith_return'].includes(currentTxnType)) {
+      setTimeout(() => viewReceipt(ref2.id), 600);
+    }
+
+  } catch(e) {
+    console.error(e);
+    showToast('❌ Error saving: '+e.message, 'error');
+  }
+  btn.disabled=false; btn.textContent='Save Transaction';
+};
+
+// ── VIEW RECEIPT ──
+window.viewReceipt = function(txnId) {
+  window.open(`metal-receipt.html?id=${txnId}`, '_blank');
+};
+
+// ── CONFIRM PURITY ──
+window.confirmPurity = async function(txnId) {
+  const purity = prompt('Enter confirmed purity (e.g. gold-22, gold-18, silver-925):');
+  if (!purity || !PURITY_MAP[purity]) { showToast('Invalid purity code','error'); return; }
+  const snap = await getDoc(doc(db,'metalTransactions',txnId));
+  const t = snap.data();
+  const fw = fineWeight(parseFloat(t.clientGrossWeight||0), purity);
+  await updateDoc(doc(db,'metalTransactions',txnId), {
+    clientPurityKey: purity, clientFineWeight: fw,
+    clientPurityConfirmed: true, purityConfirmedAt: serverTimestamp()
+  });
+  showToast('✅ Purity confirmed — client credit updated');
+  loadTransactions(); loadDashboard();
+};
+
+// ── OPEN GOLDSMITH RETURN from transaction list ──
+window.openGoldsmithReturn = async function(issueId) {
+  currentTxnType = 'goldsmith_return';
+  selectedPhotos = [];
+  document.getElementById('step-type').style.display = 'none';
+  document.getElementById('step-form').style.display = 'block';
+  document.getElementById('modalTitle').textContent  = '✅ Goldsmith / Silversmith Return';
+  document.getElementById('formFields').innerHTML    = buildFormFields('goldsmith_return');
+  document.getElementById('txnModal').classList.remove('hidden');
+  await loadPendingIssues();
+  const sel = document.getElementById('f-issue-ref');
+  if (sel) { sel.value = issueId; window.loadIssueDetails(); }
+};
+
+// Intercept goldsmith_return type select to load pending issues
+const origSelect = window.selectTxnType;
+window.selectTxnType = async function(type) {
+  origSelect(type);
+  if (type === 'goldsmith_return') await loadPendingIssues();
+};
+
+// ── DAILY CLOSE ──
+window.openDailyClose = function() {
+  const fields = document.getElementById('dailyCloseFields');
+  fields.innerHTML = `
+    <div class="modal-note">Weigh your physical stock and enter the actual weight. Any mismatch will be flagged.</div>
+    ${[['gold-24','Gold 24kt Pure'],['gold-22','Gold 22kt'],['gold-18','Gold 18kt'],['gold-14','Gold 14kt'],
+       ['silver-100','Silver Pure'],['silver-925','Silver 925']].map(([k,l])=>`
+      <div class="form-group">
+        <label class="form-label">${l} — Physical weight (g)</label>
+        <input type="number" class="form-input" id="dc-${k}" placeholder="0.000" step="0.001"/>
+      </div>`).join('')}
+    <div class="form-group">
+      <label class="form-label">Notes (optional)</label>
+      <input type="text" class="form-input" id="dc-notes" placeholder="Any observations..."/>
+    </div>`;
+  document.getElementById('dailyCloseModal').classList.remove('hidden');
+};
+
+window.saveDailyClose = async function() {
+  const keys = ['gold-24','gold-22','gold-18','gold-14','silver-100','silver-925'];
+  const physical = {};
+  keys.forEach(k => { physical[k] = parseFloat(document.getElementById('dc-'+k)?.value||0); });
+
+  // Read system balances from UI
+  const system = {};
+  keys.forEach(k => {
+    const el = document.getElementById('bal-'+k);
+    system[k] = parseFloat(el?.textContent||0);
+  });
+
+  const mismatches = keys.filter(k => Math.abs(physical[k]-system[k]) > 0.01);
+  await addDoc(collection(db,'metalDailyClose'), {
+    date: new Date().toISOString().split('T')[0],
+    physical, system, mismatches,
+    notes: document.getElementById('dc-notes')?.value||'',
+    closedBy: currentUser.email,
+    createdAt: serverTimestamp()
+  });
+
+  document.getElementById('dailyCloseModal').classList.add('hidden');
+  if (mismatches.length > 0) {
+    showToast(`⚠️ ${mismatches.length} mismatch(es) found — flagged to admin`, 'error');
+  } else {
+    showToast('✅ Daily close saved — all balances match!');
+  }
+};
+
+window.closeModal = function() {
+  document.getElementById('txnModal').classList.add('hidden');
+  currentTxnType = null; selectedPhotos = [];
+};
+
+function showToast(msg, type='') {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = 'toast show '+(type==='error'?'error':'');
+  setTimeout(()=>{ t.className='toast'; }, 3500);
+}
+</script>
+</body>
+</html>
