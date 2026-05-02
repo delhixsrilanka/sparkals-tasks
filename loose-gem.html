@@ -1,0 +1,1054 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Loose Gem — Sparkals</title>
+<link rel="manifest" href="manifest.json"/>
+<link rel="icon" href="/icons/logo%20copfy.png"/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#080810;--surface:#10101e;--surface2:#181828;--surface3:#20203a;--border:#252540;
+  --gem:#c084fc;--gem2:#e879f9;--gem-glow:rgba(192,132,252,0.15);
+  --gold:#f0b429;--green:#34d399;--red:#f87171;--amber:#fbbf24;--blue:#60a5fa;--teal:#2dd4bf;
+  --text:#f0eeff;--text2:#9090b8;--text3:#5050a0;
+  --radius:14px;--radius-sm:8px;
+}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;padding-bottom:90px;
+  background-image:radial-gradient(ellipse at 20% 0%,rgba(192,132,252,0.07) 0%,transparent 60%),
+                   radial-gradient(ellipse at 80% 100%,rgba(232,121,249,0.05) 0%,transparent 60%);}
+
+/* ── TOP NAV ── */
+.topnav{background:rgba(16,16,30,0.95);backdrop-filter:blur(12px);padding:14px 20px;
+  display:flex;align-items:center;justify-content:space-between;
+  border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;}
+.topnav-left{display:flex;align-items:center;gap:12px;}
+.back-btn{background:var(--surface3);border:1px solid var(--border);color:var(--text2);
+  width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;
+  cursor:pointer;font-size:18px;text-decoration:none;transition:border-color 0.2s;}
+.back-btn:hover{border-color:var(--gem);}
+.topnav-title{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:700;
+  color:var(--gem);letter-spacing:0.5px;}
+.topnav-sub{font-size:11px;color:var(--text2);margin-top:1px;font-family:'DM Mono',monospace;}
+.topnav-right{display:flex;gap:8px;}
+
+/* ── PAGE TABS ── */
+.page-tabs{background:var(--surface);display:flex;overflow-x:auto;
+  border-bottom:1px solid var(--border);scrollbar-width:none;}
+.page-tabs::-webkit-scrollbar{display:none;}
+.page-tab{padding:12px 18px;font-size:13px;font-weight:600;color:var(--text2);cursor:pointer;
+  white-space:nowrap;border-bottom:2px solid transparent;border:none;background:none;
+  font-family:'DM Sans',sans-serif;transition:all 0.2s;}
+.page-tab.active{color:var(--gem);border-bottom:2px solid var(--gem);}
+.page-tab:hover:not(.active){color:var(--text);}
+
+/* ── MAIN ── */
+.main{padding:16px;max-width:900px;margin:0 auto;}
+
+/* ── STAT CARDS ── */
+.stats-row{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:20px;}
+@media(min-width:500px){.stats-row{grid-template-columns:repeat(4,1fr);}}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+  padding:14px;position:relative;overflow:hidden;}
+.stat-card::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;}
+.stat-card.c-gem::after{background:linear-gradient(90deg,var(--gem),var(--gem2));}
+.stat-card.c-amber::after{background:var(--amber);}
+.stat-card.c-green::after{background:var(--green);}
+.stat-card.c-red::after{background:var(--red);}
+.stat-label{font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:6px;}
+.stat-value{font-family:'DM Mono',monospace;font-size:26px;font-weight:500;}
+.stat-card.c-gem .stat-value{color:var(--gem);}
+.stat-card.c-amber .stat-value{color:var(--amber);}
+.stat-card.c-green .stat-value{color:var(--green);}
+.stat-card.c-red .stat-value{color:var(--red);}
+.stat-sub{font-size:11px;color:var(--text3);margin-top:3px;}
+
+/* ── GEM CARDS ── */
+.gem-list{display:flex;flex-direction:column;gap:12px;}
+.gem-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+  overflow:hidden;transition:border-color 0.2s,box-shadow 0.2s;}
+.gem-card:hover{border-color:rgba(192,132,252,0.4);box-shadow:0 0 24px rgba(192,132,252,0.08);}
+.gem-card.status-pending{border-left:3px solid var(--amber);}
+.gem-card.status-sold{border-left:3px solid var(--green);}
+.gem-card.status-returned{border-left:3px solid var(--blue);}
+.gem-card.status-payment_pending{border-left:3px solid var(--red);}
+
+.gem-card-top{padding:14px 16px;display:flex;align-items:flex-start;gap:12px;}
+.gem-icon-wrap{width:40px;height:40px;border-radius:10px;background:var(--gem-glow);
+  border:1px solid rgba(192,132,252,0.25);display:flex;align-items:center;justify-content:center;
+  font-size:20px;flex-shrink:0;}
+.gem-info{flex:1;min-width:0;}
+.gem-name{font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:600;color:var(--text);margin-bottom:4px;}
+.gem-chips{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:4px;}
+.chip{display:inline-flex;align-items:center;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:600;}
+.chip-pending{background:rgba(251,191,36,0.12);color:var(--amber);border:1px solid rgba(251,191,36,0.25);}
+.chip-sold{background:rgba(52,211,153,0.12);color:var(--green);border:1px solid rgba(52,211,153,0.25);}
+.chip-returned{background:rgba(96,165,250,0.12);color:var(--blue);border:1px solid rgba(96,165,250,0.25);}
+.chip-payment_pending{background:rgba(248,113,113,0.12);color:var(--red);border:1px solid rgba(248,113,113,0.25);}
+.chip-certified{background:rgba(45,212,191,0.1);color:var(--teal);border:1px solid rgba(45,212,191,0.2);}
+.chip-loose{background:rgba(192,132,252,0.1);color:var(--gem);border:1px solid rgba(192,132,252,0.2);}
+.gem-meta{font-size:12px;color:var(--text2);line-height:1.6;}
+.gem-ts{font-family:'DM Mono',monospace;font-size:10px;color:var(--text3);margin-top:3px;}
+.gem-actions-top{display:flex;gap:6px;flex-shrink:0;}
+
+/* expand body */
+.gem-body{display:none;border-top:1px solid var(--border);padding:14px 16px;}
+.gem-body.open{display:block;}
+.gem-detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px 16px;margin-bottom:14px;}
+@media(min-width:500px){.gem-detail-grid{grid-template-columns:repeat(3,1fr);}}
+.detail-item{background:var(--surface2);border-radius:var(--radius-sm);padding:10px 12px;}
+.detail-item-label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;}
+.detail-item-value{font-size:13px;font-weight:600;color:var(--text);}
+.detail-item-value.mono{font-family:'DM Mono',monospace;color:var(--gem);}
+
+/* timeline */
+.timeline{margin-top:14px;}
+.timeline-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;
+  color:var(--text2);margin-bottom:10px;}
+.tl-item{display:flex;gap:12px;padding:8px 0;border-bottom:1px solid var(--border);font-size:12px;}
+.tl-item:last-child{border-bottom:none;}
+.tl-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:4px;}
+.tl-dot.issued{background:var(--amber);}
+.tl-dot.sold{background:var(--green);}
+.tl-dot.returned{background:var(--blue);}
+.tl-dot.payment{background:var(--teal);}
+.tl-dot.note{background:var(--text3);}
+.tl-content{flex:1;}
+.tl-action{font-weight:600;color:var(--text);}
+.tl-ts{font-family:'DM Mono',monospace;font-size:10px;color:var(--text3);margin-top:2px;}
+
+/* photo grid */
+.photo-grid{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;}
+.photo-grid img{width:70px;height:70px;border-radius:8px;object-fit:cover;
+  border:1px solid var(--border);cursor:pointer;}
+
+/* admin close bar */
+.admin-close-bar{background:var(--surface2);border:1px solid var(--border);
+  border-radius:var(--radius-sm);padding:12px 14px;margin-top:14px;display:flex;
+  gap:8px;flex-wrap:wrap;align-items:center;}
+.admin-close-label{font-size:12px;color:var(--text2);flex:1;min-width:120px;}
+.btn-close-sold{background:rgba(52,211,153,0.15);border:1px solid var(--green);color:var(--green);
+  padding:8px 14px;border-radius:var(--radius-sm);font-size:12px;font-weight:700;cursor:pointer;
+  font-family:'DM Sans',sans-serif;}
+.btn-close-returned{background:rgba(96,165,250,0.15);border:1px solid var(--blue);color:var(--blue);
+  padding:8px 14px;border-radius:var(--radius-sm);font-size:12px;font-weight:700;cursor:pointer;
+  font-family:'DM Sans',sans-serif;}
+.btn-close-payment{background:rgba(45,212,191,0.15);border:1px solid var(--teal);color:var(--teal);
+  padding:8px 14px;border-radius:var(--radius-sm);font-size:12px;font-weight:700;cursor:pointer;
+  font-family:'DM Sans',sans-serif;}
+
+/* ── MODAL ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:200;
+  display:none;align-items:flex-end;justify-content:center;}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--surface2);border:1px solid var(--border);border-radius:20px 20px 0 0;
+  padding:24px 20px 40px;width:100%;max-width:560px;max-height:94vh;overflow-y:auto;}
+.modal-title{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:700;
+  color:var(--gem);margin-bottom:4px;}
+.modal-sub{font-size:13px;color:var(--text2);margin-bottom:20px;}
+
+/* form */
+.form-group{margin-bottom:14px;}
+.form-label{font-size:11px;font-weight:700;color:var(--text2);margin-bottom:6px;display:block;
+  text-transform:uppercase;letter-spacing:0.5px;}
+.form-label .opt{font-size:10px;color:var(--text3);font-weight:400;text-transform:none;letter-spacing:0;margin-left:4px;}
+.form-input,.form-select{width:100%;background:var(--bg);border:1px solid var(--border);
+  color:var(--text);padding:11px 13px;border-radius:var(--radius-sm);
+  font-size:13px;font-family:'DM Sans',sans-serif;outline:none;appearance:none;}
+.form-input:focus,.form-select:focus{border-color:var(--gem);}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.form-actions{display:flex;gap:10px;margin-top:6px;}
+.btn-save{flex:1;background:var(--gem);color:#fff;border:none;padding:14px;
+  border-radius:var(--radius-sm);font-size:15px;font-weight:700;cursor:pointer;
+  font-family:'DM Sans',sans-serif;transition:background 0.2s;}
+.btn-save:hover{background:var(--gem2);}
+.btn-save:disabled{opacity:0.5;cursor:not-allowed;}
+.btn-cancel{background:transparent;color:var(--text2);border:1px solid var(--border);
+  padding:14px 20px;border-radius:var(--radius-sm);font-size:14px;cursor:pointer;
+  font-family:'DM Sans',sans-serif;}
+
+/* photo upload */
+.photo-upload-area{border:1.5px dashed var(--border);border-radius:var(--radius-sm);
+  padding:16px;text-align:center;cursor:pointer;transition:border-color 0.2s;}
+.photo-upload-area:hover{border-color:var(--gem);}
+.photo-upload-area input{display:none;}
+.photo-preview{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;}
+.photo-preview img{width:56px;height:56px;border-radius:6px;object-fit:cover;border:1px solid var(--border);}
+
+/* ── ADMIN DELETE PANEL ── */
+.admin-delete-panel{display:none;background:rgba(248,113,113,0.05);border:1px solid rgba(248,113,113,0.25);
+  border-radius:var(--radius);padding:16px;margin-bottom:20px;}
+.admin-delete-title{font-size:13px;font-weight:700;color:var(--red);margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+.admin-badge{font-size:10px;background:var(--red);color:#fff;padding:2px 8px;border-radius:20px;}
+.delete-row{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;}
+.delete-date-group{flex:1;min-width:130px;}
+.delete-date-group label{font-size:11px;color:var(--text2);display:block;margin-bottom:5px;
+  text-transform:uppercase;letter-spacing:0.4px;}
+.delete-date-group input{width:100%;background:var(--bg);border:1px solid var(--border);
+  color:var(--text);padding:10px 12px;border-radius:var(--radius-sm);font-size:13px;font-family:'DM Sans',sans-serif;}
+.btn-preview-delete{background:rgba(248,113,113,0.12);border:1px solid rgba(248,113,113,0.35);
+  color:var(--red);padding:10px 16px;border-radius:var(--radius-sm);font-size:13px;font-weight:700;
+  cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap;}
+.delete-note{font-size:11px;color:var(--text3);margin-top:10px;line-height:1.6;}
+
+/* ── DELETE CONFIRM MODAL ── */
+.modal-overlay.centred{align-items:center;padding:20px;}
+.modal-centred{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);
+  padding:24px;width:100%;max-width:420px;}
+.delete-summary{background:var(--surface3);border-radius:var(--radius-sm);padding:14px;
+  margin-bottom:16px;font-size:13px;line-height:1.8;color:var(--text);}
+.btn-confirm-delete{flex:1;background:var(--red);color:#fff;border:none;padding:13px;
+  border-radius:var(--radius-sm);font-size:14px;font-weight:700;cursor:pointer;
+  font-family:'DM Sans',sans-serif;}
+.btn-confirm-delete:disabled{opacity:0.5;cursor:not-allowed;}
+
+/* ── FAB ── */
+.fab{position:fixed;bottom:76px;right:20px;background:var(--gem);color:white;border:none;
+  width:52px;height:52px;border-radius:50%;font-size:24px;cursor:pointer;
+  box-shadow:0 4px 20px rgba(192,132,252,0.4);z-index:99;display:flex;align-items:center;justify-content:center;
+  transition:transform 0.2s,box-shadow 0.2s;}
+.fab:hover{transform:scale(1.08);box-shadow:0 6px 28px rgba(192,132,252,0.6);}
+
+/* ── BOTTOM NAV ── */
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:var(--surface);
+  border-top:1px solid var(--border);display:flex;justify-content:space-around;
+  padding:10px 0 16px;z-index:100;}
+.nav-item{display:flex;flex-direction:column;align-items:center;gap:3px;
+  text-decoration:none;color:var(--text3);padding:4px 10px;}
+.nav-item.active{color:var(--gem);}
+.nav-icon{font-size:20px;}.nav-label{font-size:10px;font-weight:600;}
+
+/* ── MISC ── */
+.spinner{width:28px;height:28px;border:3px solid var(--border);border-top-color:var(--gem);
+  border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 12px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.empty-state{text-align:center;padding:50px 20px;color:var(--text2);}
+.empty-state .emoji{font-size:40px;margin-bottom:12px;opacity:0.5;}
+.empty-state p{font-size:14px;}
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);
+  background:var(--surface);border:1px solid var(--green);color:var(--green);
+  padding:12px 20px;border-radius:12px;font-size:14px;font-weight:500;z-index:300;
+  opacity:0;transition:opacity 0.3s;white-space:nowrap;pointer-events:none;max-width:90vw;text-align:center;}
+.toast.show{opacity:1;}
+.toast.error{border-color:var(--red);color:var(--red);}
+.toast.info{border-color:var(--gem);color:var(--gem);}
+.filter-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;}
+.filter-bar select,.filter-bar input{background:var(--surface2);border:1px solid var(--border);
+  color:var(--text);border-radius:var(--radius-sm);padding:8px 12px;
+  font-family:'DM Sans',sans-serif;font-size:13px;outline:none;flex:1;min-width:130px;}
+.filter-bar select:focus,.filter-bar input:focus{border-color:var(--gem);}
+.section-heading{font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:600;
+  color:var(--gem);margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+.overdue-badge{background:rgba(248,113,113,0.15);color:var(--red);font-size:10px;
+  font-weight:700;padding:2px 8px;border-radius:20px;font-family:'DM Sans',sans-serif;}
+.btn-xs{padding:5px 10px;border-radius:6px;border:none;cursor:pointer;font-size:11px;
+  font-weight:700;font-family:'DM Sans',sans-serif;}
+.btn-expand{background:var(--surface3);color:var(--text2);}
+</style>
+</head>
+<body>
+
+<div class="topnav">
+  <div class="topnav-left">
+    <a class="back-btn" href="admin.html">←</a>
+    <div>
+      <div class="topnav-title">💎 Loose Gem</div>
+      <div class="topnav-sub" id="dateLabel">Gemstone Movement Log</div>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE TABS -->
+<div class="page-tabs">
+  <button class="page-tab active" onclick="switchTab('logbook',this)">📖 Log Book</button>
+  <button class="page-tab" onclick="switchTab('pending',this)">⏳ Pending</button>
+  <button class="page-tab" onclick="switchTab('closed',this)">✅ Closed</button>
+  <button class="page-tab" onclick="switchTab('manage',this)">⚙️ Manage</button>
+</div>
+
+<!-- ═══════════════════════════════════════
+     TAB 1: LOG BOOK — all records, stats
+════════════════════════════════════════ -->
+<div class="main" id="tab-logbook">
+  <div class="stats-row">
+    <div class="stat-card c-gem"><div class="stat-label">Total Issued</div><div class="stat-value" id="st-total">0</div><div class="stat-sub">all time</div></div>
+    <div class="stat-card c-amber"><div class="stat-label">Pending</div><div class="stat-value" id="st-pending">0</div><div class="stat-sub">still out</div></div>
+    <div class="stat-card c-green"><div class="stat-label">Closed</div><div class="stat-value" id="st-closed">0</div><div class="stat-sub">sold + returned</div></div>
+    <div class="stat-card c-red"><div class="stat-label">Overdue</div><div class="stat-value" id="st-overdue">0</div><div class="stat-sub">past expected date</div></div>
+  </div>
+  <div class="filter-bar">
+    <select id="filterStatus" onchange="applyFilters()">
+      <option value="">All Statuses</option>
+      <option value="pending">⏳ Pending</option>
+      <option value="sold">✅ Sold</option>
+      <option value="returned">↩️ Returned</option>
+      <option value="payment_pending">💰 Payment Pending</option>
+    </select>
+    <select id="filterGemType" onchange="applyFilters()">
+      <option value="">All Gem Types</option>
+    </select>
+    <input type="text" id="filterSearch" placeholder="🔍 Search name, cert, staff..." oninput="applyFilters()"/>
+  </div>
+  <div class="gem-list" id="logbookList">
+    <div style="text-align:center;padding:40px;color:var(--text2)"><div class="spinner"></div></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     TAB 2: PENDING — only pending gems
+════════════════════════════════════ -->
+<div class="main" id="tab-pending" style="display:none">
+  <div class="section-heading">⏳ Gems Currently Out — Awaiting Return or Sale</div>
+  <div class="gem-list" id="pendingList">
+    <div style="text-align:center;padding:40px;color:var(--text2)"><div class="spinner"></div></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════
+     TAB 3: CLOSED — sold/returned
+═══════════════════════════════ -->
+<div class="main" id="tab-closed" style="display:none">
+  <div class="section-heading">✅ Closed Records — Sold & Returned</div>
+  <div class="gem-list" id="closedList">
+    <div style="text-align:center;padding:40px;color:var(--text2)"><div class="spinner"></div></div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════
+     TAB 4: MANAGE — admin delete panel
+═══════════════════════════════════ -->
+<div class="main" id="tab-manage" style="display:none">
+
+  <!-- Admin delete panel -->
+  <div class="admin-delete-panel" id="adminDeletePanel">
+    <div class="admin-delete-title">
+      🗑️ Delete Closed Records by Date Range
+      <span class="admin-badge">Admin Only</span>
+    </div>
+    <div class="delete-row">
+      <div class="delete-date-group">
+        <label>From Date</label>
+        <input type="date" id="deleteFromDate"/>
+      </div>
+      <div class="delete-date-group">
+        <label>To Date</label>
+        <input type="date" id="deleteToDate"/>
+      </div>
+      <button class="btn-preview-delete" onclick="previewGemDelete()">🔍 Preview & Delete</button>
+    </div>
+    <div class="delete-note">⚠️ Only SOLD and RETURNED records can be deleted. PENDING records are permanently protected and will never appear in deletion previews.</div>
+  </div>
+
+  <!-- Quick stats for manage tab -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:16px;">
+    <div class="section-heading" style="margin-bottom:14px;">📊 Summary</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:13px;" id="manageSummary">
+      <div style="color:var(--text2)">Loading...</div>
+    </div>
+  </div>
+
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;">
+    <div class="section-heading" style="margin-bottom:10px;">📋 Gem Type Reference</div>
+    <div style="font-size:13px;color:var(--text2);line-height:2;">
+      Ruby · Emerald · Sapphire · Diamond · Pearl · Alexandrite · Tanzanite · Aquamarine · Amethyst · Topaz · Opal · Tourmaline · Garnet · Spinel · Zircon · Peridot · Moonstone · Citrine · Iolite · Morganite
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════
+     FAB — add new gem issuance
+════════════════════════════════ -->
+<button class="fab" onclick="openAddModal()" title="Issue Gemstone">+</button>
+
+<!-- ═══════════════════════════════════════════════
+     ADD / ISSUE GEM MODAL
+════════════════════════════════════════════════ -->
+<div class="modal-overlay" id="addModal">
+  <div class="modal">
+    <div class="modal-title">💎 Issue Gemstone</div>
+    <div class="modal-sub">Record a gem going out. All fields marked * are required.</div>
+
+    <!-- GEMSTONE IDENTITY -->
+    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--text3);margin-bottom:10px;">Gemstone Details</div>
+
+    <div class="form-group">
+      <label class="form-label">Gemstone Name *</label>
+      <select class="form-select" id="f-gemname">
+        <option value="">— Select gemstone —</option>
+        <option>Ruby</option><option>Emerald</option><option>Sapphire</option>
+        <option>Diamond</option><option>Pearl</option><option>Alexandrite</option>
+        <option>Tanzanite</option><option>Aquamarine</option><option>Amethyst</option>
+        <option>Topaz</option><option>Opal</option><option>Tourmaline</option>
+        <option>Garnet</option><option>Spinel</option><option>Zircon</option>
+        <option>Peridot</option><option>Moonstone</option><option>Citrine</option>
+        <option>Iolite</option><option>Morganite</option><option>Other</option>
+      </select>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Type</label>
+        <select class="form-select" id="f-type">
+          <option value="loose">Loose Stone</option>
+          <option value="certified">Certified Stone</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Origin <span class="opt">(optional)</span></label>
+        <select class="form-select" id="f-origin">
+          <option value="">— Select —</option>
+          <option>Burmese</option><option>Colombian</option><option>Sri Lankan</option>
+          <option>Zambian</option><option>Brazilian</option><option>Madagascar</option>
+          <option>South African</option><option>Indian</option><option>Unknown</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Cut <span class="opt">(optional)</span></label>
+        <select class="form-select" id="f-cut">
+          <option value="">— Select —</option>
+          <option>Round Brilliant</option><option>Oval</option><option>Cushion</option>
+          <option>Princess</option><option>Emerald Cut</option><option>Pear</option>
+          <option>Marquise</option><option>Heart</option><option>Radiant</option>
+          <option>Asscher</option><option>Cabochon</option><option>Rose Cut</option>
+          <option>Step Cut</option><option>Uncut / Raw</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Colour <span class="opt">(optional)</span></label>
+        <select class="form-select" id="f-colour">
+          <option value="">— Select —</option>
+          <option>Pigeon Blood Red</option><option>Vivid Red</option><option>Royal Blue</option>
+          <option>Cornflower Blue</option><option>Vivid Green</option><option>Mint Green</option>
+          <option>Vivid Pink</option><option>Padparadscha</option><option>Yellow</option>
+          <option>White / Colourless</option><option>Black</option><option>Purple</option>
+          <option>Orange</option><option>Brown</option><option>Multi / Other</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Weight (carats) <span class="opt">(optional)</span></label>
+        <input type="number" class="form-input" id="f-weight" placeholder="e.g. 2.35" step="0.01" min="0"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Price per carat (₹) <span class="opt">(optional)</span></label>
+        <input type="number" class="form-input" id="f-ppc" placeholder="e.g. 15000" step="1" min="0"/>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Certificate No. <span class="opt">(optional)</span></label>
+        <input type="text" class="form-input" id="f-cert" placeholder="GIA / IGI / GRS number"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Lab / Certifying Body <span class="opt">(optional)</span></label>
+        <select class="form-select" id="f-lab">
+          <option value="">— Select —</option>
+          <option>GIA</option><option>IGI</option><option>GRS</option><option>AGL</option>
+          <option>Gübelin</option><option>SSEF</option><option>Lotus</option>
+          <option>GII (Chennai)</option><option>No Certificate</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- ISSUANCE DETAILS -->
+    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--text3);margin:16px 0 10px;">Issuance Details</div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Issued To (Staff / Manager) *</label>
+        <select class="form-select" id="f-issuedTo">
+          <option value="">— Select staff —</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Purpose *</label>
+        <select class="form-select" id="f-purpose">
+          <option value="">— Select —</option>
+          <option value="client_approval">Client Approval</option>
+          <option value="display">Display / Exhibition</option>
+          <option value="valuation">Valuation / Appraisal</option>
+          <option value="setting">Setting / Jewellery Making</option>
+          <option value="sale">Direct Sale</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Expected Return Date <span class="opt">(optional)</span></label>
+        <input type="date" class="form-input" id="f-returnDate"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Client Name <span class="opt">(optional)</span></label>
+        <input type="text" class="form-input" id="f-client" placeholder="If for specific client"/>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Notes <span class="opt">(optional)</span></label>
+      <input type="text" class="form-input" id="f-notes" placeholder="Any additional information..."/>
+    </div>
+
+    <!-- PHOTO -->
+    <div class="form-group">
+      <label class="form-label">📷 Photo <span class="opt">(optional — tap to add)</span></label>
+      <div class="photo-upload-area" onclick="document.getElementById('photoInput').click()">
+        <div style="font-size:22px;margin-bottom:4px">📷</div>
+        <div style="font-size:12px;color:var(--text2)">Tap to add gem photo — or skip</div>
+        <input type="file" id="photoInput" accept="image/*" multiple onchange="handlePhotoSelect(this)"/>
+      </div>
+      <div class="photo-preview" id="photoPreview"></div>
+    </div>
+
+    <div class="form-actions">
+      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+      <button class="btn-save" id="saveBtn" onclick="saveGemIssuance()">💎 Issue Gemstone</button>
+    </div>
+  </div>
+</div>
+
+<!-- DELETE CONFIRM MODAL -->
+<div class="modal-overlay centred" id="deleteConfirmModal">
+  <div class="modal-centred">
+    <div class="modal-title" style="color:var(--red);font-size:18px;margin-bottom:14px;">⚠️ Confirm Delete</div>
+    <div class="delete-summary" id="deletePreviewSummary"></div>
+    <p style="font-size:12px;color:var(--text2);margin-bottom:18px;line-height:1.6;">
+      Only <strong style="color:var(--green)">Sold</strong> and <strong style="color:var(--blue)">Returned</strong> records will be deleted.<br/>
+      <strong style="color:var(--amber)">Pending</strong> records are never deleted.
+    </p>
+    <div class="form-actions">
+      <button class="btn-cancel" onclick="document.getElementById('deleteConfirmModal').classList.remove('open')">Cancel</button>
+      <button class="btn-confirm-delete" id="confirmDeleteBtn" onclick="confirmGemDelete()">Yes, Delete Closed Records</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<nav class="bottom-nav">
+  <a class="nav-item" href="dashboard.html"><span class="nav-icon">🏠</span><span class="nav-label">Home</span></a>
+  <a class="nav-item" href="tasks.html"><span class="nav-icon">✅</span><span class="nav-label">Tasks</span></a>
+  <a class="nav-item active" href="loose-gem.html"><span class="nav-icon">💎</span><span class="nav-label">Loose Gem</span></a>
+  <a class="nav-item" href="admin.html"><span class="nav-icon">⚙️</span><span class="nav-label">Admin</span></a>
+  <a class="nav-item" href="reports.html"><span class="nav-icon">📊</span><span class="nav-label">Reports</span></a>
+</nav>
+
+<!-- ═══════════════════════════════════════════════════
+     FIREBASE + APP LOGIC
+════════════════════════════════════════════════════ -->
+<script type="module">
+import { initializeApp }    from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import {
+  getFirestore, collection, doc, getDoc, getDocs, addDoc, updateDoc, deleteDoc,
+  query, where, orderBy, serverTimestamp, writeBatch
+} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { getStorage, ref, uploadBytes, getDownloadURL }
+  from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
+
+const ADMIN_EMAILS = ['sandeepgemologist@gmail.com','sparkals.design@gmail.com'];
+
+const app  = initializeApp({
+  apiKey:"AIzaSyDNwQYXcwZrAh4cTfRyhOVk_pRod9p4CRM",
+  authDomain:"sparkals-tasks-app.firebaseapp.com",
+  projectId:"sparkals-tasks-app",
+  storageBucket:"sparkals-tasks-app.firebasestorage.app",
+  messagingSenderId:"147179987231",
+  appId:"1:147179987231:web:c6ffa484f33a2ca420d02a"
+});
+const auth    = getAuth(app);
+const db      = getFirestore(app);
+const storage = getStorage(app);
+
+let currentUser = null;
+let isAdmin     = false;
+let allGems     = [];
+let allStaff    = [];
+let selectedPhotos = [];
+let _deleteRangeDocs = [];
+
+const PURPOSE_LABELS = {
+  client_approval:'Client Approval', display:'Display / Exhibition',
+  valuation:'Valuation / Appraisal', setting:'Setting / Jewellery Making',
+  sale:'Direct Sale', other:'Other'
+};
+
+// ── FORMAT timestamp ──
+function fmtTs(ts) {
+  if (!ts) return '—';
+  const d = ts.toDate ? ts.toDate() : new Date(ts);
+  return d.toLocaleString('en-IN', { day:'numeric', month:'short', year:'numeric',
+    hour:'2-digit', minute:'2-digit', hour12:true });
+}
+
+function fmtDate(ts) {
+  if (!ts) return '—';
+  const d = ts.toDate ? ts.toDate() : new Date(ts);
+  return d.toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' });
+}
+
+function isOverdue(gem) {
+  if (!gem.returnDate || gem.status !== 'pending') return false;
+  return new Date(gem.returnDate) < new Date();
+}
+
+// ── AUTH ──
+onAuthStateChanged(auth, async user => {
+  if (!user) { window.location.href = 'login.html'; return; }
+  currentUser = user;
+  isAdmin = ADMIN_EMAILS.includes(user.email);
+
+  document.getElementById('dateLabel').textContent =
+    new Date().toLocaleDateString('en-IN', { weekday:'long', day:'numeric', month:'long' });
+
+  if (isAdmin) {
+    document.getElementById('adminDeletePanel').style.display = 'block';
+  }
+
+  await loadStaff();
+  await loadGems();
+});
+
+// ── LOAD STAFF ──
+async function loadStaff() {
+  try {
+    const snap = await getDocs(query(collection(db,'users'), where('status','==','approved')));
+    allStaff = snap.docs.map(d => ({ id:d.id, ...d.data() }));
+    const sel = document.getElementById('f-issuedTo');
+    allStaff.forEach(s => {
+      sel.innerHTML += `<option value="${s.id}">${s.name} (${s.department||s.role||''})</option>`;
+    });
+    // Populate gem type filter
+    const gemTypes = ['Ruby','Emerald','Sapphire','Diamond','Pearl','Alexandrite',
+      'Tanzanite','Aquamarine','Amethyst','Topaz','Opal','Tourmaline',
+      'Garnet','Spinel','Zircon','Peridot','Moonstone','Citrine','Iolite','Morganite','Other'];
+    const gf = document.getElementById('filterGemType');
+    gemTypes.forEach(g => gf.innerHTML += `<option value="${g}">${g}</option>`);
+  } catch(e) { console.error('loadStaff:', e); }
+}
+
+// ── LOAD GEMS ──
+async function loadGems() {
+  try {
+    const snap = await getDocs(query(collection(db,'gemstoneLog'), orderBy('createdAt','desc')));
+    allGems = snap.docs.map(d => ({ id:d.id, ...d.data() }));
+    updateStats();
+    applyFilters();
+    renderPending();
+    renderClosed();
+    renderManageSummary();
+  } catch(e) {
+    console.error('loadGems:', e);
+    showToast('Could not load records', 'error');
+  }
+}
+
+// ── STATS ──
+function updateStats() {
+  const total   = allGems.length;
+  const pending = allGems.filter(g => g.status === 'pending').length;
+  const closed  = allGems.filter(g => g.status === 'sold' || g.status === 'returned').length;
+  const overdue = allGems.filter(g => isOverdue(g)).length;
+  document.getElementById('st-total').textContent   = total;
+  document.getElementById('st-pending').textContent = pending;
+  document.getElementById('st-closed').textContent  = closed;
+  document.getElementById('st-overdue').textContent = overdue;
+}
+
+// ── BUILD GEM CARD HTML ──
+function buildGemCard(g, showAdminClose) {
+  const staffName = (allStaff.find(s => s.id === g.issuedToId)||{}).name || g.issuedToName || '—';
+  const statusChip = {
+    pending:`<span class="chip chip-pending">⏳ Pending</span>`,
+    sold:`<span class="chip chip-sold">✅ Sold</span>`,
+    returned:`<span class="chip chip-returned">↩️ Returned</span>`,
+    payment_pending:`<span class="chip chip-payment_pending">💰 Payment Pending</span>`
+  }[g.status] || '';
+  const typeChip = g.gemType === 'certified'
+    ? `<span class="chip chip-certified">🏷 Certified</span>`
+    : `<span class="chip chip-loose">💎 Loose</span>`;
+  const overdueTag = isOverdue(g) ? `<span class="overdue-badge">OVERDUE</span>` : '';
+  const totalValue = (g.weightCarats && g.pricePerCarat)
+    ? `₹${(g.weightCarats * g.pricePerCarat).toLocaleString('en-IN')}` : '—';
+
+  // Timeline HTML
+  const tlItems = (g.timeline||[]).map(tl => `
+    <div class="tl-item">
+      <div class="tl-dot ${tl.type}"></div>
+      <div class="tl-content">
+        <div class="tl-action">${tl.action}</div>
+        ${tl.note ? `<div style="color:var(--text2);font-size:11px;">${tl.note}</div>` : ''}
+        <div class="tl-ts">${tl.ts || '—'} · ${tl.by||''}</div>
+      </div>
+    </div>`).join('');
+
+  // Photos
+  const photosHtml = (g.photos||[]).length
+    ? `<div class="photo-grid">${g.photos.map(u=>`<img src="${u}" alt="gem"/>`).join('')}</div>` : '';
+
+  // Admin close bar — only for pending records and admin users
+  const closeBar = (showAdminClose && isAdmin && g.status === 'pending') ? `
+    <div class="admin-close-bar">
+      <span class="admin-close-label">Admin: Close this record as —</span>
+      <button class="btn-close-sold" onclick="closeGem('${g.id}','sold')">✅ Sold</button>
+      <button class="btn-close-returned" onclick="closeGem('${g.id}','returned')">↩️ Returned</button>
+      <button class="btn-close-payment" onclick="closeGem('${g.id}','payment_pending')">💰 Payment Pending</button>
+    </div>` : '';
+
+  // Payment received button — for payment_pending
+  const paymentBar = (isAdmin && g.status === 'payment_pending') ? `
+    <div class="admin-close-bar">
+      <span class="admin-close-label">Admin: Mark payment received —</span>
+      <button class="btn-close-sold" onclick="closeGem('${g.id}','sold')">✅ Payment Received — Mark Sold</button>
+    </div>` : '';
+
+  return `
+  <div class="gem-card status-${g.status}" id="gemcard-${g.id}">
+    <div class="gem-card-top">
+      <div class="gem-icon-wrap">💎</div>
+      <div class="gem-info">
+        <div class="gem-name">${g.gemName||'Unnamed Stone'} ${overdueTag}</div>
+        <div class="gem-chips">${statusChip}${typeChip}${g.cut?`<span class="chip chip-loose" style="background:rgba(96,160,250,0.08);color:var(--blue);border-color:rgba(96,160,250,0.2);">${g.cut}</span>`:''}</div>
+        <div class="gem-meta">
+          ${g.weightCarats?`<strong style="color:var(--gem);font-family:'DM Mono',monospace;">${g.weightCarats} ct</strong> · `:''}
+          ${g.colour?`${g.colour} · `:''}
+          To: <strong>${staffName}</strong>
+          ${g.clientName ? ` · Client: ${g.clientName}` : ''}
+          ${g.certNo ? ` · Cert: ${g.certNo}` : ''}
+        </div>
+        <div class="gem-ts">📅 Issued: ${fmtTs(g.createdAt)}</div>
+      </div>
+      <div class="gem-actions-top">
+        <button class="btn-xs btn-expand" onclick="toggleGem('${g.id}')">▼ Details</button>
+      </div>
+    </div>
+    <div class="gem-body" id="gembody-${g.id}">
+      <div class="gem-detail-grid">
+        <div class="detail-item"><div class="detail-item-label">Gem Type</div><div class="detail-item-value">${g.gemName||'—'}</div></div>
+        <div class="detail-item"><div class="detail-item-label">Cut</div><div class="detail-item-value">${g.cut||'—'}</div></div>
+        <div class="detail-item"><div class="detail-item-label">Colour</div><div class="detail-item-value">${g.colour||'—'}</div></div>
+        <div class="detail-item"><div class="detail-item-label">Weight</div><div class="detail-item-value mono">${g.weightCarats?g.weightCarats+' ct':'—'}</div></div>
+        <div class="detail-item"><div class="detail-item-label">Price / Carat</div><div class="detail-item-value mono">${g.pricePerCarat?'₹'+Number(g.pricePerCarat).toLocaleString('en-IN'):'—'}</div></div>
+        <div class="detail-item"><div class="detail-item-label">Est. Value</div><div class="detail-item-value mono" style="color:var(--gold)">${totalValue}</div></div>
+        <div class="detail-item"><div class="detail-item-label">Origin</div><div class="detail-item-value">${g.origin||'—'}</div></div>
+        <div class="detail-item"><div class="detail-item-label">Cert. No.</div><div class="detail-item-value mono">${g.certNo||'—'}</div></div>
+        <div class="detail-item"><div class="detail-item-label">Lab</div><div class="detail-item-value">${g.lab||'—'}</div></div>
+        <div class="detail-item"><div class="detail-item-label">Issued To</div><div class="detail-item-value">${staffName}</div></div>
+        <div class="detail-item"><div class="detail-item-label">Purpose</div><div class="detail-item-value">${PURPOSE_LABELS[g.purpose]||g.purpose||'—'}</div></div>
+        <div class="detail-item"><div class="detail-item-label">Expected Return</div><div class="detail-item-value ${isOverdue(g)?'style="color:var(--red)"':''}">${g.returnDate||'—'}</div></div>
+        ${g.clientName?`<div class="detail-item"><div class="detail-item-label">Client</div><div class="detail-item-value">${g.clientName}</div></div>`:''}
+        ${g.notes?`<div class="detail-item" style="grid-column:1/-1"><div class="detail-item-label">Notes</div><div class="detail-item-value">${g.notes}</div></div>`:''}
+      </div>
+      ${photosHtml}
+      <div class="timeline">
+        <div class="timeline-title">📅 Timeline</div>
+        ${tlItems || '<div style="color:var(--text3);font-size:12px;">No events yet</div>'}
+      </div>
+      ${closeBar}
+      ${paymentBar}
+    </div>
+  </div>`;
+}
+
+window.toggleGem = function(id) {
+  const body = document.getElementById('gembody-'+id);
+  if (body) body.classList.toggle('open');
+};
+
+// ── RENDER FUNCTIONS ──
+window.applyFilters = function() {
+  const status = document.getElementById('filterStatus').value;
+  const gemType = document.getElementById('filterGemType').value;
+  const search = document.getElementById('filterSearch').value.toLowerCase();
+  let list = [...allGems];
+  if (status)  list = list.filter(g => g.status === status);
+  if (gemType) list = list.filter(g => g.gemName === gemType);
+  if (search)  list = list.filter(g =>
+    (g.gemName||'').toLowerCase().includes(search) ||
+    (g.certNo||'').toLowerCase().includes(search) ||
+    ((allStaff.find(s=>s.id===g.issuedToId)||{}).name||'').toLowerCase().includes(search) ||
+    (g.clientName||'').toLowerCase().includes(search) ||
+    (g.notes||'').toLowerCase().includes(search)
+  );
+  const el = document.getElementById('logbookList');
+  if (!list.length) {
+    el.innerHTML = '<div class="empty-state"><div class="emoji">💎</div><p>No records found</p></div>';
+    return;
+  }
+  el.innerHTML = list.map(g => buildGemCard(g, true)).join('');
+};
+
+function renderPending() {
+  const list = allGems.filter(g => g.status === 'pending');
+  const el = document.getElementById('pendingList');
+  if (!list.length) {
+    el.innerHTML = '<div class="empty-state"><div class="emoji">✅</div><p>All gems accounted for — nothing pending!</p></div>';
+    return;
+  }
+  // Sort overdue first
+  list.sort((a,b) => (isOverdue(b)?1:0) - (isOverdue(a)?1:0));
+  el.innerHTML = list.map(g => buildGemCard(g, true)).join('');
+}
+
+function renderClosed() {
+  const list = allGems.filter(g => g.status === 'sold' || g.status === 'returned' || g.status === 'payment_pending');
+  const el = document.getElementById('closedList');
+  if (!list.length) {
+    el.innerHTML = '<div class="empty-state"><div class="emoji">📖</div><p>No closed records yet</p></div>';
+    return;
+  }
+  el.innerHTML = list.map(g => buildGemCard(g, false)).join('');
+}
+
+function renderManageSummary() {
+  const pending  = allGems.filter(g=>g.status==='pending').length;
+  const sold     = allGems.filter(g=>g.status==='sold').length;
+  const returned = allGems.filter(g=>g.status==='returned').length;
+  const payPend  = allGems.filter(g=>g.status==='payment_pending').length;
+  const overdue  = allGems.filter(g=>isOverdue(g)).length;
+  document.getElementById('manageSummary').innerHTML = `
+    <div style="color:var(--amber)">⏳ Pending: <strong>${pending}</strong></div>
+    <div style="color:var(--green)">✅ Sold: <strong>${sold}</strong></div>
+    <div style="color:var(--blue)">↩️ Returned: <strong>${returned}</strong></div>
+    <div style="color:var(--red)">💰 Payment Pending: <strong>${payPend}</strong></div>
+    <div style="color:var(--red)">⚠️ Overdue: <strong>${overdue}</strong></div>
+    <div style="color:var(--text2)">📊 Total: <strong>${allGems.length}</strong></div>`;
+}
+
+// ── TAB SWITCHER ──
+window.switchTab = function(tab, el) {
+  document.querySelectorAll('.page-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  ['logbook','pending','closed','manage'].forEach(t => {
+    document.getElementById('tab-'+t).style.display = t===tab ? 'block' : 'none';
+  });
+  if (tab==='pending') renderPending();
+  if (tab==='closed')  renderClosed();
+  if (tab==='manage')  renderManageSummary();
+};
+
+// ── ADD MODAL ──
+window.openAddModal = function() {
+  selectedPhotos = [];
+  document.getElementById('photoPreview').innerHTML = '';
+  document.getElementById('addModal').classList.add('open');
+};
+window.closeModal = function() {
+  document.getElementById('addModal').classList.remove('open');
+  selectedPhotos = [];
+};
+
+window.handlePhotoSelect = function(input) {
+  const preview = document.getElementById('photoPreview');
+  Array.from(input.files).forEach(file => {
+    selectedPhotos.push(file);
+    const img = document.createElement('img');
+    img.src = URL.createObjectURL(file);
+    preview.appendChild(img);
+  });
+};
+
+// ── SAVE GEM ISSUANCE ──
+window.saveGemIssuance = async function() {
+  const btn = document.getElementById('saveBtn');
+  const gemName    = document.getElementById('f-gemname').value;
+  const issuedToId = document.getElementById('f-issuedTo').value;
+  const purpose    = document.getElementById('f-purpose').value;
+  if (!gemName)    { showToast('Select a gemstone name','error'); return; }
+  if (!issuedToId) { showToast('Select staff to issue to','error'); return; }
+  if (!purpose)    { showToast('Select purpose','error'); return; }
+
+  btn.disabled = true; btn.textContent = 'Saving...';
+
+  try {
+    // Upload photos — optional, silently skip on error
+    const photoUrls = [];
+    for (const file of selectedPhotos) {
+      try {
+        const sr = ref(storage, `gemstoneLog/${Date.now()}_${file.name}`);
+        await uploadBytes(sr, file);
+        photoUrls.push(await getDownloadURL(sr));
+      } catch(e) { console.log('Photo skip:', e.message); }
+    }
+
+    const staffName = (allStaff.find(s=>s.id===issuedToId)||{}).name || '';
+    const now = new Date();
+    const tsStr = fmtTs({ toDate: ()=>now });
+
+    const data = {
+      gemName,
+      gemType:       document.getElementById('f-type').value,
+      origin:        document.getElementById('f-origin').value,
+      cut:           document.getElementById('f-cut').value,
+      colour:        document.getElementById('f-colour').value,
+      weightCarats:  parseFloat(document.getElementById('f-weight').value)||null,
+      pricePerCarat: parseFloat(document.getElementById('f-ppc').value)||null,
+      certNo:        document.getElementById('f-cert').value.trim(),
+      lab:           document.getElementById('f-lab').value,
+      issuedToId,
+      issuedToName:  staffName,
+      purpose,
+      clientName:    document.getElementById('f-client').value.trim(),
+      returnDate:    document.getElementById('f-returnDate').value,
+      notes:         document.getElementById('f-notes').value.trim(),
+      photos:        photoUrls,
+      status:        'pending',
+      timeline: [{
+        type:   'issued',
+        action: `Issued to ${staffName}`,
+        note:   `Purpose: ${PURPOSE_LABELS[purpose]||purpose}`,
+        ts:     tsStr,
+        by:     currentUser.email
+      }],
+      createdBy:  currentUser.uid,
+      createdByEmail: currentUser.email,
+      createdAt:  serverTimestamp(),
+      updatedAt:  serverTimestamp()
+    };
+
+    const ref2 = await addDoc(collection(db,'gemstoneLog'), data);
+    allGems.unshift({ id:ref2.id, ...data, createdAt:{ toDate:()=>now } });
+    closeModal();
+    updateStats();
+    applyFilters();
+    renderManageSummary();
+    showToast('✅ Gemstone issued and logged!');
+  } catch(e) {
+    console.error(e);
+    showToast('❌ Error: '+e.message, 'error');
+  }
+  btn.disabled = false; btn.textContent = '💎 Issue Gemstone';
+};
+
+// ── ADMIN CLOSE GEM ──
+window.closeGem = async function(gemId, newStatus) {
+  if (!isAdmin) { showToast('Admin only','error'); return; }
+  const statusLabels = { sold:'Sold', returned:'Returned', payment_pending:'Payment Pending' };
+  if (!confirm(`Mark this gem as "${statusLabels[newStatus]}"?`)) return;
+
+  const now = new Date();
+  const tsStr = fmtTs({ toDate:()=>now });
+  const gem = allGems.find(g => g.id === gemId);
+  if (!gem) return;
+
+  const tlEntry = {
+    type:   newStatus === 'sold' ? 'sold' : newStatus === 'returned' ? 'returned' : 'payment',
+    action: newStatus === 'sold'
+      ? 'Marked as Sold by admin'
+      : newStatus === 'returned'
+        ? 'Returned to stock — vouched by admin'
+        : 'Payment pending — gem sold, awaiting payment',
+    ts:     tsStr,
+    by:     currentUser.email
+  };
+
+  const updatedTimeline = [...(gem.timeline||[]), tlEntry];
+
+  try {
+    await updateDoc(doc(db,'gemstoneLog',gemId), {
+      status:    newStatus,
+      timeline:  updatedTimeline,
+      closedBy:  currentUser.email,
+      closedAt:  serverTimestamp(),
+      updatedAt: serverTimestamp()
+    });
+    // Update local state
+    allGems = allGems.map(g => g.id===gemId
+      ? { ...g, status:newStatus, timeline:updatedTimeline }
+      : g
+    );
+    updateStats();
+    applyFilters();
+    renderPending();
+    renderClosed();
+    renderManageSummary();
+    showToast(`✅ Gem marked as ${statusLabels[newStatus]}`);
+  } catch(e) {
+    showToast('❌ Error: '+e.message, 'error');
+  }
+};
+
+// ── ADMIN DELETE BY DATE RANGE (CLOSED ONLY) ──
+window.previewGemDelete = async function() {
+  if (!isAdmin) { showToast('Admin only','error'); return; }
+  const from = document.getElementById('deleteFromDate').value;
+  const to   = document.getElementById('deleteToDate').value;
+  if (!from||!to) { showToast('Select both dates','error'); return; }
+  if (from>to)    { showToast('From must be before To','error'); return; }
+
+  const fromTs = new Date(from+'T00:00:00').getTime();
+  const toTs   = new Date(to+'T23:59:59').getTime();
+
+  // Only closed records (sold / returned) — never pending
+  _deleteRangeDocs = allGems.filter(g => {
+    if (g.status === 'pending') return false; // NEVER delete pending
+    const ts = g.createdAt?.toDate ? g.createdAt.toDate().getTime()
+             : g.createdAt?.seconds ? g.createdAt.seconds*1000 : 0;
+    return ts >= fromTs && ts <= toTs;
+  });
+
+  if (!_deleteRangeDocs.length) {
+    showToast('No closed records found in this range','error'); return;
+  }
+
+  const soldCount     = _deleteRangeDocs.filter(g=>g.status==='sold').length;
+  const returnedCount = _deleteRangeDocs.filter(g=>g.status==='returned').length;
+
+  document.getElementById('deletePreviewSummary').innerHTML =
+    `<strong style="color:var(--red)">${_deleteRangeDocs.length} closed record(s)</strong> from ${from} to ${to}<br><br>` +
+    `✅ Sold: ${soldCount} records<br>↩️ Returned: ${returnedCount} records<br><br>` +
+    `Gems: ` + _deleteRangeDocs.map(g=>g.gemName).join(', ');
+
+  document.getElementById('deleteConfirmModal').classList.add('open');
+};
+
+window.confirmGemDelete = async function() {
+  if (!isAdmin || !_deleteRangeDocs.length) return;
+  const btn = document.getElementById('confirmDeleteBtn');
+  btn.disabled = true; btn.textContent = 'Deleting...';
+
+  try {
+    // Batch delete in groups of 490
+    const ids = _deleteRangeDocs.map(g=>g.id);
+    for (let i=0; i<ids.length; i+=490) {
+      const batch = writeBatch(db);
+      ids.slice(i,i+490).forEach(id => batch.delete(doc(db,'gemstoneLog',id)));
+      await batch.commit();
+    }
+    // Update local state
+    const deletedIds = new Set(ids);
+    allGems = allGems.filter(g => !deletedIds.has(g.id));
+    _deleteRangeDocs = [];
+
+    document.getElementById('deleteConfirmModal').classList.remove('open');
+    updateStats();
+    applyFilters();
+    renderPending();
+    renderClosed();
+    renderManageSummary();
+    showToast(`✅ ${ids.length} record(s) deleted`);
+  } catch(e) {
+    showToast('❌ Error: '+e.message, 'error');
+  }
+  btn.disabled = false; btn.textContent = 'Yes, Delete Closed Records';
+};
+
+// ── TOAST ──
+function showToast(msg, type='') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show' + (type ? ' '+type : '');
+  setTimeout(() => { t.className = 'toast'; }, 3500);
+}
+</script>
+</body>
+</html>
