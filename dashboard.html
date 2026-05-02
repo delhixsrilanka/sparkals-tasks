@@ -27,13 +27,11 @@
 
     .main-content { padding: 0 16px; margin-top: -12px; }
 
-    /* Notification banner */
     .notif-banner { background: #fef3c7; border: 1.5px solid #fcd34d; border-radius: 14px; padding: 14px 16px; margin-bottom: 14px; display: none; align-items: center; gap: 12px; }
     .notif-banner.show { display: flex; }
     .notif-banner-text { flex: 1; font-size: 13px; color: #92400e; line-height: 1.4; }
     .notif-banner-btn { padding: 8px 14px; background: #f59e0b; color: white; border: none; border-radius: 10px; font-size: 12px; font-weight: 700; cursor: pointer; white-space: nowrap; }
 
-    /* Manager team overview panel */
     .manager-panel { background: linear-gradient(135deg, #1e1b4b, #2d1b69); border: 1px solid rgba(139,92,246,0.3); border-radius: 20px; padding: 18px; margin-bottom: 16px; }
     .manager-panel-title { font-size: 13px; font-weight: 700; color: #a78bfa; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
     .manager-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 14px; }
@@ -44,13 +42,16 @@
     .mgr-link { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15); border-radius: 10px; padding: 8px 14px; font-size: 12px; font-weight: 600; color: white; text-decoration: none; display: flex; align-items: center; gap: 6px; cursor: pointer; }
     .mgr-link:hover { background: rgba(255,255,255,0.18); }
 
-    .clock-card { background: white; border-radius: 20px; padding: 20px; margin-bottom: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); display: flex; align-items: center; justify-content: space-between; }
+    /* ── CLOCK CARD — fixed min-height so it never collapses ── */
+    .clock-card { background: white; border-radius: 20px; padding: 20px; margin-bottom: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); display: flex; align-items: center; justify-content: space-between; min-height: 90px; }
     .clock-info h3 { font-size: 15px; font-weight: 700; color: #1a1a2e; margin-bottom: 4px; }
-    .clock-info p { font-size: 13px; color: #888; }
+    .clock-info p { font-size: 13px; color: #888; min-height: 18px; }
+    .clock-right { text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
     .clock-time { font-size: 22px; font-weight: 700; color: #1a1a2e; font-variant-numeric: tabular-nums; }
     .clock-btn { padding: 12px 20px; border-radius: 12px; border: none; font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
     .clock-btn.clock-in { background: #22c55e; color: white; }
     .clock-btn.clock-out { background: #ef4444; color: white; }
+    .clock-btn.clock-lunch { background: #f59e0b; color: white; }
     .clock-btn:active { opacity: 0.85; transform: scale(0.97); }
     .clock-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
@@ -149,14 +150,13 @@
 </div>
 
 <div class="main-content">
-  <!-- Notification banner -->
   <div class="notif-banner" id="notifBanner">
     <span style="font-size:20px;">🔔</span>
     <div class="notif-banner-text"><strong>Enable notifications</strong> to get alerts when tasks are assigned or deadlines are near.</div>
     <button class="notif-banner-btn" onclick="handleNotifBell()">Enable</button>
   </div>
 
-  <!-- Manager Panel — only visible to managers -->
+  <!-- Manager Panel -->
   <div class="manager-panel" id="managerPanel" style="display:none;">
     <div class="manager-panel-title">⭐ Manager Overview — Your Team Today</div>
     <div class="manager-stats">
@@ -173,12 +173,13 @@
     </div>
   </div>
 
+  <!-- ── CLOCK CARD — handles all 4 states: out / in / lunch / done ── -->
   <div class="clock-card">
     <div class="clock-info">
       <h3 id="clock-status-text">Not clocked in</h3>
       <p id="clock-status-sub">Tap to mark attendance</p>
     </div>
-    <div style="text-align:right;">
+    <div class="clock-right">
       <div class="clock-time" id="live-clock">--:--</div>
       <button class="clock-btn clock-in" id="clock-btn" onclick="handleClockAction()">Clock In</button>
     </div>
@@ -214,7 +215,6 @@
   </div>
 </div>
 
-<!-- Bottom nav — admin link hidden by default, shown for admin/manager -->
 <div class="bottom-nav">
   <a class="nav-item active" href="dashboard.html"><span class="nav-icon">🏠</span><span class="nav-label">Home</span></a>
   <a class="nav-item" href="tasks.html"><span class="nav-icon">✅</span><span class="nav-label">Tasks</span></a>
@@ -252,6 +252,8 @@ const ADMIN_EMAILS = ['sandeepgemologist@gmail.com','sparkals.design@gmail.com']
 const COMPLETED_STAGES = ["Won","Lost","Verified","Closed","Confirmed","Done","Reported","Received","Dispatched"];
 
 let currentUser=null, userProfile=null, isClockedIn=false, attendanceDocId=null;
+// Track lunch state separately so clock card never collapses
+let attState = 'out'; // 'out' | 'in' | 'lunch_out' | 'done'
 
 window.addEventListener('online',  ()=>document.getElementById('offlinePill').classList.remove('show'));
 window.addEventListener('offline', ()=>document.getElementById('offlinePill').classList.add('show'));
@@ -271,6 +273,113 @@ function setDate() {
   document.getElementById('today-date').textContent='📅 '+new Date().toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long'});
 }
 setGreeting(); setDate();
+
+// ── ROBUST timestamp → "HH:MM" string ──
+// Handles Firestore Timestamp, {seconds}, Date, ISO string, "HH:MM" string
+function tsToTimeStr(ts) {
+  if (!ts) return null;
+  try {
+    let d;
+    if (typeof ts.toDate === 'function') d = ts.toDate();
+    else if (ts instanceof Date) d = ts;
+    else if (ts.seconds !== undefined) d = new Date(ts.seconds * 1000);
+    else if (typeof ts === 'string') {
+      // Plain "HH:MM" or "HH:MM:SS"
+      if (/^\d{1,2}:\d{2}/.test(ts)) return ts.slice(0,5);
+      d = new Date(ts);
+    } else if (typeof ts === 'number') d = new Date(ts);
+    if (!d || isNaN(d)) return null;
+    return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+  } catch(e) { return null; }
+}
+
+// ── UPDATE CLOCK CARD — never collapses, handles all 4 states ──
+function updateClockCard(att) {
+  const statusText = document.getElementById('clock-status-text');
+  const statusSub  = document.getElementById('clock-status-sub');
+  const btn        = document.getElementById('clock-btn');
+
+  if (!att) {
+    // No record at all — default state
+    attState = 'out';
+    statusText.textContent = 'Not clocked in';
+    statusSub.textContent  = 'Tap to mark attendance';
+    btn.textContent = 'Clock In';
+    btn.className   = 'clock-btn clock-in';
+    btn.style.display = '';
+    btn.disabled = false;
+    isClockedIn = false;
+    return;
+  }
+
+  const ciStr  = tsToTimeStr(att.clockIn);
+  const coStr  = tsToTimeStr(att.clockOut);
+  const loStr  = tsToTimeStr(att.lunchOut);
+  const liStr  = tsToTimeStr(att.lunchIn);
+  const hasCO  = att.clockOut && att.clockOut !== 'none' && coStr;
+  const hasLO  = att.lunchOut && loStr;
+  const hasLI  = att.lunchIn  && liStr;
+
+  if (hasCO) {
+    // Day complete
+    attState = 'done';
+    isClockedIn = false;
+    statusText.textContent = '🏁 Day Complete';
+    statusSub.textContent  = `Clocked out at ${coStr}`;
+    btn.style.display = 'none';
+    if (att.totalHours) {
+      document.getElementById('stat-hours').textContent = `${Math.floor(att.totalHours)}h`;
+    }
+  } else if (hasLO && !hasLI) {
+    // On lunch break — show clearly, keep card full size
+    attState = 'lunch_out';
+    isClockedIn = true; // still "active" for clock-out purposes
+    attendanceDocId = att._docId || attendanceDocId;
+    statusText.textContent = '🍽 On Lunch Break';
+    statusSub.textContent  = `Lunch since ${loStr} · Clocked in at ${ciStr||'—'}`;
+    btn.textContent   = 'Back from Lunch →';
+    btn.className     = 'clock-btn clock-lunch';
+    btn.style.display = '';
+    btn.disabled      = false;
+    // Show hours worked up to lunch
+    if (ciStr) {
+      const [ch,cm] = (ciStr).split(':').map(Number);
+      const [lh,lm] = (loStr).split(':').map(Number);
+      const mins = (lh*60+lm) - (ch*60+cm);
+      if (mins > 0) document.getElementById('stat-hours').textContent = `${Math.floor(mins/60)}h`;
+    }
+  } else if (ciStr && !hasCO) {
+    // Clocked in — normal working state (covers both: after lunch-in and plain clock-in)
+    attState = 'in';
+    isClockedIn = true;
+    attendanceDocId = att._docId || attendanceDocId;
+    statusText.textContent = '✅ Clocked In';
+    statusSub.textContent  = hasLI
+      ? `Back from lunch · In since ${ciStr}`
+      : `Since ${ciStr}`;
+    btn.textContent   = 'Clock Out';
+    btn.className     = 'clock-btn clock-out';
+    btn.style.display = '';
+    btn.disabled      = false;
+    // Live hours
+    try {
+      const [h,m] = (ciStr).split(':').map(Number);
+      const clockedAt = new Date(); clockedAt.setHours(h,m,0,0);
+      const hoursWorked = Math.floor((new Date() - clockedAt) / 3600000);
+      document.getElementById('stat-hours').textContent = `${Math.max(0,hoursWorked)}h`;
+    } catch(e) {}
+  } else {
+    // Fallback — not clocked in
+    attState = 'out';
+    isClockedIn = false;
+    statusText.textContent = 'Not clocked in';
+    statusSub.textContent  = 'Tap to mark attendance';
+    btn.textContent   = 'Clock In';
+    btn.className     = 'clock-btn clock-in';
+    btn.style.display = '';
+    btn.disabled      = false;
+  }
+}
 
 function checkNotifStatus() {
   if (!('Notification' in window)) return;
@@ -309,19 +418,14 @@ onAuthStateChanged(auth, async user => {
     const isAdmin = role==='admin' || ADMIN_EMAILS.includes(user.email);
     const isManager = role==='manager';
 
-    // Show admin nav link for both admin and manager
     if (isAdmin || isManager) {
       document.getElementById('adminNavLink').style.display='flex';
     }
-
-    // Show role chip
     if (isManager) {
       document.getElementById('role-chip-wrap').innerHTML='<span class="role-chip">⭐ Manager</span>';
       document.getElementById('welcome-msg').textContent='You have full team access. Manage tasks and monitor your team today! 💪';
-      // Load manager panel
       document.getElementById('managerPanel').style.display='block';
       await loadManagerPanel();
-      // Change tasks section title
       document.getElementById('tasksCardTitle').textContent='Team Tasks Overview';
     } else if (isAdmin) {
       document.getElementById('role-chip-wrap').innerHTML='<span class="role-chip" style="background:rgba(124,58,237,0.2);border-color:rgba(124,58,237,0.4);">👑 Admin</span>';
@@ -330,14 +434,23 @@ onAuthStateChanged(auth, async user => {
 });
 
 // ── LOAD MANAGER PANEL ──
+// FIX: count staff present using client-side filter — avoids missing staff
+// who saved uid vs userId differently
 async function loadManagerPanel() {
   try {
-    const today=new Date().toISOString().split('T')[0];
+    const today = new Date().toISOString().split('T')[0];
     const [attSnap, tasksSnap] = await Promise.all([
-      getDocs(query(collection(db,'attendance'),where('date','==',today))),
+      getDocs(collection(db,'attendance')),  // fetch all, filter client-side
       getDocs(collection(db,'tasks'))
     ]);
-    const presentCount = attSnap.docs.filter(d=>d.data().clockIn&&d.data().clockIn!=='none').length;
+
+    // Count staff present today — check date field client-side
+    // This catches records regardless of uid/userId field name
+    const presentCount = attSnap.docs.filter(d => {
+      const data = d.data();
+      return data.date === today && data.clockIn && data.clockIn !== 'none';
+    }).length;
+
     const allTasks = tasksSnap.docs.map(d=>({...d.data()}));
     const activeTasks = allTasks.filter(t=>!COMPLETED_STAGES.includes(t.stage)).length;
     const now = new Date();
@@ -346,9 +459,10 @@ async function loadManagerPanel() {
       const dl=t.deadline.toDate?t.deadline.toDate():new Date(t.deadline?.seconds*1000);
       return dl<now;
     }).length;
-    document.getElementById('mgrPresent').textContent=presentCount;
-    document.getElementById('mgrTasks').textContent=activeTasks;
-    document.getElementById('mgrOverdue').textContent=overdue;
+
+    document.getElementById('mgrPresent').textContent = presentCount;
+    document.getElementById('mgrTasks').textContent   = activeTasks;
+    document.getElementById('mgrOverdue').textContent = overdue;
   } catch(e) { console.error('Manager panel error:',e); }
 }
 
@@ -376,7 +490,6 @@ async function loadUserProfile(uid) {
 }
 
 // ── LOAD TASKS ──
-// Managers see ALL tasks, staff see only their own
 async function loadTodaysTasks(uid) {
   try {
     const role=userProfile?.role;
@@ -401,7 +514,6 @@ async function loadTodaysTasks(uid) {
       return;
     }
     const today=new Date().toISOString().split('T')[0];
-    // For managers/admin show recent tasks, sorted by creation
     const displayTasks=isPrivileged
       ? tasks.sort((a,b)=>{
           const da=a.createdAt?.seconds||0,db2=b.createdAt?.seconds||0;
@@ -428,88 +540,128 @@ async function loadTodaysTasks(uid) {
   }
 }
 
-// ── LOAD ATTENDANCE ──
+// ── LOAD ATTENDANCE STATUS — fixed to handle all 4 states cleanly ──
 async function loadAttendanceStatus(uid) {
   try {
-    const today=new Date().toISOString().split('T')[0];
-    let snap=await getDocs(query(collection(db,'attendance'),where('uid','==',uid),where('date','==',today)));
-    if(snap.empty)snap=await getDocs(query(collection(db,'attendance'),where('userId','==',uid),where('date','==',today)));
-    if(!snap.empty){
-      const attDoc=snap.docs[0],att=attDoc.data();
-      attendanceDocId=attDoc.id;
-      let clockInDisplay='—';
-      if(att.clockIn){
-        if(typeof att.clockIn.toDate==='function'){const d=att.clockIn.toDate();clockInDisplay=`${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;}
-        else if(typeof att.clockIn==='string'&&att.clockIn!=='none'){clockInDisplay=att.clockIn;}
-        else if(att.clockIn?.seconds){const d=new Date(att.clockIn.seconds*1000);clockInDisplay=`${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;}
-      }
-      const hasClockOut=att.clockOut&&att.clockOut!=='none';
-      isClockedIn=att.clockIn&&!hasClockOut;
-      if(isClockedIn){
-        document.getElementById('clock-status-text').textContent='✅ Clocked In';
-        document.getElementById('clock-status-sub').textContent=`Since ${clockInDisplay}`;
-        const btn=document.getElementById('clock-btn');
-        btn.textContent='Clock Out';btn.className='clock-btn clock-out';
-        let hoursWorked=0;
-        if(att.clockIn){
-          const ciDate=att.clockIn?.toDate?att.clockIn.toDate():(typeof att.clockIn==='string'&&att.clockIn.includes(':')?(()=>{const[h,m]=att.clockIn.split(':').map(Number);const d=new Date();d.setHours(h,m,0);return d;})():null);
-          if(ciDate)hoursWorked=Math.floor((new Date()-ciDate)/3600000);
-        }
-        document.getElementById('stat-hours').textContent=`${hoursWorked}h`;
-      } else if(hasClockOut){
-        document.getElementById('clock-status-text').textContent='🏁 Day Complete';
-        const coDisplay=typeof att.clockOut==='string'?att.clockOut:att.clockOut?.toDate?`${String(att.clockOut.toDate().getHours()).padStart(2,'0')}:${String(att.clockOut.toDate().getMinutes()).padStart(2,'0')}`:'—';
-        document.getElementById('clock-status-sub').textContent=`Clocked out at ${coDisplay}`;
-        document.getElementById('clock-btn').style.display='none';
-        if(att.totalHours)document.getElementById('stat-hours').textContent=`${Math.floor(att.totalHours)}h`;
-      }
+    const today = new Date().toISOString().split('T')[0];
+
+    // Try uid first, then userId — never block on missing field
+    let snap = await getDocs(query(collection(db,'attendance'),where('uid','==',uid),where('date','==',today)));
+    if (snap.empty) {
+      snap = await getDocs(query(collection(db,'attendance'),where('userId','==',uid),where('date','==',today)));
     }
-  } catch(e){console.error('Attendance load error:',e);}
+    // Last resort — search by email
+    if (snap.empty && currentUser.email) {
+      snap = await getDocs(query(collection(db,'attendance'),where('userEmail','==',currentUser.email),where('date','==',today)));
+    }
+
+    if (!snap.empty) {
+      const attDoc = snap.docs[0];
+      attendanceDocId = attDoc.id;
+      const att = { ...attDoc.data(), _docId: attDoc.id };
+      updateClockCard(att);
+    } else {
+      // No record — fresh state
+      updateClockCard(null);
+    }
+  } catch(e) {
+    console.error('Attendance load error:', e);
+    updateClockCard(null); // Always render something
+  }
 }
 
-// ── CLOCK IN/OUT ──
-window.handleClockAction=async function(){
-  if(!currentUser)return;
-  const btn=document.getElementById('clock-btn');
-  btn.disabled=true;
-  const now=new Date();
-  const today=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
-  const timeStr=`${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
-  const isLate=now.getHours()>9||(now.getHours()===9&&now.getMinutes()>15);
-  const userName=userProfile?.name||currentUser.email.split('@')[0];
-  try{
-    if(!isClockedIn){
-      const ref=await addDoc(collection(db,'attendance'),{
-        uid:currentUser.uid,userId:currentUser.uid,userEmail:currentUser.email,userName,name:userName,
-        department:userProfile?.department||'',date:today,clockIn:Timestamp.fromDate(now),
-        status:'active',isLate,clockInLat:null,clockInLng:null,createdAt:serverTimestamp()
+// ── CLOCK IN / OUT — handles lunch state too ──
+window.handleClockAction = async function() {
+  if (!currentUser) return;
+  const btn = document.getElementById('clock-btn');
+  btn.disabled = true;
+  const now   = new Date();
+  const today = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+  const timeStr = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+  const isLate  = now.getHours()>9||(now.getHours()===9&&now.getMinutes()>15);
+  const userName = userProfile?.name||currentUser.email.split('@')[0];
+
+  try {
+    if (attState === 'out') {
+      // Clock In
+      const ref = await addDoc(collection(db,'attendance'), {
+        uid: currentUser.uid, userId: currentUser.uid,
+        userEmail: currentUser.email, userName, name: userName,
+        department: userProfile?.department||'', date: today,
+        clockIn: Timestamp.fromDate(now),
+        status: 'active', isLate,
+        clockInLat: null, clockInLng: null,
+        createdAt: serverTimestamp()
       });
-      attendanceDocId=ref.id;isClockedIn=true;
-      document.getElementById('clock-status-text').textContent='✅ Clocked In';
-      document.getElementById('clock-status-sub').textContent=`Since ${timeStr}`;
-      btn.textContent='Clock Out';btn.className='clock-btn clock-out';
+      attendanceDocId = ref.id;
+      attState = 'in'; isClockedIn = true;
+      document.getElementById('clock-status-text').textContent = '✅ Clocked In';
+      document.getElementById('clock-status-sub').textContent  = `Since ${timeStr}`;
+      btn.textContent = 'Clock Out';
+      btn.className   = 'clock-btn clock-out';
+      btn.style.display = '';
       showToast(`✅ Clocked in at ${timeStr}${isLate?' — marked late':''}`);
-    } else {
-      if(!attendanceDocId){const snap=await getDocs(query(collection(db,'attendance'),where('uid','==',currentUser.uid),where('date','==',today)));if(!snap.empty)attendanceDocId=snap.docs[0].id;}
-      if(attendanceDocId){
-        const ciSnap=await getDoc(doc(db,'attendance',attendanceDocId));const ciData=ciSnap.data();
-        let ms=0;if(ciData?.clockIn){const ci=ciData.clockIn?.toDate?ciData.clockIn.toDate():new Date();ms=now-ci;}
-        const totalHours=Math.max(0,ms/3600000);
-        await updateDoc(doc(db,'attendance',attendanceDocId),{clockOut:Timestamp.fromDate(now),totalHours:parseFloat(totalHours.toFixed(2)),status:'completed'});
+
+    } else if (attState === 'lunch_out') {
+      // Lunch In — return from lunch
+      if (!attendanceDocId) {
+        const snap = await getDocs(query(collection(db,'attendance'),where('uid','==',currentUser.uid),where('date','==',today)));
+        if (!snap.empty) attendanceDocId = snap.docs[0].id;
       }
-      isClockedIn=false;
-      document.getElementById('clock-status-text').textContent='🏁 Day Complete';
-      document.getElementById('clock-status-sub').textContent=`Clocked out at ${timeStr}`;
-      btn.style.display='none';
+      if (attendanceDocId) {
+        await updateDoc(doc(db,'attendance',attendanceDocId), { lunchIn: Timestamp.fromDate(now) });
+      }
+      attState = 'in'; isClockedIn = true;
+      document.getElementById('clock-status-text').textContent = '✅ Clocked In';
+      document.getElementById('clock-status-sub').textContent  = `Back from lunch · resumed ${timeStr}`;
+      btn.textContent = 'Clock Out';
+      btn.className   = 'clock-btn clock-out';
+      btn.style.display = '';
+      showToast(`✅ Welcome back! Resumed at ${timeStr}`);
+
+    } else if (attState === 'in') {
+      // Clock Out
+      if (!attendanceDocId) {
+        const snap = await getDocs(query(collection(db,'attendance'),where('uid','==',currentUser.uid),where('date','==',today)));
+        if (!snap.empty) attendanceDocId = snap.docs[0].id;
+      }
+      if (attendanceDocId) {
+        const ciSnap  = await getDoc(doc(db,'attendance',attendanceDocId));
+        const ciData  = ciSnap.data();
+        let ms = 0;
+        if (ciData?.clockIn) {
+          const ci = ciData.clockIn?.toDate ? ciData.clockIn.toDate() : new Date();
+          ms = now - ci;
+          // Subtract lunch duration if both lunchOut and lunchIn exist
+          const lo = ciData.lunchOut?.toDate ? ciData.lunchOut.toDate() : null;
+          const li = ciData.lunchIn?.toDate  ? ciData.lunchIn.toDate()  : null;
+          if (lo && li) ms -= (li - lo);
+          if (ms < 0) ms = 0;
+        }
+        const totalHours = Math.max(0, ms / 3600000);
+        await updateDoc(doc(db,'attendance',attendanceDocId), {
+          clockOut: Timestamp.fromDate(now),
+          totalHours: parseFloat(totalHours.toFixed(2)),
+          status: 'completed'
+        });
+        document.getElementById('stat-hours').textContent = `${Math.floor(totalHours)}h`;
+      }
+      attState = 'done'; isClockedIn = false;
+      document.getElementById('clock-status-text').textContent = '🏁 Day Complete';
+      document.getElementById('clock-status-sub').textContent  = `Clocked out at ${timeStr}`;
+      btn.style.display = 'none';
       showToast(`👋 Clocked out at ${timeStr}. Great work today!`);
     }
-  }catch(e){console.error(e);showToast('❌ Could not save. Try again.');}
-  btn.disabled=false;
+  } catch(e) {
+    console.error(e);
+    showToast('❌ Could not save. Try again.');
+  }
+  btn.disabled = false;
 };
 
 // ── ANNOUNCEMENTS ──
-async function loadAnnouncements(){
-  try{
+async function loadAnnouncements() {
+  try {
     const snap=await getDocs(query(collection(db,'notifications'),where('type','==','announcement'),orderBy('createdAt','desc'),limit(3)));
     if(snap.empty)return;
     document.getElementById('announcements-list').innerHTML='';
@@ -517,11 +669,11 @@ async function loadAnnouncements(){
       const data=d.data();const time=data.createdAt?.toDate?data.createdAt.toDate().toLocaleDateString('en-IN'):'Recently';
       document.getElementById('announcements-list').innerHTML+=`<div class="announce-item"><div class="announce-text">${data.message||data.title||'Announcement'}</div><div class="announce-time">${time}</div></div>`;
     });
-  }catch(e){}
+  } catch(e) {}
 }
 
 // ── LOCATION ──
-function startLocationTracking(uid){
+function startLocationTracking(uid) {
   function isWorkHours(){const n=new Date();return n.getDay()>=1&&n.getDay()<=6&&n.getHours()>=9&&n.getHours()<18;}
   function saveLocation(){
     if(!isWorkHours()||!navigator.geolocation)return;
@@ -530,12 +682,12 @@ function startLocationTracking(uid){
       try{await setDoc(doc(db,'locations',`${uid}_${today}`),{uid,lat:pos.coords.latitude,lng:pos.coords.longitude,accuracy:pos.coords.accuracy,date:today,timestamp:serverTimestamp()});}catch(e){}
     },()=>{},{enableHighAccuracy:true,timeout:10000,maximumAge:60000});
   }
-  saveLocation();setInterval(saveLocation,5*60*1000);
+  saveLocation(); setInterval(saveLocation, 5*60*1000);
 }
 
 // ── NOTIFICATIONS ──
-async function setupNotifications(uid){
-  try{
+async function setupNotifications(uid) {
+  try {
     if(!('Notification' in window)||!('serviceWorker' in navigator))return;
     if(Notification.permission!=='granted')return;
     const{getMessaging,getToken}=await import('https://www.gstatic.com/firebasejs/10.8.0/firebase-messaging.js');
@@ -543,20 +695,20 @@ async function setupNotifications(uid){
     const swReg=await navigator.serviceWorker.ready;
     const token=await getToken(messaging,{vapidKey:VAPID_KEY,serviceWorkerRegistration:swReg});
     if(token)await setDoc(doc(db,'fcmTokens',uid),{uid,token,updatedAt:serverTimestamp(),device:navigator.userAgent.includes('Mobile')?'mobile':'desktop'},{merge:true});
-  }catch(e){console.log('Notification setup skipped:',e.message);}
+  } catch(e) { console.log('Notification setup skipped:',e.message); }
 }
 
-function loadNotifBadge(){
-  try{
+function loadNotifBadge() {
+  try {
     onSnapshot(query(collection(db,'notifications'),where('uid','==',currentUser.uid),where('read','==',false)),snap=>{
       const badge=document.getElementById('notifBadge');if(!badge)return;
       const count=snap.size;badge.textContent=count>99?'99+':count;badge.style.display=count>0?'block':'none';
     });
-  }catch(e){}
+  } catch(e) {}
 }
 
-window.showProfile=function(){if(confirm('Sign out of Sparkals Tasks?'))signOut(auth).then(()=>window.location.href='login.html');};
-window.showToast=function(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3500);};
+window.showProfile = function(){if(confirm('Sign out of Sparkals Tasks?'))signOut(auth).then(()=>window.location.href='login.html');};
+window.showToast = function(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3500);};
 function showToast(msg){window.showToast(msg);}
 </script>
 
