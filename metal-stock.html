@@ -64,6 +64,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 .badge-in{background:rgba(16,185,129,0.15);color:var(--green);}
 .badge-out{background:rgba(239,68,68,0.15);color:var(--red);}
 .badge-adjust{background:rgba(100,116,139,0.15);color:var(--text2);}
+.badge-bf{background:rgba(59,130,246,0.15);color:var(--blue);}
 .txn-info{flex:1;min-width:0;}
 .txn-title{font-size:14px;font-weight:600;}
 .txn-meta{font-size:12px;color:var(--text2);margin-top:2px;}
@@ -81,6 +82,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 .modal-sub{font-size:13px;color:var(--text2);margin-bottom:20px;}
 .form-group{margin-bottom:14px;}
 .form-label{font-size:12px;font-weight:600;color:var(--text2);margin-bottom:6px;display:block;text-transform:uppercase;letter-spacing:0.4px;}
+.form-label .optional-tag{font-size:10px;color:var(--text3);font-weight:400;text-transform:none;letter-spacing:0;margin-left:4px;}
 .form-input{width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:12px 14px;border-radius:var(--radius-sm);font-size:14px;font-family:'DM Sans',sans-serif;outline:none;}
 .form-input:focus{border-color:var(--accent2);}
 .form-select{width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:12px 14px;border-radius:var(--radius-sm);font-size:14px;font-family:'DM Sans',sans-serif;outline:none;appearance:none;cursor:pointer;}
@@ -119,6 +121,33 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 .nav-item.active{color:var(--gold);}
 .nav-icon{font-size:20px;}.nav-label{font-size:10px;font-weight:600;}
 .fab{position:fixed;bottom:76px;right:20px;background:var(--accent);color:white;border:none;width:52px;height:52px;border-radius:50%;font-size:24px;cursor:pointer;box-shadow:0 4px 20px rgba(124,58,237,0.4);z-index:99;display:flex;align-items:center;justify-content:center;}
+
+/* ── ADMIN DELETE PANEL ── */
+.admin-delete-panel{display:none;background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.3);border-radius:var(--radius);padding:16px;margin-bottom:20px;}
+.admin-delete-title{font-size:13px;font-weight:700;color:var(--red);margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+.admin-badge{font-size:10px;background:var(--red);color:#fff;padding:2px 8px;border-radius:20px;font-weight:700;}
+.delete-row{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;}
+.delete-date-group{flex:1;min-width:130px;}
+.delete-date-group label{font-size:11px;color:var(--text2);display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:0.4px;}
+.delete-date-group input{width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:10px 12px;border-radius:var(--radius-sm);font-size:13px;font-family:'DM Sans',sans-serif;}
+.btn-preview-delete{background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.4);color:var(--red);padding:10px 16px;border-radius:var(--radius-sm);font-size:13px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap;}
+.btn-preview-delete:hover{background:rgba(239,68,68,0.25);}
+
+/* ── DELETE CONFIRM MODAL (centred, not bottom sheet) ── */
+.modal-overlay.centred{align-items:center;padding:20px;}
+.modal-centred{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:24px;width:100%;max-width:420px;}
+.delete-summary{background:var(--surface3);border-radius:var(--radius-sm);padding:14px;margin-bottom:16px;font-size:13px;line-height:1.8;color:var(--text);}
+.delete-summary strong{color:var(--red);}
+.delete-warning{font-size:12px;color:var(--text2);margin-bottom:18px;line-height:1.6;}
+.delete-warning strong{color:var(--amber);}
+.btn-confirm-delete{flex:1;background:var(--red);color:#fff;border:none;padding:13px;border-radius:var(--radius-sm);font-size:14px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;}
+.btn-confirm-delete:disabled{opacity:0.5;cursor:not-allowed;}
+
+/* ── BROUGHT FORWARD ROW IN LEDGER ── */
+.txn-card.bf-row{background:rgba(59,130,246,0.06);border:1px solid rgba(59,130,246,0.25);}
+.txn-card.bf-row .txn-title{color:var(--blue);}
+.txn-card.bf-row .txn-meta{color:rgba(59,130,246,0.7);}
+.txn-card.bf-row .txn-weight{color:var(--blue);}
 </style>
 </head>
 <body>
@@ -141,6 +170,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 
 <!-- DASHBOARD TAB -->
 <div class="main" id="tab-dashboard">
+
   <div class="daily-close-card">
     <div>
       <div class="daily-close-title">🌙 Daily Closing</div>
@@ -148,10 +178,31 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
     </div>
     <button class="btn-daily-close" onclick="openDailyClose()">Close Day</button>
   </div>
+
+  <!-- ── ADMIN DELETE PANEL (hidden until admin logs in) ── -->
+  <div class="admin-delete-panel" id="adminDeletePanel">
+    <div class="admin-delete-title">
+      🗑️ Delete Transactions by Date Range
+      <span class="admin-badge">Admin Only</span>
+    </div>
+    <div class="delete-row">
+      <div class="delete-date-group">
+        <label>From Date</label>
+        <input type="date" id="deleteFromDate"/>
+      </div>
+      <div class="delete-date-group">
+        <label>To Date</label>
+        <input type="date" id="deleteToDate"/>
+      </div>
+      <button class="btn-preview-delete" onclick="previewDeleteRange()">🔍 Preview & Delete</button>
+    </div>
+  </div>
+
   <div class="flags-panel" id="flagsPanel" style="display:none">
     <div class="flags-title">⚠️ Requires Attention</div>
     <div id="flagsList"></div>
   </div>
+
   <div class="metal-section">
     <div class="metal-header">
       <div class="metal-icon gold">🥇</div>
@@ -168,6 +219,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
       <span class="ledger-weight" id="bal-gold-smith" style="font-size:14px">0.00g</span>
     </div>
   </div>
+
   <div class="metal-section">
     <div class="metal-header">
       <div class="metal-icon silver">🥈</div>
@@ -182,6 +234,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
       <span class="ledger-weight" id="bal-silver-smith" style="font-size:14px;color:var(--silver)">0.00g</span>
     </div>
   </div>
+
   <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:20px;">
     <div style="font-size:13px;font-weight:700;margin-bottom:12px;">📅 Today's Activity</div>
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;text-align:center;">
@@ -202,6 +255,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
       <option value="issue_goldsmith">Issue to Goldsmith</option>
       <option value="goldsmith_return">Goldsmith Return</option>
       <option value="adjustment">Adjustment</option>
+      <option value="brought_forward">Brought Forward</option>
     </select>
     <select id="metalFilter" class="form-select" style="flex:1;min-width:120px" onchange="loadTransactions()">
       <option value="">All metals</option>
@@ -238,6 +292,22 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 
 <button class="fab" onclick="openAddTransaction()" title="Add transaction">+</button>
 
+<!-- ══════════════════════════════════════════
+     DELETE CONFIRM MODAL (centred popup)
+══════════════════════════════════════════ -->
+<div class="modal-overlay centred hidden" id="deleteConfirmModal">
+  <div class="modal-centred">
+    <div class="modal-title" style="color:var(--red);margin-bottom:14px;">⚠️ Confirm Deletion</div>
+    <div class="delete-summary" id="deletePreviewSummary"></div>
+    <p class="delete-warning">This action <strong>cannot be undone.</strong><br>
+    The running balance before this date range will be automatically saved as an <strong>Opening Balance (Brought Forward)</strong> record so your ledger stays accurate.</p>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="document.getElementById('deleteConfirmModal').classList.add('hidden')">Cancel</button>
+      <button class="btn-confirm-delete" id="confirmDeleteBtn" onclick="confirmDeleteRange()">Yes, Delete</button>
+    </div>
+  </div>
+</div>
+
 <!-- ADD TRANSACTION MODAL -->
 <div class="modal-overlay hidden" id="txnModal">
   <div class="modal">
@@ -268,11 +338,12 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
         <div class="wastage-row"><span>Wastage %</span><span id="w-pct">—</span></div>
         <div class="wastage-row"><span>Status</span><span id="w-status">—</span></div>
       </div>
+      <!-- PHOTO — ALWAYS OPTIONAL, NEVER BLOCKS SAVE -->
       <div class="form-group">
-        <label class="form-label">📷 Photo Proof (Optional)</label>
+        <label class="form-label">📷 Photo Proof <span class="optional-tag">(optional — tap to add, or skip)</span></label>
         <div class="photo-upload-area" onclick="document.getElementById('photoInput').click()">
           <div style="font-size:24px;margin-bottom:4px">📷</div>
-          <div style="font-size:12px;color:var(--text2)">Tap to add photo</div>
+          <div style="font-size:12px;color:var(--text2)">Tap to add photo — or leave empty</div>
           <input type="file" id="photoInput" accept="image/*" multiple onchange="handlePhotoSelect(this)"/>
         </div>
         <div class="photo-preview" id="photoPreview"></div>
@@ -309,11 +380,11 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 </nav>
 
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { initializeApp }    from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 import {
-  getFirestore, collection, doc, getDoc, getDocs, addDoc, updateDoc,
-  query, where, orderBy, limit, serverTimestamp, setDoc
+  getFirestore, collection, doc, getDoc, getDocs, addDoc, updateDoc, deleteDoc,
+  query, where, orderBy, limit, serverTimestamp, setDoc, writeBatch
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 import { getStorage, ref, uploadBytes, getDownloadURL }
   from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
@@ -330,6 +401,8 @@ const auth    = getAuth(app);
 const db      = getFirestore(app);
 const storage = getStorage(app);
 
+const ADMIN_EMAILS = ['sandeepgemologist@gmail.com','sparkals.design@gmail.com'];
+
 const PURITY_MAP = {
   'gold-24':1.000,'gold-22':0.916,'gold-18':0.750,'gold-14':0.585,
   'silver-100':1.000,'silver-925':0.925
@@ -342,13 +415,24 @@ const PURITY_LABELS = {
 
 let currentUser=null, userProfile=null, currentTxnType=null;
 let selectedPhotos=[], openIssues=[], wastageCaps={gold:2,silver:3};
+let isAdmin=false;
+
+// ── DELETE STATE ──
+let _deleteRangeDocs = []; // docs found in the chosen date range
 
 // ── AUTH ──
 onAuthStateChanged(auth, async user => {
   if (!user) { window.location.href='login.html'; return; }
   currentUser = user;
+  isAdmin = ADMIN_EMAILS.includes(user.email);
   const snap = await getDoc(doc(db,'users',user.uid));
   userProfile = snap.exists() ? snap.data() : {};
+
+  // Show admin delete panel only for Sandeep
+  if (isAdmin) {
+    document.getElementById('adminDeletePanel').style.display = 'block';
+  }
+
   document.getElementById('stockDateLabel').textContent =
     new Date().toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
   await loadWastageCaps();
@@ -368,6 +452,13 @@ window.switchTab = function(tab, el) {
 
 function fineWeight(gross, pk) {
   return parseFloat((gross * (PURITY_MAP[pk]||1)).toFixed(3));
+}
+
+// ── Timestamp helper — works with Firestore Timestamp OR plain string ──
+function toTs(val) {
+  if (!val) return 0;
+  if (typeof val.toMillis === 'function') return val.toMillis();
+  return new Date(val).getTime();
 }
 
 async function loadWastageCaps() {
@@ -401,10 +492,16 @@ async function loadDashboard() {
     let todayIn=0, todayOut=0, todayCount=0;
 
     txns.forEach(t => {
-      const fw = parseFloat(t.fineWeight||0);
+      const fw    = parseFloat(t.fineWeight||0);
       const metal = t.metal;
-      const pk = t.purityKey;
+      const pk    = t.purityKey;
       const isToday = t.date===today;
+
+      // Brought Forward seeds the balance directly
+      if (t.type==='brought_forward') {
+        if (bal[pk]!==undefined) bal[pk] += fw;
+        return;
+      }
       if (t.type==='metal_in'||t.type==='adjustment') {
         if (bal[pk]!==undefined) bal[pk]+=fw;
         if (isToday){todayIn+=fw;todayCount++;}
@@ -461,23 +558,46 @@ async function loadDashboard() {
   } catch(e){console.error('Dashboard error:',e);}
 }
 
-// ── LOAD TRANSACTIONS ──
+// ── LOAD TRANSACTIONS — Brought Forward rows shown first, pinned at top ──
 window.loadTransactions = async function() {
   const typeFilter  = document.getElementById('txnFilter')?.value;
   const metalFilter = document.getElementById('metalFilter')?.value;
   const list = document.getElementById('txnList');
   list.innerHTML='<div style="text-align:center;padding:30px;color:var(--text2)"><div class="spinner"></div></div>';
   try {
-    const snap = await getDocs(query(collection(db,'metalTransactions'),orderBy('createdAt','desc'),limit(50)));
+    const snap = await getDocs(query(collection(db,'metalTransactions'),orderBy('createdAt','desc'),limit(100)));
     let txns = snap.docs.map(d=>({id:d.id,...d.data()}));
     if (typeFilter)  txns=txns.filter(t=>t.type===typeFilter);
     if (metalFilter) txns=txns.filter(t=>t.metal===metalFilter);
     if (!txns.length){list.innerHTML='<div class="empty-state"><div class="emoji">📋</div><p>No transactions yet</p></div>';return;}
-    list.innerHTML=txns.map(t=>buildTxnCard(t)).join('');
+
+    // Pin Brought Forward rows at the top, then normal rows newest first
+    const bfRows     = txns.filter(t=>t.type==='brought_forward');
+    const normalRows = txns.filter(t=>t.type!=='brought_forward');
+    const ordered    = [...bfRows, ...normalRows];
+
+    list.innerHTML = ordered.map(t => buildTxnCard(t)).join('');
   } catch(e){list.innerHTML='<div class="empty-state"><p>Could not load transactions</p></div>';}
 };
 
 function buildTxnCard(t) {
+  // Brought Forward special card
+  if (t.type==='brought_forward') {
+    const metal = (t.metal||'gold');
+    const fw    = parseFloat(t.fineWeight||0).toFixed(3);
+    const label = PURITY_LABELS[t.purityKey] || t.purityKey || 'Metal';
+    return `<div class="txn-card bf-row">
+      <div class="txn-top">
+        <span class="txn-type-badge badge-bf">📋 Opening Balance</span>
+        <div class="txn-info">
+          <div class="txn-title">Brought Forward — ${label}</div>
+          <div class="txn-meta">Balance carried forward · ${t.date||'—'}</div>
+        </div>
+        <div class="txn-weight ${metal}">${fw}g</div>
+      </div>
+    </div>`;
+  }
+
   const typeLabels={metal_in:'Metal In',client_order:'Client Order',issue_goldsmith:'Issue to Smith',goldsmith_return:'Smith Return',adjustment:'Adjustment',sale:'Sale'};
   const badgeCls={metal_in:'badge-in',client_order:'badge-in',issue_goldsmith:'badge-out',sale:'badge-out',goldsmith_return:'badge-in',adjustment:'badge-adjust'};
   const label=typeLabels[t.type]||t.type;
@@ -508,13 +628,12 @@ function buildTxnCard(t) {
   </div>`;
 }
 
-// ── LOAD GOLDSMITHS — client-side filter, no != query ──
+// ── GOLDSMITHS ──
 async function loadGoldsmiths() {
   const list = document.getElementById('smithList');
   try {
     const snap = await getDocs(query(collection(db,'metalTransactions'),
       where('type','==','issue_goldsmith')));
-    // Filter client-side — avoids Firestore index requirement for != operator
     const pending = snap.docs.map(d=>({id:d.id,...d.data()}))
       .filter(t => t.status !== 'returned');
     if (!pending.length) {
@@ -540,12 +659,10 @@ async function loadGoldsmiths() {
   } catch(e){list.innerHTML='<div style="color:var(--red);font-size:13px;text-align:center;padding:16px">Could not load. Check connection.</div>';}
 }
 
-// ── LOAD PENDING ISSUES — client-side filter, no != query ──
 async function loadPendingIssues() {
   try {
     const snap = await getDocs(query(collection(db,'metalTransactions'),
       where('type','==','issue_goldsmith')));
-    // Filter client-side — avoids Firestore index requirement
     openIssues = snap.docs.map(d=>({id:d.id,...d.data()}))
       .filter(t => t.status !== 'returned');
     const sel = document.getElementById('f-issue-ref');
@@ -558,6 +675,197 @@ async function loadPendingIssues() {
       openIssues.map(t=>`<option value="${t.id}">${t.smithName} — ${t.fineWeight}g ${PURITY_LABELS[t.purityKey]||''} (Due: ${t.dueDate||'—'})</option>`).join('');
   } catch(e){console.error('loadPendingIssues error:',e);}
 }
+
+// ══════════════════════════════════════════════════════════════
+// ADMIN DELETE BY DATE RANGE
+// ══════════════════════════════════════════════════════════════
+
+window.previewDeleteRange = async function() {
+  if (!isAdmin) { showToast('Admin only','error'); return; }
+  const from = document.getElementById('deleteFromDate').value;
+  const to   = document.getElementById('deleteToDate').value;
+  if (!from || !to) { showToast('Select both From and To dates','error'); return; }
+  if (from > to)    { showToast('From date must be before To date','error'); return; }
+
+  const fromTs = new Date(from + 'T00:00:00').getTime();
+  const toTs   = new Date(to   + 'T23:59:59').getTime();
+
+  showToast('Scanning transactions…');
+  try {
+    const snap = await getDocs(collection(db,'metalTransactions'));
+    _deleteRangeDocs = [];
+    snap.forEach(d => {
+      const t = d.data();
+      // Skip brought_forward records — they are system records, not user entries
+      if (t.type === 'brought_forward') return;
+      const ts = toTs_fromData(t);
+      if (ts >= fromTs && ts <= toTs) {
+        _deleteRangeDocs.push({ id: d.id, data: t });
+      }
+    });
+
+    if (_deleteRangeDocs.length === 0) {
+      showToast('No transactions found in this range','error'); return;
+    }
+
+    // Build per-metal summary
+    const summary = {};
+    _deleteRangeDocs.forEach(item => {
+      const d = item.data;
+      const key = (PURITY_LABELS[d.purityKey] || d.purityKey || (d.metal||'?'));
+      if (!summary[key]) summary[key] = { count:0, fine:0 };
+      summary[key].count++;
+      summary[key].fine += parseFloat(d.fineWeight || d.returnedFineWeight || d.clientFineWeight || 0);
+    });
+
+    let html = `<strong style="color:var(--red)">${_deleteRangeDocs.length} transaction(s)</strong> between ${from} and ${to}<br><br>`;
+    Object.entries(summary).forEach(([k,v]) => {
+      html += `• ${k}: ${v.count} record${v.count>1?'s':''}, ${v.fine.toFixed(3)}g fine weight<br>`;
+    });
+
+    document.getElementById('deletePreviewSummary').innerHTML = html;
+    document.getElementById('deleteConfirmModal').classList.remove('hidden');
+  } catch(e) {
+    showToast('Error: '+e.message,'error');
+  }
+};
+
+// Helper — get timestamp from a transaction doc regardless of storage format
+function toTs_fromData(t) {
+  // Prefer createdAt Firestore Timestamp, fall back to date string
+  if (t.createdAt && typeof t.createdAt.toMillis === 'function') return t.createdAt.toMillis();
+  if (t.date) return new Date(t.date + 'T00:00:00').getTime();
+  return 0;
+}
+
+window.confirmDeleteRange = async function() {
+  if (!isAdmin || _deleteRangeDocs.length === 0) return;
+  const btn = document.getElementById('confirmDeleteBtn');
+  btn.disabled = true; btn.textContent = 'Deleting…';
+
+  const from   = document.getElementById('deleteFromDate').value;
+  const fromTs = new Date(from + 'T00:00:00').getTime();
+
+  try {
+    // ── STEP 1: Calculate brought-forward balance per purity key
+    //    from ALL transactions that are BEFORE the deleted range
+    const snap = await getDocs(collection(db,'metalTransactions'));
+    const allTxns = snap.docs.map(d=>({id:d.id,...d.data()}));
+
+    // Balance accumulator per purityKey
+    const bfAcc = {}; // purityKey → { metalType, fine }
+
+    const initKey = (pk, metal) => {
+      if (!bfAcc[pk]) bfAcc[pk] = { purityKey:pk, metal:metal||pk.split('-')[0], fine:0 };
+    };
+
+    allTxns.forEach(t => {
+      const ts = toTs_fromData(t);
+      if (ts >= fromTs) return; // only before the range
+
+      const pk    = t.purityKey;
+      const metal = t.metal || (pk ? pk.split('-')[0] : 'gold');
+      const fw    = parseFloat(t.fineWeight || 0);
+
+      if (t.type === 'brought_forward') {
+        // Already a seed balance — carry it forward
+        initKey(pk, metal);
+        bfAcc[pk].fine += fw;
+        return;
+      }
+      if (t.type === 'metal_in' || t.type === 'adjustment') {
+        initKey(pk, metal);
+        bfAcc[pk].fine += fw;
+      }
+      if (t.type === 'client_order' && t.clientMetalIn) {
+        const cpk = t.clientPurityKey;
+        if (cpk) {
+          initKey(cpk, cpk.split('-')[0]);
+          bfAcc[cpk].fine += parseFloat(t.clientFineWeight||0);
+        }
+      }
+      if (t.type === 'issue_goldsmith' && t.status !== 'returned') {
+        initKey(pk, metal);
+        bfAcc[pk].fine -= fw;
+      }
+      if (t.type === 'goldsmith_return') {
+        const rpk = t.returnedPurityKey;
+        if (rpk) {
+          initKey(rpk, rpk.split('-')[0]);
+          bfAcc[rpk].fine += parseFloat(t.returnedFineWeight||0);
+        }
+      }
+      if (t.type === 'sale') {
+        initKey(pk, metal);
+        bfAcc[pk].fine -= fw;
+      }
+    });
+
+    // ── STEP 2: Save Brought Forward records for each purity with non-zero balance
+    const bfDate = from; // BF record is dated the first day of the remaining ledger
+    const bfTimestamp = serverTimestamp();
+    const bfSaves = Object.values(bfAcc)
+      .filter(bf => Math.abs(bf.fine) > 0.0001)
+      .map(bf =>
+        addDoc(collection(db,'metalTransactions'), {
+          type: 'brought_forward',
+          metal: bf.metal,
+          purityKey: bf.purityKey,
+          fineWeight: parseFloat(bf.fine.toFixed(4)),
+          date: bfDate,
+          notes: `Opening balance brought forward. Admin deleted records up to ${from}.`,
+          recordedBy: currentUser.email,
+          createdAt: bfTimestamp,
+          isBroughtForward: true
+        })
+      );
+    await Promise.all(bfSaves);
+
+    // ── STEP 3: Delete all docs in the range using batched writes (max 500/batch)
+    const idsToDelete = _deleteRangeDocs.map(item => item.id);
+    // Firestore batch limit is 500 operations
+    for (let i = 0; i < idsToDelete.length; i += 490) {
+      const batch = writeBatch(db);
+      idsToDelete.slice(i, i+490).forEach(id => {
+        batch.delete(doc(db,'metalTransactions',id));
+      });
+      await batch.commit();
+    }
+
+    // ── STEP 4: Clean up any OLD brought_forward records that are now superseded
+    //    (those dated before the new BF record for the same purityKey)
+    // We simply delete existing BF records older than bfDate that were auto-generated
+    const oldBFSnap = await getDocs(collection(db,'metalTransactions'));
+    const oldBFBatch = writeBatch(db);
+    let oldBFCount = 0;
+    oldBFSnap.forEach(d => {
+      const t = d.data();
+      if (t.type === 'brought_forward' && t.isBroughtForward === true && t.date < bfDate) {
+        oldBFBatch.delete(doc(db,'metalTransactions',d.id));
+        oldBFCount++;
+      }
+    });
+    if (oldBFCount > 0) await oldBFBatch.commit();
+
+    // Done
+    document.getElementById('deleteConfirmModal').classList.add('hidden');
+    _deleteRangeDocs = [];
+    btn.disabled = false; btn.textContent = 'Yes, Delete';
+
+    const bfCount = Object.values(bfAcc).filter(b=>Math.abs(b.fine)>0.0001).length;
+    showToast(`✅ Deleted. ${bfCount} Brought Forward balance${bfCount!==1?'s':''} saved.`);
+    await loadDashboard();
+
+  } catch(e) {
+    console.error('Delete error:',e);
+    showToast('❌ Error: '+e.message,'error');
+    btn.disabled = false; btn.textContent = 'Yes, Delete';
+  }
+};
+
+// ══════════════════════════════════════════════════════════════
+// TRANSACTION FORM
+// ══════════════════════════════════════════════════════════════
 
 window.openAddTransaction = function() {
   currentTxnType=null; selectedPhotos=[];
@@ -593,12 +901,12 @@ function buildFormFields(type) {
       <div class="form-group"><label class="form-label">Supplier Name *</label><input type="text" class="form-input" id="f-supplier" placeholder="Supplier or market name"/></div>
       <div class="form-group"><label class="form-label">Payment Mode</label><select class="form-select" id="f-payment"><option value="cash">Cash</option><option value="bank">Bank Transfer</option><option value="mixed">Mixed</option></select></div>
     </div>
-    <div class="form-group"><label class="form-label">Notes (optional)</label><input type="text" class="form-input" id="f-notes" placeholder="Any notes..."/></div>`;
+    <div class="form-group"><label class="form-label">Notes <span class="optional-tag">(optional)</span></label><input type="text" class="form-input" id="f-notes" placeholder="Any notes..."/></div>`;
 
   if (type==='client_order') return `
     <div class="form-row">
       <div class="form-group"><label class="form-label">Client Name *</label><input type="text" class="form-input" id="f-client" placeholder="Client full name"/></div>
-      <div class="form-group"><label class="form-label">Client Phone</label><input type="tel" class="form-input" id="f-phone" placeholder="Mobile number"/></div>
+      <div class="form-group"><label class="form-label">Client Phone <span class="optional-tag">(optional)</span></label><input type="tel" class="form-input" id="f-phone" placeholder="Mobile number"/></div>
     </div>
     <div class="form-group"><label class="form-label">Order Type *</label>
       <select class="form-select" id="f-ordertype" onchange="toggleClientMetal()">
@@ -615,13 +923,13 @@ function buildFormFields(type) {
       </div>
       <div id="clientFineBox" style="display:none" class="fine-weight-display"></div>
     </div>
-    <div class="form-group"><label class="form-label">Order Description</label><input type="text" class="form-input" id="f-order-desc" placeholder="e.g. 22kt necklace, custom design"/></div>
+    <div class="form-group"><label class="form-label">Order Description <span class="optional-tag">(optional)</span></label><input type="text" class="form-input" id="f-order-desc" placeholder="e.g. 22kt necklace, custom design"/></div>
     <div class="form-group"><label class="form-label">Payment Mode</label><select class="form-select" id="f-payment"><option value="cash">Cash</option><option value="bank">Bank Transfer</option><option value="mixed">Mixed</option></select></div>`;
 
   if (type==='issue_goldsmith') return `
     <div class="form-row">
       <div class="form-group"><label class="form-label">Goldsmith / Silversmith Name *</label><input type="text" class="form-input" id="f-smith" placeholder="Name"/></div>
-      <div class="form-group"><label class="form-label">Phone (for WhatsApp)</label><input type="tel" class="form-input" id="f-smith-phone" placeholder="Mobile number"/></div>
+      <div class="form-group"><label class="form-label">Phone <span class="optional-tag">(optional)</span></label><input type="tel" class="form-input" id="f-smith-phone" placeholder="Mobile number"/></div>
     </div>
     <div class="form-row">
       <div class="form-group"><label class="form-label">Metal & Purity *</label><select class="form-select" id="f-purity" onchange="recalcFineWeight()">${po}</select></div>
@@ -629,7 +937,7 @@ function buildFormFields(type) {
     </div>
     <div class="form-row">
       <div class="form-group"><label class="form-label">Due Date for Return *</label><input type="date" class="form-input" id="f-due"/></div>
-      <div class="form-group"><label class="form-label">Linked Client Order (optional)</label><input type="text" class="form-input" id="f-order-ref" placeholder="Client name or ref"/></div>
+      <div class="form-group"><label class="form-label">Linked Client Order <span class="optional-tag">(optional)</span></label><input type="text" class="form-input" id="f-order-ref" placeholder="Client name or ref"/></div>
     </div>
     <div class="modal-note">⚠️ A receipt will be generated. Share via WhatsApp to confirm handover.</div>`;
 
@@ -705,6 +1013,8 @@ window.recalcWastage = function() {
   document.getElementById('w-pct').textContent=wastagePct.toFixed(2)+'%';
   document.getElementById('w-status').innerHTML=isExcess?`<span class="wastage-bad">⚠️ EXCESS (cap: ${cap}%)</span>`:`<span class="wastage-good">✅ Within cap (${cap}%)</span>`;
 };
+
+// PHOTO — always optional, never blocks save
 window.handlePhotoSelect = function(input) {
   const preview=document.getElementById('photoPreview');
   Array.from(input.files).forEach(file=>{
@@ -714,17 +1024,23 @@ window.handlePhotoSelect = function(input) {
     preview.appendChild(img);
   });
 };
+
 window.saveTransaction = async function() {
   const btn=document.getElementById('saveBtn');
   btn.disabled=true; btn.textContent='Saving...';
   const today=new Date().toISOString().split('T')[0];
   const rawMetal=(document.getElementById('f-purity')?.value||document.getElementById('f-client-purity')?.value||'gold-24').split('-')[0];
   try {
+    // Photos are OPTIONAL — upload if present, skip silently if not
     const photoUrls=[];
     for (const file of selectedPhotos) {
-      try{const sr=ref(storage,`metalStock/${Date.now()}_${file.name}`);await uploadBytes(sr,file);photoUrls.push(await getDownloadURL(sr));}
-      catch(e){console.log('Photo skip:',e.message);}
+      try {
+        const sr=ref(storage,`metalStock/${Date.now()}_${file.name}`);
+        await uploadBytes(sr,file);
+        photoUrls.push(await getDownloadURL(sr));
+      } catch(e){ console.log('Photo upload skipped:',e.message); }
     }
+
     let data={type:currentTxnType,metal:rawMetal,date:today,recordedBy:currentUser.email,recordedByUid:currentUser.uid,photos:photoUrls,createdAt:serverTimestamp()};
 
     if (currentTxnType==='metal_in') {
@@ -776,6 +1092,7 @@ window.saveTransaction = async function() {
       if (!reason){showToast('Reason is mandatory','error');btn.disabled=false;btn.textContent='Save Transaction';return;}
       data={...data,purityKey:pk,grossWeight:gross,fineWeight:fineWeight(Math.abs(gross),pk)*Math.sign(gross),reason};
     }
+
     const ref2=await addDoc(collection(db,'metalTransactions'),data);
     closeModal();
     showToast('✅ Transaction saved!');
@@ -797,11 +1114,11 @@ window.confirmPurity=async function(txnId){
   const fw=fineWeight(parseFloat(t.clientGrossWeight||0),purity);
   await updateDoc(doc(db,'metalTransactions',txnId),{clientPurityKey:purity,clientFineWeight:fw,clientPurityConfirmed:true,purityConfirmedAt:serverTimestamp()});
   showToast('✅ Purity confirmed — client credit updated');
-  loadTransactions();loadDashboard();
+  loadTransactions(); loadDashboard();
 };
 
 window.openGoldsmithReturn=async function(issueId){
-  currentTxnType='goldsmith_return';selectedPhotos=[];
+  currentTxnType='goldsmith_return'; selectedPhotos=[];
   document.getElementById('step-type').style.display='none';
   document.getElementById('step-form').style.display='block';
   document.getElementById('modalTitle').textContent='✅ Goldsmith / Silversmith Return';
@@ -809,7 +1126,7 @@ window.openGoldsmithReturn=async function(issueId){
   document.getElementById('txnModal').classList.remove('hidden');
   await loadPendingIssues();
   const sel=document.getElementById('f-issue-ref');
-  if (sel){sel.value=issueId;window.loadIssueDetails();}
+  if (sel){sel.value=issueId; window.loadIssueDetails();}
 };
 
 window.openDailyClose=function(){
@@ -817,7 +1134,7 @@ window.openDailyClose=function(){
   fields.innerHTML=`<div class="modal-note">Weigh your physical stock and enter actual weight. Mismatch will be flagged.</div>
     ${[['gold-24','Gold 24kt Pure'],['gold-22','Gold 22kt'],['gold-18','Gold 18kt'],['gold-14','Gold 14kt'],['silver-100','Silver Pure'],['silver-925','Silver 925']].map(([k,l])=>`
     <div class="form-group"><label class="form-label">${l} — Physical weight (g)</label><input type="number" class="form-input" id="dc-${k}" placeholder="0.000" step="0.001"/></div>`).join('')}
-    <div class="form-group"><label class="form-label">Notes (optional)</label><input type="text" class="form-input" id="dc-notes" placeholder="Any observations..."/></div>`;
+    <div class="form-group"><label class="form-label">Notes <span class="optional-tag">(optional)</span></label><input type="text" class="form-input" id="dc-notes" placeholder="Any observations..."/></div>`;
   document.getElementById('dailyCloseModal').classList.remove('hidden');
 };
 
@@ -843,7 +1160,7 @@ window.closeModal=function(){document.getElementById('txnModal').classList.add('
 
 function showToast(msg,type=''){
   const t=document.getElementById('toast');
-  t.textContent=msg;t.className='toast show '+(type==='error'?'error':'');
+  t.textContent=msg; t.className='toast show '+(type==='error'?'error':'');
   setTimeout(()=>{t.className='toast';},3500);
 }
 </script>
