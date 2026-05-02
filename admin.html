@@ -15,7 +15,7 @@
   --bg:#0f0f1a;--surface:#1a1a2e;--surface2:#22223a;--surface3:#2a2a45;
   --border:#2d2d44;--accent:#7c3aed;--accent2:#a78bfa;
   --green:#10b981;--red:#ef4444;--amber:#f59e0b;--blue:#3b82f6;
-  --teal:#22d3ee;--purple:#8b5cf6;
+  --teal:#22d3ee;--purple:#8b5cf6;--gold:#f0b429;--silver:#94a3b8;
   --text:#f1f5f9;--text2:#94a3b8;--text3:#64748b;
   --radius:14px;--radius-sm:8px;
 }
@@ -31,15 +31,12 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 @keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.3;}}
 .btn-logout{background:transparent;border:1px solid var(--border);color:var(--text2);padding:6px 14px;border-radius:var(--radius-sm);cursor:pointer;font-size:13px;font-family:'DM Sans',sans-serif;}
 .btn-logout:hover{border-color:var(--red);color:var(--red);}
-
 .nav-tabs{background:var(--surface);display:flex;overflow-x:auto;border-bottom:1px solid var(--border);scrollbar-width:none;}
 .nav-tabs::-webkit-scrollbar{display:none;}
 .nav-tab{padding:12px 18px;font-size:13px;font-weight:500;color:var(--text2);cursor:pointer;white-space:nowrap;border-bottom:2px solid transparent;transition:all 0.2s;border:none;background:none;font-family:'DM Sans',sans-serif;}
 .nav-tab.active{color:var(--accent2);border-bottom:2px solid var(--accent2);}
 .nav-tab:hover{color:var(--text);}
-
 .main{padding:20px 16px;max-width:900px;margin:0 auto;}
-
 .stat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:24px;}
 @media(min-width:600px){.stat-grid{grid-template-columns:repeat(4,1fr);}}
 .stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;display:flex;align-items:center;gap:14px;}
@@ -48,13 +45,11 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 .stat-num{font-family:'Space Mono',monospace;font-size:26px;font-weight:700;line-height:1;}
 .stat-num.green{color:var(--green);}.stat-num.red{color:var(--red);}.stat-num.amber{color:var(--amber);}.stat-num.blue{color:var(--blue);}
 .stat-label{font-size:12px;color:var(--text2);margin-top:3px;}
-
 .section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
 .section-title{font-size:15px;font-weight:600;}
 .section-sub{font-size:12px;color:var(--text2);margin-top:2px;}
 .refresh-btn{background:transparent;border:1px solid var(--border);color:var(--text2);padding:6px 12px;border-radius:var(--radius-sm);cursor:pointer;font-size:12px;font-family:'DM Sans',sans-serif;}
 .refresh-btn:hover{color:var(--accent2);border-color:var(--accent2);}
-
 .filter-bar{display:flex;gap:8px;margin-bottom:14px;overflow-x:auto;scrollbar-width:none;flex-wrap:wrap;}
 .filter-chip{padding:6px 14px;border-radius:20px;font-size:12px;font-weight:500;cursor:pointer;white-space:nowrap;border:1px solid var(--border);color:var(--text2);background:transparent;font-family:'DM Sans',sans-serif;}
 .fc-all.active{background:var(--accent);border-color:var(--accent);color:white;}
@@ -63,9 +58,22 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 .fc-late.active{background:#f59e0b20;border-color:var(--amber);color:var(--amber);}
 .fc-leave.active{background:#3b82f620;border-color:var(--blue);color:var(--blue);}
 
-.staff-list{display:flex;flex-direction:column;gap:10px;}
-.staff-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;transition:border-color 0.2s;}
-.staff-card:hover{border-color:var(--accent);}
+/* ── COLLAPSIBLE STAFF GROUPS ── */
+.staff-group{margin-bottom:12px;}
+.staff-group-header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);cursor:pointer;transition:background 0.2s;user-select:none;}
+.staff-group-header:hover{background:var(--surface3);}
+.staff-group-header.open{border-radius:var(--radius) var(--radius) 0 0;border-bottom-color:transparent;}
+.staff-group-title{display:flex;align-items:center;gap:10px;font-size:14px;font-weight:600;}
+.staff-group-count{font-size:12px;color:var(--text2);background:var(--surface3);padding:2px 10px;border-radius:20px;}
+.staff-group-arrow{font-size:12px;color:var(--text3);transition:transform 0.2s;}
+.staff-group-header.open .staff-group-arrow{transform:rotate(180deg);}
+.staff-group-body{display:none;border:1px solid var(--border);border-top:none;border-radius:0 0 var(--radius) var(--radius);overflow:hidden;}
+.staff-group-body.open{display:block;}
+.staff-group-inner{display:flex;flex-direction:column;gap:0;}
+
+.staff-card{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 16px;transition:background 0.2s;}
+.staff-card:last-child{border-bottom:none;}
+.staff-card:hover{background:var(--surface2);}
 .staff-card-top{display:flex;align-items:center;gap:14px;}
 .staff-avatar{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:16px;flex-shrink:0;position:relative;}
 .status-dot{width:11px;height:11px;border-radius:50%;border:2px solid var(--bg);position:absolute;bottom:0;right:0;}
@@ -75,18 +83,13 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 .staff-time{font-family:'Space Mono',monospace;font-size:11px;color:var(--text2);margin-top:3px;}
 .staff-actions{display:flex;gap:8px;flex-shrink:0;align-items:center;flex-wrap:wrap;}
 .btn-manual{background:#10b98115;border:1px solid var(--green);color:var(--green);padding:6px 12px;border-radius:var(--radius-sm);cursor:pointer;font-size:12px;font-weight:600;font-family:'DM Sans',sans-serif;white-space:nowrap;}
-
-/* ── MANAGER BADGE ── */
 .manager-badge{background:rgba(139,92,246,0.15);border:1px solid rgba(139,92,246,0.4);color:#a78bfa;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;white-space:nowrap;}
-
-/* ── MANAGE ROW ── */
 .staff-manage-row{display:flex;gap:6px;margin-top:10px;padding-top:10px;border-top:1px solid var(--border);flex-wrap:wrap;}
 .btn-sm-promote{flex:1;min-width:100px;padding:7px 10px;background:rgba(139,92,246,0.12);border:1px solid rgba(139,92,246,0.4);color:#a78bfa;border-radius:var(--radius-sm);cursor:pointer;font-size:12px;font-weight:600;font-family:'DM Sans',sans-serif;white-space:nowrap;}
 .btn-sm-demote{flex:1;min-width:100px;padding:7px 10px;background:rgba(100,116,139,0.12);border:1px solid rgba(100,116,139,0.4);color:var(--text3);border-radius:var(--radius-sm);cursor:pointer;font-size:12px;font-weight:600;font-family:'DM Sans',sans-serif;white-space:nowrap;}
 .btn-sm-deactivate{flex:1;min-width:100px;padding:7px 10px;background:#f59e0b15;border:1px solid #f59e0b40;color:var(--amber);border-radius:var(--radius-sm);cursor:pointer;font-size:12px;font-weight:600;font-family:'DM Sans',sans-serif;white-space:nowrap;}
 .btn-sm-reactivate{flex:1;min-width:100px;padding:7px 10px;background:#10b98115;border:1px solid var(--green);color:var(--green);border-radius:var(--radius-sm);cursor:pointer;font-size:12px;font-weight:600;font-family:'DM Sans',sans-serif;white-space:nowrap;}
 .btn-sm-delete{flex:1;min-width:100px;padding:7px 10px;background:#ef444415;border:1px solid #ef444440;color:var(--red);border-radius:var(--radius-sm);cursor:pointer;font-size:12px;font-weight:600;font-family:'DM Sans',sans-serif;white-space:nowrap;}
-
 .status-badge{font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;}
 .badge-present{background:#10b98120;color:var(--green);}
 .badge-absent{background:#ef444420;color:var(--red);}
@@ -94,12 +97,10 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 .badge-leave{background:#3b82f620;color:var(--blue);}
 .badge-lunch{background:#f59e0b20;color:var(--amber);}
 .badge-inactive{background:#64748b20;color:var(--text3);}
-
 .alert-panel{background:#ef444410;border:1px solid #ef444440;border-radius:var(--radius);padding:16px;margin-bottom:20px;}
 .alert-panel-title{font-size:13px;font-weight:600;color:var(--red);margin-bottom:10px;}
 .alert-item{font-size:13px;color:var(--text);padding:6px 0;border-bottom:1px solid #ef444420;display:flex;justify-content:space-between;}
 .alert-item:last-child{border-bottom:none;}
-
 .empty-state{text-align:center;padding:40px 20px;color:var(--text2);}
 .empty-state .emoji{font-size:40px;margin-bottom:12px;}
 .empty-state p{font-size:14px;}
@@ -108,7 +109,34 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 @keyframes spin{to{transform:rotate(360deg);}}
 .last-updated{text-align:center;font-size:11px;color:var(--text2);margin-top:16px;padding-bottom:16px;}
 
-/* ── INSIGHTS TAB ── */
+/* ── METAL STOCK VIEW ── */
+#view-metal{display:none;}
+.metal-stock-header{background:linear-gradient(135deg,#1a1a0a,#2a1f00);border:1px solid rgba(240,180,41,0.3);border-radius:var(--radius);padding:18px 20px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;}
+.metal-stock-title{font-size:16px;font-weight:700;color:var(--gold);}
+.metal-stock-sub{font-size:12px;color:var(--text2);margin-top:3px;}
+.btn-open-metal{background:var(--gold);color:#1a1a0a;border:none;padding:10px 18px;border-radius:var(--radius-sm);font-size:13px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;text-decoration:none;display:inline-block;}
+.metal-ledger-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:16px;}
+@media(min-width:600px){.metal-ledger-grid{grid-template-columns:repeat(4,1fr);}}
+.metal-ledger-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px;position:relative;overflow:hidden;}
+.metal-ledger-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:var(--radius) var(--radius) 0 0;}
+.metal-ledger-card.gold-card::before{background:var(--gold);}
+.metal-ledger-card.silver-card::before{background:var(--silver);}
+.metal-ledger-purity{font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;}
+.metal-ledger-weight{font-family:'Space Mono',monospace;font-size:20px;font-weight:700;color:var(--gold);line-height:1;}
+.metal-ledger-card.silver-card .metal-ledger-weight{color:var(--silver);}
+.metal-ledger-unit{font-size:10px;color:var(--text2);margin-top:3px;}
+.metal-smith-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;}
+.metal-smith-row:last-child{border-bottom:none;}
+.metal-flags-panel{background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.3);border-radius:var(--radius);padding:14px;margin-bottom:20px;}
+.metal-flags-title{font-size:13px;font-weight:600;color:var(--red);margin-bottom:10px;}
+.metal-flag-item{font-size:13px;color:var(--text);padding:6px 0;border-bottom:1px solid rgba(239,68,68,0.15);display:flex;justify-content:space-between;align-items:center;}
+.metal-flag-item:last-child{border-bottom:none;}
+.metal-today-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;text-align:center;margin-bottom:20px;}
+.metal-today-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px;}
+.metal-today-num{font-family:'Space Mono',monospace;font-size:20px;font-weight:700;line-height:1;}
+.metal-today-label{font-size:11px;color:var(--text2);margin-top:4px;}
+
+/* ── INSIGHTS VIEW ── */
 #view-insights{display:none;}
 .insights-header{background:linear-gradient(135deg,#1a1a2e,#2d1b69);border:1px solid #4c1d95;border-radius:var(--radius);padding:20px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;}
 .insights-title{font-size:18px;font-weight:700;color:var(--accent2);}
@@ -133,7 +161,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 .chart-wrap{position:relative;height:220px;}
 .chart-wrap.tall{height:260px;}
 .observations-card{background:linear-gradient(135deg,#1a1a2e,#1e1b4b);border:1px solid #3730a3;border-radius:var(--radius);padding:20px;margin-bottom:20px;}
-.observations-title{font-size:14px;font-weight:700;color:var(--accent2);margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+.observations-title{font-size:14px;font-weight:700;color:var(--accent2);margin-bottom:14px;}
 .observation-item{background:rgba(255,255,255,0.04);border:1px solid rgba(167,139,250,0.2);border-radius:10px;padding:12px 14px;margin-bottom:10px;font-size:13px;color:var(--text);line-height:1.6;display:flex;gap:10px;align-items:flex-start;}
 .observation-item:last-child{margin-bottom:0;}
 .obs-icon{font-size:18px;flex-shrink:0;margin-top:1px;}
@@ -161,12 +189,10 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 .modal-actions{display:flex;gap:10px;}
 .btn-confirm{flex:1;background:var(--green);color:white;border:none;padding:12px;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;}
 .btn-cancel{flex:1;background:transparent;color:var(--text2);border:1px solid var(--border);padding:12px;border-radius:10px;font-size:14px;cursor:pointer;font-family:'DM Sans',sans-serif;}
-
 .toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:var(--surface);border:1px solid var(--border);color:var(--text);padding:12px 20px;border-radius:12px;font-size:14px;font-weight:500;z-index:300;opacity:0;transition:opacity 0.3s;white-space:nowrap;pointer-events:none;max-width:90vw;text-align:center;}
 .toast.show{opacity:1;}
 .toast.success{border-color:var(--green);color:var(--green);}
 .toast.error{border-color:var(--red);color:var(--red);}
-
 .bottom-nav{position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:1px solid var(--border);display:flex;justify-content:space-around;padding:10px 0 16px;z-index:100;}
 .nav-item{display:flex;flex-direction:column;align-items:center;gap:3px;text-decoration:none;color:var(--text3);cursor:pointer;padding:4px 10px;border-radius:10px;transition:color 0.2s;}
 .nav-item.active{color:var(--accent2);}
@@ -194,6 +220,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
   <button class="nav-tab" onclick="window.location.href='leave.html'">🌴 Leaves</button>
   <button class="nav-tab" onclick="window.location.href='staff-approval.html'">🆕 New Staff</button>
   <button class="nav-tab" onclick="window.location.href='reports.html'">📊 Reports</button>
+  <button class="nav-tab" onclick="switchMainTab('metal',this)">💎 Metal Stock</button>
   <button class="nav-tab" onclick="switchMainTab('insights',this)">✨ Insights</button>
 </div>
 
@@ -220,10 +247,85 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
     <button class="filter-chip fc-late"       onclick="setFilter('late',this)">⏰ Late</button>
     <button class="filter-chip fc-leave"      onclick="setFilter('leave',this)">🌴 Leave</button>
   </div>
-  <div class="staff-list" id="staffList">
+
+  <!-- ── COLLAPSIBLE STAFF GROUPS ── -->
+  <div id="staffGroupsWrap">
     <div class="loading-state"><div class="spinner"></div>Loading staff status...</div>
   </div>
   <div class="last-updated" id="lastUpdated"></div>
+</div>
+
+<!-- ── METAL STOCK VIEW ── -->
+<div class="main" id="view-metal">
+  <div class="metal-stock-header">
+    <div>
+      <div class="metal-stock-title">💎 Metal Stock — Live Summary</div>
+      <div class="metal-stock-sub" id="metalLastUpdated">Loading...</div>
+    </div>
+    <a class="btn-open-metal" href="metal-stock.html">Open Full Page →</a>
+  </div>
+
+  <!-- Flags -->
+  <div class="metal-flags-panel" id="metalFlagsPanel" style="display:none">
+    <div class="metal-flags-title">⚠️ Requires Attention</div>
+    <div id="metalFlagsList"></div>
+  </div>
+
+  <!-- Today summary -->
+  <div class="metal-today-grid">
+    <div class="metal-today-card">
+      <div class="metal-today-num" style="color:var(--green)" id="metalTodayIn">0g</div>
+      <div class="metal-today-label">Metal In Today</div>
+    </div>
+    <div class="metal-today-card">
+      <div class="metal-today-num" style="color:var(--red)" id="metalTodayOut">0g</div>
+      <div class="metal-today-label">Metal Out Today</div>
+    </div>
+    <div class="metal-today-card">
+      <div class="metal-today-num" style="color:var(--accent2)" id="metalTodayTxns">0</div>
+      <div class="metal-today-label">Transactions</div>
+    </div>
+  </div>
+
+  <!-- Gold ledgers -->
+  <div style="margin-bottom:14px">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+      <span style="font-size:18px">🥇</span>
+      <span style="font-size:14px;font-weight:700;color:var(--gold)">Gold Stock — Fine Grams</span>
+    </div>
+    <div class="metal-ledger-grid">
+      <div class="metal-ledger-card gold-card"><div class="metal-ledger-purity">24kt Pure (raw)</div><div class="metal-ledger-weight" id="adm-gold-24">0.00</div><div class="metal-ledger-unit">fine grams</div></div>
+      <div class="metal-ledger-card gold-card"><div class="metal-ledger-purity">22kt (91.6%)</div><div class="metal-ledger-weight" id="adm-gold-22">0.00</div><div class="metal-ledger-unit">fine grams</div></div>
+      <div class="metal-ledger-card gold-card"><div class="metal-ledger-purity">18kt (75.0%)</div><div class="metal-ledger-weight" id="adm-gold-18">0.00</div><div class="metal-ledger-unit">fine grams</div></div>
+      <div class="metal-ledger-card gold-card"><div class="metal-ledger-purity">14kt (58.5%)</div><div class="metal-ledger-weight" id="adm-gold-14">0.00</div><div class="metal-ledger-unit">fine grams</div></div>
+    </div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 14px;display:flex;justify-content:space-between;align-items:center;margin-top:8px;">
+      <span style="font-size:12px;color:var(--text2)">⚒️ With goldsmiths</span>
+      <span style="font-family:'Space Mono',monospace;font-size:14px;font-weight:700;color:var(--gold)" id="adm-gold-smith">0.00g</span>
+    </div>
+  </div>
+
+  <!-- Silver ledgers -->
+  <div style="margin-bottom:20px">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+      <span style="font-size:18px">🥈</span>
+      <span style="font-size:14px;font-weight:700;color:var(--silver)">Silver Stock — Fine Grams</span>
+    </div>
+    <div class="metal-ledger-grid" style="grid-template-columns:1fr 1fr">
+      <div class="metal-ledger-card silver-card"><div class="metal-ledger-purity">Pure (raw)</div><div class="metal-ledger-weight" id="adm-silver-100">0.00</div><div class="metal-ledger-unit">fine grams</div></div>
+      <div class="metal-ledger-card silver-card"><div class="metal-ledger-purity">925 (92.5%)</div><div class="metal-ledger-weight" id="adm-silver-925">0.00</div><div class="metal-ledger-unit">fine grams</div></div>
+    </div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 14px;display:flex;justify-content:space-between;align-items:center;margin-top:8px;">
+      <span style="font-size:12px;color:var(--text2)">⚒️ With silversmiths</span>
+      <span style="font-family:'Space Mono',monospace;font-size:14px;font-weight:700;color:var(--silver)" id="adm-silver-smith">0.00g</span>
+    </div>
+  </div>
+
+  <!-- Pending with goldsmiths -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:16px;">
+    <div style="font-size:13px;font-weight:700;color:var(--accent2);margin-bottom:12px;">⚒️ Metal Currently With Goldsmiths</div>
+    <div id="admSmithList"><div style="color:var(--text2);font-size:13px;text-align:center;padding:8px">Loading...</div></div>
+  </div>
 </div>
 
 <!-- ── INSIGHTS VIEW ── -->
@@ -265,7 +367,6 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
   </div>
 </div>
 
-<!-- Modal -->
 <div class="modal-overlay hidden" id="manualModal">
   <div class="modal">
     <div class="modal-title">Manual Clock-In</div>
@@ -310,12 +411,13 @@ const db   = getFirestore(app);
 
 const ADMIN_EMAILS = ['sandeepgemologist@gmail.com','sparkals.design@gmail.com'];
 const COMPLETED_STAGES = ["Won","Lost","Verified","Closed","Confirmed","Done","Reported","Received","Dispatched"];
+const PURITY_LABELS = {'gold-24':'Gold 24kt','gold-22':'Gold 22kt','gold-18':'Gold 18kt','gold-14':'Gold 14kt','silver-100':'Silver Pure','silver-925':'Silver 925'};
 
 let allStaffData=[], currentFilter="all";
 let manualTargetUid=null, manualTargetName=null;
 let autoRefreshTimer=null;
 let pieChartInst=null, barChartInst=null, trendChartInst=null;
-let insightsLoaded=false;
+let insightsLoaded=false, metalLoaded=false;
 
 Chart.defaults.color='#94a3b8';
 Chart.defaults.borderColor='#2d2d44';
@@ -363,9 +465,11 @@ onAuthStateChanged(auth, async user => {
 window.switchMainTab = function(tab, el) {
   document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
   el.classList.add('active');
-  document.getElementById('view-staff').style.display    = tab==='staff'    ? 'block' : 'none';
-  document.getElementById('view-insights').style.display = tab==='insights' ? 'block' : 'none';
+  document.getElementById('view-staff').style.display   = tab==='staff'    ? 'block':'none';
+  document.getElementById('view-metal').style.display   = tab==='metal'    ? 'block':'none';
+  document.getElementById('view-insights').style.display= tab==='insights' ? 'block':'none';
   if (tab==='insights' && !insightsLoaded) { loadInsights(); insightsLoaded=true; }
+  if (tab==='metal'    && !metalLoaded)    { loadMetalStock(); metalLoaded=true; }
 };
 
 // ════════════════════════════════════════
@@ -432,24 +536,58 @@ window.loadDashboard = async function() {
          <span style="color:var(--amber)">${s.clockInHHMM} (${minutesLate(s.clockInHHMM)} min late)</span></div>`
       ).join('');
     } else {latePanel.style.display='none';}
-    renderList();
+    renderGroups();
     document.getElementById('lastUpdated').textContent='Last updated: '+now.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
   } catch(err){
     console.error(err);
-    document.getElementById('staffList').innerHTML=`<div class="empty-state"><div class="emoji">⚠️</div><p>Could not load staff data.</p></div>`;
+    document.getElementById('staffGroupsWrap').innerHTML=`<div class="empty-state"><div class="emoji">⚠️</div><p>Could not load staff data.</p></div>`;
   }
 };
 
-function renderList() {
-  const list=document.getElementById('staffList');
+// ── RENDER STAFF AS COLLAPSIBLE GROUPS ──
+function renderGroups() {
   let filtered=[...allStaffData];
-  if(currentFilter==='present')filtered=filtered.filter(s=>['present','lunch','left','late'].includes(s.status));
-  else if(currentFilter==='absent')filtered=filtered.filter(s=>s.status==='absent');
-  else if(currentFilter==='late')filtered=filtered.filter(s=>s.isLate);
-  else if(currentFilter==='leave')filtered=filtered.filter(s=>s.status==='leave');
-  if(!filtered.length){list.innerHTML=`<div class="empty-state"><div class="emoji">🎉</div><p>No staff in this category today.</p></div>`;return;}
-  list.innerHTML=filtered.map(s=>buildStaffCard(s)).join('');
+  if(currentFilter==='present') filtered=filtered.filter(s=>['present','lunch','left','late'].includes(s.status));
+  else if(currentFilter==='absent') filtered=filtered.filter(s=>s.status==='absent');
+  else if(currentFilter==='late')   filtered=filtered.filter(s=>s.isLate);
+  else if(currentFilter==='leave')  filtered=filtered.filter(s=>s.status==='leave');
+
+  const groups = [
+    { id:'grp-active',   label:'✅ Active Staff',  emoji:'👥', staff: filtered.filter(s=>s.role!=='admin'&&s.role!=='manager'&&s.status!=='inactive'), open:true  },
+    { id:'grp-managers', label:'⭐ Managers',       emoji:'⭐', staff: filtered.filter(s=>s.role==='manager'),                                          open:true  },
+    { id:'grp-admins',   label:'👑 Admins',         emoji:'👑', staff: filtered.filter(s=>s.role==='admin'),                                            open:false },
+    { id:'grp-inactive', label:'⏸ Inactive Staff', emoji:'⏸', staff: filtered.filter(s=>s.status==='inactive'),                                       open:false },
+  ].filter(g=>g.staff.length>0);
+
+  if (!groups.length) {
+    document.getElementById('staffGroupsWrap').innerHTML=`<div class="empty-state"><div class="emoji">🎉</div><p>No staff in this category today.</p></div>`;
+    return;
+  }
+
+  document.getElementById('staffGroupsWrap').innerHTML = groups.map(g=>`
+    <div class="staff-group">
+      <div class="staff-group-header ${g.open?'open':''}" onclick="toggleGroup('${g.id}')">
+        <div class="staff-group-title">
+          ${g.label}
+          <span class="staff-group-count">${g.staff.length}</span>
+        </div>
+        <span class="staff-group-arrow">▼</span>
+      </div>
+      <div class="staff-group-body ${g.open?'open':''}" id="${g.id}">
+        <div class="staff-group-inner">
+          ${g.staff.map(s=>buildStaffCard(s)).join('')}
+        </div>
+      </div>
+    </div>`).join('');
 }
+
+window.toggleGroup = function(groupId) {
+  const body   = document.getElementById(groupId);
+  const header = body.previousElementSibling;
+  const isOpen = body.classList.contains('open');
+  body.classList.toggle('open', !isOpen);
+  header.classList.toggle('open', !isOpen);
+};
 
 function buildStaffCard(s) {
   const initials=(s.name||s.email||'?').split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
@@ -457,7 +595,7 @@ function buildStaffCard(s) {
   const color=palette[(s.name||'').charCodeAt(0)%palette.length]||'#7c3aed';
   const isInactive=s.status==='inactive';
   const isManager=s.role==='manager';
-
+  const isAdmin=s.role==='admin';
   let badgeClass='',badgeText='',dotColor='';
   if(s.status==='present'){badgeClass='badge-present';badgeText='Present';dotColor='#10b981';}
   else if(s.status==='late'){badgeClass='badge-late';badgeText='Late';dotColor='#f59e0b';}
@@ -466,7 +604,6 @@ function buildStaffCard(s) {
   else if(s.status==='absent'){badgeClass='badge-absent';badgeText='Not In';dotColor='#ef4444';}
   else if(s.status==='leave'){badgeClass='badge-leave';badgeText='On Leave';dotColor='#3b82f6';}
   else if(s.status==='inactive'){badgeClass='badge-inactive';badgeText='Inactive';dotColor='#64748b';}
-
   let timeInfo='Not clocked in yet';
   if(s.clockInHHMM){
     timeInfo=`Clocked in: ${s.clockInHHMM}`;
@@ -475,25 +612,18 @@ function buildStaffCard(s) {
   } else if(s.status==='leave'){
     timeInfo=s.leaveData?`${s.leaveData.leaveType||'Leave'} · ${s.leaveData.payType==='lop'?'LOP':'Paid'}`:'Approved leave';
   } else if(isInactive){timeInfo='Account deactivated';}
-
   const safeName=(s.name||s.email||'').replace(/'/g,"\\'");
   const pendingId=s.pendingId||'';
-  const isAdmin=s.role==='admin';
-
-  // ── MANAGE ROW with promote/demote ──
   const manageRow=`
     <div class="staff-manage-row">
-      ${!isAdmin && !isInactive ? (
-        isManager
-          ? `<button class="btn-sm-demote" onclick="changeRole('${s.uid}','${safeName}','staff')">👤 Demote to Staff</button>`
-          : `<button class="btn-sm-promote" onclick="changeRole('${s.uid}','${safeName}','manager')">⭐ Make Manager</button>`
-      ) : ''}
+      ${!isAdmin&&!isInactive?(isManager
+        ?`<button class="btn-sm-demote" onclick="changeRole('${s.uid}','${safeName}','staff')">👤 Demote to Staff</button>`
+        :`<button class="btn-sm-promote" onclick="changeRole('${s.uid}','${safeName}','manager')">⭐ Make Manager</button>`):''}
       ${isInactive
-        ? `<button class="btn-sm-reactivate" onclick="reactivateStaff('${s.uid}','${safeName}','${pendingId}')">✅ Reactivate</button>`
-        : (!isAdmin ? `<button class="btn-sm-deactivate" onclick="deactivateStaff('${s.uid}','${safeName}','${pendingId}')">⏸ Deactivate</button>` : '')}
-      ${!isAdmin ? `<button class="btn-sm-delete" onclick="deleteStaff('${s.uid}','${safeName}','${pendingId}')">🗑️ Delete</button>` : ''}
+        ?`<button class="btn-sm-reactivate" onclick="reactivateStaff('${s.uid}','${safeName}','${pendingId}')">✅ Reactivate</button>`
+        :(!isAdmin?`<button class="btn-sm-deactivate" onclick="deactivateStaff('${s.uid}','${safeName}','${pendingId}')">⏸ Deactivate</button>`:'')}
+      ${!isAdmin?`<button class="btn-sm-delete" onclick="deleteStaff('${s.uid}','${safeName}','${pendingId}')">🗑️ Delete</button>`:''}
     </div>`;
-
   return `
   <div class="staff-card" id="staff-card-${s.uid}" style="${isInactive?'opacity:0.6;':''}">
     <div class="staff-card-top">
@@ -518,83 +648,118 @@ function buildStaffCard(s) {
   </div>`;
 }
 
-// ── PROMOTE / DEMOTE ROLE ──
-window.changeRole = async function(uid, name, newRole) {
-  const action = newRole==='manager' ? `Make ${name} a Manager?` : `Demote ${name} back to Staff?`;
-  const detail = newRole==='manager'
-    ? `${name} will be able to:\n• Assign tasks to any staff\n• See all tasks across departments\n• Approve/reject leave requests\n• Manually clock in absent staff`
-    : `${name} will go back to regular staff access.`;
-  if (!confirm(`${action}\n\n${detail}`)) return;
+// ════════════════════════════════════════
+// METAL STOCK SUMMARY
+// ════════════════════════════════════════
+async function loadMetalStock() {
   try {
+    const snap = await getDocs(collection(db,'metalTransactions'));
+    const txns = snap.docs.map(d=>({id:d.id,...d.data()}));
+    const bal  = {'gold-24':0,'gold-22':0,'gold-18':0,'gold-14':0,'silver-100':0,'silver-925':0};
+    const withSmith = {gold:0,silver:0};
+    const today = getTodayKey();
+    let todayIn=0, todayOut=0, todayCount=0;
+
+    txns.forEach(t=>{
+      const fw=parseFloat(t.fineWeight||0);
+      const metal=t.metal, pk=t.purityKey;
+      const isToday=t.date===today;
+      if(t.type==='metal_in'||t.type==='adjustment'){if(bal[pk]!==undefined)bal[pk]+=fw;if(isToday){todayIn+=fw;todayCount++;}}
+      if(t.type==='client_order'&&t.clientMetalIn){const cpk=t.clientPurityKey;if(bal[cpk]!==undefined)bal[cpk]+=parseFloat(t.clientFineWeight||0);if(isToday){todayIn+=parseFloat(t.clientFineWeight||0);todayCount++;}}
+      if(t.type==='issue_goldsmith'&&t.status!=='returned'){if(bal[pk]!==undefined)bal[pk]-=fw;withSmith[metal]+=fw;if(isToday){todayOut+=fw;todayCount++;}}
+      if(t.type==='goldsmith_return'){const rpk=t.returnedPurityKey;if(bal[rpk]!==undefined)bal[rpk]+=parseFloat(t.returnedFineWeight||0);withSmith[metal]-=parseFloat(t.issuedFineWeight||0);if(withSmith[metal]<0)withSmith[metal]=0;if(isToday){todayIn+=parseFloat(t.returnedFineWeight||0);todayCount++;}}
+      if(t.type==='sale'){if(bal[pk]!==undefined)bal[pk]-=fw;if(isToday){todayOut+=fw;todayCount++;}}
+    });
+
+    // Update balances
+    Object.entries(bal).forEach(([k,v])=>{
+      const el=document.getElementById('adm-'+k);
+      if(el)el.textContent=Math.max(0,v).toFixed(2);
+    });
+    document.getElementById('adm-gold-smith').textContent  =Math.max(0,withSmith.gold).toFixed(2)+'g';
+    document.getElementById('adm-silver-smith').textContent=Math.max(0,withSmith.silver).toFixed(2)+'g';
+    document.getElementById('metalTodayIn').textContent  =todayIn.toFixed(1)+'g';
+    document.getElementById('metalTodayOut').textContent =todayOut.toFixed(1)+'g';
+    document.getElementById('metalTodayTxns').textContent=todayCount;
+    document.getElementById('metalLastUpdated').textContent='Updated: '+new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+
+    // Flags
+    const flags=[];
+    const wastageCaps={gold:2,silver:3};
+    try{const wc=await getDoc(doc(db,'appConfig','wastageCaps'));if(wc.exists()){Object.assign(wastageCaps,wc.data());}}catch(e){}
+    txns.filter(t=>t.type==='issue_goldsmith'&&t.status!=='returned').forEach(t=>{
+      if(!t.dueDate)return;
+      if(new Date(t.dueDate)<new Date())flags.push(`⏰ Overdue return: ${t.smithName} — ${t.fineWeight}g`);
+    });
+    txns.filter(t=>t.type==='client_order'&&t.clientPurityConfirmed===false).forEach(t=>{
+      flags.push(`🔬 Lab test pending: ${t.clientName} — ${t.clientGrossWeight}g`);
+    });
+    txns.filter(t=>t.type==='goldsmith_return'&&t.wastageExcess===true).forEach(t=>{
+      flags.push(`⚠️ Excess wastage: ${t.smithName} — ${t.wastagePct}%`);
+    });
+    const fp=document.getElementById('metalFlagsPanel');
+    if(flags.length>0){
+      fp.style.display='block';
+      document.getElementById('metalFlagsList').innerHTML=flags.map(f=>
+        `<div class="metal-flag-item"><span>${f}</span><a href="metal-stock.html" style="font-size:11px;color:var(--accent2)">Review →</a></div>`
+      ).join('');
+    } else {fp.style.display='none';}
+
+    // Goldsmiths with pending metal
+    const pending=txns.filter(t=>t.type==='issue_goldsmith'&&t.status!=='returned');
+    const smithList=document.getElementById('admSmithList');
+    if(!pending.length){
+      smithList.innerHTML='<div style="color:var(--green);font-size:13px;text-align:center;padding:8px">✅ No metal with any goldsmith</div>';
+    } else {
+      const now=new Date();
+      smithList.innerHTML=pending.map(t=>{
+        const due=t.dueDate?new Date(t.dueDate):null;
+        const isOverdue=due&&due<now;
+        return `<div class="metal-smith-row">
+          <div>
+            <div style="font-weight:600;font-size:13px">${t.smithName||'Unknown'}${isOverdue?`<span style="background:rgba(239,68,68,0.15);color:var(--red);font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;margin-left:6px">OVERDUE</span>`:''}</div>
+            <div style="font-size:11px;color:var(--text2)">${PURITY_LABELS[t.purityKey]||''} · Due: ${t.dueDate||'—'}</div>
+          </div>
+          <div style="font-family:'Space Mono',monospace;font-size:13px;font-weight:700;color:var(--gold)">${parseFloat(t.fineWeight||0).toFixed(3)}g</div>
+        </div>`;
+      }).join('');
+    }
+  } catch(e){console.error('Metal stock error:',e);}
+}
+
+// ── STAFF MANAGEMENT ──
+window.changeRole=async function(uid,name,newRole){
+  const detail=newRole==='manager'?`${name} will be able to:\n• Assign tasks to any staff\n• See all tasks\n• Approve leave\n• Manual clock-in`:`${name} will go back to regular staff access.`;
+  if(!confirm(`${newRole==='manager'?'Make '+name+' a Manager?':'Demote '+name+' back to Staff?'}\n\n${detail}`))return;
+  try{
     await updateDoc(doc(db,'users',uid),{role:newRole,roleUpdatedAt:serverTimestamp()});
-    // Also update pendingStaff if exists
     const pSnap=await getDocs(query(collection(db,'pendingStaff'),where('uid','==',uid)));
-    if (!pSnap.empty) await updateDoc(doc(db,'pendingStaff',pSnap.docs[0].id),{role:newRole});
+    if(!pSnap.empty)await updateDoc(doc(db,'pendingStaff',pSnap.docs[0].id),{role:newRole});
     showToast(newRole==='manager'?`⭐ ${name} is now a Manager!`:`👤 ${name} is now Staff`,'success');
     loadDashboard();
-  } catch(e){console.error(e);showToast('❌ Could not update role.','error');}
+  }catch(e){showToast('❌ Could not update role.','error');}
 };
-
-window.deactivateStaff = async function(uid,name,pendingId) {
-  if(!confirm(`⏸ Deactivate ${name}?\n\nThey cannot log in until reactivated.`))return;
-  try{
-    await updateDoc(doc(db,'users',uid),{status:'inactive',deactivatedAt:serverTimestamp()});
-    if(pendingId)await updateDoc(doc(db,'pendingStaff',pendingId),{status:'inactive',deactivatedAt:serverTimestamp()});
-    showToast(`⏸ ${name} deactivated`,'');loadDashboard();
-  }catch(e){showToast('❌ Could not deactivate.','error');}
+window.deactivateStaff=async function(uid,name,pendingId){
+  if(!confirm(`⏸ Deactivate ${name}?`))return;
+  try{await updateDoc(doc(db,'users',uid),{status:'inactive',deactivatedAt:serverTimestamp()});if(pendingId)await updateDoc(doc(db,'pendingStaff',pendingId),{status:'inactive',deactivatedAt:serverTimestamp()});showToast(`⏸ ${name} deactivated`,'');loadDashboard();}catch(e){showToast('❌ Could not deactivate.','error');}
 };
-window.reactivateStaff = async function(uid,name,pendingId) {
+window.reactivateStaff=async function(uid,name,pendingId){
   if(!confirm(`✅ Reactivate ${name}?`))return;
-  try{
-    await updateDoc(doc(db,'users',uid),{status:'approved',reactivatedAt:serverTimestamp()});
-    if(pendingId)await updateDoc(doc(db,'pendingStaff',pendingId),{status:'approved',reactivatedAt:serverTimestamp()});
-    showToast(`✅ ${name} reactivated`,'success');loadDashboard();
-  }catch(e){showToast('❌ Could not reactivate.','error');}
+  try{await updateDoc(doc(db,'users',uid),{status:'approved',reactivatedAt:serverTimestamp()});if(pendingId)await updateDoc(doc(db,'pendingStaff',pendingId),{status:'approved',reactivatedAt:serverTimestamp()});showToast(`✅ ${name} reactivated`,'success');loadDashboard();}catch(e){showToast('❌ Could not reactivate.','error');}
 };
-window.deleteStaff = async function(uid,name,pendingId) {
+window.deleteStaff=async function(uid,name,pendingId){
   if(!confirm(`🗑️ PERMANENTLY DELETE ${name}?\n\nThis cannot be undone.`))return;
   if(!confirm(`Last warning — permanently delete ${name}?`))return;
-  try{
-    await deleteDoc(doc(db,'users',uid));
-    if(pendingId)await deleteDoc(doc(db,'pendingStaff',pendingId));
-    showToast(`🗑️ ${name} deleted`,'');
-    const card=document.getElementById(`staff-card-${uid}`);
-    if(card){card.style.opacity='0';card.style.transition='opacity 0.3s';setTimeout(()=>card.remove(),300);}
-  }catch(e){showToast('❌ Could not delete.','error');}
+  try{await deleteDoc(doc(db,'users',uid));if(pendingId)await deleteDoc(doc(db,'pendingStaff',pendingId));showToast(`🗑️ ${name} deleted`,'');const card=document.getElementById(`staff-card-${uid}`);if(card){card.style.opacity='0';card.style.transition='opacity 0.3s';setTimeout(()=>card.remove(),300);}}catch(e){showToast('❌ Could not delete.','error');}
 };
-
-window.setFilter=function(filter,el){
-  currentFilter=filter;
-  document.querySelectorAll('.filter-chip').forEach(c=>c.classList.remove('active'));
-  el.classList.add('active');renderList();
-};
-window.openManual=function(uid,name){
-  manualTargetUid=uid;manualTargetName=name;
-  document.getElementById('modalStaffName').textContent='Recording for: '+name;
-  const now=new Date();
-  document.getElementById('manualTime').value=`${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
-  document.getElementById('manualReason').value='';
-  document.getElementById('manualModal').classList.remove('hidden');
-};
+window.setFilter=function(filter,el){currentFilter=filter;document.querySelectorAll('.filter-chip').forEach(c=>c.classList.remove('active'));el.classList.add('active');renderGroups();};
+window.openManual=function(uid,name){manualTargetUid=uid;manualTargetName=name;document.getElementById('modalStaffName').textContent='Recording for: '+name;const now=new Date();document.getElementById('manualTime').value=`${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;document.getElementById('manualReason').value='';document.getElementById('manualModal').classList.remove('hidden');};
 window.closeModal=function(){document.getElementById('manualModal').classList.add('hidden');manualTargetUid=null;};
 window.confirmManualClockIn=async function(){
-  const time=document.getElementById('manualTime').value;
-  const reason=document.getElementById('manualReason').value.trim();
-  if(!time){showToast('Please set a clock-in time','error');return;}
-  if(!reason){showToast('Please enter a reason','error');return;}
+  const time=document.getElementById('manualTime').value;const reason=document.getElementById('manualReason').value.trim();
+  if(!time){showToast('Please set a clock-in time','error');return;}if(!reason){showToast('Please enter a reason','error');return;}
   const today=getTodayKey(),adminUser=auth.currentUser;
-  try{
-    await setDoc(doc(db,'attendance',`${manualTargetUid}_${today}`),{
-      uid:manualTargetUid,userId:manualTargetUid,date:today,
-      clockIn:time,clockOut:null,manualEntry:true,manualReason:reason,
-      recordedBy:adminUser.email,recordedAt:serverTimestamp()
-    });
-    await setDoc(doc(collection(db,'auditLogs')),{
-      action:'MANUAL_CLOCK_IN',targetUid:manualTargetUid,targetName:manualTargetName,
-      performedBy:adminUser.email,reason,clockInTime:time,date:today,timestamp:serverTimestamp()
-    });
-    closeModal();showToast(`✅ ${manualTargetName} clocked in at ${time}`,'success');loadDashboard();
-  }catch(err){showToast('Error saving. Try again.','error');}
+  try{await setDoc(doc(db,'attendance',`${manualTargetUid}_${today}`),{uid:manualTargetUid,userId:manualTargetUid,date:today,clockIn:time,clockOut:null,manualEntry:true,manualReason:reason,recordedBy:adminUser.email,recordedAt:serverTimestamp()});await setDoc(doc(collection(db,'auditLogs')),{action:'MANUAL_CLOCK_IN',targetUid:manualTargetUid,targetName:manualTargetName,performedBy:adminUser.email,reason,clockInTime:time,date:today,timestamp:serverTimestamp()});closeModal();showToast(`✅ ${manualTargetName} clocked in at ${time}`,'success');loadDashboard();}catch(err){showToast('Error saving. Try again.','error');}
 };
 window.handleLogout=async function(){clearInterval(autoRefreshTimer);await signOut(auth);window.location.href='login.html';};
 
@@ -603,109 +768,49 @@ window.handleLogout=async function(){clearInterval(autoRefreshTimer);await signO
 // ════════════════════════════════════════
 window.loadInsights=async function(){
   document.getElementById('observationsList').innerHTML='<div class="obs-loading">⏳ Analysing your team data...</div>';
-  const now=new Date();
-  const months=[];
-  for(let i=5;i>=0;i--){
-    const d=new Date(now.getFullYear(),now.getMonth()-i,1);
-    const lastDay=new Date(d.getFullYear(),d.getMonth()+1,0).getDate();
-    months.push({label:fmtMonth(d),from:`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-01`,to:`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(lastDay).padStart(2,'0')}`,year:d.getFullYear(),month:d.getMonth()+1});
-  }
+  const now=new Date();const months=[];
+  for(let i=5;i>=0;i--){const d=new Date(now.getFullYear(),now.getMonth()-i,1);const lastDay=new Date(d.getFullYear(),d.getMonth()+1,0).getDate();months.push({label:fmtMonth(d),from:`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-01`,to:`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(lastDay).padStart(2,'0')}`,year:d.getFullYear(),month:d.getMonth()+1});}
   document.getElementById('insightsPeriodLabel').textContent=`Analysing ${months[0].label} → ${months[5].label} · Your real team data`;
   const[tasksSnap,attSnap,usersSnap]=await Promise.all([getDocs(collection(db,'tasks')),getDocs(collection(db,'attendance')),getDocs(query(collection(db,'users'),where('status','==','approved')))]);
-  const allTasks=tasksSnap.docs.map(d=>({id:d.id,...d.data()}));
-  const allAtt=attSnap.docs.map(d=>({id:d.id,...d.data()}));
-  const allStaff=usersSnap.docs.map(d=>({id:d.id,...d.data()}));
-  const totalStaff=allStaff.length;
+  const allTasks=tasksSnap.docs.map(d=>({id:d.id,...d.data()}));const allAtt=attSnap.docs.map(d=>({id:d.id,...d.data()}));const allStaff=usersSnap.docs.map(d=>({id:d.id,...d.data()}));const totalStaff=allStaff.length;
   const curMonth=months[5],prevMonth=months[4];
   function getMonthTasks(m){return allTasks.filter(t=>{const created=t.createdAt?.toDate?t.createdAt.toDate():t.createdAt?.seconds?new Date(t.createdAt.seconds*1000):null;if(!created)return false;const key=`${created.getFullYear()}-${String(created.getMonth()+1).padStart(2,'0')}`;return key===`${m.year}-${String(m.month).padStart(2,'0')}`});}
   function getMonthAtt(m){return allAtt.filter(a=>a.date&&a.date.startsWith(`${m.year}-${String(m.month).padStart(2,'0')}`));}
   function workingDaysInMonth(year,month){let count=0;const d=new Date(year,month-1,1);while(d.getMonth()===month-1){if(d.getDay()!==0)count++;d.setDate(d.getDate()+1);}return count;}
   const curTasks=getMonthTasks(curMonth),prevTasks=getMonthTasks(prevMonth);
-  const curDone=curTasks.filter(t=>COMPLETED_STAGES.includes(t.stage)).length;
-  const prevDone=prevTasks.filter(t=>COMPLETED_STAGES.includes(t.stage)).length;
-  const curRate=curTasks.length?Math.round((curDone/curTasks.length)*100):0;
-  const prevRate=prevTasks.length?Math.round((prevDone/prevTasks.length)*100):0;
-  const rateDiff=curRate-prevRate;
+  const curDone=curTasks.filter(t=>COMPLETED_STAGES.includes(t.stage)).length,prevDone=prevTasks.filter(t=>COMPLETED_STAGES.includes(t.stage)).length;
+  const curRate=curTasks.length?Math.round((curDone/curTasks.length)*100):0,prevRate=prevTasks.length?Math.round((prevDone/prevTasks.length)*100):0,rateDiff=curRate-prevRate;
   const curAtt=getMonthAtt(curMonth),prevAtt=getMonthAtt(prevMonth);
-  const curWorkDays=workingDaysInMonth(curMonth.year,curMonth.month);
-  const prevWorkDays=workingDaysInMonth(prevMonth.year,prevMonth.month);
+  const curWorkDays=workingDaysInMonth(curMonth.year,curMonth.month),prevWorkDays=workingDaysInMonth(prevMonth.year,prevMonth.month);
   const curAttRate=curWorkDays>0&&totalStaff>0?Math.round((curAtt.length/(curWorkDays*totalStaff))*100):0;
   const prevAttRate=prevWorkDays>0&&totalStaff>0?Math.round((prevAtt.length/(prevWorkDays*totalStaff))*100):0;
   const attDiff=curAttRate-prevAttRate;
-  const curLate=curAtt.filter(a=>{const t=tsToHHMM(a.clockIn)||'';return t>'09:15';}).length;
-  const prevLate=prevAtt.filter(a=>{const t=tsToHHMM(a.clockIn)||'';return t>'09:15';}).length;
-  const lateDiff=curLate-prevLate;
-
-  document.getElementById('kpiTasksDone').textContent=curDone;
-  document.getElementById('kpiCompRate').textContent=curRate+'%';
-  document.getElementById('kpiAttRate').textContent=curAttRate+'%';
-  document.getElementById('kpiLate').textContent=curLate;
-  const trendHTML=(diff,goodDir,unit='')=>{
-    if(diff===0)return`<span class="trend-flat">→ Same as last month</span>`;
-    const up=diff>0,good=goodDir==='up'?up:!up,cls=good?'trend-up':'trend-down',arrow=up?'↑':'↓';
-    return`<span class="${cls}">${arrow} ${Math.abs(diff)}${unit} vs last month</span>`;
-  };
-  document.getElementById('kpiTasksTrend').innerHTML=trendHTML(curDone-prevDone,'up',' tasks');
-  document.getElementById('kpiCompTrend').innerHTML=trendHTML(rateDiff,'up','%');
-  document.getElementById('kpiAttTrend').innerHTML=trendHTML(attDiff,'up','%');
-  document.getElementById('kpiLateTrend').innerHTML=trendHTML(lateDiff,'down');
-
+  const curLate=curAtt.filter(a=>{const t=tsToHHMM(a.clockIn)||'';return t>'09:15';}).length,prevLate=prevAtt.filter(a=>{const t=tsToHHMM(a.clockIn)||'';return t>'09:15';}).length,lateDiff=curLate-prevLate;
+  document.getElementById('kpiTasksDone').textContent=curDone;document.getElementById('kpiCompRate').textContent=curRate+'%';document.getElementById('kpiAttRate').textContent=curAttRate+'%';document.getElementById('kpiLate').textContent=curLate;
+  const trendHTML=(diff,goodDir,unit='')=>{if(diff===0)return`<span class="trend-flat">→ Same as last month</span>`;const up=diff>0,good=goodDir==='up'?up:!up,cls=good?'trend-up':'trend-down',arrow=up?'↑':'↓';return`<span class="${cls}">${arrow} ${Math.abs(diff)}${unit} vs last month</span>`;};
+  document.getElementById('kpiTasksTrend').innerHTML=trendHTML(curDone-prevDone,'up',' tasks');document.getElementById('kpiCompTrend').innerHTML=trendHTML(rateDiff,'up','%');document.getElementById('kpiAttTrend').innerHTML=trendHTML(attDiff,'up','%');document.getElementById('kpiLateTrend').innerHTML=trendHTML(lateDiff,'down');
   const totalAll=allTasks.length,doneAll=allTasks.filter(t=>COMPLETED_STAGES.includes(t.stage)).length;
   const overdueAll=allTasks.filter(t=>{if(COMPLETED_STAGES.includes(t.stage)||!t.deadline)return false;const dl=t.deadline.toDate?t.deadline.toDate():new Date(t.deadline?.seconds*1000);return dl<now;}).length;
   const activeAll=totalAll-doneAll-overdueAll;
-
   if(pieChartInst)pieChartInst.destroy();
   pieChartInst=new Chart(document.getElementById('pieChart'),{type:'doughnut',data:{labels:['Completed','In Progress','Overdue'],datasets:[{data:[doneAll,activeAll,overdueAll],backgroundColor:['#10b981cc','#3b82f6cc','#ef4444cc'],borderColor:['#10b981','#3b82f6','#ef4444'],borderWidth:2,hoverOffset:8}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{padding:16,font:{size:12}}},tooltip:{callbacks:{label:ctx=>` ${ctx.label}: ${ctx.raw} tasks`}}},cutout:'60%'}});
-
-  const deptData={};
-  allTasks.forEach(t=>{const dept=t.department||'Unknown';if(!deptData[dept])deptData[dept]={total:0,done:0};deptData[dept].total++;if(COMPLETED_STAGES.includes(t.stage))deptData[dept].done++;});
-  const deptLabels=Object.keys(deptData).map(d=>d.length>12?d.slice(0,12)+'…':d);
-  const deptRates=Object.values(deptData).map(d=>d.total?Math.round((d.done/d.total)*100):0);
-  const barColors=deptRates.map(r=>r>=70?'#10b981cc':r>=50?'#f59e0bcc':'#ef4444cc');
+  const deptData={};allTasks.forEach(t=>{const dept=t.department||'Unknown';if(!deptData[dept])deptData[dept]={total:0,done:0};deptData[dept].total++;if(COMPLETED_STAGES.includes(t.stage))deptData[dept].done++;});
+  const deptLabels=Object.keys(deptData).map(d=>d.length>12?d.slice(0,12)+'…':d);const deptRates=Object.values(deptData).map(d=>d.total?Math.round((d.done/d.total)*100):0);const barColors=deptRates.map(r=>r>=70?'#10b981cc':r>=50?'#f59e0bcc':'#ef4444cc');
   if(barChartInst)barChartInst.destroy();
   barChartInst=new Chart(document.getElementById('barChart'),{type:'bar',data:{labels:deptLabels,datasets:[{label:'Completion %',data:deptRates,backgroundColor:barColors,borderColor:barColors.map(c=>c.replace('cc','')),borderWidth:1,borderRadius:6}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,max:100,ticks:{callback:v=>v+'%'},grid:{color:'#2d2d44'}},x:{grid:{display:false},ticks:{font:{size:10}}}}}});
-
   const trendRates=months.map(m=>{const mt=getMonthTasks(m);const md=mt.filter(t=>COMPLETED_STAGES.includes(t.stage)).length;return mt.length?Math.round((md/mt.length)*100):0;});
   const trendAtt=months.map(m=>{const ma=getMonthAtt(m);const wd=workingDaysInMonth(m.year,m.month);return wd>0&&totalStaff>0?Math.round((ma.length/(wd*totalStaff))*100):0;});
   if(trendChartInst)trendChartInst.destroy();
   trendChartInst=new Chart(document.getElementById('trendChart'),{type:'line',data:{labels:months.map(m=>m.label),datasets:[{label:'Task Completion %',data:trendRates,borderColor:'#a78bfa',backgroundColor:'rgba(167,139,250,0.1)',borderWidth:2.5,pointBackgroundColor:'#a78bfa',pointRadius:5,tension:0.4,fill:true},{label:'Attendance %',data:trendAtt,borderColor:'#10b981',backgroundColor:'rgba(16,185,129,0.08)',borderWidth:2.5,pointBackgroundColor:'#10b981',pointRadius:5,tension:0.4,fill:true}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{padding:16,font:{size:12}}},tooltip:{callbacks:{label:ctx=>` ${ctx.dataset.label}: ${ctx.raw}%`}}},scales:{y:{beginAtZero:true,max:100,ticks:{callback:v=>v+'%'},grid:{color:'#2d2d44'}},x:{grid:{color:'#2d2d4430'}}}}});
-
   const deptEntries=Object.entries(deptData).map(([dept,d])=>({dept,staff:allStaff.filter(s=>s.department===dept).length,done:d.done,total:d.total,rate:d.total?Math.round((d.done/d.total)*100):0,late:curAtt.filter(a=>{const uid=a.uid||a.userId;const staff=allStaff.find(s=>s.id===uid);const t=tsToHHMM(a.clockIn)||'';return staff?.department===dept&&t>'09:15';}).length})).sort((a,b)=>b.rate-a.rate);
   document.getElementById('deptTableMeta').textContent=curMonth.label;
-  document.getElementById('deptTableBody').innerHTML=deptEntries.map(d=>{
-    const fillColor=d.rate>=70?'#10b981':d.rate>=50?'#f59e0b':'#ef4444';
-    const rateColor=d.rate>=70?'var(--green)':d.rate>=50?'var(--amber)':'var(--red)';
-    const prevMonthTasks=prevTasks.filter(t=>t.department===d.dept);
-    const prevMonthDone=prevMonthTasks.filter(t=>COMPLETED_STAGES.includes(t.stage)).length;
-    const prevMonthRate=prevMonthTasks.length?Math.round((prevMonthDone/prevMonthTasks.length)*100):0;
-    const diff=d.rate-prevMonthRate;
-    const trendArrow=diff>0?`<span style="color:var(--green)">↑ ${diff}%</span>`:diff<0?`<span style="color:var(--red)">↓ ${Math.abs(diff)}%</span>`:`<span style="color:var(--text3)">→</span>`;
-    return`<tr><td style="font-weight:600">${d.dept}</td><td style="color:var(--text2)">${d.staff}</td><td style="color:var(--green);font-family:'Space Mono',monospace">${d.done}</td><td style="font-family:'Space Mono',monospace">${d.total}</td><td><div style="display:flex;align-items:center;gap:8px"><div class="mini-progress"><div class="mini-progress-fill" style="width:${d.rate}%;background:${fillColor}"></div></div><span style="color:${rateColor};font-weight:700;font-family:'Space Mono',monospace;font-size:12px">${d.rate}%</span></div></td><td style="color:${d.late>3?'var(--amber)':'var(--text2)'};font-family:'Space Mono',monospace">${d.late}</td><td>${trendArrow}</td></tr>`;
-  }).join('');
-
-  function generateObservations(d){
-    const obs=[];
-    if(d.rateDiff>0)obs.push({icon:'📈',text:`<strong>Company efficiency improving!</strong> Task completion rate rose from ${d.prevRate}% last month to ${d.curRate}% this month — a ${d.rateDiff}% improvement.`});
-    else if(d.rateDiff<0)obs.push({icon:'📉',text:`<strong>Completion rate dropped this month.</strong> From ${d.prevRate}% to ${d.curRate}% — a ${Math.abs(d.rateDiff)}% decline. Review task assignments.`});
-    else obs.push({icon:'➡️',text:`<strong>Completion rate stable</strong> at ${d.curRate}% — same as last month.`});
-    if(d.attDiff>0)obs.push({icon:'✅',text:`<strong>Attendance improved</strong> from ${d.prevAttRate}% to ${d.curAttRate}% this month.`});
-    else if(d.attDiff<0)obs.push({icon:'⚠️',text:`<strong>Attendance slipped</strong> from ${d.prevAttRate}% to ${d.curAttRate}% this month.`});
-    if(d.lateDiff<0)obs.push({icon:'🎉',text:`<strong>Late arrivals reduced!</strong> Down from ${d.prevLate} to ${d.curLate} this month.`});
-    else if(d.lateDiff>0)obs.push({icon:'⏰',text:`<strong>Late arrivals increased</strong> from ${d.prevLate} to ${d.curLate} this month.`});
-    if(d.deptEntries.length>1){const best=d.deptEntries[0],worst=d.deptEntries[d.deptEntries.length-1];obs.push({icon:'🏆',text:`<strong>${best.dept}</strong> is your top department at ${best.rate}% completion. <strong>${worst.dept}</strong> needs attention at ${worst.rate}%.`});}
-    if(d.overdueAll>0){const pct=d.totalAll?Math.round((d.overdueAll/d.totalAll)*100):0;obs.push({icon:'🚨',text:`<strong>${d.overdueAll} tasks are overdue</strong> (${pct}% of all tasks). Review in Tasks page.`});}
-    else obs.push({icon:'🎯',text:`<strong>Zero overdue tasks!</strong> Excellent task management by your team.`});
-    return obs.slice(0,5);
-  }
+  document.getElementById('deptTableBody').innerHTML=deptEntries.map(d=>{const fillColor=d.rate>=70?'#10b981':d.rate>=50?'#f59e0b':'#ef4444';const rateColor=d.rate>=70?'var(--green)':d.rate>=50?'var(--amber)':'var(--red)';const prevMonthTasks=prevTasks.filter(t=>t.department===d.dept);const prevMonthDone=prevMonthTasks.filter(t=>COMPLETED_STAGES.includes(t.stage)).length;const prevMonthRate=prevMonthTasks.length?Math.round((prevMonthDone/prevMonthTasks.length)*100):0;const diff=d.rate-prevMonthRate;const trendArrow=diff>0?`<span style="color:var(--green)">↑ ${diff}%</span>`:diff<0?`<span style="color:var(--red)">↓ ${Math.abs(diff)}%</span>`:`<span style="color:var(--text3)">→</span>`;return`<tr><td style="font-weight:600">${d.dept}</td><td style="color:var(--text2)">${d.staff}</td><td style="color:var(--green);font-family:'Space Mono',monospace">${d.done}</td><td style="font-family:'Space Mono',monospace">${d.total}</td><td><div style="display:flex;align-items:center;gap:8px"><div class="mini-progress"><div class="mini-progress-fill" style="width:${d.rate}%;background:${fillColor}"></div></div><span style="color:${rateColor};font-weight:700;font-family:'Space Mono',monospace;font-size:12px">${d.rate}%</span></div></td><td style="color:${d.late>3?'var(--amber)':'var(--text2)'};font-family:'Space Mono',monospace">${d.late}</td><td>${trendArrow}</td></tr>`;}).join('');
+  function generateObservations(d){const obs=[];if(d.rateDiff>0)obs.push({icon:'📈',text:`<strong>Company efficiency improving!</strong> Task completion rate rose from ${d.prevRate}% last month to ${d.curRate}% this month — a ${d.rateDiff}% improvement.`});else if(d.rateDiff<0)obs.push({icon:'📉',text:`<strong>Completion rate dropped this month.</strong> From ${d.prevRate}% to ${d.curRate}% — a ${Math.abs(d.rateDiff)}% decline.`});else obs.push({icon:'➡️',text:`<strong>Completion rate stable</strong> at ${d.curRate}% — same as last month.`});if(d.attDiff>0)obs.push({icon:'✅',text:`<strong>Attendance improved</strong> from ${d.prevAttRate}% to ${d.curAttRate}% this month.`});else if(d.attDiff<0)obs.push({icon:'⚠️',text:`<strong>Attendance slipped</strong> from ${d.prevAttRate}% to ${d.curAttRate}% this month.`});if(d.lateDiff<0)obs.push({icon:'🎉',text:`<strong>Late arrivals reduced!</strong> Down from ${d.prevLate} to ${d.curLate} this month.`});else if(d.lateDiff>0)obs.push({icon:'⏰',text:`<strong>Late arrivals increased</strong> from ${d.prevLate} to ${d.curLate} this month.`});if(d.deptEntries.length>1){const best=d.deptEntries[0],worst=d.deptEntries[d.deptEntries.length-1];obs.push({icon:'🏆',text:`<strong>${best.dept}</strong> is your top department at ${best.rate}% completion. <strong>${worst.dept}</strong> needs attention at ${worst.rate}%.`});}if(d.overdueAll>0){const pct=d.totalAll?Math.round((d.overdueAll/d.totalAll)*100):0;obs.push({icon:'🚨',text:`<strong>${d.overdueAll} tasks are overdue</strong> (${pct}% of all tasks). Review in Tasks page.`});}else obs.push({icon:'🎯',text:`<strong>Zero overdue tasks!</strong> Excellent task management.`});return obs.slice(0,5);}
   const obs=generateObservations({curRate,prevRate,rateDiff,curAttRate,prevAttRate,attDiff,curLate,prevLate,lateDiff,curDone,prevDone,totalStaff,deptEntries,trendRates,overdueAll,activeAll,doneAll,totalAll});
   document.getElementById('observationsList').innerHTML=obs.map(o=>`<div class="observation-item"><div class="obs-icon">${o.icon}</div><div class="obs-text">${o.text}</div></div>`).join('');
 };
 
-function showToast(msg,type=''){
-  const t=document.getElementById('toast');
-  t.textContent=msg;t.className='toast show '+type;
-  setTimeout(()=>{t.className='toast';},3500);
-}
+function showToast(msg,type=''){const t=document.getElementById('toast');t.textContent=msg;t.className='toast show '+type;setTimeout(()=>{t.className='toast';},3500);}
 </script>
 </body>
 </html>
