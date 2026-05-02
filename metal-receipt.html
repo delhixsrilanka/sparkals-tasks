@@ -8,44 +8,35 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:'DM Sans',sans-serif;background:#f0f2f5;min-height:100vh;padding:20px;}
-
 .action-bar{display:flex;gap:10px;margin-bottom:20px;max-width:480px;margin-left:auto;margin-right:auto;}
 .btn-action{flex:1;padding:12px;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;display:flex;align-items:center;justify-content:center;gap:8px;}
 .btn-print{background:#1a1a2e;color:white;}
 .btn-whatsapp{background:#25D366;color:white;}
 .btn-back{background:#f0f2f5;border:1px solid #e0e0e0;color:#444;flex:0 0 auto;padding:12px 16px;}
-
-/* ── RECEIPT CARD ── */
 .receipt{background:white;border-radius:16px;max-width:480px;margin:0 auto;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.1);}
-
 .receipt-header{background:#1a1a2e;padding:24px 20px;text-align:center;color:white;}
 .receipt-logo{font-size:28px;margin-bottom:4px;}
 .receipt-company{font-family:'Space Mono',monospace;font-size:18px;font-weight:700;letter-spacing:1px;}
 .receipt-tagline{font-size:11px;color:rgba(255,255,255,0.5);margin-top:2px;}
-
 .receipt-type-band{padding:10px 20px;text-align:center;font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;}
 .band-ack{background:#dcfce7;color:#15803d;}
 .band-issue{background:#fef3c7;color:#b45309;}
 .band-return{background:#ede9fe;color:#7c3aed;}
 .band-purchase{background:#e0f2fe;color:#0369a1;}
-
 .receipt-body{padding:20px;}
 .receipt-ref{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;padding-bottom:16px;border-bottom:1px dashed #e0e0e0;}
 .ref-number{font-family:'Space Mono',monospace;font-size:13px;font-weight:700;color:#1a1a2e;}
 .ref-date{font-size:12px;color:#888;}
-
 .detail-section{margin-bottom:16px;}
 .detail-section-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:#888;margin-bottom:8px;}
 .detail-row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #f5f5f5;font-size:13px;}
 .detail-row:last-child{border-bottom:none;}
 .detail-label{color:#666;}
 .detail-value{font-weight:600;color:#1a1a2e;text-align:right;max-width:60%;}
-.detail-value.highlight{color:#7c3aed;font-family:'Space Mono',monospace;}
 .detail-value.gold-val{color:#b45309;font-family:'Space Mono',monospace;}
 .detail-value.green-val{color:#15803d;font-weight:700;}
 .detail-value.red-val{color:#dc2626;font-weight:700;}
 .detail-value.amber-val{color:#b45309;font-weight:700;}
-
 .metal-block{background:linear-gradient(135deg,#fef3c7,#fef9e7);border:1.5px solid #f0b429;border-radius:12px;padding:16px;margin-bottom:16px;text-align:center;}
 .metal-block.silver{background:linear-gradient(135deg,#f1f5f9,#f8fafc);border-color:#94a3b8;}
 .metal-weight{font-family:'Space Mono',monospace;font-size:28px;font-weight:700;color:#b45309;}
@@ -53,42 +44,30 @@ body{font-family:'DM Sans',sans-serif;background:#f0f2f5;min-height:100vh;paddin
 .metal-purity{font-size:12px;color:#888;margin-top:4px;}
 .metal-fine{font-size:11px;color:#b45309;margin-top:2px;font-family:'Space Mono',monospace;}
 .metal-block.silver .metal-fine{color:#475569;}
-
 .wastage-block{border-radius:10px;padding:12px;margin-bottom:16px;}
 .wastage-block.ok{background:#dcfce7;border:1px solid #86efac;}
 .wastage-block.excess{background:#fee2e2;border:1px solid #fca5a5;}
-.wastage-status{font-size:13px;font-weight:700;}
-.wastage-status.ok{color:#15803d;}
-.wastage-status.excess{color:#dc2626;}
+.wastage-status.ok{color:#15803d;font-size:13px;font-weight:700;}
+.wastage-status.excess{color:#dc2626;font-size:13px;font-weight:700;}
 .wastage-details{font-size:12px;color:#666;margin-top:4px;}
-
 .pending-note{background:#fef3c7;border:1px solid #fcd34d;border-radius:8px;padding:12px;margin-bottom:16px;font-size:12px;color:#92400e;line-height:1.6;}
-
-.photo-section{margin-bottom:16px;}
-.photo-section-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:#888;margin-bottom:8px;}
-.photos-grid{display:flex;gap:8px;flex-wrap:wrap;}
+.photos-grid{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;}
 .photos-grid img{width:80px;height:80px;border-radius:8px;object-fit:cover;border:1px solid #e0e0e0;}
-
 .receipt-footer{background:#f8f8f8;padding:16px 20px;text-align:center;border-top:1px dashed #e0e0e0;}
 .footer-msg{font-size:12px;color:#888;line-height:1.6;}
 .footer-company{font-size:11px;color:#aaa;margin-top:6px;}
-
 .stamp{display:inline-block;border:2px solid #15803d;border-radius:8px;padding:4px 14px;font-size:11px;font-weight:700;color:#15803d;letter-spacing:1px;margin-top:8px;}
 .stamp.pending{border-color:#b45309;color:#b45309;}
-
 .loading{text-align:center;padding:60px 20px;color:#888;font-size:14px;}
-
-@media print {
-  .action-bar{display:none!important;}
-  body{background:white;padding:0;}
-  .receipt{box-shadow:none;border-radius:0;}
-}
+.spinner{width:28px;height:28px;border:3px solid #e0e0e0;border-top-color:#7c3aed;border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 12px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+@media print{.action-bar{display:none!important;}body{background:white;padding:0;}.receipt{box-shadow:none;border-radius:0;}}
 </style>
 </head>
 <body>
 
 <div class="action-bar" id="actionBar">
-  <button class="btn-action btn-back" onclick="window.close()">← Back</button>
+  <button class="btn-action btn-back" onclick="history.back()">← Back</button>
   <button class="btn-action btn-print" onclick="window.print()">🖨️ Print</button>
   <button class="btn-action btn-whatsapp" id="whatsappBtn" onclick="shareWhatsApp()">
     <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
@@ -97,11 +76,12 @@ body{font-family:'DM Sans',sans-serif;background:#f0f2f5;min-height:100vh;paddin
 </div>
 
 <div id="receiptWrap">
-  <div class="loading">⏳ Loading receipt...</div>
+  <div class="loading"><div class="spinner"></div>Loading receipt...</div>
 </div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 const app = initializeApp({
@@ -109,10 +89,11 @@ const app = initializeApp({
   authDomain:"sparkals-tasks-app.firebaseapp.com",
   projectId:"sparkals-tasks-app",
   storageBucket:"sparkals-tasks-app.firebasestorage.app",
-  messagingSenderId:"147179987231",
+  messagingSenderId:"147179987251",
   appId:"1:147179987231:web:c6ffa484f33a2ca420d02a"
 });
-const db = getFirestore(app);
+const auth = getAuth(app);
+const db   = getFirestore(app);
 
 const PURITY_LABELS = {
   'gold-24':'Gold 24kt (Pure 100%)','gold-22':'Gold 22kt (91.6%)',
@@ -122,65 +103,78 @@ const PURITY_LABELS = {
 
 const params = new URLSearchParams(window.location.search);
 const txnId  = params.get('id');
-let txnData  = null;
 
-async function loadReceipt() {
-  if (!txnId) { document.getElementById('receiptWrap').innerHTML='<div class="loading">No receipt ID provided.</div>'; return; }
+// ── Wait for auth then load receipt ──
+onAuthStateChanged(auth, async user => {
+  if (!user) {
+    // Not logged in — redirect to login then come back
+    sessionStorage.setItem('receiptRedirect', window.location.href);
+    window.location.href = 'login.html';
+    return;
+  }
+  if (!txnId) {
+    document.getElementById('receiptWrap').innerHTML = '<div class="loading">No receipt ID provided.</div>';
+    return;
+  }
   try {
-    const snap = await getDoc(doc(db,'metalTransactions',txnId));
-    if (!snap.exists()) { document.getElementById('receiptWrap').innerHTML='<div class="loading">Receipt not found.</div>'; return; }
-    txnData = { id: snap.id, ...snap.data() };
+    const snap = await getDoc(doc(db, 'metalTransactions', txnId));
+    if (!snap.exists()) {
+      document.getElementById('receiptWrap').innerHTML = '<div class="loading">Receipt not found.</div>';
+      return;
+    }
+    const txnData = { id: snap.id, ...snap.data() };
     renderReceipt(txnData);
-  } catch(e) { document.getElementById('receiptWrap').innerHTML='<div class="loading">Error loading receipt.</div>'; }
-}
+  } catch(e) {
+    console.error('Receipt load error:', e);
+    document.getElementById('receiptWrap').innerHTML =
+      `<div class="loading">Error: ${e.message}</div>`;
+  }
+});
 
 function refNum(type, id) {
-  const prefixes = {client_order:'ACK', issue_goldsmith:'ISS', goldsmith_return:'RET', metal_in:'PUR'};
+  const prefixes = {client_order:'ACK', issue_goldsmith:'ISS', goldsmith_return:'RET', metal_in:'PUR', adjustment:'ADJ'};
   return `${prefixes[type]||'TXN'}-${id.slice(-6).toUpperCase()}`;
 }
 
 function renderReceipt(t) {
-  const ref = refNum(t.type, t.id);
-  const date = t.date || new Date().toISOString().split('T')[0];
-  const isSilver = t.metal === 'silver' || (t.purityKey||'').startsWith('silver');
-
-  let bandClass='', bandText='', bodyHTML='';
+  const ref  = refNum(t.type, t.id);
+  const date = t.date || '—';
+  const isSilver = (t.metal==='silver') || (t.purityKey||'').startsWith('silver');
+  let bandClass='band-purchase', bandText='TRANSACTION RECORD', bodyHTML='';
 
   if (t.type === 'client_order') {
-    bandClass = 'band-ack'; bandText = 'METAL ACKNOWLEDGEMENT — CLIENT RECEIPT';
+    bandClass='band-ack'; bandText='METAL ACKNOWLEDGEMENT — CLIENT RECEIPT';
     const hasClientMetal = t.clientMetalIn;
+    const clientSilver = (t.clientPurityKey||'').startsWith('silver');
     bodyHTML = `
       <div class="detail-section">
         <div class="detail-section-title">Client Details</div>
         <div class="detail-row"><span class="detail-label">Name</span><span class="detail-value">${t.clientName||'—'}</span></div>
         <div class="detail-row"><span class="detail-label">Phone</span><span class="detail-value">${t.clientPhone||'—'}</span></div>
-        <div class="detail-row"><span class="detail-label">Order Type</span><span class="detail-value">${t.orderType?.replace('_',' ')||'—'}</span></div>
+        <div class="detail-row"><span class="detail-label">Order Type</span><span class="detail-value">${(t.orderType||'—').replace(/_/g,' ')}</span></div>
         ${t.orderDesc?`<div class="detail-row"><span class="detail-label">Order</span><span class="detail-value">${t.orderDesc}</span></div>`:''}
+        <div class="detail-row"><span class="detail-label">Payment</span><span class="detail-value">${t.paymentMode||'—'}</span></div>
       </div>
       ${hasClientMetal ? `
-      <div class="metal-block ${isSilver?'silver':''}">
-        <div class="metal-weight">${parseFloat(t.clientGrossWeight||0).toFixed(3)}g</div>
-        <div class="metal-purity">${PURITY_LABELS[t.clientPurityKey]||t.clientPurityKey||'—'}</div>
-        <div class="metal-fine">Fine weight: ${parseFloat(t.clientFineWeight||0).toFixed(3)}g</div>
-      </div>
-      ${!t.clientPurityConfirmed ? `<div class="pending-note">🔬 <strong>Purity pending lab confirmation.</strong><br/>Fine weight will be updated once lab test result is received.</div>` : ''}
-      <div class="detail-section">
-        <div class="detail-section-title">Metal Received</div>
-        <div class="detail-row"><span class="detail-label">Gross Weight</span><span class="detail-value gold-val">${parseFloat(t.clientGrossWeight||0).toFixed(3)}g</span></div>
-        <div class="detail-row"><span class="detail-label">Purity</span><span class="detail-value">${PURITY_LABELS[t.clientPurityKey]||'Lab Pending'}</span></div>
-        <div class="detail-row"><span class="detail-label">Fine Weight</span><span class="detail-value gold-val">${parseFloat(t.clientFineWeight||0).toFixed(3)}g</span></div>
-        <div class="detail-row"><span class="detail-label">Purity Status</span><span class="detail-value ${t.clientPurityConfirmed?'green-val':'amber-val'}">${t.clientPurityConfirmed?'✅ Confirmed':'⏳ Lab Pending'}</span></div>
-      </div>` : '<div class="pending-note">ℹ️ Cash / bank order — no metal received from client.</div>'}
-      <div class="detail-section">
-        <div class="detail-row"><span class="detail-label">Payment Mode</span><span class="detail-value">${t.paymentMode||'—'}</span></div>
-        <div class="detail-row"><span class="detail-label">Recorded By</span><span class="detail-value">${t.recordedBy||'—'}</span></div>
-      </div>
-      <div style="text-align:center"><span class="stamp ${t.clientPurityConfirmed===false?'pending':''}">${t.clientPurityConfirmed===false?'PURITY PENDING':'RECEIVED'}</span></div>`;
+        <div class="metal-block ${clientSilver?'silver':''}">
+          <div class="metal-weight">${parseFloat(t.clientGrossWeight||0).toFixed(3)}g</div>
+          <div class="metal-purity">${PURITY_LABELS[t.clientPurityKey]||t.clientPurityKey||'Lab Pending'}</div>
+          <div class="metal-fine">Fine weight: ${parseFloat(t.clientFineWeight||0).toFixed(3)}g</div>
+        </div>
+        ${!t.clientPurityConfirmed?`<div class="pending-note">🔬 <strong>Purity pending lab confirmation.</strong><br/>Final fine weight will be updated once lab test result is received.</div>`:''}
+        <div class="detail-section">
+          <div class="detail-section-title">Metal Received from Client</div>
+          <div class="detail-row"><span class="detail-label">Gross Weight</span><span class="detail-value gold-val">${parseFloat(t.clientGrossWeight||0).toFixed(3)}g</span></div>
+          <div class="detail-row"><span class="detail-label">Purity</span><span class="detail-value">${PURITY_LABELS[t.clientPurityKey]||'Lab Pending'}</span></div>
+          <div class="detail-row"><span class="detail-label">Fine Weight</span><span class="detail-value gold-val">${parseFloat(t.clientFineWeight||0).toFixed(3)}g</span></div>
+          <div class="detail-row"><span class="detail-label">Status</span><span class="detail-value ${t.clientPurityConfirmed?'green-val':'amber-val'}">${t.clientPurityConfirmed?'✅ Confirmed':'⏳ Lab Pending'}</span></div>
+        </div>` : '<div class="pending-note">ℹ️ Cash / bank order — no metal received from client.</div>'}
+      <div style="text-align:center"><span class="stamp ${!t.clientPurityConfirmed&&hasClientMetal?'pending':''}">${!t.clientPurityConfirmed&&hasClientMetal?'PURITY PENDING':'RECEIVED'}</span></div>`;
   }
 
-  if (t.type === 'issue_goldsmith') {
-    bandClass = 'band-issue'; bandText = 'METAL ISSUE SLIP — GOLDSMITH COPY';
-    const isSilv = (t.purityKey||'').startsWith('silver');
+  else if (t.type === 'issue_goldsmith') {
+    bandClass='band-issue'; bandText='METAL ISSUE SLIP — GOLDSMITH COPY';
+    const issSilver = (t.purityKey||'').startsWith('silver');
     bodyHTML = `
       <div class="detail-section">
         <div class="detail-section-title">Issued To</div>
@@ -189,7 +183,7 @@ function renderReceipt(t) {
         <div class="detail-row"><span class="detail-label">Due Date</span><span class="detail-value red-val">${t.dueDate||'—'}</span></div>
         ${t.orderRef?`<div class="detail-row"><span class="detail-label">Order Reference</span><span class="detail-value">${t.orderRef}</span></div>`:''}
       </div>
-      <div class="metal-block ${isSilv?'silver':''}">
+      <div class="metal-block ${issSilver?'silver':''}">
         <div class="metal-weight">${parseFloat(t.grossWeight||0).toFixed(3)}g</div>
         <div class="metal-purity">${PURITY_LABELS[t.purityKey]||'—'}</div>
         <div class="metal-fine">Fine weight: ${parseFloat(t.fineWeight||0).toFixed(3)}g</div>
@@ -198,48 +192,48 @@ function renderReceipt(t) {
         <div class="detail-section-title">Metal Details</div>
         <div class="detail-row"><span class="detail-label">Gross Weight</span><span class="detail-value gold-val">${parseFloat(t.grossWeight||0).toFixed(3)}g</span></div>
         <div class="detail-row"><span class="detail-label">Purity</span><span class="detail-value">${PURITY_LABELS[t.purityKey]||'—'}</span></div>
-        <div class="detail-row"><span class="detail-label">Fine Weight</span><span class="detail-value gold-val">${parseFloat(t.fineWeight||0).toFixed(3)}g</span></div>
+        <div class="detail-row"><span class="detail-label">Fine Weight Issued</span><span class="detail-value gold-val">${parseFloat(t.fineWeight||0).toFixed(3)}g</span></div>
       </div>
       <div class="pending-note" style="background:#fef3c7;border-color:#fcd34d;color:#92400e">
-        ⚠️ Please return the finished jewellery + wastage report by <strong>${t.dueDate||'—'}</strong>.<br/>
-        Fine weight issued: <strong>${parseFloat(t.fineWeight||0).toFixed(3)}g</strong>. Any excess wastage will be flagged.
+        ⚠️ Please return finished jewellery + wastage report by <strong>${t.dueDate||'—'}</strong>.<br/>
+        Fine weight issued: <strong>${parseFloat(t.fineWeight||0).toFixed(3)}g</strong>. Excess wastage will be flagged to admin.
       </div>
       <div style="text-align:center"><span class="stamp pending">ISSUED — PENDING RETURN</span></div>`;
   }
 
-  if (t.type === 'goldsmith_return') {
-    bandClass = 'band-return'; bandText = 'GOLDSMITH RETURN RECEIPT';
+  else if (t.type === 'goldsmith_return') {
+    bandClass='band-return'; bandText='GOLDSMITH RETURN RECEIPT';
     const isExcess = t.wastageExcess;
-    const isSilv = (t.returnedPurityKey||'').startsWith('silver');
+    const retSilver = (t.returnedPurityKey||'').startsWith('silver');
     bodyHTML = `
       <div class="detail-section">
         <div class="detail-section-title">Returned By</div>
         <div class="detail-row"><span class="detail-label">Goldsmith / Silversmith</span><span class="detail-value">${t.smithName||'—'}</span></div>
       </div>
-      <div class="metal-block ${isSilv?'silver':''}">
+      <div class="metal-block ${retSilver?'silver':''}">
         <div class="metal-weight">${parseFloat(t.returnedGrossWeight||0).toFixed(3)}g</div>
-        <div class="metal-purity">${PURITY_LABELS[t.returnedPurityKey]||'—'} (returned jewellery)</div>
+        <div class="metal-purity">${PURITY_LABELS[t.returnedPurityKey]||'—'} (finished jewellery)</div>
         <div class="metal-fine">Fine weight returned: ${parseFloat(t.returnedFineWeight||0).toFixed(3)}g</div>
       </div>
       <div class="detail-section">
         <div class="detail-section-title">Wastage Reconciliation</div>
         <div class="detail-row"><span class="detail-label">Issued fine weight</span><span class="detail-value gold-val">${parseFloat(t.issuedFineWeight||0).toFixed(3)}g</span></div>
         <div class="detail-row"><span class="detail-label">Returned fine weight</span><span class="detail-value gold-val">${parseFloat(t.returnedFineWeight||0).toFixed(3)}g</span></div>
-        <div class="detail-row"><span class="detail-label">Wastage (fine)</span><span class="detail-value ${isExcess?'red-val':'green-val'}">${parseFloat(t.wastageFine||0).toFixed(3)}g</span></div>
+        <div class="detail-row"><span class="detail-label">Wastage</span><span class="detail-value ${isExcess?'red-val':'green-val'}">${parseFloat(t.wastageFine||0).toFixed(3)}g</span></div>
         <div class="detail-row"><span class="detail-label">Wastage %</span><span class="detail-value ${isExcess?'red-val':'green-val'}">${parseFloat(t.wastagePct||0).toFixed(2)}%</span></div>
       </div>
       <div class="wastage-block ${isExcess?'excess':'ok'}">
         <div class="wastage-status ${isExcess?'excess':'ok'}">${isExcess?'⚠️ EXCESS WASTAGE — Admin flagged':'✅ Wastage within acceptable cap'}</div>
-        <div class="wastage-details">${isExcess?'Admin has been notified. Please review with goldsmith.':'Metal reconciliation complete.'}</div>
+        <div class="wastage-details">${isExcess?'Admin has been notified. Please review with goldsmith.':'Metal reconciliation complete. All clear.'}</div>
       </div>
       <div style="text-align:center"><span class="stamp">${isExcess?'FLAGGED':'RECONCILED ✓'}</span></div>`;
   }
 
-  if (t.type === 'metal_in') {
-    bandClass = 'band-purchase'; bandText = 'METAL PURCHASE RECORD';
-    const isSilv = (t.purityKey||'').startsWith('silver');
+  else if (t.type === 'metal_in') {
+    bandClass='band-purchase'; bandText='METAL PURCHASE RECORD';
+    const purSilver = (t.purityKey||'').startsWith('silver');
     bodyHTML = `
-      <div class="metal-block ${isSilv?'silver':''}">
+      <div class="metal-block ${purSilver?'silver':''}">
         <div class="metal-weight">${parseFloat(t.grossWeight||0).toFixed(3)}g</div>
         <div class="metal-purity">${PURITY_LABELS[t.purityKey]||'—'}</div>
         <div class="metal-fine">Fine weight: ${parseFloat(t.fineWeight||0).toFixed(3)}g</div>
@@ -252,10 +246,9 @@ function renderReceipt(t) {
       </div>`;
   }
 
-  // Photos
   const photosHTML = t.photos?.length ? `
-    <div class="photo-section">
-      <div class="photo-section-title">📷 Photo Proof</div>
+    <div style="margin-bottom:16px">
+      <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:#888;margin-bottom:8px;">📷 Photo Proof</div>
       <div class="photos-grid">${t.photos.map(url=>`<img src="${url}" alt="proof"/>`).join('')}</div>
     </div>` : '';
 
@@ -281,29 +274,24 @@ function renderReceipt(t) {
       </div>
     </div>`;
 
-  // Set WhatsApp button data
+  // Set WhatsApp data
   const phone = t.smithPhone || t.clientPhone || '';
   const msgMap = {
-    client_order: `Dear ${t.clientName||'Customer'}, your metal receipt from Sparkals is ready. Ref: ${ref}. Date: ${date}.`,
-    issue_goldsmith: `Dear ${t.smithName||'Goldsmith'}, please find your metal issue slip from Sparkals. Ref: ${ref}. Gross: ${t.grossWeight}g. Due: ${t.dueDate}. Please confirm receipt.`,
-    goldsmith_return: `Dear ${t.smithName||'Goldsmith'}, metal return recorded. Ref: ${ref}. Wastage: ${t.wastagePct}%. ${t.wastageExcess?'Flagged for review.':'All clear.'}`
+    client_order: `Dear ${t.clientName||'Customer'}, your metal acknowledgement from Sparkals. Ref: ${ref}. Date: ${date}. ${t.clientMetalIn?`Metal received: ${t.clientGrossWeight}g. Fine weight: ${t.clientFineWeight}g.`:''}`,
+    issue_goldsmith: `Dear ${t.smithName||'Goldsmith'}, metal issue slip from Sparkals. Ref: ${ref}. Gross: ${t.grossWeight}g ${PURITY_LABELS[t.purityKey]||''}. Fine: ${t.fineWeight}g. Due: ${t.dueDate}. Please confirm receipt.`,
+    goldsmith_return: `Dear ${t.smithName||'Goldsmith'}, return recorded. Ref: ${ref}. Wastage: ${t.wastagePct}%. ${t.wastageExcess?'⚠️ Flagged for review.':'✅ All clear.'}`
   };
   const msg = msgMap[t.type] || `Sparkals receipt ${ref} dated ${date}.`;
-  document.getElementById('whatsappBtn').dataset.phone = phone;
-  document.getElementById('whatsappBtn').dataset.msg   = msg;
+  const waPhone = phone.replace(/\D/g,'');
+  document.getElementById('whatsappBtn').onclick = () => {
+    const url = waPhone
+      ? `https://wa.me/91${waPhone}?text=${encodeURIComponent(msg)}`
+      : `https://wa.me/?text=${encodeURIComponent(msg)}`;
+    window.open(url, '_blank');
+  };
 }
 
-window.shareWhatsApp = function() {
-  const btn   = document.getElementById('whatsappBtn');
-  const phone = btn.dataset.phone?.replace(/\D/g,'') || '';
-  const msg   = encodeURIComponent(btn.dataset.msg || 'Sparkals receipt');
-  const url   = phone
-    ? `https://wa.me/91${phone}?text=${msg}`
-    : `https://wa.me/?text=${msg}`;
-  window.open(url, '_blank');
-};
-
-loadReceipt();
+window.shareWhatsApp = function() {};
 </script>
 </body>
 </html>
