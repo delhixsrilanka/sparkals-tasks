@@ -451,11 +451,13 @@ function fmtMonth(d) { return d.toLocaleDateString('en-IN',{month:'short',year:'
 // ── AUTH ──
 onAuthStateChanged(auth, async user => {
   if (!user) { window.location.href='login.html'; return; }
-  const isAdminEmail=ADMIN_EMAILS.includes(user.email.toLowerCase());
+  const isAdminEmail = ADMIN_EMAILS.includes(user.email.toLowerCase());
   if (!isAdminEmail) {
     try {
-      const snap=await getDoc(doc(db,'users',user.uid));
-      if (!snap.exists()||snap.data().role!=='admin') { window.location.href='dashboard.html'; return; }
+      const snap = await getDoc(doc(db,'users',user.uid));
+      if (!snap.exists()) { window.location.href='dashboard.html'; return; }
+      const role = snap.data().role;
+      if (role !== 'admin' && role !== 'manager') { window.location.href='dashboard.html'; return; }
     } catch(e) { window.location.href='dashboard.html'; return; }
   }
   loadDashboard();
@@ -554,8 +556,8 @@ function renderGroups() {
   else if(currentFilter==='leave')  filtered=filtered.filter(s=>s.status==='leave');
 
   const groups = [
-    { id:'grp-active',   label:'✅ Active Staff',  emoji:'👥', staff: filtered.filter(s=>s.role!=='admin'&&s.role!=='manager'&&s.status!=='inactive'), open:true  },
-    { id:'grp-managers', label:'⭐ Managers',       emoji:'⭐', staff: filtered.filter(s=>s.role==='manager'),                                          open:true  },
+    { id:'grp-active',   label:'✅ Active Staff',  emoji:'👥', staff: filtered.filter(s=>s.role!=='admin'&&s.role!=='manager'&&s.status!=='inactive'), open:false  },
+    { id:'grp-managers', label:'⭐ Managers',       emoji:'⭐', staff: filtered.filter(s=>s.role==='manager'),                                          open:false  },
     { id:'grp-admins',   label:'👑 Admins',         emoji:'👑', staff: filtered.filter(s=>s.role==='admin'),                                            open:false },
     { id:'grp-inactive', label:'⏸ Inactive Staff', emoji:'⏸', staff: filtered.filter(s=>s.status==='inactive'),                                       open:false },
   ].filter(g=>g.staff.length>0);
