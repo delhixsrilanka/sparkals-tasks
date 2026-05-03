@@ -58,7 +58,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 .fc-late.active{background:#f59e0b20;border-color:var(--amber);color:var(--amber);}
 .fc-leave.active{background:#3b82f620;border-color:var(--blue);color:var(--blue);}
 
-/* ── COLLAPSIBLE STAFF GROUPS ── */
+/* COLLAPSIBLE STAFF GROUPS */
 .staff-group{margin-bottom:12px;}
 .staff-group-header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);cursor:pointer;transition:background 0.2s;user-select:none;}
 .staff-group-header:hover{background:var(--surface3);}
@@ -70,7 +70,6 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 .staff-group-body{display:none;border:1px solid var(--border);border-top:none;border-radius:0 0 var(--radius) var(--radius);overflow:hidden;}
 .staff-group-body.open{display:block;}
 .staff-group-inner{display:flex;flex-direction:column;gap:0;}
-
 .staff-card{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 16px;transition:background 0.2s;}
 .staff-card:last-child{border-bottom:none;}
 .staff-card:hover{background:var(--surface2);}
@@ -109,7 +108,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 @keyframes spin{to{transform:rotate(360deg);}}
 .last-updated{text-align:center;font-size:11px;color:var(--text2);margin-top:16px;padding-bottom:16px;}
 
-/* ── METAL STOCK VIEW ── */
+/* METAL STOCK */
 #view-metal{display:none;}
 .metal-stock-header{background:linear-gradient(135deg,#1a1a0a,#2a1f00);border:1px solid rgba(240,180,41,0.3);border-radius:var(--radius);padding:18px 20px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;}
 .metal-stock-title{font-size:16px;font-weight:700;color:var(--gold);}
@@ -136,7 +135,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 .metal-today-num{font-family:'Space Mono',monospace;font-size:20px;font-weight:700;line-height:1;}
 .metal-today-label{font-size:11px;color:var(--text2);margin-top:4px;}
 
-/* ── INSIGHTS VIEW ── */
+/* INSIGHTS */
 #view-insights{display:none;}
 .insights-header{background:linear-gradient(135deg,#1a1a2e,#2d1b69);border:1px solid #4c1d95;border-radius:var(--radius);padding:20px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;}
 .insights-title{font-size:18px;font-weight:700;color:var(--accent2);}
@@ -178,6 +177,21 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 .mini-progress{height:6px;background:var(--surface3);border-radius:3px;overflow:hidden;width:80px;}
 .mini-progress-fill{height:100%;border-radius:3px;}
 
+/* BACKUP TAB */
+#view-backup{display:none;}
+.backup-row{padding:14px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;transition:background 0.2s;}
+.backup-row:last-child{border-bottom:none;}
+.backup-row:hover{background:var(--surface2);}
+.backup-actions{display:flex;gap:8px;flex-shrink:0;}
+.btn-download{background:#3b82f615;border:1px solid #3b82f640;color:var(--blue);padding:7px 14px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:600;font-family:'DM Sans',sans-serif;text-decoration:none;display:inline-block;}
+.btn-download:hover{background:#3b82f625;}
+.btn-restore{background:#f59e0b15;border:1px solid #f59e0b40;color:var(--amber);padding:7px 14px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:600;font-family:'DM Sans',sans-serif;}
+.btn-restore:hover{background:#f59e0b25;}
+.export-btn{background:#10b98115;border:1px solid #10b98140;color:var(--green);padding:10px 14px;border-radius:10px;cursor:pointer;font-size:13px;font-weight:600;font-family:'DM Sans',sans-serif;text-align:left;transition:background 0.2s;width:100%;}
+.export-btn:hover{background:#10b98125;}
+.export-btn:disabled{opacity:0.5;cursor:not-allowed;}
+
+/* MODAL */
 .modal-overlay{position:fixed;inset:0;background:#000000bb;display:flex;align-items:center;justify-content:center;z-index:200;padding:20px;}
 .modal-overlay.hidden{display:none;}
 .modal{background:var(--surface2);border:1px solid var(--border);border-radius:18px;padding:24px;width:100%;max-width:380px;}
@@ -201,6 +215,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 </head>
 <body>
 
+<!-- TOP NAV -->
 <div class="topnav">
   <div class="topnav-left">
     <img src="/icons/logo%20copfy.png" alt="Sparkals" onerror="this.style.display='none'"/>
@@ -212,6 +227,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
   </div>
 </div>
 
+<!-- NAV TABS -->
 <div class="nav-tabs">
   <button class="nav-tab active" onclick="switchMainTab('staff',this)">👥 Staff Status</button>
   <button class="nav-tab" onclick="window.location.href='map.html'">🗺️ Live Map</button>
@@ -223,9 +239,12 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
   <button class="nav-tab" onclick="switchMainTab('metal',this)">💎 Metal Stock</button>
   <button class="nav-tab" onclick="switchMainTab('insights',this)">✨ Insights</button>
   <button class="nav-tab" onclick="window.location.href='loose-gem.html'">💎 Loose Gem</button>
+  <button class="nav-tab" onclick="switchMainTab('backup',this)">🔒 Backup</button>
 </div>
 
-<!-- ── STAFF STATUS VIEW ── -->
+<!-- ══════════════════════════════════════
+     STAFF STATUS VIEW
+══════════════════════════════════════ -->
 <div class="main" id="view-staff">
   <div class="stat-grid">
     <div class="stat-card"><div class="stat-icon green">✅</div><div><div class="stat-num green" id="countPresent">—</div><div class="stat-label">Present</div></div></div>
@@ -243,20 +262,20 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
   </div>
   <div class="filter-bar">
     <button class="filter-chip fc-all active" onclick="setFilter('all',this)">All</button>
-    <button class="filter-chip fc-present"    onclick="setFilter('present',this)">✅ Present</button>
-    <button class="filter-chip fc-absent"     onclick="setFilter('absent',this)">🔴 Not In</button>
-    <button class="filter-chip fc-late"       onclick="setFilter('late',this)">⏰ Late</button>
-    <button class="filter-chip fc-leave"      onclick="setFilter('leave',this)">🌴 Leave</button>
+    <button class="filter-chip fc-present" onclick="setFilter('present',this)">✅ Present</button>
+    <button class="filter-chip fc-absent"  onclick="setFilter('absent',this)">🔴 Not In</button>
+    <button class="filter-chip fc-late"    onclick="setFilter('late',this)">⏰ Late</button>
+    <button class="filter-chip fc-leave"   onclick="setFilter('leave',this)">🌴 Leave</button>
   </div>
-
-  <!-- ── COLLAPSIBLE STAFF GROUPS ── -->
   <div id="staffGroupsWrap">
     <div class="loading-state"><div class="spinner"></div>Loading staff status...</div>
   </div>
   <div class="last-updated" id="lastUpdated"></div>
 </div>
 
-<!-- ── METAL STOCK VIEW ── -->
+<!-- ══════════════════════════════════════
+     METAL STOCK VIEW
+══════════════════════════════════════ -->
 <div class="main" id="view-metal">
   <div class="metal-stock-header">
     <div>
@@ -265,35 +284,17 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
     </div>
     <a class="btn-open-metal" href="metal-stock.html">Open Full Page →</a>
   </div>
-
-  <!-- Flags -->
   <div class="metal-flags-panel" id="metalFlagsPanel" style="display:none">
     <div class="metal-flags-title">⚠️ Requires Attention</div>
     <div id="metalFlagsList"></div>
   </div>
-
-  <!-- Today summary -->
   <div class="metal-today-grid">
-    <div class="metal-today-card">
-      <div class="metal-today-num" style="color:var(--green)" id="metalTodayIn">0g</div>
-      <div class="metal-today-label">Metal In Today</div>
-    </div>
-    <div class="metal-today-card">
-      <div class="metal-today-num" style="color:var(--red)" id="metalTodayOut">0g</div>
-      <div class="metal-today-label">Metal Out Today</div>
-    </div>
-    <div class="metal-today-card">
-      <div class="metal-today-num" style="color:var(--accent2)" id="metalTodayTxns">0</div>
-      <div class="metal-today-label">Transactions</div>
-    </div>
+    <div class="metal-today-card"><div class="metal-today-num" style="color:var(--green)" id="metalTodayIn">0g</div><div class="metal-today-label">Metal In Today</div></div>
+    <div class="metal-today-card"><div class="metal-today-num" style="color:var(--red)" id="metalTodayOut">0g</div><div class="metal-today-label">Metal Out Today</div></div>
+    <div class="metal-today-card"><div class="metal-today-num" style="color:var(--accent2)" id="metalTodayTxns">0</div><div class="metal-today-label">Transactions</div></div>
   </div>
-
-  <!-- Gold ledgers -->
   <div style="margin-bottom:14px">
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
-      <span style="font-size:18px">🥇</span>
-      <span style="font-size:14px;font-weight:700;color:var(--gold)">Gold Stock — Fine Grams</span>
-    </div>
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px"><span style="font-size:18px">🥇</span><span style="font-size:14px;font-weight:700;color:var(--gold)">Gold Stock — Fine Grams</span></div>
     <div class="metal-ledger-grid">
       <div class="metal-ledger-card gold-card"><div class="metal-ledger-purity">24kt Pure (raw)</div><div class="metal-ledger-weight" id="adm-gold-24">0.00</div><div class="metal-ledger-unit">fine grams</div></div>
       <div class="metal-ledger-card gold-card"><div class="metal-ledger-purity">22kt (91.6%)</div><div class="metal-ledger-weight" id="adm-gold-22">0.00</div><div class="metal-ledger-unit">fine grams</div></div>
@@ -305,13 +306,8 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
       <span style="font-family:'Space Mono',monospace;font-size:14px;font-weight:700;color:var(--gold)" id="adm-gold-smith">0.00g</span>
     </div>
   </div>
-
-  <!-- Silver ledgers -->
   <div style="margin-bottom:20px">
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
-      <span style="font-size:18px">🥈</span>
-      <span style="font-size:14px;font-weight:700;color:var(--silver)">Silver Stock — Fine Grams</span>
-    </div>
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px"><span style="font-size:18px">🥈</span><span style="font-size:14px;font-weight:700;color:var(--silver)">Silver Stock — Fine Grams</span></div>
     <div class="metal-ledger-grid" style="grid-template-columns:1fr 1fr">
       <div class="metal-ledger-card silver-card"><div class="metal-ledger-purity">Pure (raw)</div><div class="metal-ledger-weight" id="adm-silver-100">0.00</div><div class="metal-ledger-unit">fine grams</div></div>
       <div class="metal-ledger-card silver-card"><div class="metal-ledger-purity">925 (92.5%)</div><div class="metal-ledger-weight" id="adm-silver-925">0.00</div><div class="metal-ledger-unit">fine grams</div></div>
@@ -321,15 +317,15 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
       <span style="font-family:'Space Mono',monospace;font-size:14px;font-weight:700;color:var(--silver)" id="adm-silver-smith">0.00g</span>
     </div>
   </div>
-
-  <!-- Pending with goldsmiths -->
   <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:16px;">
     <div style="font-size:13px;font-weight:700;color:var(--accent2);margin-bottom:12px;">⚒️ Metal Currently With Goldsmiths</div>
     <div id="admSmithList"><div style="color:var(--text2);font-size:13px;text-align:center;padding:8px">Loading...</div></div>
   </div>
 </div>
 
-<!-- ── INSIGHTS VIEW ── -->
+<!-- ══════════════════════════════════════
+     INSIGHTS VIEW
+══════════════════════════════════════ -->
 <div class="main" id="view-insights">
   <div class="insights-header">
     <div>
@@ -368,6 +364,94 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
   </div>
 </div>
 
+<!-- ══════════════════════════════════════
+     BACKUP & RESTORE VIEW
+══════════════════════════════════════ -->
+<div class="main" id="view-backup">
+
+  <!-- Header -->
+  <div style="background:linear-gradient(135deg,#0f172a,#1e1b4b);border:1px solid #3730a3;border-radius:var(--radius);padding:20px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+    <div>
+      <div style="font-size:17px;font-weight:700;color:var(--accent2)">🔒 Backup & Restore</div>
+      <div style="font-size:12px;color:var(--text2);margin-top:3px" id="backupHeaderSub">Automatic daily backup at 11:30pm IST · Google Cloud Storage</div>
+    </div>
+    <button onclick="triggerManualBackup()" id="manualBackupBtn"
+      style="background:var(--accent);color:white;border:none;padding:11px 20px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;">
+      ⚡ Backup Now
+    </button>
+  </div>
+
+  <!-- Progress bar (shown during backup/restore) -->
+  <div id="backupProgress" style="display:none;background:#1e1b4b;border:1px solid #4c1d95;border-radius:var(--radius);padding:20px;margin-bottom:20px;text-align:center;">
+    <div style="width:32px;height:32px;border:3px solid #4c1d95;border-top-color:var(--accent2);border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 12px;"></div>
+    <div style="font-size:14px;font-weight:600;color:var(--accent2);" id="backupProgressText">Backing up all collections...</div>
+    <div style="font-size:12px;color:var(--text3);margin-top:6px;">Do not close this page</div>
+  </div>
+
+  <!-- Last backup status -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px;margin-bottom:20px;">
+    <div style="font-size:13px;font-weight:700;color:var(--accent2);margin-bottom:12px;">📊 Last Backup Status</div>
+    <div id="lastBackupInfo" style="color:var(--text2);font-size:13px;">Loading...</div>
+  </div>
+
+  <!-- Stats row -->
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px;">
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;text-align:center;">
+      <div style="font-family:'Space Mono',monospace;font-size:24px;font-weight:700;color:var(--green);" id="statTotalBackups">—</div>
+      <div style="font-size:11px;color:var(--text2);margin-top:4px;">Backups Stored</div>
+    </div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;text-align:center;">
+      <div style="font-family:'Space Mono',monospace;font-size:24px;font-weight:700;color:var(--accent2);" id="statTotalRecords">—</div>
+      <div style="font-size:11px;color:var(--text2);margin-top:4px;">Records Backed Up</div>
+    </div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;text-align:center;">
+      <div style="font-family:'Space Mono',monospace;font-size:24px;font-weight:700;color:var(--gold);" id="statTotalSize">—</div>
+      <div style="font-size:11px;color:var(--text2);margin-top:4px;">Total Size (KB)</div>
+    </div>
+  </div>
+
+  <!-- Backup list -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:20px;">
+    <div style="padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;">
+      <div style="font-size:14px;font-weight:700;">📁 All Backups (Last 7 Days)</div>
+      <button onclick="loadBackupList()" class="refresh-btn">↻ Refresh</button>
+    </div>
+    <div id="backupList">
+      <div style="text-align:center;padding:32px;color:var(--text3);font-size:13px;">
+        <div class="spinner" style="width:24px;height:24px;border-width:2px;margin-bottom:10px;"></div>
+        Loading backups...
+      </div>
+    </div>
+  </div>
+
+  <!-- Excel Export -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:20px;">
+    <div style="font-size:14px;font-weight:700;color:var(--green);margin-bottom:6px;">📊 Export to Excel (CSV)</div>
+    <div style="font-size:12px;color:var(--text3);margin-bottom:16px;">Download any collection as a spreadsheet — reads live Firestore data directly</div>
+    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;">
+      <button class="export-btn" onclick="exportToExcel('users','Staff List')">👥 Staff List</button>
+      <button class="export-btn" onclick="exportToExcel('tasks','Tasks')">✅ Tasks</button>
+      <button class="export-btn" onclick="exportToExcel('attendance','Attendance')">📅 Attendance</button>
+      <button class="export-btn" onclick="exportToExcel('metalTransactions','Metal Stock')">💎 Metal Stock</button>
+      <button class="export-btn" onclick="exportToExcel('leaves','Leave Records')">🌴 Leave Records</button>
+      <button class="export-btn" onclick="exportToExcel('pendingStaff','Pending Staff')">🆕 Pending Staff</button>
+    </div>
+    <div id="exportStatus" style="display:none;margin-top:12px;font-size:12px;color:var(--text2);padding:10px;background:var(--surface2);border-radius:8px;"></div>
+  </div>
+
+  <!-- Restore warning -->
+  <div style="background:#1a0000;border:1px solid #7f1d1d;border-radius:var(--radius);padding:16px;margin-bottom:20px;">
+    <div style="font-size:13px;font-weight:700;color:var(--red);margin-bottom:8px;">⚠️ About Restore</div>
+    <div style="font-size:12px;color:var(--text2);line-height:1.8;">
+      Restoring overwrites your current Firestore data with the selected backup.<br/>
+      Only restore if something went seriously wrong with your data.<br/>
+      A restore takes 2–5 minutes. You will receive a confirmation email when complete.
+    </div>
+  </div>
+
+</div>
+
+<!-- MANUAL CLOCK-IN MODAL -->
 <div class="modal-overlay hidden" id="manualModal">
   <div class="modal">
     <div class="modal-title">Manual Clock-In</div>
@@ -393,11 +477,14 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 </nav>
 
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import { initializeApp }      from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getAuth, onAuthStateChanged, signOut }
+  from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 import { getFirestore, collection, doc, getDoc, getDocs,
          setDoc, updateDoc, deleteDoc, query, where, serverTimestamp }
   from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { getFunctions, httpsCallable }
+  from "https://www.gstatic.com/firebasejs/10.8.0/firebase-functions.js";
 
 const app = initializeApp({
   apiKey:"AIzaSyDNwQYXcwZrAh4cTfRyhOVk_pRod9p4CRM",
@@ -407,12 +494,13 @@ const app = initializeApp({
   messagingSenderId:"147179987231",
   appId:"1:147179987231:web:c6ffa484f33a2ca420d02a"
 });
-const auth = getAuth(app);
-const db   = getFirestore(app);
+const auth      = getAuth(app);
+const db        = getFirestore(app);
+const functions = getFunctions(app, 'asia-south1');
 
-const ADMIN_EMAILS = ['sandeepgemologist@gmail.com','sparkals.design@gmail.com'];
-const COMPLETED_STAGES = ["Won","Lost","Verified","Closed","Confirmed","Done","Reported","Received","Dispatched"];
-const PURITY_LABELS = {'gold-24':'Gold 24kt','gold-22':'Gold 22kt','gold-18':'Gold 18kt','gold-14':'Gold 14kt','silver-100':'Silver Pure','silver-925':'Silver 925'};
+const ADMIN_EMAILS     = ['sandeepgemologist@gmail.com','sparkals.design@gmail.com'];
+const COMPLETED_STAGES = ["Won","Lost","Verified","Closed","Confirmed","Done","Reported","Received","Dispatched","Restocked"];
+const PURITY_LABELS    = {'gold-24':'Gold 24kt','gold-22':'Gold 22kt','gold-18':'Gold 18kt','gold-14':'Gold 14kt','silver-100':'Silver Pure','silver-925':'Silver 925'};
 
 let allStaffData=[], currentFilter="all";
 let manualTargetUid=null, manualTargetName=null;
@@ -424,6 +512,7 @@ Chart.defaults.color='#94a3b8';
 Chart.defaults.borderColor='#2d2d44';
 Chart.defaults.font.family="'DM Sans', sans-serif";
 
+// ── HELPERS ──
 function tsToHHMM(ts) {
   if (!ts) return null;
   try {
@@ -447,6 +536,11 @@ function minutesLate(hhmm) {
   return Math.max(0,(h*60+m)-(9*60+15));
 }
 function fmtMonth(d) { return d.toLocaleDateString('en-IN',{month:'short',year:'numeric'}); }
+function showToast(msg,type='') {
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.className='toast show '+type;
+  setTimeout(()=>{ t.className='toast'; },3500);
+}
 
 // ── AUTH ──
 onAuthStateChanged(auth, async user => {
@@ -461,23 +555,25 @@ onAuthStateChanged(auth, async user => {
     } catch(e) { window.location.href='dashboard.html'; return; }
   }
   loadDashboard();
-  autoRefreshTimer=setInterval(loadDashboard,60000);
+  autoRefreshTimer = setInterval(loadDashboard, 60000);
 });
 
 // ── TAB SWITCHER ──
 window.switchMainTab = function(tab, el) {
   document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
   el.classList.add('active');
-  document.getElementById('view-staff').style.display   = tab==='staff'    ? 'block':'none';
-  document.getElementById('view-metal').style.display   = tab==='metal'    ? 'block':'none';
-  document.getElementById('view-insights').style.display= tab==='insights' ? 'block':'none';
+  document.getElementById('view-staff').style.display    = tab==='staff'    ? 'block' : 'none';
+  document.getElementById('view-metal').style.display    = tab==='metal'    ? 'block' : 'none';
+  document.getElementById('view-insights').style.display = tab==='insights' ? 'block' : 'none';
+  document.getElementById('view-backup').style.display   = tab==='backup'   ? 'block' : 'none';
   if (tab==='insights' && !insightsLoaded) { loadInsights(); insightsLoaded=true; }
   if (tab==='metal'    && !metalLoaded)    { loadMetalStock(); metalLoaded=true; }
+  if (tab==='backup')                      { loadBackupList(); }
 };
 
-// ════════════════════════════════════════
+// ══════════════════════════════════════════
 // STAFF DASHBOARD
-// ════════════════════════════════════════
+// ══════════════════════════════════════════
 window.loadDashboard = async function() {
   const today=getTodayKey(), now=new Date();
   document.getElementById('dateLabel').textContent=now.toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
@@ -538,16 +634,15 @@ window.loadDashboard = async function() {
         `<div class="alert-item"><span>${s.name||s.email}</span>
          <span style="color:var(--amber)">${s.clockInHHMM} (${minutesLate(s.clockInHHMM)} min late)</span></div>`
       ).join('');
-    } else {latePanel.style.display='none';}
+    } else { latePanel.style.display='none'; }
     renderGroups();
     document.getElementById('lastUpdated').textContent='Last updated: '+now.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
-  } catch(err){
+  } catch(err) {
     console.error(err);
     document.getElementById('staffGroupsWrap').innerHTML=`<div class="empty-state"><div class="emoji">⚠️</div><p>Could not load staff data.</p></div>`;
   }
 };
 
-// ── RENDER STAFF AS COLLAPSIBLE GROUPS ──
 function renderGroups() {
   let filtered=[...allStaffData];
   if(currentFilter==='present') filtered=filtered.filter(s=>['present','lunch','left','late'].includes(s.status));
@@ -555,50 +650,42 @@ function renderGroups() {
   else if(currentFilter==='late')   filtered=filtered.filter(s=>s.isLate);
   else if(currentFilter==='leave')  filtered=filtered.filter(s=>s.status==='leave');
 
-  const groups = [
-    { id:'grp-active',   label:'✅ Active Staff',  emoji:'👥', staff: filtered.filter(s=>s.role!=='admin'&&s.role!=='manager'&&s.status!=='inactive'), open:false  },
-    { id:'grp-managers', label:'⭐ Managers',       emoji:'⭐', staff: filtered.filter(s=>s.role==='manager'),                                          open:false  },
-    { id:'grp-admins',   label:'👑 Admins',         emoji:'👑', staff: filtered.filter(s=>s.role==='admin'),                                            open:false },
-    { id:'grp-inactive', label:'⏸ Inactive Staff', emoji:'⏸', staff: filtered.filter(s=>s.status==='inactive'),                                       open:false },
+  const groups=[
+    {id:'grp-active',   label:'✅ Active Staff',  staff:filtered.filter(s=>s.role!=='admin'&&s.role!=='manager'&&s.status!=='inactive'), open:false},
+    {id:'grp-managers', label:'⭐ Managers',       staff:filtered.filter(s=>s.role==='manager'), open:false},
+    {id:'grp-admins',   label:'👑 Admins',         staff:filtered.filter(s=>s.role==='admin'),   open:false},
+    {id:'grp-inactive', label:'⏸ Inactive Staff', staff:filtered.filter(s=>s.status==='inactive'), open:false},
   ].filter(g=>g.staff.length>0);
 
   if (!groups.length) {
     document.getElementById('staffGroupsWrap').innerHTML=`<div class="empty-state"><div class="emoji">🎉</div><p>No staff in this category today.</p></div>`;
     return;
   }
-
-  document.getElementById('staffGroupsWrap').innerHTML = groups.map(g=>`
+  document.getElementById('staffGroupsWrap').innerHTML=groups.map(g=>`
     <div class="staff-group">
       <div class="staff-group-header ${g.open?'open':''}" onclick="toggleGroup('${g.id}')">
-        <div class="staff-group-title">
-          ${g.label}
-          <span class="staff-group-count">${g.staff.length}</span>
-        </div>
+        <div class="staff-group-title">${g.label}<span class="staff-group-count">${g.staff.length}</span></div>
         <span class="staff-group-arrow">▼</span>
       </div>
       <div class="staff-group-body ${g.open?'open':''}" id="${g.id}">
-        <div class="staff-group-inner">
-          ${g.staff.map(s=>buildStaffCard(s)).join('')}
-        </div>
+        <div class="staff-group-inner">${g.staff.map(s=>buildStaffCard(s)).join('')}</div>
       </div>
     </div>`).join('');
 }
 
 window.toggleGroup = function(groupId) {
-  const body   = document.getElementById(groupId);
-  const header = body.previousElementSibling;
-  const isOpen = body.classList.contains('open');
-  body.classList.toggle('open', !isOpen);
-  header.classList.toggle('open', !isOpen);
+  const body=document.getElementById(groupId);
+  const header=body.previousElementSibling;
+  const isOpen=body.classList.contains('open');
+  body.classList.toggle('open',!isOpen);
+  header.classList.toggle('open',!isOpen);
 };
 
 function buildStaffCard(s) {
   const initials=(s.name||s.email||'?').split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
   const palette=['#7c3aed','#0891b2','#059669','#d97706','#dc2626','#0284c7'];
   const color=palette[(s.name||'').charCodeAt(0)%palette.length]||'#7c3aed';
-  const isInactive=s.status==='inactive';
-  const isManager=s.role==='manager';
-  const isAdmin=s.role==='admin';
+  const isInactive=s.status==='inactive', isManager=s.role==='manager', isAdmin=s.role==='admin';
   let badgeClass='',badgeText='',dotColor='';
   if(s.status==='present'){badgeClass='badge-present';badgeText='Present';dotColor='#10b981';}
   else if(s.status==='late'){badgeClass='badge-late';badgeText='Late';dotColor='#f59e0b';}
@@ -651,86 +738,51 @@ function buildStaffCard(s) {
   </div>`;
 }
 
-// ════════════════════════════════════════
-// METAL STOCK SUMMARY
-// ════════════════════════════════════════
+// ══════════════════════════════════════════
+// METAL STOCK
+// ══════════════════════════════════════════
 async function loadMetalStock() {
   try {
-    const snap = await getDocs(collection(db,'metalTransactions'));
-    const txns = snap.docs.map(d=>({id:d.id,...d.data()}));
-    const bal  = {'gold-24':0,'gold-22':0,'gold-18':0,'gold-14':0,'silver-100':0,'silver-925':0};
-    const withSmith = {gold:0,silver:0};
-    const today = getTodayKey();
-    let todayIn=0, todayOut=0, todayCount=0;
-
+    const snap=await getDocs(collection(db,'metalTransactions'));
+    const txns=snap.docs.map(d=>({id:d.id,...d.data()}));
+    const bal={'gold-24':0,'gold-22':0,'gold-18':0,'gold-14':0,'silver-100':0,'silver-925':0};
+    const withSmith={gold:0,silver:0};
+    const today=getTodayKey();
+    let todayIn=0,todayOut=0,todayCount=0;
     txns.forEach(t=>{
-      const fw=parseFloat(t.fineWeight||0);
-      const metal=t.metal, pk=t.purityKey;
-      const isToday=t.date===today;
+      const fw=parseFloat(t.fineWeight||0),metal=t.metal,pk=t.purityKey,isToday=t.date===today;
       if(t.type==='metal_in'||t.type==='adjustment'){if(bal[pk]!==undefined)bal[pk]+=fw;if(isToday){todayIn+=fw;todayCount++;}}
       if(t.type==='client_order'&&t.clientMetalIn){const cpk=t.clientPurityKey;if(bal[cpk]!==undefined)bal[cpk]+=parseFloat(t.clientFineWeight||0);if(isToday){todayIn+=parseFloat(t.clientFineWeight||0);todayCount++;}}
       if(t.type==='issue_goldsmith'&&t.status!=='returned'){if(bal[pk]!==undefined)bal[pk]-=fw;withSmith[metal]+=fw;if(isToday){todayOut+=fw;todayCount++;}}
       if(t.type==='goldsmith_return'){const rpk=t.returnedPurityKey;if(bal[rpk]!==undefined)bal[rpk]+=parseFloat(t.returnedFineWeight||0);withSmith[metal]-=parseFloat(t.issuedFineWeight||0);if(withSmith[metal]<0)withSmith[metal]=0;if(isToday){todayIn+=parseFloat(t.returnedFineWeight||0);todayCount++;}}
       if(t.type==='sale'){if(bal[pk]!==undefined)bal[pk]-=fw;if(isToday){todayOut+=fw;todayCount++;}}
     });
-
-    // Update balances
-    Object.entries(bal).forEach(([k,v])=>{
-      const el=document.getElementById('adm-'+k);
-      if(el)el.textContent=Math.max(0,v).toFixed(2);
-    });
-    document.getElementById('adm-gold-smith').textContent  =Math.max(0,withSmith.gold).toFixed(2)+'g';
+    Object.entries(bal).forEach(([k,v])=>{const el=document.getElementById('adm-'+k);if(el)el.textContent=Math.max(0,v).toFixed(2);});
+    document.getElementById('adm-gold-smith').textContent=Math.max(0,withSmith.gold).toFixed(2)+'g';
     document.getElementById('adm-silver-smith').textContent=Math.max(0,withSmith.silver).toFixed(2)+'g';
-    document.getElementById('metalTodayIn').textContent  =todayIn.toFixed(1)+'g';
-    document.getElementById('metalTodayOut').textContent =todayOut.toFixed(1)+'g';
+    document.getElementById('metalTodayIn').textContent=todayIn.toFixed(1)+'g';
+    document.getElementById('metalTodayOut').textContent=todayOut.toFixed(1)+'g';
     document.getElementById('metalTodayTxns').textContent=todayCount;
     document.getElementById('metalLastUpdated').textContent='Updated: '+new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
-
-    // Flags
     const flags=[];
     const wastageCaps={gold:2,silver:3};
-    try{const wc=await getDoc(doc(db,'appConfig','wastageCaps'));if(wc.exists()){Object.assign(wastageCaps,wc.data());}}catch(e){}
-    txns.filter(t=>t.type==='issue_goldsmith'&&t.status!=='returned').forEach(t=>{
-      if(!t.dueDate)return;
-      if(new Date(t.dueDate)<new Date())flags.push(`⏰ Overdue return: ${t.smithName} — ${t.fineWeight}g`);
-    });
-    txns.filter(t=>t.type==='client_order'&&t.clientPurityConfirmed===false).forEach(t=>{
-      flags.push(`🔬 Lab test pending: ${t.clientName} — ${t.clientGrossWeight}g`);
-    });
-    txns.filter(t=>t.type==='goldsmith_return'&&t.wastageExcess===true).forEach(t=>{
-      flags.push(`⚠️ Excess wastage: ${t.smithName} — ${t.wastagePct}%`);
-    });
+    try{const wc=await getDoc(doc(db,'appConfig','wastageCaps'));if(wc.exists())Object.assign(wastageCaps,wc.data());}catch(e){}
+    txns.filter(t=>t.type==='issue_goldsmith'&&t.status!=='returned').forEach(t=>{if(!t.dueDate)return;if(new Date(t.dueDate)<new Date())flags.push(`⏰ Overdue return: ${t.smithName} — ${t.fineWeight}g`);});
+    txns.filter(t=>t.type==='client_order'&&t.clientPurityConfirmed===false).forEach(t=>{flags.push(`🔬 Lab test pending: ${t.clientName} — ${t.clientGrossWeight}g`);});
+    txns.filter(t=>t.type==='goldsmith_return'&&t.wastageExcess===true).forEach(t=>{flags.push(`⚠️ Excess wastage: ${t.smithName} — ${t.wastagePct}%`);});
     const fp=document.getElementById('metalFlagsPanel');
-    if(flags.length>0){
-      fp.style.display='block';
-      document.getElementById('metalFlagsList').innerHTML=flags.map(f=>
-        `<div class="metal-flag-item"><span>${f}</span><a href="metal-stock.html" style="font-size:11px;color:var(--accent2)">Review →</a></div>`
-      ).join('');
-    } else {fp.style.display='none';}
-
-    // Goldsmiths with pending metal
+    if(flags.length>0){fp.style.display='block';document.getElementById('metalFlagsList').innerHTML=flags.map(f=>`<div class="metal-flag-item"><span>${f}</span><a href="metal-stock.html" style="font-size:11px;color:var(--accent2)">Review →</a></div>`).join('');}
+    else fp.style.display='none';
     const pending=txns.filter(t=>t.type==='issue_goldsmith'&&t.status!=='returned');
     const smithList=document.getElementById('admSmithList');
-    if(!pending.length){
-      smithList.innerHTML='<div style="color:var(--green);font-size:13px;text-align:center;padding:8px">✅ No metal with any goldsmith</div>';
-    } else {
-      const now=new Date();
-      smithList.innerHTML=pending.map(t=>{
-        const due=t.dueDate?new Date(t.dueDate):null;
-        const isOverdue=due&&due<now;
-        return `<div class="metal-smith-row">
-          <div>
-            <div style="font-weight:600;font-size:13px">${t.smithName||'Unknown'}${isOverdue?`<span style="background:rgba(239,68,68,0.15);color:var(--red);font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;margin-left:6px">OVERDUE</span>`:''}</div>
-            <div style="font-size:11px;color:var(--text2)">${PURITY_LABELS[t.purityKey]||''} · Due: ${t.dueDate||'—'}</div>
-          </div>
-          <div style="font-family:'Space Mono',monospace;font-size:13px;font-weight:700;color:var(--gold)">${parseFloat(t.fineWeight||0).toFixed(3)}g</div>
-        </div>`;
-      }).join('');
-    }
+    if(!pending.length){smithList.innerHTML='<div style="color:var(--green);font-size:13px;text-align:center;padding:8px">✅ No metal with any goldsmith</div>';}
+    else{const now=new Date();smithList.innerHTML=pending.map(t=>{const due=t.dueDate?new Date(t.dueDate):null,isOverdue=due&&due<now;return`<div class="metal-smith-row"><div><div style="font-weight:600;font-size:13px">${t.smithName||'Unknown'}${isOverdue?'<span style="background:rgba(239,68,68,0.15);color:var(--red);font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;margin-left:6px">OVERDUE</span>':''}</div><div style="font-size:11px;color:var(--text2)">${PURITY_LABELS[t.purityKey]||''} · Due: ${t.dueDate||'—'}</div></div><div style="font-family:'Space Mono',monospace;font-size:13px;font-weight:700;color:var(--gold)">${parseFloat(t.fineWeight||0).toFixed(3)}g</div></div>`;}).join('');}
   } catch(e){console.error('Metal stock error:',e);}
 }
 
-// ── STAFF MANAGEMENT ──
+// ══════════════════════════════════════════
+// STAFF MANAGEMENT
+// ══════════════════════════════════════════
 window.changeRole=async function(uid,name,newRole){
   const detail=newRole==='manager'?`${name} will be able to:\n• Assign tasks to any staff\n• See all tasks\n• Approve leave\n• Manual clock-in`:`${name} will go back to regular staff access.`;
   if(!confirm(`${newRole==='manager'?'Make '+name+' a Manager?':'Demote '+name+' back to Staff?'}\n\n${detail}`))return;
@@ -759,16 +811,165 @@ window.setFilter=function(filter,el){currentFilter=filter;document.querySelector
 window.openManual=function(uid,name){manualTargetUid=uid;manualTargetName=name;document.getElementById('modalStaffName').textContent='Recording for: '+name;const now=new Date();document.getElementById('manualTime').value=`${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;document.getElementById('manualReason').value='';document.getElementById('manualModal').classList.remove('hidden');};
 window.closeModal=function(){document.getElementById('manualModal').classList.add('hidden');manualTargetUid=null;};
 window.confirmManualClockIn=async function(){
-  const time=document.getElementById('manualTime').value;const reason=document.getElementById('manualReason').value.trim();
-  if(!time){showToast('Please set a clock-in time','error');return;}if(!reason){showToast('Please enter a reason','error');return;}
+  const time=document.getElementById('manualTime').value,reason=document.getElementById('manualReason').value.trim();
+  if(!time){showToast('Please set a clock-in time','error');return;}
+  if(!reason){showToast('Please enter a reason','error');return;}
   const today=getTodayKey(),adminUser=auth.currentUser;
-  try{await setDoc(doc(db,'attendance',`${manualTargetUid}_${today}`),{uid:manualTargetUid,userId:manualTargetUid,date:today,clockIn:time,clockOut:null,manualEntry:true,manualReason:reason,recordedBy:adminUser.email,recordedAt:serverTimestamp()});await setDoc(doc(collection(db,'auditLogs')),{action:'MANUAL_CLOCK_IN',targetUid:manualTargetUid,targetName:manualTargetName,performedBy:adminUser.email,reason,clockInTime:time,date:today,timestamp:serverTimestamp()});closeModal();showToast(`✅ ${manualTargetName} clocked in at ${time}`,'success');loadDashboard();}catch(err){showToast('Error saving. Try again.','error');}
+  try{
+    await setDoc(doc(db,'attendance',`${manualTargetUid}_${today}`),{uid:manualTargetUid,userId:manualTargetUid,date:today,clockIn:time,clockOut:null,manualEntry:true,manualReason:reason,recordedBy:adminUser.email,recordedAt:serverTimestamp()});
+    await setDoc(doc(collection(db,'auditLogs')),{action:'MANUAL_CLOCK_IN',targetUid:manualTargetUid,targetName:manualTargetName,performedBy:adminUser.email,reason,clockInTime:time,date:today,timestamp:serverTimestamp()});
+    closeModal();showToast(`✅ ${manualTargetName} clocked in at ${time}`,'success');loadDashboard();
+  }catch(err){showToast('Error saving. Try again.','error');}
 };
 window.handleLogout=async function(){clearInterval(autoRefreshTimer);await signOut(auth);window.location.href='login.html';};
 
-// ════════════════════════════════════════
+// ══════════════════════════════════════════
+// BACKUP & RESTORE
+// ══════════════════════════════════════════
+window.loadBackupList = async function() {
+  const listEl=document.getElementById('backupList');
+  listEl.innerHTML=`<div style="text-align:center;padding:32px;color:var(--text3);font-size:13px;"><div class="spinner" style="width:24px;height:24px;border-width:2px;margin-bottom:10px;"></div>Loading backups...</div>`;
+  try {
+    const fn=httpsCallable(functions,'listBackups');
+    const result=await fn();
+    const {backups}=result.data;
+
+    document.getElementById('statTotalBackups').textContent=backups.length;
+    document.getElementById('statTotalRecords').textContent=backups.length?backups[0].totalRecords:'0';
+    document.getElementById('statTotalSize').textContent=backups.reduce((a,b)=>a+(b.sizeKB||0),0);
+
+    if (backups.length>0) {
+      const last=backups[0];
+      const lastDate=new Date(last.created).toLocaleString('en-IN',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit',timeZone:'Asia/Kolkata'});
+      document.getElementById('lastBackupInfo').innerHTML=`
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          <div><div style="font-size:10px;color:var(--text3);margin-bottom:3px;">DATE & TIME</div><div style="font-size:13px;font-weight:600;">${lastDate} IST</div></div>
+          <div><div style="font-size:10px;color:var(--text3);margin-bottom:3px;">RECORDS</div><div style="font-size:13px;font-weight:700;color:var(--green);">${last.totalRecords}</div></div>
+          <div><div style="font-size:10px;color:var(--text3);margin-bottom:3px;">FILE SIZE</div><div style="font-size:13px;font-weight:600;color:var(--accent2);">${last.sizeKB} KB</div></div>
+          <div><div style="font-size:10px;color:var(--text3);margin-bottom:3px;">TRIGGERED BY</div><div style="font-size:13px;font-weight:600;color:var(--amber);">${last.triggeredBy}</div></div>
+        </div>`;
+      document.getElementById('backupHeaderSub').textContent=`Last backup: ${lastDate} IST · Next: Tonight 11:30pm`;
+    } else {
+      document.getElementById('lastBackupInfo').innerHTML=`<div style="color:var(--amber);">⚠️ No backups yet. Click "Backup Now" to create your first backup.</div>`;
+    }
+
+    if (!backups.length) {
+      listEl.innerHTML=`<div style="text-align:center;padding:32px;color:var(--text3);font-size:13px;">📭 No backups yet.<br/>Click "Backup Now" above.</div>`;
+      return;
+    }
+
+    listEl.innerHTML=backups.map((b,i)=>{
+      const created=new Date(b.created).toLocaleString('en-IN',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit',timeZone:'Asia/Kolkata'});
+      return `
+        <div class="backup-row">
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:13px;font-weight:600;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+              ${i===0?'<span style="background:#10b98120;border:1px solid #10b98140;color:var(--green);font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;">LATEST</span>':''}
+              ${created} IST
+            </div>
+            <div style="font-size:11px;color:var(--text3);margin-top:4px;">
+              📦 ${b.sizeKB} KB &nbsp;·&nbsp; 📋 ${b.totalRecords} records &nbsp;·&nbsp; ⚡ ${b.triggeredBy}
+            </div>
+          </div>
+          <div class="backup-actions">
+            <a href="${b.downloadUrl}" target="_blank" class="btn-download">⬇️ Download</a>
+            <button class="btn-restore" onclick="restoreBackup('${b.fileName}','${created}')">🔄 Restore</button>
+          </div>
+        </div>`;
+    }).join('');
+  } catch(err) {
+    console.error('loadBackupList error:',err);
+    listEl.innerHTML=`<div style="text-align:center;padding:32px;color:var(--red);font-size:13px;">❌ Could not load backups.<br/>${err.message}</div>`;
+  }
+};
+
+window.triggerManualBackup = async function() {
+  const btn=document.getElementById('manualBackupBtn');
+  const progress=document.getElementById('backupProgress');
+  const progText=document.getElementById('backupProgressText');
+  if(!confirm('Start a manual backup now?\n\nThis will back up all your Firestore data to Google Cloud Storage.'))return;
+  btn.disabled=true; btn.textContent='⏳ Backing up...';
+  progress.style.display='block';
+  const steps=['Exporting staff records...','Exporting tasks and templates...','Exporting attendance data...','Exporting metal transactions...','Exporting leave records...','Saving to Google Cloud Storage...','Sending confirmation email...'];
+  let idx=0;
+  const timer=setInterval(()=>{ if(idx<steps.length)progText.textContent=steps[idx++]; },3000);
+  try {
+    const fn=httpsCallable(functions,'manualBackup',{timeout:300000});
+    const result=await fn();
+    clearInterval(timer); progress.style.display='none';
+    const {totalRecords,fileSizeKB}=result.data;
+    showToast(`✅ Backup complete! ${totalRecords} records · ${fileSizeKB} KB`,'success');
+    loadBackupList();
+  } catch(err) {
+    clearInterval(timer); progress.style.display='none';
+    console.error('manualBackup error:',err);
+    showToast('❌ Backup failed: '+err.message,'error');
+  } finally {
+    btn.disabled=false; btn.textContent='⚡ Backup Now';
+  }
+};
+
+window.restoreBackup = async function(fileName, dateLabel) {
+  if(!confirm(`⚠️ RESTORE FROM BACKUP?\n\nBackup: ${dateLabel}\n\nThis will OVERWRITE your current data.\nOnly do this if something went seriously wrong.\n\nAre you absolutely sure?`))return;
+  if(!confirm(`Last warning!\n\nRestore from ${dateLabel}?\n\nThis cannot be undone.`))return;
+  const progress=document.getElementById('backupProgress');
+  const progText=document.getElementById('backupProgressText');
+  progress.style.display='block';
+  progText.textContent='Restoring database... please wait 2–5 minutes...';
+  try {
+    const fn=httpsCallable(functions,'restoreFromBackup',{timeout:600000});
+    const result=await fn({fileName});
+    progress.style.display='none';
+    const total=Object.values(result.data.results).reduce((a,b)=>a+b,0);
+    showToast(`✅ Restore complete! ${total} records restored.`,'success');
+    loadBackupList();
+  } catch(err) {
+    progress.style.display='none';
+    console.error('restoreBackup error:',err);
+    showToast('❌ Restore failed: '+err.message,'error');
+  }
+};
+
+window.exportToExcel = async function(collectionName, label) {
+  const statusEl=document.getElementById('exportStatus');
+  statusEl.style.display='block';
+  statusEl.textContent=`⏳ Exporting ${label}...`;
+  document.querySelectorAll('.export-btn').forEach(b=>b.disabled=true);
+  try {
+    const snap=await getDocs(collection(db,collectionName));
+    const rows=[];
+    snap.forEach(docSnap=>{
+      const data=docSnap.data();
+      const flat={id:docSnap.id};
+      Object.entries(data).forEach(([k,v])=>{
+        if(v&&typeof v==='object'&&v.toDate) flat[k]=v.toDate().toLocaleString('en-IN',{timeZone:'Asia/Kolkata'});
+        else if(v&&typeof v==='object'&&v.seconds) flat[k]=new Date(v.seconds*1000).toLocaleString('en-IN',{timeZone:'Asia/Kolkata'});
+        else if(typeof v==='object'&&v!==null) flat[k]=JSON.stringify(v);
+        else flat[k]=v;
+      });
+      rows.push(flat);
+    });
+    if(!rows.length){statusEl.textContent=`⚠️ No data in ${label}`;document.querySelectorAll('.export-btn').forEach(b=>b.disabled=false);return;}
+    const headers=[...new Set(rows.flatMap(r=>Object.keys(r)))];
+    const csvRows=[headers.join(','),...rows.map(row=>headers.map(h=>{const val=row[h]??'';const str=String(val).replace(/"/g,'""');return str.includes(',')||str.includes('\n')||str.includes('"')?`"${str}"`:str;}).join(','))];
+    const blob=new Blob(['\uFEFF'+csvRows.join('\n')],{type:'text/csv;charset=utf-8;'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url; a.download=`sparkals-${collectionName}-${getTodayKey()}.csv`;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+    statusEl.textContent=`✅ ${label} exported — ${rows.length} records downloaded`;
+    showToast(`✅ ${label} downloaded! ${rows.length} records`,'success');
+  } catch(err) {
+    console.error('exportToExcel error:',err);
+    statusEl.textContent=`❌ Export failed: ${err.message}`;
+  } finally {
+    document.querySelectorAll('.export-btn').forEach(b=>b.disabled=false);
+  }
+};
+
+// ══════════════════════════════════════════
 // INSIGHTS WITH AI
-// ════════════════════════════════════════
+// ══════════════════════════════════════════
 window.loadInsights=async function(){
   document.getElementById('observationsList').innerHTML='<div class="obs-loading">⏳ Analysing your team data...</div>';
   const now=new Date();const months=[];
@@ -808,12 +1009,10 @@ window.loadInsights=async function(){
   const deptEntries=Object.entries(deptData).map(([dept,d])=>({dept,staff:allStaff.filter(s=>s.department===dept).length,done:d.done,total:d.total,rate:d.total?Math.round((d.done/d.total)*100):0,late:curAtt.filter(a=>{const uid=a.uid||a.userId;const staff=allStaff.find(s=>s.id===uid);const t=tsToHHMM(a.clockIn)||'';return staff?.department===dept&&t>'09:15';}).length})).sort((a,b)=>b.rate-a.rate);
   document.getElementById('deptTableMeta').textContent=curMonth.label;
   document.getElementById('deptTableBody').innerHTML=deptEntries.map(d=>{const fillColor=d.rate>=70?'#10b981':d.rate>=50?'#f59e0b':'#ef4444';const rateColor=d.rate>=70?'var(--green)':d.rate>=50?'var(--amber)':'var(--red)';const prevMonthTasks=prevTasks.filter(t=>t.department===d.dept);const prevMonthDone=prevMonthTasks.filter(t=>COMPLETED_STAGES.includes(t.stage)).length;const prevMonthRate=prevMonthTasks.length?Math.round((prevMonthDone/prevMonthTasks.length)*100):0;const diff=d.rate-prevMonthRate;const trendArrow=diff>0?`<span style="color:var(--green)">↑ ${diff}%</span>`:diff<0?`<span style="color:var(--red)">↓ ${Math.abs(diff)}%</span>`:`<span style="color:var(--text3)">→</span>`;return`<tr><td style="font-weight:600">${d.dept}</td><td style="color:var(--text2)">${d.staff}</td><td style="color:var(--green);font-family:'Space Mono',monospace">${d.done}</td><td style="font-family:'Space Mono',monospace">${d.total}</td><td><div style="display:flex;align-items:center;gap:8px"><div class="mini-progress"><div class="mini-progress-fill" style="width:${d.rate}%;background:${fillColor}"></div></div><span style="color:${rateColor};font-weight:700;font-family:'Space Mono',monospace;font-size:12px">${d.rate}%</span></div></td><td style="color:${d.late>3?'var(--amber)':'var(--text2)'};font-family:'Space Mono',monospace">${d.late}</td><td>${trendArrow}</td></tr>`;}).join('');
-  function generateObservations(d){const obs=[];if(d.rateDiff>0)obs.push({icon:'📈',text:`<strong>Company efficiency improving!</strong> Task completion rate rose from ${d.prevRate}% last month to ${d.curRate}% this month — a ${d.rateDiff}% improvement.`});else if(d.rateDiff<0)obs.push({icon:'📉',text:`<strong>Completion rate dropped this month.</strong> From ${d.prevRate}% to ${d.curRate}% — a ${Math.abs(d.rateDiff)}% decline.`});else obs.push({icon:'➡️',text:`<strong>Completion rate stable</strong> at ${d.curRate}% — same as last month.`});if(d.attDiff>0)obs.push({icon:'✅',text:`<strong>Attendance improved</strong> from ${d.prevAttRate}% to ${d.curAttRate}% this month.`});else if(d.attDiff<0)obs.push({icon:'⚠️',text:`<strong>Attendance slipped</strong> from ${d.prevAttRate}% to ${d.curAttRate}% this month.`});if(d.lateDiff<0)obs.push({icon:'🎉',text:`<strong>Late arrivals reduced!</strong> Down from ${d.prevLate} to ${d.curLate} this month.`});else if(d.lateDiff>0)obs.push({icon:'⏰',text:`<strong>Late arrivals increased</strong> from ${d.prevLate} to ${d.curLate} this month.`});if(d.deptEntries.length>1){const best=d.deptEntries[0],worst=d.deptEntries[d.deptEntries.length-1];obs.push({icon:'🏆',text:`<strong>${best.dept}</strong> is your top department at ${best.rate}% completion. <strong>${worst.dept}</strong> needs attention at ${worst.rate}%.`});}if(d.overdueAll>0){const pct=d.totalAll?Math.round((d.overdueAll/d.totalAll)*100):0;obs.push({icon:'🚨',text:`<strong>${d.overdueAll} tasks are overdue</strong> (${pct}% of all tasks). Review in Tasks page.`});}else obs.push({icon:'🎯',text:`<strong>Zero overdue tasks!</strong> Excellent task management.`});return obs.slice(0,5);}
+  function generateObservations(d){const obs=[];if(d.rateDiff>0)obs.push({icon:'📈',text:`<strong>Company efficiency improving!</strong> Task completion rate rose from ${d.prevRate}% to ${d.curRate}% — a ${d.rateDiff}% improvement.`});else if(d.rateDiff<0)obs.push({icon:'📉',text:`<strong>Completion rate dropped.</strong> From ${d.prevRate}% to ${d.curRate}% — a ${Math.abs(d.rateDiff)}% decline.`});else obs.push({icon:'➡️',text:`<strong>Completion rate stable</strong> at ${d.curRate}% — same as last month.`});if(d.attDiff>0)obs.push({icon:'✅',text:`<strong>Attendance improved</strong> from ${d.prevAttRate}% to ${d.curAttRate}% this month.`});else if(d.attDiff<0)obs.push({icon:'⚠️',text:`<strong>Attendance slipped</strong> from ${d.prevAttRate}% to ${d.curAttRate}% this month.`});if(d.lateDiff<0)obs.push({icon:'🎉',text:`<strong>Late arrivals reduced!</strong> Down from ${d.prevLate} to ${d.curLate} this month.`});else if(d.lateDiff>0)obs.push({icon:'⏰',text:`<strong>Late arrivals increased</strong> from ${d.prevLate} to ${d.curLate} this month.`});if(d.deptEntries.length>1){const best=d.deptEntries[0],worst=d.deptEntries[d.deptEntries.length-1];obs.push({icon:'🏆',text:`<strong>${best.dept}</strong> is your top department at ${best.rate}% completion. <strong>${worst.dept}</strong> needs attention at ${worst.rate}%.`});}if(d.overdueAll>0){const pct=d.totalAll?Math.round((d.overdueAll/d.totalAll)*100):0;obs.push({icon:'🚨',text:`<strong>${d.overdueAll} tasks are overdue</strong> (${pct}% of all tasks). Review in Tasks page.`});}else obs.push({icon:'🎯',text:`<strong>Zero overdue tasks!</strong> Excellent task management.`});return obs.slice(0,5);}
   const obs=generateObservations({curRate,prevRate,rateDiff,curAttRate,prevAttRate,attDiff,curLate,prevLate,lateDiff,curDone,prevDone,totalStaff,deptEntries,trendRates,overdueAll,activeAll,doneAll,totalAll});
   document.getElementById('observationsList').innerHTML=obs.map(o=>`<div class="observation-item"><div class="obs-icon">${o.icon}</div><div class="obs-text">${o.text}</div></div>`).join('');
 };
-
-function showToast(msg,type=''){const t=document.getElementById('toast');t.textContent=msg;t.className='toast show '+type;setTimeout(()=>{t.className='toast';},3500);}
 </script>
 </body>
 </html>
