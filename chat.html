@@ -508,6 +508,22 @@
     t.className = 'toast show ' + type;
     setTimeout(() => { t.className = 'toast'; }, 3000);
   }
+<script>
+  // Force input bar above phone navigation
+  function fixInputBar() {
+    const bar = document.querySelector('.input-bar');
+    if (!bar) return;
+    const vh = window.innerHeight;
+    bar.style.position = 'fixed';
+    bar.style.bottom = '0';
+    bar.style.left = '0';
+    bar.style.right = '0';
+    bar.style.zIndex = '999';
+    document.querySelector('.chat-area').style.paddingBottom = '80px';
+  }
+  window.addEventListener('load', fixInputBar);
+  window.addEventListener('resize', fixInputBar);
+  window.visualViewport?.addEventListener('resize', fixInputBar);
 </script>
 </body>
 </html>
