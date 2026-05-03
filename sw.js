@@ -16,7 +16,7 @@
  * and commit. All phones will auto-update within 24 hours.
  */
 
-const CACHE_VERSION = "v3";
+const CACHE_VERSION = "v4";
 const CACHE_NAME = "sparkals-tasks-" + CACHE_VERSION;
 const OFFLINE_URL = "/offline.html";
 
