@@ -80,6 +80,37 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 .stage-btn:hover:not(.active){border-color:var(--accent);color:var(--text);}
 .task-desc{margin-top:12px;font-size:13px;color:var(--text2);line-height:1.6;}
 
+/* ── PHOTO PROOF SECTION ── */
+.photo-proof-section{margin-top:16px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);overflow:hidden;}
+.photo-proof-header{padding:12px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;}
+.photo-proof-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--text2);display:flex;align-items:center;gap:6px;}
+.photo-proof-count{font-size:11px;color:var(--text3);}
+.btn-add-photo{background:rgba(124,106,247,0.15);border:1.5px solid var(--accent);color:var(--accent);padding:7px 14px;border-radius:20px;font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;display:flex;align-items:center;gap:6px;}
+.btn-add-photo:hover{background:rgba(124,106,247,0.25);}
+.btn-add-photo:disabled{opacity:0.4;cursor:not-allowed;}
+.photo-upload-progress{padding:0 14px 12px;display:none;}
+.photo-upload-bar-wrap{height:6px;background:var(--surface3);border-radius:3px;overflow:hidden;margin-bottom:6px;}
+.photo-upload-bar{height:100%;background:linear-gradient(90deg,var(--accent),var(--teal));border-radius:3px;width:0%;transition:width 0.3s;}
+.photo-upload-text{font-size:11px;color:var(--text2);}
+.photo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:0 14px 14px;}
+.photo-thumb{position:relative;border-radius:var(--radius-sm);overflow:hidden;border:1px solid var(--border);cursor:pointer;aspect-ratio:1;background:var(--surface3);}
+.photo-thumb img{width:100%;height:100%;object-fit:cover;transition:transform 0.2s;}
+.photo-thumb:hover img{transform:scale(1.05);}
+.photo-thumb-overlay{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,0.8));padding:6px 8px;}
+.photo-thumb-meta{font-size:9px;color:rgba(255,255,255,0.85);line-height:1.3;}
+.photo-thumb-zoom{position:absolute;top:5px;right:5px;background:rgba(0,0,0,0.6);border:none;color:#fff;width:22px;height:22px;border-radius:50%;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.photo-empty{padding:14px;font-size:12px;color:var(--text3);text-align:center;}
+
+/* Hidden camera file input */
+.camera-input{position:absolute;width:0;height:0;opacity:0;pointer-events:none;}
+
+/* Photo lightbox */
+.photo-lightbox{position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:500;display:none;align-items:center;justify-content:center;flex-direction:column;gap:14px;}
+.photo-lightbox.open{display:flex;}
+.photo-lightbox img{max-width:92vw;max-height:80vh;border-radius:var(--radius);border:1px solid var(--border);}
+.photo-lightbox-meta{font-size:12px;color:var(--text2);text-align:center;}
+.photo-lightbox-close{position:absolute;top:20px;right:20px;background:var(--surface2);border:1px solid var(--border);color:var(--text);width:36px;height:36px;border-radius:50%;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+
 /* ── TASK TIMER STYLES ── */
 .timer-section{margin-top:16px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);overflow:hidden;}
 .timer-header{padding:12px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px;}
@@ -103,7 +134,6 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 .session-item{display:flex;justify-content:space-between;align-items:center;font-size:12px;}
 .session-label{color:var(--text2);}
 .session-duration{font-family:'Space Mono',monospace;color:var(--teal);font-weight:700;}
-
 .subtask-section{margin-top:16px;}
 .subtask-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
 .subtask-title{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--text2);}
@@ -221,10 +251,17 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 .nav-item.active{color:var(--accent);}
 .nav-item span{font-size:20px;}.nav-item small{font-size:10px;font-weight:500;}
 ::-webkit-scrollbar{width:4px;height:4px;}::-webkit-scrollbar-track{background:var(--surface);}::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
-@media(max-width:600px){.stats-row{grid-template-columns:repeat(2,1fr);}.bulk-filters{grid-template-columns:1fr;}.form-row-2{grid-template-columns:1fr;}.topnav-right{gap:4px;}.btn-sm{padding:5px 9px;font-size:11px;}}
+@media(max-width:600px){.stats-row{grid-template-columns:repeat(2,1fr);}.bulk-filters{grid-template-columns:1fr;}.form-row-2{grid-template-columns:1fr;}.topnav-right{gap:4px;}.btn-sm{padding:5px 9px;font-size:11px;}.photo-grid{grid-template-columns:repeat(3,1fr);}}
 </style>
 </head>
 <body>
+
+<!-- PHOTO LIGHTBOX -->
+<div class="photo-lightbox" id="photoLightbox" onclick="closeLightbox()">
+  <button class="photo-lightbox-close" onclick="closeLightbox()">✕</button>
+  <img id="lightboxImg" src="" alt="Proof photo"/>
+  <div class="photo-lightbox-meta" id="lightboxMeta"></div>
+</div>
 
 <nav class="topnav">
   <div class="topnav-left">
@@ -405,10 +442,14 @@ import {
   getFirestore, collection, doc, getDoc, getDocs, addDoc, updateDoc, deleteDoc,
   query, where, orderBy, serverTimestamp, Timestamp, runTransaction, increment
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import {
+  getStorage, ref as storageRef, uploadBytesResumable, getDownloadURL
+} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
+const storage = getStorage(app);
 
 const DEPT_STAGES = {
   "Gemstones Stock Upload":["Lot Received","Assorted","Batched","Issued","In Process","Completed","Restocked"],
@@ -425,41 +466,32 @@ const DEPT_STAGES = {
 };
 const DEPTS = Object.keys(DEPT_STAGES);
 const COMPLETED_STAGES = ["Won","Lost","Verified","Closed","Confirmed","Done","Reported","Received","Dispatched"];
+const MAX_PHOTOS = 3;
 
 let currentUser=null, currentRole=null;
 let allTasks=[], allStaff=[], allTemplates=[];
 let activeDept="all", bulkPreviewIds=[], pendingTplData=null, activeRunTpl=null;
+const activeTimers = {};
 
-// ── LIVE TIMER STATE (in-memory only, resets on page reload — sessions are saved to Firestore) ──
-const activeTimers = {}; // taskId → { startTime, intervalId }
-
-// ── FORMAT milliseconds to Xh Ym Zs ──
+// ── FORMAT helpers ──
 function fmtMs(ms) {
   if (ms < 0) ms = 0;
-  const h = Math.floor(ms / 3600000);
-  const m = Math.floor((ms % 3600000) / 60000);
-  const s = Math.floor((ms % 60000) / 1000);
+  const h = Math.floor(ms / 3600000), m = Math.floor((ms % 3600000) / 60000), s = Math.floor((ms % 60000) / 1000);
   if (h > 0) return `${h}h ${m}m ${s}s`;
   if (m > 0) return `${m}m ${s}s`;
   return `${s}s`;
 }
-
-// ── FORMAT total minutes to Xh Ym ──
 function fmtMinutes(mins) {
   if (!mins || mins <= 0) return '0m';
-  const h = Math.floor(mins / 60);
-  const m = Math.round(mins % 60);
-  if (h > 0) return `${h}h ${m}m`;
-  return `${m}m`;
+  const h = Math.floor(mins / 60), m = Math.round(mins % 60);
+  return h > 0 ? `${h}h ${m}m` : `${m}m`;
 }
 
-// ── START TIMER for a task ──
+// ── TIMER ──
 window.startTimer = async function(taskId) {
-  if (activeTimers[taskId]) return; // already running
+  if (activeTimers[taskId]) return;
   const startTime = Date.now();
   activeTimers[taskId] = { startTime };
-
-  // Update button states
   const startBtn = document.getElementById(`timer-start-${taskId}`);
   const stopBtn  = document.getElementById(`timer-stop-${taskId}`);
   const display  = document.getElementById(`timer-display-${taskId}`);
@@ -468,27 +500,20 @@ window.startTimer = async function(taskId) {
   if (stopBtn)  stopBtn.classList.add('running');
   if (display)  display.classList.add('running');
   if (badge)    badge.classList.add('running');
-
-  // Live tick every second
   activeTimers[taskId].intervalId = setInterval(() => {
     const elapsed = Date.now() - startTime;
     if (display) display.textContent = '⏱ ' + fmtMs(elapsed);
   }, 1000);
-
   showToast('⏱ Timer started!', 'success');
 };
 
-// ── STOP TIMER and save session to Firestore ──
 window.stopTimer = async function(taskId) {
   const timer = activeTimers[taskId];
   if (!timer) return;
-
   clearInterval(timer.intervalId);
   const elapsed = Date.now() - timer.startTime;
   const durationMinutes = parseFloat((elapsed / 60000).toFixed(2));
   delete activeTimers[taskId];
-
-  // Reset button states
   const startBtn = document.getElementById(`timer-start-${taskId}`);
   const stopBtn  = document.getElementById(`timer-stop-${taskId}`);
   const display  = document.getElementById(`timer-display-${taskId}`);
@@ -497,8 +522,6 @@ window.stopTimer = async function(taskId) {
   if (stopBtn)  stopBtn.classList.remove('running');
   if (display)  { display.classList.remove('running'); display.textContent = ''; }
   if (badge)    badge.classList.remove('running');
-
-  // Build new session record
   const now = new Date();
   const session = {
     startedAt: new Date(now.getTime() - elapsed).toISOString(),
@@ -507,69 +530,43 @@ window.stopTimer = async function(taskId) {
     recordedBy: currentUser.uid,
     recordedByName: (allStaff.find(s => s.id === currentUser.uid)||{}).name || 'Unknown'
   };
-
-  // Save to Firestore
   try {
     const task = allTasks.find(t => t.id === taskId);
     const sessions = [...(task?.timerSessions || []), session];
     const totalMinutes = sessions.reduce((sum, s) => sum + (s.durationMinutes || 0), 0);
-    await updateDoc(doc(db, 'tasks', taskId), {
-      timerSessions: sessions,
-      totalTimeMinutes: parseFloat(totalMinutes.toFixed(2)),
-      updatedAt: serverTimestamp()
-    });
-    // Update local state
-    allTasks = allTasks.map(t => t.id === taskId
-      ? { ...t, timerSessions: sessions, totalTimeMinutes: totalMinutes }
-      : t
-    );
-    // Refresh timer UI only (not whole card — avoids disrupting open card)
+    await updateDoc(doc(db, 'tasks', taskId), { timerSessions: sessions, totalTimeMinutes: parseFloat(totalMinutes.toFixed(2)), updatedAt: serverTimestamp() });
+    allTasks = allTasks.map(t => t.id === taskId ? { ...t, timerSessions: sessions, totalTimeMinutes: totalMinutes } : t);
     renderTimerSessions(taskId, sessions, totalMinutes);
     showToast(`✅ Session saved — ${fmtMs(elapsed)}`, 'success');
   } catch(e) {
-    console.error('Timer save error:', e);
-    showToast('❌ Could not save session. Try again.', 'error');
+    showToast('❌ Could not save session.', 'error');
   }
 };
 
-// ── RENDER SESSION LIST inside an already-open card ──
 function renderTimerSessions(taskId, sessions, totalMinutes) {
   const sessionsEl = document.getElementById(`timer-sessions-${taskId}`);
   const totalEl    = document.getElementById(`timer-total-${taskId}`);
   if (totalEl) totalEl.textContent = `Total: ${fmtMinutes(totalMinutes)}`;
   if (!sessionsEl) return;
-  if (!sessions || sessions.length === 0) {
-    sessionsEl.innerHTML = '<div class="timer-sessions-title">No sessions yet</div>';
-    return;
-  }
+  if (!sessions || sessions.length === 0) { sessionsEl.innerHTML = '<div class="timer-sessions-title">No sessions yet</div>'; return; }
   sessionsEl.innerHTML = `<div class="timer-sessions-title">Work Sessions (${sessions.length})</div>` +
     sessions.slice(-5).reverse().map((s, i) => {
       const idx = sessions.length - i;
       const date = new Date(s.stoppedAt);
-      const label = `Session ${idx} · ${date.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })} · ${s.recordedByName || ''}`;
-      return `<div class="session-item">
-        <span class="session-label">${label}</span>
-        <span class="session-duration">${fmtMinutes(s.durationMinutes)}</span>
-      </div>`;
+      return `<div class="session-item"><span class="session-label">Session ${idx} · ${date.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })} · ${s.recordedByName || ''}</span><span class="session-duration">${fmtMinutes(s.durationMinutes)}</span></div>`;
     }).join('');
 }
 
-// ── BUILD TIMER BLOCK HTML for a task ──
 function buildTimerBlock(t) {
-  const sessions = t.timerSessions || [];
-  const totalMinutes = t.totalTimeMinutes || 0;
+  const sessions = t.timerSessions || [], totalMinutes = t.totalTimeMinutes || 0;
   const sessionsHtml = sessions.length === 0
     ? '<div class="timer-sessions-title">No sessions yet — tap Start to begin tracking</div>'
     : `<div class="timer-sessions-title">Work Sessions (${sessions.length})</div>` +
       sessions.slice(-5).reverse().map((s, i) => {
         const idx = sessions.length - i;
         const date = new Date(s.stoppedAt);
-        return `<div class="session-item">
-          <span class="session-label">Session ${idx} · ${date.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })} · ${s.recordedByName || ''}</span>
-          <span class="session-duration">${fmtMinutes(s.durationMinutes)}</span>
-        </div>`;
+        return `<div class="session-item"><span class="session-label">Session ${idx} · ${date.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })} · ${s.recordedByName || ''}</span><span class="session-duration">${fmtMinutes(s.durationMinutes)}</span></div>`;
       }).join('');
-
   return `
   <div class="timer-section">
     <div class="timer-header">
@@ -586,7 +583,125 @@ function buildTimerBlock(t) {
   </div>`;
 }
 
-// ── UNIQUE TASK ID GENERATOR ──
+// ── PHOTO PROOF SECTION ──
+function buildPhotoSection(t) {
+  const photos = t.proofPhotos || [];
+  const canUpload = currentRole === 'admin' || currentRole === 'manager' || t.assigneeId === currentUser.uid;
+  const atMax = photos.length >= MAX_PHOTOS;
+  const thumbsHtml = photos.length === 0
+    ? `<div class="photo-empty">📷 No photos yet${canUpload ? ' — tap "Add Photo" to upload proof' : ''}</div>`
+    : `<div class="photo-grid">${photos.map((p, i) => `
+        <div class="photo-thumb" id="photothumb_${t.id}_${i}">
+          <img src="${p.url}" alt="Proof photo" loading="lazy" onclick="openLightbox('${p.url}','${p.uploadedByName || ''} · ${p.uploadedAt ? new Date(p.uploadedAt).toLocaleString('en-IN',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}) : ''}')"/>
+          <div class="photo-thumb-overlay">
+            <div class="photo-thumb-meta">${p.uploadedByName || 'Staff'}<br/>${p.uploadedAt ? new Date(p.uploadedAt).toLocaleString('en-IN',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}) : ''}</div>
+          </div>
+          <button class="photo-thumb-zoom" onclick="openLightbox('${p.url}','${p.uploadedByName || ''} · ${p.uploadedAt ? new Date(p.uploadedAt).toLocaleString('en-IN',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}) : ''}')">⤢</button>
+        </div>`).join('')}
+      </div>`;
+
+  return `
+  <div class="photo-proof-section" id="photosec_${t.id}">
+    <div class="photo-proof-header">
+      <div class="photo-proof-label">📷 Photo Proof <span class="photo-proof-count">(${photos.length}/${MAX_PHOTOS})</span></div>
+      ${canUpload ? `
+        <button class="btn-add-photo" id="photobtn_${t.id}" ${atMax ? 'disabled title="Maximum 3 photos reached"' : ''} onclick="triggerPhotoUpload('${t.id}')">
+          ${atMax ? '✅ Max photos' : '📷 Add Photo'}
+        </button>
+        <input class="camera-input" type="file" id="photoinput_${t.id}" accept="image/*" capture="environment" onchange="handlePhotoSelected(event,'${t.id}')"/>
+      ` : ''}
+    </div>
+    <div class="photo-upload-progress" id="photoprogress_${t.id}">
+      <div class="photo-upload-bar-wrap"><div class="photo-upload-bar" id="photobar_${t.id}"></div></div>
+      <div class="photo-upload-text" id="phototext_${t.id}">Uploading photo...</div>
+    </div>
+    <div id="photogrid_${t.id}">${thumbsHtml}</div>
+  </div>`;
+}
+
+window.triggerPhotoUpload = function(taskId) {
+  const input = document.getElementById(`photoinput_${taskId}`);
+  if (input) input.click();
+};
+
+window.handlePhotoSelected = async function(event, taskId) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  // Validate it's an image
+  if (!file.type.startsWith('image/')) { showToast('❌ Please select an image file.', 'error'); return; }
+
+  // Check max photos
+  const task = allTasks.find(t => t.id === taskId);
+  const currentPhotos = task?.proofPhotos || [];
+  if (currentPhotos.length >= MAX_PHOTOS) { showToast(`❌ Maximum ${MAX_PHOTOS} photos allowed.`, 'error'); return; }
+
+  // Show progress bar
+  const progressEl = document.getElementById(`photoprogress_${taskId}`);
+  const barEl      = document.getElementById(`photobar_${taskId}`);
+  const textEl     = document.getElementById(`phototext_${taskId}`);
+  const btnEl      = document.getElementById(`photobtn_${taskId}`);
+  if (progressEl) progressEl.style.display = 'block';
+  if (btnEl) btnEl.disabled = true;
+
+  try {
+    // Upload to Firebase Storage: proofPhotos/{taskId}/{timestamp}_{filename}
+    const timestamp = Date.now();
+    const fileName  = `${timestamp}_${file.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
+    const filePath  = `proofPhotos/${taskId}/${fileName}`;
+    const fileRef   = storageRef(storage, filePath);
+    const uploadTask = uploadBytesResumable(fileRef, file);
+
+    uploadTask.on('state_changed',
+      snapshot => {
+        const pct = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
+        if (barEl)  barEl.style.width  = pct + '%';
+        if (textEl) textEl.textContent = `Uploading... ${pct}%`;
+      },
+      error => {
+        if (progressEl) progressEl.style.display = 'none';
+        if (btnEl) btnEl.disabled = false;
+        showToast('❌ Upload failed. Try again.', 'error');
+      },
+      async () => {
+        const downloadUrl = await getDownloadURL(uploadTask.snapshot.ref);
+        const uploader = allStaff.find(s => s.id === currentUser.uid);
+        const newPhoto = {
+          url: downloadUrl,
+          filePath,
+          uploadedBy:     currentUser.uid,
+          uploadedByName: uploader?.name || 'Unknown',
+          uploadedAt:     new Date().toISOString()
+        };
+        const updatedPhotos = [...currentPhotos, newPhoto];
+        await updateDoc(doc(db, 'tasks', taskId), { proofPhotos: updatedPhotos, updatedAt: serverTimestamp() });
+        allTasks = allTasks.map(t => t.id === taskId ? { ...t, proofPhotos: updatedPhotos } : t);
+        if (progressEl) progressEl.style.display = 'none';
+        refreshCard(taskId);
+        showToast('✅ Photo uploaded!', 'success');
+        // Reset the file input so the same photo can be re-selected if needed
+        event.target.value = '';
+      }
+    );
+  } catch(e) {
+    if (progressEl) progressEl.style.display = 'none';
+    if (btnEl) btnEl.disabled = false;
+    showToast('❌ Upload error. Try again.', 'error');
+  }
+};
+
+window.openLightbox = function(url, meta) {
+  const lb = document.getElementById('photoLightbox');
+  document.getElementById('lightboxImg').src = url;
+  document.getElementById('lightboxMeta').textContent = meta;
+  lb.classList.add('open');
+};
+window.closeLightbox = function() {
+  document.getElementById('photoLightbox').classList.remove('open');
+  document.getElementById('lightboxImg').src = '';
+};
+
+// ── UNIQUE TASK ID ──
 async function generateTaskId() {
   const counterRef = doc(db,"appConfig","taskCounter");
   let newNum = 1;
@@ -610,12 +725,8 @@ onAuthStateChanged(auth, async user => {
   currentRole=data.role;
   document.getElementById("userLabel").textContent=`${data.name||"Staff"} · ${data.role}`;
   const isPrivileged=data.role==="admin"||data.role==="manager";
-  if(isPrivileged){
-    document.getElementById("adminActions").style.display="flex";
-    document.getElementById("saveTplBtn").style.display="inline-flex";
-  } else {
-    document.getElementById("staffActions").style.display="flex";
-  }
+  if(isPrivileged){document.getElementById("adminActions").style.display="flex";document.getElementById("saveTplBtn").style.display="inline-flex";}
+  else{document.getElementById("staffActions").style.display="flex";}
   await loadStaff();
   buildDeptUI();
   loadTasks();
@@ -650,7 +761,6 @@ window.showTab=function(tab){
   document.getElementById("ptab-tasks").classList.toggle("active",tab==="tasks");
   document.getElementById("ptab-templates").classList.toggle("active",tab==="templates");
 };
-
 window.filterDept=function(dept,el){
   activeDept=dept;
   document.querySelectorAll(".dept-tab").forEach(t=>t.classList.remove("active"));
@@ -658,16 +768,11 @@ window.filterDept=function(dept,el){
 };
 
 async function loadTasks(){
-  let q = currentRole==="admin" || currentRole==="manager"
+  let q = currentRole==="admin"||currentRole==="manager"
     ? query(collection(db,"tasks"))
     : query(collection(db,"tasks"),where("assigneeId","==",currentUser.uid));
   const snap=await getDocs(q);
-  allTasks=snap.docs.map(d=>({id:d.id,...d.data()}))
-    .sort((a,b)=>{
-      const ta=a.createdAt?.seconds||0;
-      const tb=b.createdAt?.seconds||0;
-      return tb-ta;
-    });
+  allTasks=snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));
   updateStats();applyFilters();
 }
 
@@ -738,8 +843,8 @@ function buildTaskCard(t){
   const progHtml=tot?`<div class="progress-bar-wrap"><div class="progress-bar-label">${dn} of ${tot} sub-tasks done (${pct}%)</div><div class="progress-bar"><div class="progress-bar-fill" style="width:${pct}%"></div></div></div>`:"";
   const cmtHtml=(t.comments||[]).slice(-10).map(c=>`<div class="comment-item"><div class="comment-meta">${c.author} · ${c.time||''}</div><div class="comment-text">${c.text}</div></div>`).join("");
   const canTpl=currentRole==='admin'||currentRole==='manager';
-  // Timer visible to: assigned staff, admin, manager
-  const canSeeTimer = currentRole==='admin' || currentRole==='manager' || t.assigneeId===currentUser.uid;
+  const canSeeTimer=currentRole==='admin'||currentRole==='manager'||t.assigneeId===currentUser.uid;
+  const photoCount=t.proofPhotos?.length||0;
 
   return`
   <div class="task-card priority-${t.priority||'normal'}" id="card_${t.id}">
@@ -755,6 +860,7 @@ function buildTaskCard(t){
           ${deadlineInfo(t)}
           <span class="badge badge-dept">📌 ${t.stage||'—'}</span>
           ${t.totalTimeMinutes>0?`<span class="badge" style="background:rgba(52,211,153,0.1);color:var(--green);">⏱ ${fmtMinutes(t.totalTimeMinutes)}</span>`:''}
+          ${photoCount>0?`<span class="badge" style="background:rgba(124,106,247,0.12);color:var(--accent);">📷 ${photoCount} photo${photoCount>1?'s':''}</span>`:''}
         </div>
       </div>
       <div class="task-actions" onclick="event.stopPropagation()">
@@ -766,6 +872,7 @@ function buildTaskCard(t){
       <div class="stage-section"><div class="stage-label">Stage Progress</div><div class="stage-track">${stagesHtml}</div></div>
       ${t.notes?`<div class="task-desc">${t.notes}</div>`:''}
       ${progHtml}
+      ${buildPhotoSection(t)}
       ${canSeeTimer ? buildTimerBlock(t) : ''}
       <div class="subtask-section">
         <div class="subtask-header">
@@ -910,14 +1017,12 @@ window.adjustRunBatch=function(d){const el=document.getElementById("runBatchCoun
 window.updateBatchPreview=function(){
   const n=parseInt(document.getElementById("batchCount").value)||1;
   const el=document.getElementById("batchPreview");
-  el.innerHTML=n===1?`Will create <strong style="color:var(--teal)">1</strong> task — unique TASK-ID auto-assigned.`
-    :`Will create <strong style="color:var(--teal)">${n}</strong> tasks. Each gets its own unique TASK-ID.`;
+  el.innerHTML=n===1?`Will create <strong style="color:var(--teal)">1</strong> task — unique TASK-ID auto-assigned.`:`Will create <strong style="color:var(--teal)">${n}</strong> tasks. Each gets its own unique TASK-ID.`;
 };
 window.updateRunBatchPreview=function(){
   const n=parseInt(document.getElementById("runBatchCount").value)||1;
   const el=document.getElementById("runBatchPreview");
-  el.innerHTML=n===1?`Will create <strong style="color:var(--teal)">1</strong> task — unique TASK-ID auto-assigned.`
-    :`Will create <strong style="color:var(--teal)">${n}</strong> tasks, each with a unique TASK-ID.`;
+  el.innerHTML=n===1?`Will create <strong style="color:var(--teal)">1</strong> task — unique TASK-ID auto-assigned.`:`Will create <strong style="color:var(--teal)">${n}</strong> tasks, each with a unique TASK-ID.`;
 };
 window.createTask=async function(){
   const name=document.getElementById("newTaskName").value.trim();
@@ -934,8 +1039,8 @@ window.createTask=async function(){
   for(let i=0;i<n;i++){
     const taskId=await generateTaskId();
     const taskName=n>1?`${name} (${i+1}/${n})`:name;
-    const ref=await addDoc(collection(db,"tasks"),{taskId,name:taskName,department:dept,priority,deadline,assigneeId,stage,notes,checklist:[],minitasks:[],comments:[],timerSessions:[],totalTimeMinutes:0,createdAt:serverTimestamp(),updatedAt:serverTimestamp(),createdBy:currentUser.uid});
-    allTasks.unshift({id:ref.id,taskId,name:taskName,department:dept,priority,deadline:{toDate:()=>new Date(deadlineVal)},assigneeId,stage,notes,checklist:[],minitasks:[],comments:[],timerSessions:[],totalTimeMinutes:0});
+    const ref=await addDoc(collection(db,"tasks"),{taskId,name:taskName,department:dept,priority,deadline,assigneeId,stage,notes,checklist:[],minitasks:[],comments:[],timerSessions:[],totalTimeMinutes:0,proofPhotos:[],createdAt:serverTimestamp(),updatedAt:serverTimestamp(),createdBy:currentUser.uid});
+    allTasks.unshift({id:ref.id,taskId,name:taskName,department:dept,priority,deadline:{toDate:()=>new Date(deadlineVal)},assigneeId,stage,notes,checklist:[],minitasks:[],comments:[],timerSessions:[],totalTimeMinutes:0,proofPhotos:[]});
   }
   closeCreateModal();applyFilters();updateStats();
   showToast(`✅ ${n} task(s) created!`,"success");
@@ -1035,7 +1140,7 @@ window.runTemplate=async function(){
   for(let i=0;i<n;i++){
     const taskId=await generateTaskId();
     const taskName=n>1?`${name} (${i+1}/${n})`:name;
-    await addDoc(collection(db,"tasks"),{taskId,name:taskName,department:dept,priority,deadline,assigneeId,stage,notes,checklist:[],minitasks:[],comments:[],timerSessions:[],totalTimeMinutes:0,createdAt:serverTimestamp(),updatedAt:serverTimestamp(),createdBy:currentUser.uid,fromTemplate:activeRunTpl?.id||null});
+    await addDoc(collection(db,"tasks"),{taskId,name:taskName,department:dept,priority,deadline,assigneeId,stage,notes,checklist:[],minitasks:[],comments:[],timerSessions:[],totalTimeMinutes:0,proofPhotos:[],createdAt:serverTimestamp(),updatedAt:serverTimestamp(),createdBy:currentUser.uid,fromTemplate:activeRunTpl?.id||null});
   }
   if(activeRunTpl)await updateDoc(doc(db,"taskTemplates",activeRunTpl.id),{usedCount:increment(n)});
   document.getElementById("runTplModal").classList.remove("open");
