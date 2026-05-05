@@ -420,11 +420,12 @@ onAuthStateChanged(auth, async user => {
     const isManager = role==='manager';
 
     if (isAdmin || isManager) {
-      document.getElementById('adminNavLink').style.display='flex';
-      document.getElementById('crmNavLink').style.display='flex';
-    if (role==='receptionist' || role==='gemologist') {
+          document.getElementById('adminNavLink').style.display='flex';
           document.getElementById('crmNavLink').style.display='flex';
-    }
+        }
+        if (role==='receptionist' || role==='gemologist') {
+          document.getElementById('crmNavLink').style.display='flex';
+        }
     if (isManager) {
       document.getElementById('role-chip-wrap').innerHTML='<span class="role-chip">⭐ Manager</span>';
       document.getElementById('welcome-msg').textContent='You have full team access. Manage tasks and monitor your team today! 💪';
