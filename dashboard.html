@@ -422,6 +422,10 @@ onAuthStateChanged(auth, async user => {
     if (isAdmin || isManager) {
       document.getElementById('adminNavLink').style.display='flex';
       document.getElementById('crmNavLink').style.display='flex';
+          }
+          const role = userProfile?.role;
+          if (role==='receptionist' || role==='gemologist') {
+            document.getElementById('crmNavLink').style.display='flex';
     }
     if (isManager) {
       document.getElementById('role-chip-wrap').innerHTML='<span class="role-chip">⭐ Manager</span>';
