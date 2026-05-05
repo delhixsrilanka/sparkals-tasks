@@ -222,6 +222,7 @@
   <a class="nav-item" href="attendance.html"><span class="nav-icon">🕐</span><span class="nav-label">Attend.</span></a>
   <a class="nav-item" href="leave.html"><span class="nav-icon">🏖</span><span class="nav-label">Leave</span></a>
   <a class="nav-item" href="admin.html" id="adminNavLink" style="display:none"><span class="nav-icon">⚙️</span><span class="nav-label">Admin</span></a>
+  <a class="nav-item" href="crm-customers.html" id="crmNavLink" style="display:none"><span class="nav-icon">💎</span><span class="nav-label">CRM</span></a>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -420,6 +421,7 @@ onAuthStateChanged(auth, async user => {
 
     if (isAdmin || isManager) {
       document.getElementById('adminNavLink').style.display='flex';
+      document.getElementById('crmNavLink').style.display='flex';
     }
     if (isManager) {
       document.getElementById('role-chip-wrap').innerHTML='<span class="role-chip">⭐ Manager</span>';
