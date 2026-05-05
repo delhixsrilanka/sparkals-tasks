@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#1a1a2e" />
+  <title>Pricing Rules — Sparkals CRM</title>
+  <link rel="manifest" href="/manifest.json" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', sans-serif; background: #1a1a2e; color: white; min-height: 100vh; padding-bottom: 80px; }
+
+    .header { background: linear-gradient(135deg, #1a1a2e, #2d2d5e); padding: 16px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid rgba(255,255,255,0.08); position: sticky; top: 0; z-index: 100; }
+    .header-title { font-size: 18px; font-weight: 700; color: #a78bfa; }
+    .header-sub { font-size: 12px; color: rgba(255,255,255,0.4); }
+    .back-btn { background: none; border: none; color: #a78bfa; font-size: 22px; cursor: pointer; padding: 4px; }
+
+    /* TABS */
+    .tabs { display: flex; padding: 14px 16px 0; gap: 8px; overflow-x: auto; }
+    .tab { padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 600; cursor: pointer; border: 1px solid rgba(255,255,255,0.12); background: transparent; color: rgba(255,255,255,0.45); white-space: nowrap; }
+    .tab.active { background: #7c3aed; color: white; border-color: #7c3aed; }
+
+    /* SECTION */
+    .section { padding: 16px; }
+    .section-heading { font-size: 13px; font-weight: 700; color: #a78bfa; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 12px; }
+
+    /* RULE CARD */
+    .rule-card { background: rgba(255,255,255,0.05); border-radius: 16px; padding: 16px; border: 1px solid rgba(255,255,255,0.08); margin-bottom: 10px; }
+    .rule-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+    .rule-name { font-size: 15px; font-weight: 600; color: white; }
+    .rule-type-badge { font-size: 11px; padding: 3px 10px; border-radius: 20px; background: rgba(124,58,237,0.2); color: #a78bfa; border: 1px solid rgba(124,58,237,0.3); }
+    .rule-toggle { display: flex; align-items: center; gap: 8px; }
+    .toggle { width: 40px; height: 22px; background: rgba(255,255,255,0.15); border-radius: 11px; position: relative; cursor: pointer; transition: background 0.2s; }
+    .toggle.on { background: #7c3aed; }
+    .toggle::after { content: ''; position: absolute; width: 16px; height: 16px; background: white; border-radius: 50%; top: 3px; left: 3px; transition: left 0.2s; }
+    .toggle.on::after { left: 21px; }
+
+    .form-row { display: flex; gap: 10px; margin-bottom: 10px; align-items: flex-end; }
+    .form-group { flex: 1; }
+    .form-label { font-size: 11px; color: rgba(255,255,255,0.45); margin-bottom: 4px; display: block; }
+    .form-input { width: 100%; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12); border-radius: 10px; padding: 9px 12px; color: white; font-size: 14px; outline: none; }
+    .form-input:focus { border-color: #a78bfa; }
+    .form-select { width: 100%; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12); border-radius: 10px; padding: 9px 12px; color: white; font-size: 14px; outline: none; }
+    .form-select option { background: #1e1e3a; }
+
+    .surcharge-row { display: flex; gap: 10px; padding: 10px 0 0; border-top: 1px solid rgba(255,255,255,0.06); margin-top: 6px; }
+    .surcharge-item { flex: 1; }
+    .surcharge-label { font-size: 11px; color: rgba(255,255,255,0.4); margin-bottom: 4px; }
+    .surcharge-input { width: 100%; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; padding: 7px 10px; color: white; font-size: 13px; outline: none; text-align: right; }
+
+    /* ADD RULE BUTTON */
+    .add-rule-btn { width: 100%; background: rgba(124,58,237,0.12); border: 1px dashed rgba(124,58,237,0.4); color: #a78bfa; border-radius: 14px; padding: 13px; font-size: 14px; font-weight: 600; cursor: pointer; margin-bottom: 10px; }
+    .add-rule-btn:active { background: rgba(124,58,237,0.2); }
+
+    /* DELETE BUTTON */
+    .delete-btn { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.25); color: #ef4444; border-radius: 8px; padding: 6px 12px; font-size: 12px; cursor: pointer; }
+
+    /* SAVE BUTTON */
+    .save-btn { width: 100%; background: #7c3aed; border: none; color: white; border-radius: 14px; padding: 15px; font-size: 16px; font-weight: 700; cursor: pointer; }
+    .save-btn:active { background: #6d28d9; }
+    .save-btn:disabled { opacity: 0.5; }
+
+    /* PREVIEW BOX */
+    .preview-box { background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.2); border-radius: 12px; padding: 14px 16px; margin-bottom: 14px; }
+    .preview-title { font-size: 12px; color: #10b981; margin-bottom: 8px; font-weight: 600; }
+    .preview-row { display: flex; justify-content: space-between; font-size: 13px; color: rgba(255,255,255,0.6); margin-bottom: 4px; }
+    .preview-total { display: flex; justify-content: space-between; font-size: 15px; font-weight: 700; color: white; margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.1); }
+
+    /* ACCESS DENIED */
+    .access-denied { text-align: center; padding: 80px 20px; }
+    .access-denied .icon { font-size: 48px; margin-bottom: 12px; }
+
+    /* SPINNER */
+    .spinner-wrap { text-align: center; padding: 60px; }
+    .spinner { width: 32px; height: 32px; border: 3px solid rgba(167,139,250,0.2); border-top-color: #a78bfa; border-radius: 50%; animation: spin 0.8s linear infinite; display: inline-block; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* TOAST */
+    .toast { position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%); background: #1a1a2e; color: white; padding: 12px 20px; border-radius: 12px; font-size: 14px; display: none; z-index: 999; border: 1px solid rgba(255,255,255,0.1); white-space: nowrap; }
+    .toast.show { display: block; }
+
+    /* BOTTOM NAV */
+    .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top: 1px solid #f0f0f0; display: flex; justify-content: space-around; padding: 6px 0 8px; z-index: 150; }
+    .nav-item { display: flex; flex-direction: column; align-items: center; gap: 2px; text-decoration: none; padding: 4px 10px; color: #888; font-size: 10px; font-weight: 600; }
+    .nav-item.active { color: #1a1a2e; }
+    .nav-icon { font-size: 20px; }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <button class="back-btn" onclick="window.location.href='crm-customers.html'">←</button>
+    <div>
+      <div class="header-title">💰 Pricing Rules</div>
+      <div class="header-sub">Admin only — auto-used in invoices</div>
+    </div>
+  </div>
+
+  <div id="loadingWrap" class="spinner-wrap"><div class="spinner"></div></div>
+  <div id="accessDenied" class="access-denied" style="display:none;">
+    <div class="icon">🔒</div>
+    <p style="color:rgba(255,255,255,0.4);">Admin access only.</p>
+  </div>
+
+  <div id="mainContent" style="display:none;">
+
+    <!-- SERVICE TABS -->
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab('diamond')">💎 Diamond Cert</div>
+      <div class="tab" onclick="switchTab('gemstone')">🪨 Gemstone Cert</div>
+      <div class="tab" onclick="switchTab('valuation')">⚖️ Valuation</div>
+    </div>
+
+    <!-- RULES LIST -->
+    <div class="section">
+      <div class="section-heading" id="sectionTitle">Diamond Certification Rules</div>
+
+      <!-- LIVE PREVIEW -->
+      <div class="preview-box" id="previewBox">
+        <div class="preview-title">📊 Quick Price Preview</div>
+        <div id="previewContent">
+          <div class="preview-row"><span>Add a rule below to see preview</span></div>
+        </div>
+      </div>
+
+      <!-- RULES CONTAINER -->
+      <div id="rulesContainer"></div>
+
+      <!-- ADD RULE -->
+      <button class="add-rule-btn" onclick="addRule()">+ Add Pricing Rule</button>
+
+      <!-- SAVE -->
+      <button class="save-btn" id="saveBtn" onclick="saveRules()">💾 Save Pricing Rules</button>
+    </div>
+
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <div class="bottom-nav">
+    <a class="nav-item" href="dashboard.html"><span class="nav-icon">🏠</span>Home</a>
+    <a class="nav-item" href="tasks.html"><span class="nav-icon">✅</span>Tasks</a>
+    <a class="nav-item" href="chat.html"><span class="nav-icon">💬</span>Chat</a>
+    <a class="nav-item" href="attendance.html"><span class="nav-icon">🕐</span>Attend.</a>
+    <a class="nav-item active" href="crm-customers.html"><span class="nav-icon">💎</span>CRM</a>
+  </div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import { getFirestore, collection, doc, getDocs, setDoc, deleteDoc, query, where, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDNwQYXcwZrAh4cTfRyhOVk_pRod9p4CRM",
+  authDomain: "sparkals-tasks-app.firebaseapp.com",
+  projectId: "sparkals-tasks-app",
+  storageBucket: "sparkals-tasks-app.firebasestorage.app",
+  messagingSenderId: "147179987231",
+  appId: "1:147179987231:web:c6ffa484f33a2ca420d02a"
+};
+
+const app  = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+
+const ADMIN_EMAILS = ['sandeepgemologist@gmail.com','sparkals.design@gmail.com'];
+
+const TAB_TITLES = {
+  diamond:   '💎 Diamond Certification Rules',
+  gemstone:  '🪨 Gemstone Certification Rules',
+  valuation: '⚖️ Valuation Rules'
+};
+
+const RULE_TYPES = [
+  { value: 'flat',              label: 'Flat Fee (fixed amount per job)' },
+  { value: 'per_carat',        label: 'Per Carat (₹ × carat weight)' },
+  { value: 'per_gram',         label: 'Per Gram (₹ × metal weight)' },
+  { value: 'weight_range',     label: 'Weight Range (slab pricing)' },
+  { value: 'valuation_percent',label: 'Valuation % (% of item value)' },
+  { value: 'cert_type',        label: 'By Certificate Type (different price per cert grade)' },
+];
+
+let currentUser  = null;
+let currentTab   = 'diamond';
+let rulesData    = { diamond: [], gemstone: [], valuation: [] };
+let deletedIds   = [];
+
+// ── AUTH ─────────────────────────────────────────────────
+onAuthStateChanged(auth, async (user) => {
+  if (!user) { window.location.href = 'login.html'; return; }
+  currentUser = user;
+  document.getElementById('loadingWrap').style.display = 'none';
+  if (!ADMIN_EMAILS.includes(user.email)) {
+    document.getElementById('accessDenied').style.display = 'block';
+    return;
+  }
+  document.getElementById('mainContent').style.display = 'block';
+  await loadRules();
+});
+
+// ── LOAD RULES ───────────────────────────────────────────
+async function loadRules() {
+  try {
+    const snap = await getDocs(collection(db, 'pricingRules'));
+    rulesData = { diamond: [], gemstone: [], valuation: [] };
+    snap.forEach(d => {
+      const rule = { id: d.id, ...d.data() };
+      if (rulesData[rule.serviceType]) rulesData[rule.serviceType].push(rule);
+    });
+    renderRules();
+  } catch(e) {
+    console.error(e);
+    showToast('❌ Could not load rules');
+  }
+}
+
+// ── SWITCH TAB ───────────────────────────────────────────
+window.switchTab = function(tab) {
+  currentTab = tab;
+  document.querySelectorAll('.tab').forEach((t,i) => {
+    t.classList.toggle('active', ['diamond','gemstone','valuation'][i] === tab);
+  });
+  document.getElementById('sectionTitle').textContent = TAB_TITLES[tab];
+  renderRules();
+};
+
+// ── RENDER RULES ─────────────────────────────────────────
+function renderRules() {
+  const container = document.getElementById('rulesContainer');
+  const rules = rulesData[currentTab];
+  if (!rules.length) {
+    container.innerHTML = `<div style="text-align:center;padding:20px;color:rgba(255,255,255,0.3);font-size:13px;">No rules yet — tap + Add Pricing Rule</div>`;
+    updatePreview([]);
+    return;
+  }
+  container.innerHTML = rules.map((r, i) => buildRuleCard(r, i)).join('');
+  updatePreview(rules);
+}
+
+// ── BUILD RULE CARD ──────────────────────────────────────
+function buildRuleCard(rule, idx) {
+  const typeLabel = RULE_TYPES.find(t => t.value === rule.ruleType)?.label || rule.ruleType;
+  const isOn = rule.isActive !== false;
+  return `
+  <div class="rule-card" id="ruleCard_${idx}">
+    <div class="rule-header">
+      <div>
+        <div class="rule-name">${rule.name || 'Rule ' + (idx+1)}</div>
+        <div class="rule-type-badge">${typeLabel}</div>
+      </div>
+      <div class="rule-toggle">
+        <div class="toggle ${isOn?'on':''}" onclick="toggleRule(${idx})" title="${isOn?'Active':'Inactive'}"></div>
+        <button class="delete-btn" onclick="deleteRule(${idx})">✕</button>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Rule Name</label>
+        <input class="form-input" type="text" value="${rule.name||''}" onchange="updateRule(${idx},'name',this.value)" placeholder="e.g. Standard Diamond Cert" />
+      </div>
+      <div class="form-group" style="max-width:140px;">
+        <label class="form-label">Type</label>
+        <select class="form-select" onchange="updateRule(${idx},'ruleType',this.value)">
+          ${RULE_TYPES.map(t => `<option value="${t.value}" ${rule.ruleType===t.value?'selected':''}>${t.label.split('(')[0].trim()}</option>`).join('')}
+        </select>
+      </div>
+    </div>
+
+    ${buildTypeFields(rule, idx)}
+
+    <div class="surcharge-row">
+      <div class="surcharge-item">
+        <div class="surcharge-label">⚡ Priority surcharge %</div>
+        <input class="surcharge-input" type="number" value="${rule.prioritySurcharge||0}" onchange="updateRule(${idx},'prioritySurcharge',+this.value)" placeholder="0" />
+      </div>
+      <div class="surcharge-item">
+        <div class="surcharge-label">🚨 Urgent surcharge %</div>
+        <input class="surcharge-input" type="number" value="${rule.urgentSurcharge||0}" onchange="updateRule(${idx},'urgentSurcharge',+this.value)" placeholder="0" />
+      </div>
+    </div>
+  </div>`;
+}
+
+// ── TYPE-SPECIFIC FIELDS ─────────────────────────────────
+function buildTypeFields(rule, idx) {
+  switch(rule.ruleType) {
+    case 'flat':
+      return `<div class="form-row">
+        <div class="form-group"><label class="form-label">Fixed Price (₹)</label>
+        <input class="form-input" type="number" value="${rule.fixedPrice||''}" onchange="updateRule(${idx},'fixedPrice',+this.value)" placeholder="e.g. 500" /></div>
+      </div>`;
+    case 'per_carat':
+      return `<div class="form-row">
+        <div class="form-group"><label class="form-label">Price per Carat (₹)</label>
+        <input class="form-input" type="number" value="${rule.pricePerUnit||''}" onchange="updateRule(${idx},'pricePerUnit',+this.value)" placeholder="e.g. 200" /></div>
+        <div class="form-group"><label class="form-label">Min charge (₹)</label>
+        <input class="form-input" type="number" value="${rule.minCharge||''}" onchange="updateRule(${idx},'minCharge',+this.value)" placeholder="e.g. 300" /></div>
+      </div>`;
+    case 'per_gram':
+      return `<div class="form-row">
+        <div class="form-group"><label class="form-label">Price per Gram (₹)</label>
+        <input class="form-input" type="number" value="${rule.pricePerUnit||''}" onchange="updateRule(${idx},'pricePerUnit',+this.value)" placeholder="e.g. 50" /></div>
+        <div class="form-group"><label class="form-label">Min charge (₹)</label>
+        <input class="form-input" type="number" value="${rule.minCharge||''}" onchange="updateRule(${idx},'minCharge',+this.value)" placeholder="e.g. 200" /></div>
+      </div>`;
+    case 'weight_range':
+      return `<div class="form-row">
+        <div class="form-group"><label class="form-label">Min weight</label>
+        <input class="form-input" type="number" value="${rule.minValue||''}" onchange="updateRule(${idx},'minValue',+this.value)" placeholder="0" /></div>
+        <div class="form-group"><label class="form-label">Max weight</label>
+        <input class="form-input" type="number" value="${rule.maxValue||''}" onchange="updateRule(${idx},'maxValue',+this.value)" placeholder="e.g. 5" /></div>
+        <div class="form-group"><label class="form-label">Price (₹)</label>
+        <input class="form-input" type="number" value="${rule.fixedPrice||''}" onchange="updateRule(${idx},'fixedPrice',+this.value)" placeholder="e.g. 800" /></div>
+      </div>`;
+    case 'valuation_percent':
+      return `<div class="form-row">
+        <div class="form-group"><label class="form-label">% of item value</label>
+        <input class="form-input" type="number" value="${rule.percent||''}" onchange="updateRule(${idx},'percent',+this.value)" placeholder="e.g. 0.5" step="0.1" /></div>
+        <div class="form-group"><label class="form-label">Min charge (₹)</label>
+        <input class="form-input" type="number" value="${rule.minCharge||''}" onchange="updateRule(${idx},'minCharge',+this.value)" placeholder="e.g. 500" /></div>
+      </div>`;
+    case 'cert_type':
+      return `<div class="form-row">
+        <div class="form-group"><label class="form-label">Standard (₹)</label>
+        <input class="form-input" type="number" value="${rule.priceStandard||''}" onchange="updateRule(${idx},'priceStandard',+this.value)" placeholder="500" /></div>
+        <div class="form-group"><label class="form-label">Premium (₹)</label>
+        <input class="form-input" type="number" value="${rule.pricePremium||''}" onchange="updateRule(${idx},'pricePremium',+this.value)" placeholder="800" /></div>
+        <div class="form-group"><label class="form-label">Express (₹)</label>
+        <input class="form-input" type="number" value="${rule.priceExpress||''}" onchange="updateRule(${idx},'priceExpress',+this.value)" placeholder="1200" /></div>
+      </div>`;
+    default:
+      return '';
+  }
+}
+
+// ── ADD RULE ─────────────────────────────────────────────
+window.addRule = function() {
+  rulesData[currentTab].push({
+    id: 'new_' + Date.now(),
+    serviceType: currentTab,
+    name: '',
+    ruleType: 'flat',
+    fixedPrice: 0,
+    prioritySurcharge: 0,
+    urgentSurcharge: 0,
+    isActive: true
+  });
+  renderRules();
+};
+
+// ── UPDATE RULE FIELD ────────────────────────────────────
+window.updateRule = function(idx, field, value) {
+  rulesData[currentTab][idx][field] = value;
+  if (field === 'ruleType') renderRules();
+  else updatePreview(rulesData[currentTab]);
+};
+
+// ── TOGGLE ACTIVE ────────────────────────────────────────
+window.toggleRule = function(idx) {
+  rulesData[currentTab][idx].isActive = !rulesData[currentTab][idx].isActive;
+  renderRules();
+};
+
+// ── DELETE RULE ──────────────────────────────────────────
+window.deleteRule = function(idx) {
+  const rule = rulesData[currentTab][idx];
+  if (rule.id && !rule.id.startsWith('new_')) deletedIds.push(rule.id);
+  rulesData[currentTab].splice(idx, 1);
+  renderRules();
+  showToast('🗑️ Rule removed — tap Save to confirm');
+};
+
+// ── LIVE PREVIEW ─────────────────────────────────────────
+function updatePreview(rules) {
+  const active = rules.filter(r => r.isActive !== false);
+  if (!active.length) {
+    document.getElementById('previewContent').innerHTML =
+      '<div class="preview-row"><span>Add a rule to see price preview</span></div>';
+    return;
+  }
+  let html = '';
+  let total = 0;
+  active.forEach(r => {
+    let price = 0;
+    let label = r.name || r.ruleType;
+    if (r.ruleType === 'flat')              { price = r.fixedPrice || 0; }
+    if (r.ruleType === 'per_carat')         { price = Math.max((r.pricePerUnit||0) * 1, r.minCharge||0); label += ' (1ct sample)'; }
+    if (r.ruleType === 'per_gram')          { price = Math.max((r.pricePerUnit||0) * 5, r.minCharge||0); label += ' (5g sample)'; }
+    if (r.ruleType === 'weight_range')      { price = r.fixedPrice || 0; }
+    if (r.ruleType === 'valuation_percent') { price = Math.max((r.percent||0)/100 * 50000, r.minCharge||0); label += ' (₹50k sample)'; }
+    if (r.ruleType === 'cert_type')         { price = r.priceStandard || 0; label += ' (Standard)'; }
+    total += price;
+    html += `<div class="preview-row"><span>${label}</span><span>₹${price.toLocaleString('en-IN')}</span></div>`;
+  });
+  html += `<div class="preview-total"><span>Estimated Total</span><span>₹${total.toLocaleString('en-IN')}</span></div>`;
+  document.getElementById('previewContent').innerHTML = html;
+}
+
+// ── SAVE RULES ───────────────────────────────────────────
+window.saveRules = async function() {
+  const btn = document.getElementById('saveBtn');
+  btn.textContent = 'Saving...'; btn.disabled = true;
+  try {
+    // Delete removed rules
+    for (const id of deletedIds) {
+      await deleteDoc(doc(db, 'pricingRules', id));
+    }
+    deletedIds = [];
+
+    // Save all rules for current tab
+    for (const rule of rulesData[currentTab]) {
+      if (!rule.name) { showToast('⚠️ Please give each rule a name'); btn.textContent='💾 Save Pricing Rules'; btn.disabled=false; return; }
+      const ruleId = rule.id.startsWith('new_') ? `${currentTab}_${Date.now()}_${Math.random().toString(36).slice(2,6)}` : rule.id;
+      await setDoc(doc(db, 'pricingRules', ruleId), {
+        serviceType:       currentTab,
+        name:              rule.name,
+        ruleType:          rule.ruleType,
+        fixedPrice:        rule.fixedPrice        || 0,
+        pricePerUnit:      rule.pricePerUnit      || 0,
+        minValue:          rule.minValue          || 0,
+        maxValue:          rule.maxValue          || 0,
+        minCharge:         rule.minCharge         || 0,
+        percent:           rule.percent           || 0,
+        priceStandard:     rule.priceStandard     || 0,
+        pricePremium:      rule.pricePremium      || 0,
+        priceExpress:      rule.priceExpress      || 0,
+        prioritySurcharge: rule.prioritySurcharge || 0,
+        urgentSurcharge:   rule.urgentSurcharge   || 0,
+        isActive:          rule.isActive !== false,
+        updatedAt:         serverTimestamp(),
+        updatedBy:         currentUser.email
+      });
+    }
+    showToast('✅ Pricing rules saved!');
+    await loadRules();
+  } catch(e) {
+    console.error(e);
+    showToast('❌ Save failed. Try again.');
+  } finally {
+    btn.textContent = '💾 Save Pricing Rules'; btn.disabled = false;
+  }
+};
+
+// ── TOAST ────────────────────────────────────────────────
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+</script>
+</body>
+</html>
