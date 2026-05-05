@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#1a1a2e" />
+  <title>CRM — Customers</title>
+  <link rel="manifest" href="/manifest.json" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', sans-serif; background: #1a1a2e; color: white; min-height: 100vh; padding-bottom: 80px; }
+
+    /* HEADER */
+    .header { background: linear-gradient(135deg, #1a1a2e, #2d2d5e); padding: 16px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid rgba(255,255,255,0.08); position: sticky; top: 0; z-index: 100; }
+    .header h1 { font-size: 18px; font-weight: 700; color: #a78bfa; }
+    .header-sub { font-size: 12px; color: rgba(255,255,255,0.4); }
+    .back-btn { background: none; border: none; color: #a78bfa; font-size: 22px; cursor: pointer; padding: 4px; }
+
+    /* SEARCH + ADD BAR */
+    .top-bar { padding: 14px 16px; display: flex; gap: 10px; align-items: center; }
+    .search-box { flex: 1; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); border-radius: 12px; padding: 10px 14px; color: white; font-size: 14px; outline: none; }
+    .search-box::placeholder { color: rgba(255,255,255,0.3); }
+    .add-btn { background: #7c3aed; border: none; color: white; border-radius: 12px; padding: 10px 16px; font-size: 14px; font-weight: 600; cursor: pointer; white-space: nowrap; }
+    .add-btn:active { background: #6d28d9; }
+
+    /* STATS ROW */
+    .stats-row { display: flex; gap: 10px; padding: 0 16px 14px; }
+    .stat-card { flex: 1; background: rgba(255,255,255,0.05); border-radius: 12px; padding: 12px; text-align: center; border: 1px solid rgba(255,255,255,0.08); }
+    .stat-num { font-size: 22px; font-weight: 700; color: #a78bfa; }
+    .stat-label { font-size: 11px; color: rgba(255,255,255,0.4); margin-top: 2px; }
+
+    /* CUSTOMER LIST */
+    .section-title { padding: 0 16px 8px; font-size: 12px; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 0.8px; }
+    .customer-list { padding: 0 16px; display: flex; flex-direction: column; gap: 10px; }
+    .customer-card { background: rgba(255,255,255,0.05); border-radius: 16px; padding: 14px 16px; display: flex; align-items: center; gap: 14px; border: 1px solid rgba(255,255,255,0.08); cursor: pointer; transition: background 0.15s; }
+    .customer-card:active { background: rgba(255,255,255,0.1); }
+    .avatar { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 700; flex-shrink: 0; }
+    .customer-info { flex: 1; min-width: 0; }
+    .customer-name { font-size: 15px; font-weight: 600; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .customer-phone { font-size: 12px; color: rgba(255,255,255,0.45); margin-top: 2px; }
+    .customer-meta { display: flex; gap: 6px; margin-top: 5px; flex-wrap: wrap; }
+    .badge { font-size: 10px; padding: 2px 8px; border-radius: 20px; font-weight: 600; }
+    .badge-gold { background: rgba(251,191,36,0.15); color: #fbbf24; border: 1px solid rgba(251,191,36,0.3); }
+    .badge-silver { background: rgba(148,163,184,0.15); color: #94a3b8; border: 1px solid rgba(148,163,184,0.3); }
+    .badge-regular { background: rgba(167,139,250,0.12); color: #a78bfa; border: 1px solid rgba(167,139,250,0.25); }
+    .job-count { font-size: 11px; color: rgba(255,255,255,0.35); }
+    .chevron { color: rgba(255,255,255,0.25); font-size: 16px; }
+
+    /* EMPTY STATE */
+    .empty-state { text-align: center; padding: 60px 20px; color: rgba(255,255,255,0.3); }
+    .empty-icon { font-size: 48px; margin-bottom: 12px; }
+    .empty-text { font-size: 15px; }
+    .empty-sub { font-size: 13px; margin-top: 6px; color: rgba(255,255,255,0.2); }
+
+    /* SPINNER */
+    .spinner-wrap { text-align: center; padding: 40px; }
+    .spinner { width: 32px; height: 32px; border: 3px solid rgba(167,139,250,0.2); border-top-color: #a78bfa; border-radius: 50%; animation: spin 0.8s linear infinite; display: inline-block; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* MODAL OVERLAY */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 200; align-items: flex-end; justify-content: center; }
+    .modal-overlay.show { display: flex; }
+    .modal { background: #1e1e3a; border-radius: 24px 24px 0 0; padding: 24px 20px 40px; width: 100%; max-width: 480px; max-height: 90vh; overflow-y: auto; }
+    .modal-title { font-size: 17px; font-weight: 700; color: #a78bfa; margin-bottom: 20px; }
+    .form-group { margin-bottom: 14px; }
+    .form-label { font-size: 12px; color: rgba(255,255,255,0.5); margin-bottom: 5px; display: block; }
+    .form-input { width: 100%; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12); border-radius: 10px; padding: 11px 14px; color: white; font-size: 14px; outline: none; }
+    .form-input:focus { border-color: #a78bfa; }
+    .form-select { width: 100%; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12); border-radius: 10px; padding: 11px 14px; color: white; font-size: 14px; outline: none; }
+    .form-select option { background: #1e1e3a; }
+    .modal-actions { display: flex; gap: 10px; margin-top: 20px; }
+    .btn-cancel { flex: 1; background: rgba(255,255,255,0.07); border: none; color: rgba(255,255,255,0.6); border-radius: 12px; padding: 13px; font-size: 15px; cursor: pointer; }
+    .btn-save { flex: 2; background: #7c3aed; border: none; color: white; border-radius: 12px; padding: 13px; font-size: 15px; font-weight: 600; cursor: pointer; }
+    .btn-save:active { background: #6d28d9; }
+
+    /* TOAST */
+    .toast { position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%); background: #1a1a2e; color: white; padding: 12px 20px; border-radius: 12px; font-size: 14px; display: none; z-index: 999; border: 1px solid rgba(255,255,255,0.1); white-space: nowrap; }
+    .toast.show { display: block; }
+
+    /* BOTTOM NAV */
+    .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top: 1px solid #f0f0f0; display: flex; justify-content: space-around; padding: 6px 0 8px; z-index: 150; }
+    .nav-item { display: flex; flex-direction: column; align-items: center; gap: 2px; text-decoration: none; padding: 4px 10px; color: #888; font-size: 10px; font-weight: 600; }
+    .nav-item.active { color: #1a1a2e; }
+    .nav-icon { font-size: 20px; }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <div class="header">
+    <button class="back-btn" onclick="window.location.href='dashboard.html'">←</button>
+    <div>
+      <div class="header h1" style="font-size:18px;font-weight:700;color:#a78bfa;">💎 CRM — Customers</div>
+      <div class="header-sub">Sparkals Gemstone Lab</div>
+    </div>
+  </div>
+
+  <!-- SEARCH + ADD -->
+  <div class="top-bar">
+    <input class="search-box" type="text" id="searchInput" placeholder="🔍  Search by name or phone..." oninput="filterCustomers()" />
+    <button class="add-btn" onclick="openAddModal()">+ Add</button>
+  </div>
+
+  <!-- STATS -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-num" id="statTotal">—</div>
+      <div class="stat-label">Total</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num" id="statGold">—</div>
+      <div class="stat-label">Gold Members</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num" id="statJobs">—</div>
+      <div class="stat-label">Total Jobs</div>
+    </div>
+  </div>
+
+  <!-- CUSTOMER LIST -->
+  <div class="section-title">All Customers</div>
+  <div class="customer-list" id="customerList">
+    <div class="spinner-wrap"><div class="spinner"></div></div>
+  </div>
+
+  <!-- EMPTY STATE (hidden by default) -->
+  <div class="empty-state" id="emptyState" style="display:none;">
+    <div class="empty-icon">👤</div>
+    <div class="empty-text">No customers yet</div>
+    <div class="empty-sub">Tap + Add to register your first customer</div>
+  </div>
+
+  <!-- ADD CUSTOMER MODAL -->
+  <div class="modal-overlay" id="addModal">
+    <div class="modal">
+      <div class="modal-title">➕ Add New Customer</div>
+
+      <div class="form-group">
+        <label class="form-label">Full Name *</label>
+        <input class="form-input" type="text" id="inp-name" placeholder="e.g. Ravi Kumar" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Phone Number *</label>
+        <input class="form-input" type="tel" id="inp-phone" placeholder="e.g. 9876543210" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email (optional)</label>
+        <input class="form-input" type="email" id="inp-email" placeholder="e.g. ravi@email.com" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Address (optional)</label>
+        <input class="form-input" type="text" id="inp-address" placeholder="e.g. T. Nagar, Chennai" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Membership Tier</label>
+        <select class="form-select" id="inp-membership">
+          <option value="regular">Regular</option>
+          <option value="silver">Silver (5% discount)</option>
+          <option value="gold">Gold (10% discount)</option>
+        </select>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-cancel" onclick="closeAddModal()">Cancel</button>
+        <button class="btn-save" onclick="saveCustomer()">Save Customer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div class="toast" id="toast"></div>
+
+  <!-- BOTTOM NAV -->
+  <div class="bottom-nav">
+    <a class="nav-item" href="dashboard.html"><span class="nav-icon">🏠</span>Home</a>
+    <a class="nav-item" href="tasks.html"><span class="nav-icon">✅</span>Tasks</a>
+    <a class="nav-item" href="chat.html"><span class="nav-icon">💬</span>Chat</a>
+    <a class="nav-item" href="attendance.html"><span class="nav-icon">🕐</span>Attend.</a>
+    <a class="nav-item active" href="crm-customers.html"><span class="nav-icon">💎</span>CRM</a>
+  </div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import { getFirestore, collection, doc, addDoc, getDocs, query, where, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDNwQYXcwZrAh4cTfRyhOVk_pRod9p4CRM",
+  authDomain: "sparkals-tasks-app.firebaseapp.com",
+  projectId: "sparkals-tasks-app",
+  storageBucket: "sparkals-tasks-app.firebasestorage.app",
+  messagingSenderId: "147179987231",
+  appId: "1:147179987231:web:c6ffa484f33a2ca420d02a"
+};
+
+const app  = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+
+const ADMIN_EMAILS = ['sandeepgemologist@gmail.com','sparkals.design@gmail.com'];
+const MEMBERSHIP_DISCOUNTS = { regular: 0, silver: 5, gold: 10 };
+const AVATAR_COLORS = ['#7c3aed','#059669','#dc2626','#d97706','#0284c7','#db2777'];
+
+let currentUser = null;
+let allCustomers = [];
+
+// ── AUTH CHECK ──────────────────────────────────────────
+onAuthStateChanged(auth, async (user) => {
+  if (!user) { window.location.href = 'login.html'; return; }
+  currentUser = user;
+  await loadCustomers();
+});
+
+// ── LOAD CUSTOMERS ──────────────────────────────────────
+async function loadCustomers() {
+  try {
+    const q = query(collection(db, 'customers'), orderBy('name'));
+    const snap = await getDocs(q);
+    allCustomers = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    renderCustomers(allCustomers);
+    updateStats(allCustomers);
+  } catch(e) {
+    console.error(e);
+    showToast('❌ Could not load customers');
+  }
+}
+
+// ── RENDER LIST ─────────────────────────────────────────
+function renderCustomers(list) {
+  const el = document.getElementById('customerList');
+  const empty = document.getElementById('emptyState');
+  if (!list.length) {
+    el.innerHTML = '';
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+  el.innerHTML = list.map(c => {
+    const initials = c.name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+    const colorIdx = c.name.charCodeAt(0) % AVATAR_COLORS.length;
+    const color    = AVATAR_COLORS[colorIdx];
+    const tierBadge = c.membershipType === 'gold'   ? '<span class="badge badge-gold">⭐ Gold</span>'
+                    : c.membershipType === 'silver' ? '<span class="badge badge-silver">🥈 Silver</span>'
+                    : '<span class="badge badge-regular">Regular</span>';
+    const jobs = c.totalJobsCount || 0;
+    return `
+      <div class="customer-card" onclick="viewCustomer('${c.id}')">
+        <div class="avatar" style="background:${color}20;color:${color};">${initials}</div>
+        <div class="customer-info">
+          <div class="customer-name">${c.name}</div>
+          <div class="customer-phone">📞 ${c.phone || '—'}</div>
+          <div class="customer-meta">
+            ${tierBadge}
+            <span class="job-count">${jobs} job${jobs!==1?'s':''}</span>
+          </div>
+        </div>
+        <div class="chevron">›</div>
+      </div>`;
+  }).join('');
+}
+
+// ── STATS ───────────────────────────────────────────────
+function updateStats(list) {
+  document.getElementById('statTotal').textContent = list.length;
+  document.getElementById('statGold').textContent  = list.filter(c=>c.membershipType==='gold').length;
+  document.getElementById('statJobs').textContent  = list.reduce((s,c)=>s+(c.totalJobsCount||0),0);
+}
+
+// ── SEARCH ──────────────────────────────────────────────
+window.filterCustomers = function() {
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  const filtered = allCustomers.filter(c =>
+    c.name?.toLowerCase().includes(q) || c.phone?.includes(q)
+  );
+  renderCustomers(filtered);
+};
+
+// ── ADD MODAL ───────────────────────────────────────────
+window.openAddModal = function() {
+  document.getElementById('addModal').classList.add('show');
+};
+window.closeAddModal = function() {
+  document.getElementById('addModal').classList.remove('show');
+  ['name','phone','email','address'].forEach(f => document.getElementById('inp-'+f).value = '');
+  document.getElementById('inp-membership').value = 'regular';
+};
+
+// ── SAVE CUSTOMER ───────────────────────────────────────
+window.saveCustomer = async function() {
+  const name  = document.getElementById('inp-name').value.trim();
+  const phone = document.getElementById('inp-phone').value.trim();
+  const email = document.getElementById('inp-email').value.trim();
+  const addr  = document.getElementById('inp-address').value.trim();
+  const tier  = document.getElementById('inp-membership').value;
+
+  if (!name)  { showToast('⚠️ Please enter customer name'); return; }
+  if (!phone) { showToast('⚠️ Please enter phone number'); return; }
+
+  const btn = document.querySelector('.btn-save');
+  btn.textContent = 'Saving...'; btn.disabled = true;
+
+  try {
+    await addDoc(collection(db, 'customers'), {
+      name,
+      phone,
+      email:          email  || '',
+      address:        addr   || '',
+      membershipType: tier,
+      membershipDiscount: MEMBERSHIP_DISCOUNTS[tier],
+      totalJobsCount: 0,
+      totalAmountPaid: 0,
+      createdAt:  serverTimestamp(),
+      createdBy:  currentUser.uid,
+      createdByName: currentUser.displayName || currentUser.email
+    });
+    showToast('✅ Customer saved!');
+    closeAddModal();
+    await loadCustomers();
+  } catch(e) {
+    console.error(e);
+    showToast('❌ Save failed. Try again.');
+  } finally {
+    btn.textContent = 'Save Customer'; btn.disabled = false;
+  }
+};
+
+// ── VIEW CUSTOMER (placeholder for Step 71) ─────────────
+window.viewCustomer = function(id) {
+  showToast('📋 Customer detail view coming in Step 71');
+};
+
+// ── TOAST ────────────────────────────────────────────────
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+</script>
+</body>
+</html>
