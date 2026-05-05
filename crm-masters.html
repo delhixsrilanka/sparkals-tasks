@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#1a1a2e" />
+  <title>Admin Masters — Sparkals CRM</title>
+  <link rel="manifest" href="/manifest.json" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', sans-serif; background: #1a1a2e; color: white; min-height: 100vh; padding-bottom: 80px; }
+
+    .header { background: linear-gradient(135deg, #1a1a2e, #2d2d5e); padding: 16px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid rgba(255,255,255,0.08); position: sticky; top: 0; z-index: 100; }
+    .header-title { font-size: 18px; font-weight: 700; color: #a78bfa; }
+    .header-sub { font-size: 12px; color: rgba(255,255,255,0.4); }
+    .back-btn { background: none; border: none; color: #a78bfa; font-size: 22px; cursor: pointer; padding: 4px; }
+
+    .section { padding: 16px; }
+    .section-heading { font-size: 13px; font-weight: 700; color: #a78bfa; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+
+    .card { background: rgba(255,255,255,0.05); border-radius: 16px; padding: 16px; border: 1px solid rgba(255,255,255,0.08); margin-bottom: 10px; }
+
+    /* METAL RATES */
+    .rate-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+    .rate-label { font-size: 14px; color: rgba(255,255,255,0.7); flex: 1; }
+    .rate-input { background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12); border-radius: 10px; padding: 9px 12px; color: white; font-size: 14px; width: 120px; text-align: right; outline: none; }
+    .rate-input:focus { border-color: #a78bfa; }
+    .rate-unit { font-size: 12px; color: rgba(255,255,255,0.35); width: 28px; }
+
+    /* TAGS (service types, cert types) */
+    .tags-wrap { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+    .tag { background: rgba(124,58,237,0.15); border: 1px solid rgba(124,58,237,0.35); color: #a78bfa; border-radius: 20px; padding: 5px 12px; font-size: 13px; display: flex; align-items: center; gap: 6px; }
+    .tag-remove { cursor: pointer; color: rgba(255,255,255,0.4); font-size: 16px; line-height: 1; }
+    .tag-remove:hover { color: #ef4444; }
+    .add-tag-row { display: flex; gap: 8px; }
+    .tag-input { flex: 1; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12); border-radius: 10px; padding: 9px 12px; color: white; font-size: 14px; outline: none; }
+    .tag-input:focus { border-color: #a78bfa; }
+    .tag-add-btn { background: #7c3aed; border: none; color: white; border-radius: 10px; padding: 9px 16px; font-size: 14px; cursor: pointer; font-weight: 600; }
+
+    /* DISCOUNT LIMIT */
+    .discount-row { display: flex; align-items: center; gap: 10px; }
+    .discount-desc { font-size: 12px; color: rgba(255,255,255,0.35); margin-top: 6px; line-height: 1.4; }
+
+    /* SAVE BUTTON */
+    .save-btn { width: 100%; background: #7c3aed; border: none; color: white; border-radius: 14px; padding: 15px; font-size: 16px; font-weight: 700; cursor: pointer; margin-top: 8px; }
+    .save-btn:active { background: #6d28d9; }
+    .save-btn:disabled { opacity: 0.5; }
+
+    /* LAST UPDATED */
+    .last-updated { font-size: 11px; color: rgba(255,255,255,0.25); text-align: center; margin-top: 10px; }
+
+    /* ACCESS DENIED */
+    .access-denied { text-align: center; padding: 80px 20px; }
+    .access-denied .icon { font-size: 48px; margin-bottom: 12px; }
+    .access-denied p { color: rgba(255,255,255,0.4); font-size: 15px; }
+
+    /* TOAST */
+    .toast { position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%); background: #1a1a2e; color: white; padding: 12px 20px; border-radius: 12px; font-size: 14px; display: none; z-index: 999; border: 1px solid rgba(255,255,255,0.1); white-space: nowrap; }
+    .toast.show { display: block; }
+
+    /* SPINNER */
+    .spinner-wrap { text-align: center; padding: 60px; }
+    .spinner { width: 32px; height: 32px; border: 3px solid rgba(167,139,250,0.2); border-top-color: #a78bfa; border-radius: 50%; animation: spin 0.8s linear infinite; display: inline-block; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* BOTTOM NAV */
+    .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top: 1px solid #f0f0f0; display: flex; justify-content: space-around; padding: 6px 0 8px; z-index: 150; }
+    .nav-item { display: flex; flex-direction: column; align-items: center; gap: 2px; text-decoration: none; padding: 4px 10px; color: #888; font-size: 10px; font-weight: 600; }
+    .nav-item.active { color: #1a1a2e; }
+    .nav-icon { font-size: 20px; }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <div class="header">
+    <button class="back-btn" onclick="window.location.href='crm-customers.html'">←</button>
+    <div>
+      <div class="header-title">⚙️ Admin Masters</div>
+      <div class="header-sub">CRM Settings — Admin only</div>
+    </div>
+  </div>
+
+  <!-- LOADING -->
+  <div id="loadingWrap" class="spinner-wrap"><div class="spinner"></div></div>
+
+  <!-- ACCESS DENIED (shown if not admin) -->
+  <div id="accessDenied" class="access-denied" style="display:none;">
+    <div class="icon">🔒</div>
+    <p>Admin access only.<br/>Contact Sandeep to change these settings.</p>
+  </div>
+
+  <!-- MAIN CONTENT (shown only to admin) -->
+  <div id="mainContent" style="display:none;">
+
+    <!-- METAL RATES -->
+    <div class="section">
+      <div class="section-heading">🥇 Metal Rates (₹ per gram)</div>
+      <div class="card">
+        <div class="rate-row">
+          <div class="rate-label">24K Gold</div>
+          <input class="rate-input" type="number" id="rate-gold24" placeholder="0" />
+          <div class="rate-unit">₹/g</div>
+        </div>
+        <div class="rate-row">
+          <div class="rate-label">22K Gold</div>
+          <input class="rate-input" type="number" id="rate-gold22" placeholder="0" />
+          <div class="rate-unit">₹/g</div>
+        </div>
+        <div class="rate-row">
+          <div class="rate-label">18K Gold</div>
+          <input class="rate-input" type="number" id="rate-gold18" placeholder="0" />
+          <div class="rate-unit">₹/g</div>
+        </div>
+        <div class="rate-row">
+          <div class="rate-label">Silver 925</div>
+          <input class="rate-input" type="number" id="rate-silver" placeholder="0" />
+          <div class="rate-unit">₹/g</div>
+        </div>
+        <div class="rate-row">
+          <div class="rate-label">Platinum 950</div>
+          <input class="rate-input" type="number" id="rate-platinum" placeholder="0" />
+          <div class="rate-unit">₹/g</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SERVICE TYPES -->
+    <div class="section" style="padding-top:0;">
+      <div class="section-heading">💼 Service Types</div>
+      <div class="card">
+        <div class="tags-wrap" id="serviceTypesTags"></div>
+        <div class="add-tag-row">
+          <input class="tag-input" type="text" id="newServiceType" placeholder="Add service type..." />
+          <button class="tag-add-btn" onclick="addTag('serviceTypes','newServiceType')">+ Add</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- CERTIFICATE TYPES -->
+    <div class="section" style="padding-top:0;">
+      <div class="section-heading">📜 Certificate Types</div>
+      <div class="card">
+        <div class="tags-wrap" id="certTypesTags"></div>
+        <div class="add-tag-row">
+          <input class="tag-input" type="text" id="newCertType" placeholder="Add certificate type..." />
+          <button class="tag-add-btn" onclick="addTag('certTypes','newCertType')">+ Add</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- DISCOUNT LIMIT -->
+    <div class="section" style="padding-top:0;">
+      <div class="section-heading">🔒 Discount Approval Limit</div>
+      <div class="card">
+        <div class="discount-row">
+          <div class="rate-label">Max discount without approval</div>
+          <input class="rate-input" type="number" id="discountLimit" placeholder="10" min="0" max="100" />
+          <div class="rate-unit">%</div>
+        </div>
+        <div class="discount-desc">
+          Receptionist can give discounts up to this % on their own.<br/>
+          Above this limit → your approval is required automatically.
+        </div>
+      </div>
+    </div>
+
+    <!-- GST RATE -->
+    <div class="section" style="padding-top:0;">
+      <div class="section-heading">🧾 GST Rate</div>
+      <div class="card">
+        <div class="discount-row">
+          <div class="rate-label">GST percentage on invoices</div>
+          <input class="rate-input" type="number" id="gstRate" placeholder="3" min="0" max="28" />
+          <div class="rate-unit">%</div>
+        </div>
+        <div class="discount-desc">Standard GST for jewellery is 3%. Change only if your CA advises.</div>
+      </div>
+    </div>
+
+    <!-- SAVE -->
+    <div class="section" style="padding-top:0;">
+      <button class="save-btn" id="saveBtn" onclick="saveMasters()">💾 Save All Settings</button>
+      <div class="last-updated" id="lastUpdated"></div>
+    </div>
+
+  </div>
+
+  <!-- TOAST -->
+  <div class="toast" id="toast"></div>
+
+  <!-- BOTTOM NAV -->
+  <div class="bottom-nav">
+    <a class="nav-item" href="dashboard.html"><span class="nav-icon">🏠</span>Home</a>
+    <a class="nav-item" href="tasks.html"><span class="nav-icon">✅</span>Tasks</a>
+    <a class="nav-item" href="chat.html"><span class="nav-icon">💬</span>Chat</a>
+    <a class="nav-item" href="attendance.html"><span class="nav-icon">🕐</span>Attend.</a>
+    <a class="nav-item active" href="crm-customers.html"><span class="nav-icon">💎</span>CRM</a>
+  </div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import { getFirestore, doc, getDoc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDNwQYXcwZrAh4cTfRyhOVk_pRod9p4CRM",
+  authDomain: "sparkals-tasks-app.firebaseapp.com",
+  projectId: "sparkals-tasks-app",
+  storageBucket: "sparkals-tasks-app.firebasestorage.app",
+  messagingSenderId: "147179987231",
+  appId: "1:147179987231:web:c6ffa484f33a2ca420d02a"
+};
+
+const app  = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+
+const ADMIN_EMAILS = ['sandeepgemologist@gmail.com','sparkals.design@gmail.com'];
+
+// Local state for tags
+const tags = {
+  serviceTypes: [],
+  certTypes: []
+};
+
+// Default values
+const DEFAULTS = {
+  serviceTypes: ['Diamond Certification','Gemstone Certification','Jewellery Valuation'],
+  certTypes: ['Standard','Premium','Express','IGI Format','GIA Format'],
+  metalRates: { gold24: 0, gold22: 0, gold18: 0, silver: 0, platinum: 0 },
+  discountLimit: 10,
+  gstRate: 3
+};
+
+let currentUser = null;
+
+// ── AUTH ─────────────────────────────────────────────────
+onAuthStateChanged(auth, async (user) => {
+  if (!user) { window.location.href = 'login.html'; return; }
+  currentUser = user;
+  const isAdmin = ADMIN_EMAILS.includes(user.email);
+  document.getElementById('loadingWrap').style.display = 'none';
+  if (!isAdmin) {
+    document.getElementById('accessDenied').style.display = 'block';
+    return;
+  }
+  document.getElementById('mainContent').style.display = 'block';
+  await loadMasters();
+});
+
+// ── LOAD ─────────────────────────────────────────────────
+async function loadMasters() {
+  try {
+    const snap = await getDoc(doc(db, 'adminMasters', 'config'));
+    const data = snap.exists() ? snap.data() : DEFAULTS;
+
+    // Metal rates
+    const rates = data.metalRates || DEFAULTS.metalRates;
+    document.getElementById('rate-gold24').value   = rates.gold24   || '';
+    document.getElementById('rate-gold22').value   = rates.gold22   || '';
+    document.getElementById('rate-gold18').value   = rates.gold18   || '';
+    document.getElementById('rate-silver').value   = rates.silver   || '';
+    document.getElementById('rate-platinum').value = rates.platinum || '';
+
+    // Tags
+    tags.serviceTypes = data.serviceTypes || DEFAULTS.serviceTypes;
+    tags.certTypes    = data.certTypes    || DEFAULTS.certTypes;
+    renderTags('serviceTypes');
+    renderTags('certTypes');
+
+    // Discount + GST
+    document.getElementById('discountLimit').value = data.discountLimit ?? DEFAULTS.discountLimit;
+    document.getElementById('gstRate').value       = data.gstRate       ?? DEFAULTS.gstRate;
+
+    // Last updated
+    if (data.updatedAt?.toDate) {
+      document.getElementById('lastUpdated').textContent =
+        'Last saved: ' + data.updatedAt.toDate().toLocaleString('en-IN');
+    }
+  } catch(e) {
+    console.error(e);
+    showToast('❌ Could not load settings');
+  }
+}
+
+// ── RENDER TAGS ──────────────────────────────────────────
+function renderTags(key) {
+  const wrap = document.getElementById(key + 'Tags');
+  wrap.innerHTML = tags[key].map((t, i) => `
+    <div class="tag">
+      ${t}
+      <span class="tag-remove" onclick="removeTag('${key}',${i})">×</span>
+    </div>`).join('');
+}
+
+// ── ADD TAG ──────────────────────────────────────────────
+window.addTag = function(key, inputId) {
+  const inp = document.getElementById(inputId);
+  const val = inp.value.trim();
+  if (!val) return;
+  if (tags[key].includes(val)) { showToast('⚠️ Already exists'); return; }
+  tags[key].push(val);
+  renderTags(key);
+  inp.value = '';
+};
+
+// ── REMOVE TAG ───────────────────────────────────────────
+window.removeTag = function(key, idx) {
+  tags[key].splice(idx, 1);
+  renderTags(key);
+};
+
+// ── SAVE ─────────────────────────────────────────────────
+window.saveMasters = async function() {
+  const btn = document.getElementById('saveBtn');
+  btn.textContent = 'Saving...'; btn.disabled = true;
+
+  try {
+    const data = {
+      metalRates: {
+        gold24:   parseFloat(document.getElementById('rate-gold24').value)   || 0,
+        gold22:   parseFloat(document.getElementById('rate-gold22').value)   || 0,
+        gold18:   parseFloat(document.getElementById('rate-gold18').value)   || 0,
+        silver:   parseFloat(document.getElementById('rate-silver').value)   || 0,
+        platinum: parseFloat(document.getElementById('rate-platinum').value) || 0,
+      },
+      serviceTypes:  tags.serviceTypes,
+      certTypes:     tags.certTypes,
+      discountLimit: parseFloat(document.getElementById('discountLimit').value) || 10,
+      gstRate:       parseFloat(document.getElementById('gstRate').value)       || 3,
+      updatedAt:     serverTimestamp(),
+      updatedBy:     currentUser.uid,
+      updatedByEmail: currentUser.email
+    };
+
+    await setDoc(doc(db, 'adminMasters', 'config'), data);
+    showToast('✅ Settings saved!');
+    document.getElementById('lastUpdated').textContent =
+      'Last saved: ' + new Date().toLocaleString('en-IN');
+  } catch(e) {
+    console.error(e);
+    showToast('❌ Save failed. Check internet.');
+  } finally {
+    btn.textContent = '💾 Save All Settings'; btn.disabled = false;
+  }
+};
+
+// ── TOAST ────────────────────────────────────────────────
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+</script>
+</body>
+</html>
