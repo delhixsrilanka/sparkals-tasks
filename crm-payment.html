@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#1a1a2e" />
+  <title>Payment — Sparkals CRM</title>
+  <link rel="manifest" href="/manifest.json" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', sans-serif; background: #1a1a2e; color: white; min-height: 100vh; padding-bottom: 80px; }
+
+    .header { background: linear-gradient(135deg, #1a1a2e, #2d2d5e); padding: 16px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid rgba(255,255,255,0.08); position: sticky; top: 0; z-index: 100; }
+    .header-title { font-size: 18px; font-weight: 700; color: #a78bfa; }
+    .header-sub { font-size: 12px; color: rgba(255,255,255,0.4); }
+    .back-btn { background: none; border: none; color: #a78bfa; font-size: 22px; cursor: pointer; padding: 4px; }
+
+    .section { padding: 16px; }
+    .section-heading { font-size: 13px; font-weight: 700; color: #a78bfa; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 10px; }
+
+    /* AMOUNT DUE CARD */
+    .amount-card { margin: 16px; background: linear-gradient(135deg, rgba(124,58,237,0.2), rgba(124,58,237,0.05)); border-radius: 20px; padding: 20px; border: 1px solid rgba(124,58,237,0.25); text-align: center; }
+    .amount-label { font-size: 13px; color: rgba(255,255,255,0.4); margin-bottom: 6px; }
+    .amount-due { font-size: 38px; font-weight: 800; color: white; }
+    .amount-inv { font-size: 13px; color: rgba(255,255,255,0.4); margin-top: 6px; }
+    .amount-customer { font-size: 15px; color: #a78bfa; font-weight: 600; margin-top: 4px; }
+
+    /* PAYMENT METHOD */
+    .method-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+    .method-btn { padding: 14px 10px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.04); color: rgba(255,255,255,0.5); font-size: 13px; font-weight: 600; cursor: pointer; text-align: center; transition: all 0.15s; }
+    .method-btn.selected { background: rgba(124,58,237,0.2); color: white; border-color: #a78bfa; }
+    .method-icon { font-size: 22px; display: block; margin-bottom: 4px; }
+
+    /* SPLIT PAYMENT */
+    .split-section { background: rgba(255,255,255,0.04); border-radius: 14px; padding: 14px; border: 1px solid rgba(255,255,255,0.08); margin-bottom: 12px; }
+    .split-row { display: flex; gap: 10px; align-items: center; margin-bottom: 10px; }
+    .split-label { font-size: 13px; color: rgba(255,255,255,0.6); width: 80px; flex-shrink: 0; }
+    .split-input { flex: 1; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12); border-radius: 10px; padding: 9px 12px; color: white; font-size: 14px; outline: none; text-align: right; }
+    .split-input:focus { border-color: #a78bfa; }
+    .split-remaining { font-size: 12px; color: rgba(255,255,255,0.35); text-align: right; margin-top: -6px; margin-bottom: 6px; }
+    .split-remaining.over { color: #ef4444; }
+
+    /* CASH INPUT */
+    .cash-section { background: rgba(255,255,255,0.04); border-radius: 14px; padding: 14px; border: 1px solid rgba(255,255,255,0.08); margin-bottom: 12px; }
+    .cash-label { font-size: 13px; color: rgba(255,255,255,0.5); margin-bottom: 8px; }
+    .cash-input { width: 100%; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12); border-radius: 12px; padding: 14px 16px; color: white; font-size: 24px; font-weight: 700; outline: none; text-align: right; }
+    .cash-input:focus { border-color: #a78bfa; }
+
+    /* QUICK AMOUNTS */
+    .quick-amounts { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+    .quick-btn { padding: 7px 14px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.15); background: transparent; color: rgba(255,255,255,0.6); font-size: 13px; cursor: pointer; }
+    .quick-btn:active { background: rgba(255,255,255,0.1); }
+
+    /* CHANGE DISPLAY */
+    .change-card { background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.25); border-radius: 14px; padding: 16px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
+    .change-label { font-size: 14px; color: #10b981; font-weight: 600; }
+    .change-amount { font-size: 26px; font-weight: 800; color: #10b981; }
+    .change-card.exact { background: rgba(124,58,237,0.1); border-color: rgba(124,58,237,0.25); }
+    .change-card.exact .change-label,
+    .change-card.exact .change-amount { color: #a78bfa; }
+    .change-card.short { background: rgba(239,68,68,0.1); border-color: rgba(239,68,68,0.25); }
+    .change-card.short .change-label,
+    .change-card.short .change-amount { color: #ef4444; }
+
+    /* CONFIRM BUTTON */
+    .confirm-btn { width: 100%; background: #059669; border: none; color: white; border-radius: 14px; padding: 16px; font-size: 17px; font-weight: 700; cursor: pointer; }
+    .confirm-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .confirm-btn:active { background: #047857; }
+
+    /* SUCCESS STATE */
+    .success-card { text-align: center; padding: 40px 20px; }
+    .success-icon { font-size: 64px; margin-bottom: 16px; }
+    .success-title { font-size: 24px; font-weight: 800; color: #10b981; margin-bottom: 8px; }
+    .success-sub { font-size: 15px; color: rgba(255,255,255,0.5); margin-bottom: 24px; }
+    .success-change { font-size: 18px; color: white; font-weight: 600; margin-bottom: 24px; }
+    .success-btns { display: flex; flex-direction: column; gap: 10px; }
+    .btn-receipt { background: #7c3aed; border: none; color: white; border-radius: 14px; padding: 14px; font-size: 15px; font-weight: 600; cursor: pointer; }
+    .btn-done { background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12); color: rgba(255,255,255,0.7); border-radius: 14px; padding: 14px; font-size: 15px; cursor: pointer; }
+
+    /* SPINNER */
+    .spinner-wrap { text-align: center; padding: 60px; }
+    .spinner { width: 32px; height: 32px; border: 3px solid rgba(167,139,250,0.2); border-top-color: #a78bfa; border-radius: 50%; animation: spin 0.8s linear infinite; display: inline-block; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* TOAST */
+    .toast { position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%); background: #1a1a2e; color: white; padding: 12px 20px; border-radius: 12px; font-size: 14px; display: none; z-index: 999; border: 1px solid rgba(255,255,255,0.1); white-space: nowrap; }
+    .toast.show { display: block; }
+
+    /* BOTTOM NAV */
+    .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top: 1px solid #f0f0f0; display: flex; justify-content: space-around; padding: 6px 0 8px; z-index: 150; }
+    .nav-item { display: flex; flex-direction: column; align-items: center; gap: 2px; text-decoration: none; padding: 4px 10px; color: #888; font-size: 10px; font-weight: 600; }
+    .nav-item.active { color: #1a1a2e; }
+    .nav-icon { font-size: 20px; }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <button class="back-btn" onclick="history.back()">←</button>
+    <div>
+      <div class="header-title">💳 Payment</div>
+      <div class="header-sub" id="headerSub">Loading...</div>
+    </div>
+  </div>
+
+  <div id="loadingWrap" class="spinner-wrap"><div class="spinner"></div></div>
+
+  <div id="mainContent" style="display:none;">
+
+    <!-- AMOUNT DUE -->
+    <div class="amount-card">
+      <div class="amount-label">Amount Due</div>
+      <div class="amount-due" id="amountDue">₹0</div>
+      <div class="amount-customer" id="amountCustomer">—</div>
+      <div class="amount-inv" id="amountInv">—</div>
+    </div>
+
+    <!-- PAYMENT METHOD -->
+    <div class="section">
+      <div class="section-heading">💳 Payment Method</div>
+      <div class="method-grid">
+        <button class="method-btn selected" id="m-cash" onclick="selectMethod('cash')"><span class="method-icon">💵</span>Cash</button>
+        <button class="method-btn" id="m-gpay" onclick="selectMethod('gpay')"><span class="method-icon">📱</span>GPay / UPI</button>
+        <button class="method-btn" id="m-bank" onclick="selectMethod('bank')"><span class="method-icon">🏦</span>Bank Transfer</button>
+        <button class="method-btn" id="m-split" onclick="selectMethod('split')"><span class="method-icon">✂️</span>Split Payment</button>
+      </div>
+
+      <!-- CASH INPUT -->
+      <div class="cash-section" id="cashSection">
+        <div class="cash-label">Amount received from customer (₹)</div>
+        <input class="cash-input" type="number" id="cashReceived" placeholder="0" oninput="calcChange()" />
+        <div class="quick-amounts" id="quickAmounts"></div>
+      </div>
+
+      <!-- GPAY / BANK (no change needed) -->
+      <div class="cash-section" id="digitalSection" style="display:none;">
+        <div class="cash-label">Transaction reference (optional)</div>
+        <input class="split-input" type="text" id="txnRef" placeholder="e.g. UPI ref 1234567890" style="width:100%;" />
+      </div>
+
+      <!-- SPLIT PAYMENT -->
+      <div class="split-section" id="splitSection" style="display:none;">
+        <div class="split-row">
+          <span class="split-label">💵 Cash</span>
+          <input class="split-input" type="number" id="splitCash" placeholder="0" oninput="calcSplit()" />
+        </div>
+        <div class="split-row">
+          <span class="split-label">📱 GPay</span>
+          <input class="split-input" type="number" id="splitGpay" placeholder="0" oninput="calcSplit()" />
+        </div>
+        <div class="split-row">
+          <span class="split-label">🏦 Bank</span>
+          <input class="split-input" type="number" id="splitBank" placeholder="0" oninput="calcSplit()" />
+        </div>
+        <div class="split-remaining" id="splitRemaining">Remaining: ₹0</div>
+      </div>
+
+      <!-- CHANGE -->
+      <div class="change-card" id="changeCard" style="display:none;">
+        <div class="change-label" id="changeLabel">Change to return</div>
+        <div class="change-amount" id="changeAmount">₹0</div>
+      </div>
+
+      <!-- CONFIRM -->
+      <button class="confirm-btn" id="confirmBtn" onclick="confirmPayment()">✅ Confirm Payment</button>
+    </div>
+
+  </div>
+
+  <!-- SUCCESS STATE -->
+  <div id="successState" style="display:none;">
+    <div class="success-card">
+      <div class="success-icon">🎉</div>
+      <div class="success-title">Payment Received!</div>
+      <div class="success-sub" id="successInv">—</div>
+      <div class="success-change" id="successChange"></div>
+      <div class="success-btns">
+        <button class="btn-receipt" onclick="printReceipt()">🖨️ Print / Share Receipt</button>
+        <button class="btn-done" onclick="window.location.href='crm-jobs.html'">← Back to Jobs</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <div class="bottom-nav">
+    <a class="nav-item" href="dashboard.html"><span class="nav-icon">🏠</span>Home</a>
+    <a class="nav-item" href="tasks.html"><span class="nav-icon">✅</span>Tasks</a>
+    <a class="nav-item" href="chat.html"><span class="nav-icon">💬</span>Chat</a>
+    <a class="nav-item" href="attendance.html"><span class="nav-icon">🕐</span>Attend.</a>
+    <a class="nav-item active" href="crm-customers.html"><span class="nav-icon">💎</span>CRM</a>
+  </div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import { getFirestore, doc, getDoc, addDoc, updateDoc, collection, serverTimestamp, runTransaction, increment } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDNwQYXcwZrAh4cTfRyhOVk_pRod9p4CRM",
+  authDomain: "sparkals-tasks-app.firebaseapp.com",
+  projectId: "sparkals-tasks-app",
+  storageBucket: "sparkals-tasks-app.firebasestorage.app",
+  messagingSenderId: "147179987231",
+  appId: "1:147179987231:web:c6ffa484f33a2ca420d02a"
+};
+
+const app  = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+
+let currentUser  = null;
+let invoiceData  = null;
+let totalDue     = 0;
+let selectedMethod = 'cash';
+let paymentId    = null;
+
+const params    = new URLSearchParams(window.location.search);
+const invoiceId = params.get('invoiceId');
+if (!invoiceId) window.location.href = 'crm-jobs.html';
+
+// ── AUTH ─────────────────────────────────────────────────
+onAuthStateChanged(auth, async (user) => {
+  if (!user) { window.location.href = 'login.html'; return; }
+  currentUser = user;
+  await loadInvoice();
+  document.getElementById('loadingWrap').style.display = 'none';
+  document.getElementById('mainContent').style.display = 'block';
+});
+
+// ── LOAD INVOICE ─────────────────────────────────────────
+async function loadInvoice() {
+  try {
+    const snap = await getDoc(doc(db, 'invoices', invoiceId));
+    if (!snap.exists()) { window.location.href = 'crm-jobs.html'; return; }
+    invoiceData = { id: snap.id, ...snap.data() };
+    totalDue    = invoiceData.total || 0;
+
+    document.getElementById('headerSub').textContent     = invoiceData.invoiceNumber || '—';
+    document.getElementById('amountDue').textContent     = '₹' + totalDue.toLocaleString('en-IN');
+    document.getElementById('amountCustomer').textContent = invoiceData.customerName || '—';
+    document.getElementById('amountInv').textContent     = invoiceData.invoiceNumber || '—';
+
+    // Quick amount buttons
+    buildQuickAmounts(totalDue);
+
+    // If already paid
+    if (invoiceData.status === 'paid') {
+      showSuccess(invoiceData.total, 0, invoiceData.invoiceNumber);
+    }
+  } catch(e) {
+    console.error(e);
+    showToast('❌ Could not load invoice');
+  }
+}
+
+// ── QUICK AMOUNTS ─────────────────────────────────────────
+function buildQuickAmounts(due) {
+  const rounds = [due, Math.ceil(due/100)*100, Math.ceil(due/500)*500, Math.ceil(due/1000)*1000];
+  const unique = [...new Set(rounds)].slice(0,4);
+  document.getElementById('quickAmounts').innerHTML = unique.map(a =>
+    `<button class="quick-btn" onclick="document.getElementById('cashReceived').value=${a};calcChange()">₹${a.toLocaleString('en-IN')}</button>`
+  ).join('');
+}
+
+// ── SELECT METHOD ─────────────────────────────────────────
+window.selectMethod = function(method) {
+  selectedMethod = method;
+  ['cash','gpay','bank','split'].forEach(m => {
+    document.getElementById('m-'+m).classList.toggle('selected', m === method);
+  });
+  document.getElementById('cashSection').style.display    = method === 'cash'  ? 'block' : 'none';
+  document.getElementById('digitalSection').style.display = ['gpay','bank'].includes(method) ? 'block' : 'none';
+  document.getElementById('splitSection').style.display   = method === 'split' ? 'block' : 'none';
+  document.getElementById('changeCard').style.display     = 'none';
+
+  if (method === 'gpay' || method === 'bank') {
+    // No change for digital — auto-confirm ready
+    showChangeCard(totalDue, totalDue);
+  }
+};
+
+// ── CALC CHANGE ───────────────────────────────────────────
+window.calcChange = function() {
+  const received = parseFloat(document.getElementById('cashReceived').value) || 0;
+  showChangeCard(received, totalDue);
+};
+
+function showChangeCard(received, due) {
+  const card   = document.getElementById('changeCard');
+  const label  = document.getElementById('changeLabel');
+  const amount = document.getElementById('changeAmount');
+  card.style.display = 'flex';
+
+  if (received >= due) {
+    const change = received - due;
+    card.className = change === 0 ? 'change-card exact' : 'change-card';
+    label.textContent  = change === 0 ? '✅ Exact amount' : '💰 Change to return';
+    amount.textContent = '₹' + change.toLocaleString('en-IN');
+    document.getElementById('confirmBtn').disabled = false;
+  } else {
+    const short = due - received;
+    card.className = 'change-card short';
+    label.textContent  = '⚠️ Short by';
+    amount.textContent = '₹' + short.toLocaleString('en-IN');
+    document.getElementById('confirmBtn').disabled = true;
+  }
+}
+
+// ── CALC SPLIT ────────────────────────────────────────────
+window.calcSplit = function() {
+  const cash = parseFloat(document.getElementById('splitCash').value) || 0;
+  const gpay = parseFloat(document.getElementById('splitGpay').value) || 0;
+  const bank = parseFloat(document.getElementById('splitBank').value) || 0;
+  const total = cash + gpay + bank;
+  const rem   = totalDue - total;
+  const el    = document.getElementById('splitRemaining');
+  el.textContent = rem > 0 ? `Remaining: ₹${rem.toLocaleString('en-IN')}` : rem === 0 ? '✅ Full amount covered' : `⚠️ Over by ₹${Math.abs(rem).toLocaleString('en-IN')}`;
+  el.className   = rem < 0 ? 'split-remaining over' : 'split-remaining';
+  document.getElementById('confirmBtn').disabled = total < totalDue;
+};
+
+// ── CONFIRM PAYMENT ───────────────────────────────────────
+window.confirmPayment = async function() {
+  const btn = document.getElementById('confirmBtn');
+  btn.textContent = 'Processing...'; btn.disabled = true;
+
+  try {
+    let splitPayments = [];
+    let totalPaid     = totalDue;
+    let changeGiven   = 0;
+
+    if (selectedMethod === 'cash') {
+      const received = parseFloat(document.getElementById('cashReceived').value) || 0;
+      changeGiven    = received - totalDue;
+      totalPaid      = totalDue;
+      splitPayments  = [{ method: 'cash', amount: totalDue }];
+    } else if (selectedMethod === 'gpay') {
+      splitPayments = [{ method: 'gpay', amount: totalDue, ref: document.getElementById('txnRef').value.trim() }];
+    } else if (selectedMethod === 'bank') {
+      splitPayments = [{ method: 'bank', amount: totalDue, ref: document.getElementById('txnRef').value.trim() }];
+    } else if (selectedMethod === 'split') {
+      const cash = parseFloat(document.getElementById('splitCash').value) || 0;
+      const gpay = parseFloat(document.getElementById('splitGpay').value) || 0;
+      const bank = parseFloat(document.getElementById('splitBank').value) || 0;
+      if (cash > 0) splitPayments.push({ method: 'cash', amount: cash });
+      if (gpay > 0) splitPayments.push({ method: 'gpay', amount: gpay });
+      if (bank > 0) splitPayments.push({ method: 'bank', amount: bank });
+    }
+
+    // Generate receipt number
+    let receiptNumber = '';
+    const counterRef  = doc(db, 'appConfig', 'receiptCounter');
+    await runTransaction(db, async (tx) => {
+      const snap = await tx.get(counterRef);
+      const year = new Date().getFullYear();
+      let seq    = 1;
+      if (snap.exists()) {
+        const d = snap.data();
+        seq = (d.year === year ? (d.seq||0) : 0) + 1;
+      }
+      tx.set(counterRef, { year, seq, updatedAt: serverTimestamp() });
+      receiptNumber = `REC-${year}-${String(seq).padStart(4,'0')}`;
+    });
+
+    // Save payment
+    const payRef = await addDoc(collection(db, 'payments'), {
+      receiptNumber,
+      invoiceId,
+      invoiceNumber: invoiceData.invoiceNumber,
+      jobId:         invoiceData.jobId,
+      customerId:    invoiceData.customerId,
+      customerName:  invoiceData.customerName,
+      splitPayments,
+      totalPaid,
+      changeGiven,
+      balanceDue:    0,
+      receivedBy:    currentUser.uid,
+      receivedByName: currentUser.email,
+      paidAt:        serverTimestamp()
+    });
+    paymentId = payRef.id;
+
+    // Update invoice status
+    await updateDoc(doc(db, 'invoices', invoiceId), {
+      status:    'paid',
+      paidAt:    serverTimestamp(),
+      paymentId: payRef.id
+    });
+
+    // Update customer total paid
+    await updateDoc(doc(db, 'customers', invoiceData.customerId), {
+      totalAmountPaid: increment(totalPaid)
+    });
+
+    showSuccess(totalPaid, changeGiven, invoiceData.invoiceNumber);
+  } catch(e) {
+    console.error(e);
+    showToast('❌ Payment failed. Try again.');
+    btn.textContent = '✅ Confirm Payment'; btn.disabled = false;
+  }
+};
+
+// ── SHOW SUCCESS ─────────────────────────────────────────
+function showSuccess(paid, change, invNum) {
+  document.getElementById('mainContent').style.display = 'none';
+  document.getElementById('successState').style.display = 'block';
+  document.getElementById('successInv').textContent    = invNum + ' · ₹' + paid.toLocaleString('en-IN') + ' received';
+  document.getElementById('successChange').textContent = change > 0 ? `Return ₹${change.toLocaleString('en-IN')} change` : '';
+}
+
+// ── PRINT RECEIPT ─────────────────────────────────────────
+window.printReceipt = function() {
+  showToast('🖨️ Receipt printing coming in Step 78!');
+};
+
+// ── TOAST ─────────────────────────────────────────────────
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+</script>
+</body>
+</html>
