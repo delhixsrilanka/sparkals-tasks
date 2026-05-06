@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#1a1a2e" />
+  <title>New Job — Sparkals CRM</title>
+  <link rel="manifest" href="/manifest.json" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', sans-serif; background: #1a1a2e; color: white; min-height: 100vh; padding-bottom: 80px; }
+
+    .header { background: linear-gradient(135deg, #1a1a2e, #2d2d5e); padding: 16px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid rgba(255,255,255,0.08); position: sticky; top: 0; z-index: 100; }
+    .header-title { font-size: 18px; font-weight: 700; color: #a78bfa; }
+    .header-sub { font-size: 12px; color: rgba(255,255,255,0.4); }
+    .back-btn { background: none; border: none; color: #a78bfa; font-size: 22px; cursor: pointer; padding: 4px; }
+
+    .section { padding: 16px; }
+    .section-heading { font-size: 13px; font-weight: 700; color: #a78bfa; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 12px; }
+
+    /* CUSTOMER BANNER */
+    .customer-banner { background: rgba(124,58,237,0.12); border: 1px solid rgba(124,58,237,0.25); border-radius: 14px; padding: 14px 16px; margin: 16px 16px 0; display: flex; align-items: center; gap: 12px; }
+    .cust-avatar { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 700; background: rgba(124,58,237,0.3); color: #a78bfa; flex-shrink: 0; }
+    .cust-name { font-size: 15px; font-weight: 600; }
+    .cust-sub { font-size: 12px; color: rgba(255,255,255,0.4); margin-top: 2px; }
+
+    /* FORM */
+    .form-card { background: rgba(255,255,255,0.05); border-radius: 16px; padding: 16px; border: 1px solid rgba(255,255,255,0.08); margin-bottom: 12px; }
+    .form-group { margin-bottom: 14px; }
+    .form-group:last-child { margin-bottom: 0; }
+    .form-label { font-size: 12px; color: rgba(255,255,255,0.5); margin-bottom: 5px; display: block; }
+    .form-label span { color: #ef4444; }
+    .form-input { width: 100%; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12); border-radius: 10px; padding: 11px 14px; color: white; font-size: 14px; outline: none; }
+    .form-input:focus { border-color: #a78bfa; }
+    .form-textarea { width: 100%; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12); border-radius: 10px; padding: 11px 14px; color: white; font-size: 14px; outline: none; resize: none; min-height: 80px; }
+    .form-textarea:focus { border-color: #a78bfa; }
+    .form-select { width: 100%; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12); border-radius: 10px; padding: 11px 14px; color: white; font-size: 14px; outline: none; }
+    .form-select option { background: #1e1e3a; }
+
+    /* PRIORITY SELECTOR */
+    .priority-row { display: flex; gap: 8px; }
+    .priority-btn { flex: 1; padding: 10px 6px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.12); background: transparent; color: rgba(255,255,255,0.5); font-size: 12px; font-weight: 600; cursor: pointer; text-align: center; transition: all 0.15s; }
+    .priority-btn.selected-normal  { background: rgba(59,130,246,0.2);  color: #60a5fa;  border-color: #60a5fa; }
+    .priority-btn.selected-priority{ background: rgba(245,158,11,0.2);  color: #fbbf24;  border-color: #fbbf24; }
+    .priority-btn.selected-urgent  { background: rgba(239,68,68,0.2);   color: #ef4444;  border-color: #ef4444; }
+
+    /* SERVICE TYPE SELECTOR */
+    .service-row { display: flex; flex-direction: column; gap: 8px; }
+    .service-btn { padding: 12px 16px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.12); background: transparent; color: rgba(255,255,255,0.5); font-size: 14px; font-weight: 500; cursor: pointer; text-align: left; display: flex; align-items: center; gap: 10px; transition: all 0.15s; }
+    .service-btn.selected { background: rgba(124,58,237,0.2); color: white; border-color: #a78bfa; }
+
+    /* ITEMS LIST */
+    .item-row { display: flex; gap: 8px; align-items: flex-start; margin-bottom: 8px; }
+    .item-row .form-input { flex: 1; }
+    .remove-item-btn { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.25); color: #ef4444; border-radius: 8px; padding: 11px 12px; cursor: pointer; font-size: 16px; flex-shrink: 0; }
+    .add-item-btn { width: 100%; background: rgba(255,255,255,0.04); border: 1px dashed rgba(255,255,255,0.2); color: rgba(255,255,255,0.5); border-radius: 10px; padding: 10px; font-size: 13px; cursor: pointer; margin-top: 4px; }
+
+    /* ESTIMATED PRICE */
+    .price-preview { background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.2); border-radius: 12px; padding: 14px 16px; margin-bottom: 12px; }
+    .price-label { font-size: 12px; color: #10b981; margin-bottom: 4px; font-weight: 600; }
+    .price-amount { font-size: 22px; font-weight: 700; color: white; }
+    .price-note { font-size: 11px; color: rgba(255,255,255,0.3); margin-top: 4px; }
+
+    /* SUBMIT */
+    .submit-btn { width: 100%; background: #7c3aed; border: none; color: white; border-radius: 14px; padding: 16px; font-size: 16px; font-weight: 700; cursor: pointer; }
+    .submit-btn:active { background: #6d28d9; }
+    .submit-btn:disabled { opacity: 0.5; }
+
+    /* TOAST */
+    .toast { position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%); background: #1a1a2e; color: white; padding: 12px 20px; border-radius: 12px; font-size: 14px; display: none; z-index: 999; border: 1px solid rgba(255,255,255,0.1); white-space: nowrap; }
+    .toast.show { display: block; }
+
+    /* SPINNER */
+    .spinner-wrap { text-align: center; padding: 60px; }
+    .spinner { width: 32px; height: 32px; border: 3px solid rgba(167,139,250,0.2); border-top-color: #a78bfa; border-radius: 50%; animation: spin 0.8s linear infinite; display: inline-block; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* BOTTOM NAV */
+    .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top: 1px solid #f0f0f0; display: flex; justify-content: space-around; padding: 6px 0 8px; z-index: 150; }
+    .nav-item { display: flex; flex-direction: column; align-items: center; gap: 2px; text-decoration: none; padding: 4px 10px; color: #888; font-size: 10px; font-weight: 600; }
+    .nav-item.active { color: #1a1a2e; }
+    .nav-icon { font-size: 20px; }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <button class="back-btn" id="backBtn" onclick="goBack()">←</button>
+    <div>
+      <div class="header-title">➕ New Job</div>
+      <div class="header-sub" id="headerSub">Job Intake</div>
+    </div>
+  </div>
+
+  <!-- CUSTOMER BANNER -->
+  <div class="customer-banner">
+    <div class="cust-avatar" id="custAvatar">?</div>
+    <div>
+      <div class="cust-name" id="custName">Loading...</div>
+      <div class="cust-sub" id="custSub">Tap back to change customer</div>
+    </div>
+  </div>
+
+  <!-- FORM -->
+  <div class="section">
+
+    <!-- SERVICE TYPE -->
+    <div class="form-card">
+      <div class="section-heading">💼 Service Type <span style="color:#ef4444">*</span></div>
+      <div class="service-row">
+        <button class="service-btn selected" id="svc-diamond" onclick="selectService('diamond_cert')">💎 Diamond Certification</button>
+        <button class="service-btn" id="svc-gemstone" onclick="selectService('gemstone_cert')">🪨 Gemstone Certification</button>
+        <button class="service-btn" id="svc-valuation" onclick="selectService('jewellery_valuation')">⚖️ Jewellery Valuation</button>
+      </div>
+    </div>
+
+    <!-- ITEM DESCRIPTION -->
+    <div class="form-card">
+      <div class="section-heading">📦 Item Details <span style="color:#ef4444">*</span></div>
+      <div class="form-group">
+        <label class="form-label">Item Description <span>*</span></label>
+        <textarea class="form-textarea" id="itemDescription" placeholder="e.g. 1 round brilliant diamond, approx 0.5ct, in a solitaire ring setting"></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Number of pieces</label>
+        <input class="form-input" type="number" id="pieceCount" value="1" min="1" placeholder="1" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Customer's declared value (₹) — optional</label>
+        <input class="form-input" type="number" id="declaredValue" placeholder="e.g. 50000" />
+      </div>
+    </div>
+
+    <!-- PRIORITY -->
+    <div class="form-card">
+      <div class="section-heading">⚡ Priority</div>
+      <div class="priority-row">
+        <button class="priority-btn selected-normal" id="pri-normal" onclick="selectPriority('normal')">🔵 Normal</button>
+        <button class="priority-btn" id="pri-priority" onclick="selectPriority('priority')">🟡 Priority</button>
+        <button class="priority-btn" id="pri-urgent" onclick="selectPriority('urgent')">🔴 Urgent</button>
+      </div>
+    </div>
+
+    <!-- DATES -->
+    <div class="form-card">
+      <div class="section-heading">📅 Dates</div>
+      <div class="form-group">
+        <label class="form-label">Promised Ready Date <span>*</span></label>
+        <input class="form-input" type="date" id="promisedDate" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Internal Notes (optional)</label>
+        <textarea class="form-textarea" id="internalNotes" placeholder="e.g. Customer says stone might be synthetic. Check carefully." style="min-height:60px;"></textarea>
+      </div>
+    </div>
+
+    <!-- ESTIMATED PRICE -->
+    <div class="price-preview">
+      <div class="price-label">💰 Estimated Price (from Pricing Rules)</div>
+      <div class="price-amount" id="estimatedPrice">₹—</div>
+      <div class="price-note">Final price set on invoice. This is an estimate only.</div>
+    </div>
+
+    <!-- SUBMIT -->
+    <button class="submit-btn" id="submitBtn" onclick="submitJob()">📋 Register Job</button>
+
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <div class="bottom-nav">
+    <a class="nav-item" href="dashboard.html"><span class="nav-icon">🏠</span>Home</a>
+    <a class="nav-item" href="tasks.html"><span class="nav-icon">✅</span>Tasks</a>
+    <a class="nav-item" href="chat.html"><span class="nav-icon">💬</span>Chat</a>
+    <a class="nav-item" href="attendance.html"><span class="nav-icon">🕐</span>Attend.</a>
+    <a class="nav-item active" href="crm-customers.html"><span class="nav-icon">💎</span>CRM</a>
+  </div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import { getFirestore, doc, getDoc, addDoc, updateDoc, collection, query, where, getDocs, serverTimestamp, runTransaction, increment } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDNwQYXcwZrAh4cTfRyhOVk_pRod9p4CRM",
+  authDomain: "sparkals-tasks-app.firebaseapp.com",
+  projectId: "sparkals-tasks-app",
+  storageBucket: "sparkals-tasks-app.firebasestorage.app",
+  messagingSenderId: "147179987231",
+  appId: "1:147179987231:web:c6ffa484f33a2ca420d02a"
+};
+
+const app  = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+
+const AVATAR_COLORS = ['#7c3aed','#059669','#dc2626','#d97706','#0284c7','#db2777'];
+
+let currentUser   = null;
+let customerId    = null;
+let customerData  = null;
+let selectedService  = 'diamond_cert';
+let selectedPriority = 'normal';
+let pricingRules  = [];
+
+// ── URL PARAMS ───────────────────────────────────────────
+const params = new URLSearchParams(window.location.search);
+customerId = params.get('customerId');
+const customerName = params.get('customerName') || 'Customer';
+if (!customerId) window.location.href = 'crm-customers.html';
+
+// Set default promised date to 3 days from now
+const defaultDate = new Date();
+defaultDate.setDate(defaultDate.getDate() + 3);
+document.getElementById('promisedDate').value = defaultDate.toISOString().split('T')[0];
+
+// ── AUTH ─────────────────────────────────────────────────
+onAuthStateChanged(auth, async (user) => {
+  if (!user) { window.location.href = 'login.html'; return; }
+  currentUser = user;
+  await Promise.all([loadCustomer(), loadPricingRules()]);
+  calcEstimate();
+});
+
+// ── LOAD CUSTOMER ────────────────────────────────────────
+async function loadCustomer() {
+  try {
+    const snap = await getDoc(doc(db, 'customers', customerId));
+    if (!snap.exists()) { window.location.href = 'crm-customers.html'; return; }
+    customerData = { id: snap.id, ...snap.data() };
+    const initials = customerData.name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+    const color    = AVATAR_COLORS[customerData.name.charCodeAt(0) % AVATAR_COLORS.length];
+    document.getElementById('custAvatar').textContent   = initials;
+    document.getElementById('custAvatar').style.background = color + '30';
+    document.getElementById('custAvatar').style.color      = color;
+    document.getElementById('custName').textContent     = customerData.name;
+    const tier = customerData.membershipType || 'regular';
+    const disc = customerData.membershipDiscount || 0;
+    document.getElementById('custSub').textContent = `${tier.charAt(0).toUpperCase()+tier.slice(1)} Member · ${disc}% discount`;
+    document.getElementById('headerSub').textContent = customerData.name;
+  } catch(e) { console.error(e); }
+}
+
+// ── LOAD PRICING RULES ───────────────────────────────────
+async function loadPricingRules() {
+  try {
+    const snap = await getDocs(collection(db, 'pricingRules'));
+    pricingRules = snap.docs.map(d => ({ id: d.id, ...d.data() })).filter(r => r.isActive !== false);
+  } catch(e) { console.error(e); }
+}
+
+// ── SERVICE SELECTOR ─────────────────────────────────────
+window.selectService = function(svc) {
+  selectedService = svc;
+  ['diamond','gemstone','valuation'].forEach(s => {
+    document.getElementById('svc-'+s).classList.remove('selected');
+  });
+  const map = { diamond_cert:'diamond', gemstone_cert:'gemstone', jewellery_valuation:'valuation' };
+  document.getElementById('svc-'+map[svc]).classList.add('selected');
+  calcEstimate();
+};
+
+// ── PRIORITY SELECTOR ────────────────────────────────────
+window.selectPriority = function(pri) {
+  selectedPriority = pri;
+  ['normal','priority','urgent'].forEach(p => {
+    const btn = document.getElementById('pri-'+p);
+    btn.className = 'priority-btn';
+    if (p === pri) btn.classList.add('selected-'+p);
+  });
+  calcEstimate();
+};
+
+// ── ESTIMATE PRICE ───────────────────────────────────────
+function calcEstimate() {
+  const svcType = selectedService.replace('_cert','').replace('jewellery_','');
+  const tabKey  = selectedService === 'diamond_cert' ? 'diamond'
+                : selectedService === 'gemstone_cert' ? 'gemstone' : 'valuation';
+  const relevant = pricingRules.filter(r => r.serviceType === tabKey);
+  if (!relevant.length) {
+    document.getElementById('estimatedPrice').textContent = '₹— (no rules set)';
+    return;
+  }
+  let total = 0;
+  relevant.forEach(r => {
+    if (r.ruleType === 'flat')         total += r.fixedPrice || 0;
+    if (r.ruleType === 'per_carat')    total += Math.max((r.pricePerUnit||0)*1, r.minCharge||0);
+    if (r.ruleType === 'per_gram')     total += Math.max((r.pricePerUnit||0)*5, r.minCharge||0);
+    if (r.ruleType === 'weight_range') total += r.fixedPrice || 0;
+    if (r.ruleType === 'cert_type')    total += r.priceStandard || 0;
+    if (r.ruleType === 'valuation_percent') {
+      const val = parseFloat(document.getElementById('declaredValue').value) || 50000;
+      total += Math.max((r.percent||0)/100*val, r.minCharge||0);
+    }
+  });
+  // Priority surcharge
+  if (selectedPriority !== 'normal') {
+    const surchargeField = selectedPriority === 'urgent' ? 'urgentSurcharge' : 'prioritySurcharge';
+    const maxSurcharge = Math.max(...relevant.map(r => r[surchargeField]||0));
+    if (maxSurcharge > 0) total = total * (1 + maxSurcharge/100);
+  }
+  // Membership discount
+  const disc = customerData?.membershipDiscount || 0;
+  if (disc > 0) total = total * (1 - disc/100);
+  document.getElementById('estimatedPrice').textContent = '₹' + Math.round(total).toLocaleString('en-IN');
+}
+
+// ── SUBMIT JOB ───────────────────────────────────────────
+window.submitJob = async function() {
+  const desc     = document.getElementById('itemDescription').value.trim();
+  const promised = document.getElementById('promisedDate').value;
+  if (!desc)     { showToast('⚠️ Please describe the item'); return; }
+  if (!promised) { showToast('⚠️ Please set a promised date'); return; }
+
+  const btn = document.getElementById('submitBtn');
+  btn.textContent = 'Registering...'; btn.disabled = true;
+
+  try {
+    // Generate job number using Firestore transaction
+    const counterRef = doc(db, 'appConfig', 'jobCounter');
+    let jobNumber = '';
+    await runTransaction(db, async (tx) => {
+      const counterSnap = await tx.get(counterRef);
+      const year = new Date().getFullYear();
+      let seq = 1;
+      if (counterSnap.exists()) {
+        const data = counterSnap.data();
+        seq = (data.year === year ? (data.seq || 0) : 0) + 1;
+      }
+      tx.set(counterRef, { year, seq, updatedAt: serverTimestamp() });
+      jobNumber = `JB-${year}-${String(seq).padStart(4,'0')}`;
+    });
+
+    // Save job
+    const jobRef = await addDoc(collection(db, 'jobs'), {
+      jobNumber,
+      customerId,
+      customerName:  customerData.name,
+      customerPhone: customerData.phone || '',
+      serviceType:   selectedService,
+      itemDescription: desc,
+      pieceCount:    parseInt(document.getElementById('pieceCount').value) || 1,
+      declaredValue: parseFloat(document.getElementById('declaredValue').value) || 0,
+      priority:      selectedPriority,
+      status:        'received',
+      promisedDate:  promised,
+      internalNotes: document.getElementById('internalNotes').value.trim(),
+      receivedAt:    serverTimestamp(),
+      receivedBy:    currentUser.uid,
+      receivedByName: currentUser.displayName || currentUser.email,
+      whatsappLog:   []
+    });
+
+    // Update customer job count
+    await updateDoc(doc(db, 'customers', customerId), {
+      totalJobsCount: increment(1)
+    });
+
+    showToast(`✅ Job ${jobNumber} registered!`);
+    setTimeout(() => {
+      window.location.href = `crm-customer-detail.html?id=${customerId}`;
+    }, 1500);
+
+  } catch(e) {
+    console.error(e);
+    showToast('❌ Failed to register job. Try again.');
+    btn.textContent = '📋 Register Job'; btn.disabled = false;
+  }
+};
+
+// ── BACK ─────────────────────────────────────────────────
+window.goBack = function() {
+  window.location.href = `crm-customer-detail.html?id=${customerId}`;
+};
+
+// ── TOAST ────────────────────────────────────────────────
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// Recalc on declared value change
+document.getElementById('declaredValue').addEventListener('input', calcEstimate);
+</script>
+</body>
+</html>
