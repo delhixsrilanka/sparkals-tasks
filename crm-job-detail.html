@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#1a1a2e" />
+  <title>Job Detail — Sparkals CRM</title>
+  <link rel="manifest" href="/manifest.json" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', sans-serif; background: #1a1a2e; color: white; min-height: 100vh; padding-bottom: 80px; }
+
+    .header { background: linear-gradient(135deg, #1a1a2e, #2d2d5e); padding: 16px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid rgba(255,255,255,0.08); position: sticky; top: 0; z-index: 100; }
+    .header-title { font-size: 18px; font-weight: 700; color: #a78bfa; }
+    .header-sub { font-size: 12px; color: rgba(255,255,255,0.4); }
+    .back-btn { background: none; border: none; color: #a78bfa; font-size: 22px; cursor: pointer; padding: 4px; }
+
+    .section { padding: 16px; }
+    .section-heading { font-size: 13px; font-weight: 700; color: #a78bfa; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 10px; }
+
+    /* JOB HERO CARD */
+    .job-hero { margin: 16px; background: linear-gradient(135deg, rgba(124,58,237,0.2), rgba(124,58,237,0.05)); border-radius: 20px; padding: 18px; border: 1px solid rgba(124,58,237,0.25); }
+    .job-hero-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+    .job-number-lg { font-size: 22px; font-weight: 800; color: white; }
+    .job-status-lg { font-size: 12px; padding: 5px 14px; border-radius: 20px; font-weight: 600; }
+    .status-received    { background: rgba(59,130,246,0.2);  color: #60a5fa; border: 1px solid rgba(59,130,246,0.3); }
+    .status-in_progress { background: rgba(245,158,11,0.2);  color: #fbbf24; border: 1px solid rgba(245,158,11,0.3); }
+    .status-ready       { background: rgba(16,185,129,0.2);  color: #10b981; border: 1px solid rgba(16,185,129,0.3); }
+    .status-delivered   { background: rgba(107,114,128,0.2); color: #9ca3af; border: 1px solid rgba(107,114,128,0.3); }
+    .status-cancelled   { background: rgba(239,68,68,0.2);   color: #ef4444; border: 1px solid rgba(239,68,68,0.3); }
+    .job-desc-lg { font-size: 16px; color: white; font-weight: 500; margin-bottom: 8px; }
+    .job-tags { display: flex; gap: 8px; flex-wrap: wrap; }
+    .job-tag { font-size: 11px; padding: 3px 10px; border-radius: 20px; background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.55); }
+    .job-tag.urgent   { background: rgba(239,68,68,0.15);  color: #ef4444; }
+    .job-tag.priority { background: rgba(245,158,11,0.15); color: #fbbf24; }
+
+    /* STATUS STEPPER */
+    .stepper { display: flex; align-items: center; padding: 0 16px 16px; gap: 0; }
+    .step { display: flex; flex-direction: column; align-items: center; flex: 1; }
+    .step-dot { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; border: 2px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.3); flex-shrink: 0; }
+    .step-dot.done { background: #7c3aed; border-color: #7c3aed; color: white; }
+    .step-dot.current { background: rgba(124,58,237,0.2); border-color: #a78bfa; color: #a78bfa; }
+    .step-label { font-size: 9px; color: rgba(255,255,255,0.3); margin-top: 4px; text-align: center; }
+    .step-label.done { color: #a78bfa; }
+    .step-label.current { color: white; }
+    .step-line { flex: 1; height: 2px; background: rgba(255,255,255,0.08); margin-bottom: 14px; }
+    .step-line.done { background: #7c3aed; }
+
+    /* INFO CARD */
+    .info-card { background: rgba(255,255,255,0.05); border-radius: 16px; padding: 16px; border: 1px solid rgba(255,255,255,0.08); margin-bottom: 12px; }
+    .info-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+    .info-row:last-child { border-bottom: none; padding-bottom: 0; }
+    .info-label { font-size: 13px; color: rgba(255,255,255,0.4); }
+    .info-value { font-size: 13px; color: white; font-weight: 500; text-align: right; }
+    .overdue-val { color: #ef4444; font-weight: 700; }
+
+    /* STATUS UPDATE BUTTONS */
+    .status-btns { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
+    .status-update-btn { padding: 13px 16px; border-radius: 12px; border: none; font-size: 14px; font-weight: 600; cursor: pointer; text-align: left; display: flex; align-items: center; gap: 10px; transition: opacity 0.15s; }
+    .status-update-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+    .btn-in-progress { background: rgba(245,158,11,0.15); color: #fbbf24; border: 1px solid rgba(245,158,11,0.3); }
+    .btn-ready       { background: rgba(16,185,129,0.15);  color: #10b981; border: 1px solid rgba(16,185,129,0.3); }
+    .btn-delivered   { background: rgba(107,114,128,0.15); color: #9ca3af; border: 1px solid rgba(107,114,128,0.3); }
+    .btn-cancel-job  { background: rgba(239,68,68,0.1);    color: #ef4444; border: 1px solid rgba(239,68,68,0.2); }
+
+    /* NOTES */
+    .note-input { width: 100%; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12); border-radius: 10px; padding: 11px 14px; color: white; font-size: 14px; outline: none; resize: none; min-height: 80px; margin-bottom: 8px; }
+    .note-input:focus { border-color: #a78bfa; }
+    .add-note-btn { width: 100%; background: rgba(124,58,237,0.15); border: 1px solid rgba(124,58,237,0.3); color: #a78bfa; border-radius: 10px; padding: 11px; font-size: 14px; font-weight: 600; cursor: pointer; }
+
+    /* NOTES LIST */
+    .note-item { background: rgba(255,255,255,0.04); border-radius: 10px; padding: 10px 12px; margin-bottom: 8px; border-left: 3px solid #7c3aed; }
+    .note-text { font-size: 13px; color: rgba(255,255,255,0.8); line-height: 1.4; }
+    .note-meta { font-size: 11px; color: rgba(255,255,255,0.3); margin-top: 4px; }
+
+    /* ACTION BUTTONS */
+    .action-row { display: flex; gap: 10px; margin: 0 16px 16px; }
+    .action-btn { flex: 1; padding: 12px; border-radius: 14px; border: none; font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; }
+    .btn-invoice  { background: #7c3aed; color: white; }
+    .btn-whatsapp { background: rgba(37,211,102,0.15); color: #25d366; border: 1px solid rgba(37,211,102,0.25); }
+    .btn-cert     { background: rgba(251,191,36,0.15); color: #fbbf24; border: 1px solid rgba(251,191,36,0.25); }
+
+    /* SPINNER */
+    .spinner-wrap { text-align: center; padding: 60px; }
+    .spinner { width: 32px; height: 32px; border: 3px solid rgba(167,139,250,0.2); border-top-color: #a78bfa; border-radius: 50%; animation: spin 0.8s linear infinite; display: inline-block; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* TOAST */
+    .toast { position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%); background: #1a1a2e; color: white; padding: 12px 20px; border-radius: 12px; font-size: 14px; display: none; z-index: 999; border: 1px solid rgba(255,255,255,0.1); white-space: nowrap; }
+    .toast.show { display: block; }
+
+    /* BOTTOM NAV */
+    .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top: 1px solid #f0f0f0; display: flex; justify-content: space-around; padding: 6px 0 8px; z-index: 150; }
+    .nav-item { display: flex; flex-direction: column; align-items: center; gap: 2px; text-decoration: none; padding: 4px 10px; color: #888; font-size: 10px; font-weight: 600; }
+    .nav-item.active { color: #1a1a2e; }
+    .nav-icon { font-size: 20px; }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <button class="back-btn" onclick="goBack()">←</button>
+    <div>
+      <div class="header-title" id="headerJobNum">Job Detail</div>
+      <div class="header-sub" id="headerCustomer">Loading...</div>
+    </div>
+  </div>
+
+  <div id="loadingWrap" class="spinner-wrap"><div class="spinner"></div></div>
+
+  <div id="mainContent" style="display:none;">
+
+    <!-- JOB HERO -->
+    <div class="job-hero">
+      <div class="job-hero-top">
+        <div class="job-number-lg" id="jobNumLg">—</div>
+        <div class="job-status-lg" id="jobStatusLg">—</div>
+      </div>
+      <div class="job-desc-lg" id="jobDescLg">—</div>
+      <div class="job-tags" id="jobTags"></div>
+    </div>
+
+    <!-- STATUS STEPPER -->
+    <div class="stepper" id="stepper"></div>
+
+    <!-- ACTION BUTTONS -->
+    <div class="action-row">
+      <button class="action-btn btn-invoice" onclick="goInvoice()">🧾 Invoice</button>
+      <button class="action-btn btn-whatsapp" onclick="sendWhatsApp()">💬 WA</button>
+      <button class="action-btn btn-cert" onclick="goCert()">📜 Cert</button>
+    </div>
+
+    <!-- JOB DETAILS -->
+    <div class="section">
+      <div class="section-heading">📋 Job Details</div>
+      <div class="info-card">
+        <div class="info-row"><span class="info-label">Customer</span><span class="info-value" id="infoCustomer">—</span></div>
+        <div class="info-row"><span class="info-label">Service</span><span class="info-value" id="infoService">—</span></div>
+        <div class="info-row"><span class="info-label">Pieces</span><span class="info-value" id="infoPieces">—</span></div>
+        <div class="info-row"><span class="info-label">Declared Value</span><span class="info-value" id="infoDeclared">—</span></div>
+        <div class="info-row"><span class="info-label">Received On</span><span class="info-value" id="infoReceived">—</span></div>
+        <div class="info-row"><span class="info-label">Promised By</span><span class="info-value" id="infoPromised">—</span></div>
+        <div class="info-row"><span class="info-label">Received By</span><span class="info-value" id="infoReceivedBy">—</span></div>
+      </div>
+      <div class="info-card" id="internalNotesCard" style="display:none;">
+        <div class="section-heading" style="margin-bottom:6px;">🔒 Internal Notes</div>
+        <div style="font-size:13px;color:rgba(255,255,255,0.6);line-height:1.5;" id="infoInternalNotes"></div>
+      </div>
+    </div>
+
+    <!-- STATUS UPDATE -->
+    <div class="section" style="padding-top:0;">
+      <div class="section-heading">⚡ Update Status</div>
+      <div class="status-btns">
+        <button class="status-update-btn btn-in-progress" id="btnInProgress" onclick="updateStatus('in_progress')">⚙️ Mark as In Progress — gemologist working on it</button>
+        <button class="status-update-btn btn-ready"       id="btnReady"      onclick="updateStatus('ready')">✅ Mark as Ready — customer can collect</button>
+        <button class="status-update-btn btn-delivered"   id="btnDelivered"  onclick="updateStatus('delivered')">📦 Mark as Delivered — handed over</button>
+        <button class="status-update-btn btn-cancel-job"  id="btnCancel"     onclick="cancelJob()">✕ Cancel Job</button>
+      </div>
+    </div>
+
+    <!-- ADD NOTE -->
+    <div class="section" style="padding-top:0;">
+      <div class="section-heading">📝 Add Note</div>
+      <textarea class="note-input" id="noteInput" placeholder="e.g. Stone confirmed natural. Certificate ready tomorrow."></textarea>
+      <button class="add-note-btn" onclick="addNote()">➕ Add Note</button>
+    </div>
+
+    <!-- NOTES LIST -->
+    <div class="section" style="padding-top:0;">
+      <div class="section-heading">🗒️ Activity Log</div>
+      <div id="notesList"></div>
+    </div>
+
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <div class="bottom-nav">
+    <a class="nav-item" href="dashboard.html"><span class="nav-icon">🏠</span>Home</a>
+    <a class="nav-item" href="tasks.html"><span class="nav-icon">✅</span>Tasks</a>
+    <a class="nav-item" href="chat.html"><span class="nav-icon">💬</span>Chat</a>
+    <a class="nav-item" href="attendance.html"><span class="nav-icon">🕐</span>Attend.</a>
+    <a class="nav-item active" href="crm-customers.html"><span class="nav-icon">💎</span>CRM</a>
+  </div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import { getFirestore, doc, getDoc, updateDoc, arrayUnion, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDNwQYXcwZrAh4cTfRyhOVk_pRod9p4CRM",
+  authDomain: "sparkals-tasks-app.firebaseapp.com",
+  projectId: "sparkals-tasks-app",
+  storageBucket: "sparkals-tasks-app.firebasestorage.app",
+  messagingSenderId: "147179987231",
+  appId: "1:147179987231:web:c6ffa484f33a2ca420d02a"
+};
+
+const app  = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+
+const STATUS_ORDER = ['received','in_progress','ready','delivered'];
+const STATUS_LABELS = { received:'Received', in_progress:'In Progress', ready:'Ready ✅', delivered:'Delivered' };
+const SVC_LABELS = { diamond_cert:'💎 Diamond Certification', gemstone_cert:'🪨 Gemstone Certification', jewellery_valuation:'⚖️ Jewellery Valuation' };
+
+let currentUser = null;
+let jobId       = null;
+let jobData     = null;
+
+const params = new URLSearchParams(window.location.search);
+jobId = params.get('id');
+if (!jobId) window.location.href = 'crm-jobs.html';
+
+// ── AUTH ─────────────────────────────────────────────────
+onAuthStateChanged(auth, async (user) => {
+  if (!user) { window.location.href = 'login.html'; return; }
+  currentUser = user;
+  await loadJob();
+  document.getElementById('loadingWrap').style.display = 'none';
+  document.getElementById('mainContent').style.display = 'block';
+});
+
+// ── LOAD JOB ─────────────────────────────────────────────
+async function loadJob() {
+  try {
+    const snap = await getDoc(doc(db, 'jobs', jobId));
+    if (!snap.exists()) { window.location.href = 'crm-jobs.html'; return; }
+    jobData = { id: snap.id, ...snap.data() };
+    renderJob(jobData);
+  } catch(e) {
+    console.error(e);
+    showToast('❌ Could not load job');
+  }
+}
+
+// ── RENDER JOB ───────────────────────────────────────────
+function renderJob(j) {
+  const status   = j.status || 'received';
+  const priority = j.priority || 'normal';
+  const today    = new Date().toISOString().split('T')[0];
+  const isOverdue = ['received','in_progress'].includes(status) && j.promisedDate && j.promisedDate < today;
+
+  document.getElementById('headerJobNum').textContent    = j.jobNumber || jobId.slice(0,8);
+  document.getElementById('headerCustomer').textContent  = j.customerName || '—';
+  document.getElementById('jobNumLg').textContent        = j.jobNumber || jobId.slice(0,8);
+  document.getElementById('jobDescLg').textContent       = j.itemDescription || '—';
+  document.getElementById('jobStatusLg').textContent     = STATUS_LABELS[status] || status;
+  document.getElementById('jobStatusLg').className       = `job-status-lg status-${status}`;
+
+  // Tags
+  const tags = [];
+  tags.push(SVC_LABELS[j.serviceType] || j.serviceType || '—');
+  if (priority !== 'normal') tags.push(`<span class="job-tag ${priority}">${priority === 'urgent' ? '🔴 Urgent' : '🟡 Priority'}</span>`);
+  if (isOverdue) tags.push(`<span class="job-tag urgent">⚠️ OVERDUE</span>`);
+  document.getElementById('jobTags').innerHTML = tags.map((t,i) => i===0 ? `<span class="job-tag">${t}</span>` : t).join('');
+
+  // Stepper
+  renderStepper(status);
+
+  // Info rows
+  document.getElementById('infoCustomer').textContent   = j.customerName || '—';
+  document.getElementById('infoService').textContent    = SVC_LABELS[j.serviceType] || '—';
+  document.getElementById('infoPieces').textContent     = j.pieceCount || 1;
+  document.getElementById('infoDeclared').textContent   = j.declaredValue ? '₹' + j.declaredValue.toLocaleString('en-IN') : '—';
+  document.getElementById('infoReceivedBy').textContent = j.receivedByName || '—';
+
+  if (j.receivedAt?.toDate) {
+    document.getElementById('infoReceived').textContent =
+      j.receivedAt.toDate().toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
+  }
+  if (j.promisedDate) {
+    const pEl = document.getElementById('infoPromised');
+    pEl.textContent = new Date(j.promisedDate).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
+    if (isOverdue) pEl.className = 'info-value overdue-val';
+  }
+
+  // Internal notes
+  if (j.internalNotes) {
+    document.getElementById('internalNotesCard').style.display = 'block';
+    document.getElementById('infoInternalNotes').textContent = j.internalNotes;
+  }
+
+  // Status buttons
+  updateStatusButtons(status);
+
+  // Notes/activity log
+  renderNotes(j.activityLog || []);
+}
+
+// ── STEPPER ──────────────────────────────────────────────
+function renderStepper(currentStatus) {
+  const steps = ['received','in_progress','ready','delivered'];
+  const labels = ['Received','In Progress','Ready','Delivered'];
+  const currentIdx = steps.indexOf(currentStatus);
+  let html = '';
+  steps.forEach((s, i) => {
+    const isDone    = i < currentIdx;
+    const isCurrent = i === currentIdx;
+    html += `<div class="step">
+      <div class="step-dot ${isDone?'done':isCurrent?'current':''}">${isDone?'✓':i+1}</div>
+      <div class="step-label ${isDone?'done':isCurrent?'current':''}">${labels[i]}</div>
+    </div>`;
+    if (i < steps.length - 1) {
+      html += `<div class="step-line ${isDone?'done':''}"></div>`;
+    }
+  });
+  document.getElementById('stepper').innerHTML = html;
+}
+
+// ── STATUS BUTTONS ───────────────────────────────────────
+function updateStatusButtons(status) {
+  document.getElementById('btnInProgress').disabled = status !== 'received';
+  document.getElementById('btnReady').disabled      = status !== 'in_progress';
+  document.getElementById('btnDelivered').disabled  = status !== 'ready';
+  document.getElementById('btnCancel').disabled     = ['delivered','cancelled'].includes(status);
+}
+
+// ── UPDATE STATUS ────────────────────────────────────────
+window.updateStatus = async function(newStatus) {
+  try {
+    const logEntry = {
+      action:    `Status changed to ${STATUS_LABELS[newStatus]}`,
+      by:        currentUser.displayName || currentUser.email,
+      at:        new Date().toISOString(),
+      timestamp: Date.now()
+    };
+    await updateDoc(doc(db, 'jobs', jobId), {
+      status:      newStatus,
+      updatedAt:   serverTimestamp(),
+      updatedBy:   currentUser.uid,
+      activityLog: arrayUnion(logEntry)
+    });
+    showToast(`✅ Status updated to ${STATUS_LABELS[newStatus]}`);
+    await loadJob();
+  } catch(e) {
+    console.error(e);
+    showToast('❌ Update failed');
+  }
+};
+
+// ── CANCEL JOB ───────────────────────────────────────────
+window.cancelJob = async function() {
+  if (!confirm('Cancel this job? This cannot be undone.')) return;
+  try {
+    const logEntry = {
+      action:    'Job cancelled',
+      by:        currentUser.displayName || currentUser.email,
+      at:        new Date().toISOString(),
+      timestamp: Date.now()
+    };
+    await updateDoc(doc(db, 'jobs', jobId), {
+      status:      'cancelled',
+      cancelledAt: serverTimestamp(),
+      cancelledBy: currentUser.uid,
+      activityLog: arrayUnion(logEntry)
+    });
+    showToast('Job cancelled');
+    await loadJob();
+  } catch(e) {
+    showToast('❌ Cancel failed');
+  }
+};
+
+// ── ADD NOTE ─────────────────────────────────────────────
+window.addNote = async function() {
+  const text = document.getElementById('noteInput').value.trim();
+  if (!text) { showToast('⚠️ Please type a note first'); return; }
+  try {
+    const logEntry = {
+      action:    text,
+      by:        currentUser.displayName || currentUser.email,
+      at:        new Date().toISOString(),
+      timestamp: Date.now(),
+      isNote:    true
+    };
+    await updateDoc(doc(db, 'jobs', jobId), {
+      activityLog: arrayUnion(logEntry)
+    });
+    document.getElementById('noteInput').value = '';
+    showToast('✅ Note added');
+    await loadJob();
+  } catch(e) {
+    showToast('❌ Could not add note');
+  }
+};
+
+// ── RENDER NOTES ─────────────────────────────────────────
+function renderNotes(log) {
+  const el = document.getElementById('notesList');
+  if (!log.length) {
+    el.innerHTML = `<div style="text-align:center;padding:20px;color:rgba(255,255,255,0.25);font-size:13px;">No activity yet</div>`;
+    return;
+  }
+  const sorted = [...log].sort((a,b) => (b.timestamp||0) - (a.timestamp||0));
+  el.innerHTML = sorted.map(entry => {
+    const date = entry.at ? new Date(entry.at).toLocaleString('en-IN',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}) : '—';
+    return `<div class="note-item">
+      <div class="note-text">${entry.isNote ? '📝 ' : '⚡ '}${entry.action}</div>
+      <div class="note-meta">${entry.by} · ${date}</div>
+    </div>`;
+  }).join('');
+}
+
+// ── NAVIGATION ───────────────────────────────────────────
+window.goBack = function() {
+  const ref = document.referrer;
+  if (ref.includes('crm-customer-detail')) {
+    history.back();
+  } else {
+    window.location.href = 'crm-jobs.html';
+  }
+};
+
+window.goInvoice = function() {
+  window.location.href = `crm-invoice.html?jobId=${jobId}`;
+};
+
+window.goCert = function() {
+  const certPage = jobData?.serviceType === 'jewellery_valuation' ? 'crm-valuation.html' : 'crm-certificate.html';
+  window.location.href = `${certPage}?jobId=${jobId}`;
+};
+
+window.sendWhatsApp = function() {
+  const phone = jobData?.customerPhone?.replace(/\D/g,'');
+  if (!phone) { showToast('⚠️ No phone number on file'); return; }
+  const msg = `Dear ${jobData.customerName}, your job ${jobData.jobNumber} status: ${STATUS_LABELS[jobData.status||'received']}. — Sparkals`;
+  window.open(`https://wa.me/91${phone}?text=${encodeURIComponent(msg)}`, '_blank');
+};
+
+// ── TOAST ────────────────────────────────────────────────
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+</script>
+</body>
+</html>
