@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#1a1a2e" />
+  <title>Customer Profile — Sparkals CRM</title>
+  <link rel="manifest" href="/manifest.json" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', sans-serif; background: #1a1a2e; color: white; min-height: 100vh; padding-bottom: 80px; }
+
+    .header { background: linear-gradient(135deg, #1a1a2e, #2d2d5e); padding: 16px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid rgba(255,255,255,0.08); position: sticky; top: 0; z-index: 100; }
+    .header-title { font-size: 18px; font-weight: 700; color: #a78bfa; }
+    .header-sub { font-size: 12px; color: rgba(255,255,255,0.4); }
+    .back-btn { background: none; border: none; color: #a78bfa; font-size: 22px; cursor: pointer; padding: 4px; }
+
+    /* PROFILE CARD */
+    .profile-card { margin: 16px; background: linear-gradient(135deg, rgba(124,58,237,0.2), rgba(124,58,237,0.05)); border-radius: 20px; padding: 20px; border: 1px solid rgba(124,58,237,0.25); }
+    .profile-top { display: flex; align-items: center; gap: 16px; margin-bottom: 16px; }
+    .avatar-lg { width: 64px; height: 64px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 26px; font-weight: 700; flex-shrink: 0; }
+    .profile-name { font-size: 22px; font-weight: 700; color: white; }
+    .profile-phone { font-size: 14px; color: rgba(255,255,255,0.5); margin-top: 2px; }
+    .profile-email { font-size: 13px; color: rgba(255,255,255,0.4); margin-top: 2px; }
+    .membership-badge { display: inline-flex; align-items: center; gap: 6px; padding: 5px 14px; border-radius: 20px; font-size: 13px; font-weight: 600; margin-top: 8px; }
+    .badge-gold { background: rgba(251,191,36,0.15); color: #fbbf24; border: 1px solid rgba(251,191,36,0.3); }
+    .badge-silver { background: rgba(148,163,184,0.15); color: #94a3b8; border: 1px solid rgba(148,163,184,0.3); }
+    .badge-regular { background: rgba(167,139,250,0.12); color: #a78bfa; border: 1px solid rgba(167,139,250,0.25); }
+
+    /* STATS ROW */
+    .stats-row { display: flex; gap: 10px; margin-top: 14px; }
+    .stat-box { flex: 1; background: rgba(255,255,255,0.06); border-radius: 12px; padding: 10px; text-align: center; }
+    .stat-num { font-size: 20px; font-weight: 700; color: #a78bfa; }
+    .stat-lbl { font-size: 11px; color: rgba(255,255,255,0.4); margin-top: 2px; }
+
+    /* ACTION BUTTONS */
+    .action-row { display: flex; gap: 10px; margin: 0 16px 16px; }
+    .action-btn { flex: 1; padding: 12px; border-radius: 14px; border: none; font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; }
+    .btn-primary { background: #7c3aed; color: white; }
+    .btn-secondary { background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.8); border: 1px solid rgba(255,255,255,0.12); }
+    .btn-whatsapp { background: rgba(37,211,102,0.15); color: #25d366; border: 1px solid rgba(37,211,102,0.25); }
+
+    /* SECTION */
+    .section { padding: 0 16px 16px; }
+    .section-heading { font-size: 13px; font-weight: 700; color: #a78bfa; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 10px; }
+
+    /* INFO CARD */
+    .info-card { background: rgba(255,255,255,0.05); border-radius: 16px; padding: 16px; border: 1px solid rgba(255,255,255,0.08); margin-bottom: 12px; }
+    .info-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+    .info-row:last-child { border-bottom: none; padding-bottom: 0; }
+    .info-label { font-size: 13px; color: rgba(255,255,255,0.4); }
+    .info-value { font-size: 13px; color: white; font-weight: 500; text-align: right; max-width: 60%; }
+
+    /* EDIT FORM */
+    .edit-card { background: rgba(255,255,255,0.05); border-radius: 16px; padding: 16px; border: 1px solid rgba(124,58,237,0.3); margin-bottom: 12px; display: none; }
+    .edit-card.show { display: block; }
+    .form-group { margin-bottom: 12px; }
+    .form-label { font-size: 12px; color: rgba(255,255,255,0.45); margin-bottom: 4px; display: block; }
+    .form-input { width: 100%; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12); border-radius: 10px; padding: 10px 12px; color: white; font-size: 14px; outline: none; }
+    .form-input:focus { border-color: #a78bfa; }
+    .form-select { width: 100%; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12); border-radius: 10px; padding: 10px 12px; color: white; font-size: 14px; outline: none; }
+    .form-select option { background: #1e1e3a; }
+    .edit-actions { display: flex; gap: 10px; margin-top: 4px; }
+    .btn-save-edit { flex: 2; background: #7c3aed; border: none; color: white; border-radius: 10px; padding: 11px; font-size: 14px; font-weight: 600; cursor: pointer; }
+    .btn-cancel-edit { flex: 1; background: rgba(255,255,255,0.07); border: none; color: rgba(255,255,255,0.6); border-radius: 10px; padding: 11px; font-size: 14px; cursor: pointer; }
+
+    /* JOB LIST */
+    .job-card { background: rgba(255,255,255,0.05); border-radius: 14px; padding: 14px; border: 1px solid rgba(255,255,255,0.08); margin-bottom: 8px; cursor: pointer; }
+    .job-card:active { background: rgba(255,255,255,0.08); }
+    .job-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; }
+    .job-number { font-size: 13px; font-weight: 700; color: #a78bfa; }
+    .job-status { font-size: 11px; padding: 3px 10px; border-radius: 20px; font-weight: 600; }
+    .status-received    { background: rgba(59,130,246,0.15);  color: #60a5fa; }
+    .status-in_progress { background: rgba(245,158,11,0.15);  color: #fbbf24; }
+    .status-ready       { background: rgba(16,185,129,0.15);  color: #10b981; }
+    .status-delivered   { background: rgba(107,114,128,0.15); color: #9ca3af; }
+    .status-cancelled   { background: rgba(239,68,68,0.15);   color: #ef4444; }
+    .job-desc { font-size: 14px; color: white; margin-bottom: 4px; }
+    .job-meta { font-size: 12px; color: rgba(255,255,255,0.35); }
+
+    /* EMPTY */
+    .empty-state { text-align: center; padding: 30px 20px; color: rgba(255,255,255,0.3); }
+    .empty-icon { font-size: 36px; margin-bottom: 8px; }
+
+    /* SPINNER */
+    .spinner-wrap { text-align: center; padding: 60px; }
+    .spinner { width: 32px; height: 32px; border: 3px solid rgba(167,139,250,0.2); border-top-color: #a78bfa; border-radius: 50%; animation: spin 0.8s linear infinite; display: inline-block; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* TOAST */
+    .toast { position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%); background: #1a1a2e; color: white; padding: 12px 20px; border-radius: 12px; font-size: 14px; display: none; z-index: 999; border: 1px solid rgba(255,255,255,0.1); white-space: nowrap; }
+    .toast.show { display: block; }
+
+    /* BOTTOM NAV */
+    .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top: 1px solid #f0f0f0; display: flex; justify-content: space-around; padding: 6px 0 8px; z-index: 150; }
+    .nav-item { display: flex; flex-direction: column; align-items: center; gap: 2px; text-decoration: none; padding: 4px 10px; color: #888; font-size: 10px; font-weight: 600; }
+    .nav-item.active { color: #1a1a2e; }
+    .nav-icon { font-size: 20px; }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <button class="back-btn" onclick="window.location.href='crm-customers.html'">←</button>
+    <div>
+      <div class="header-title" id="headerName">Customer Profile</div>
+      <div class="header-sub">Sparkals Gemstone Lab</div>
+    </div>
+  </div>
+
+  <div id="loadingWrap" class="spinner-wrap"><div class="spinner"></div></div>
+
+  <div id="mainContent" style="display:none;">
+
+    <!-- PROFILE CARD -->
+    <div class="profile-card">
+      <div class="profile-top">
+        <div class="avatar-lg" id="avatarEl"></div>
+        <div>
+          <div class="profile-name" id="custName">—</div>
+          <div class="profile-phone" id="custPhone">—</div>
+          <div class="profile-email" id="custEmail"></div>
+          <div class="membership-badge" id="membershipBadge"></div>
+        </div>
+      </div>
+      <div class="stats-row">
+        <div class="stat-box"><div class="stat-num" id="statJobs">0</div><div class="stat-lbl">Total Jobs</div></div>
+        <div class="stat-box"><div class="stat-num" id="statPaid">₹0</div><div class="stat-lbl">Total Paid</div></div>
+        <div class="stat-box"><div class="stat-num" id="statDiscount">0%</div><div class="stat-lbl">Discount</div></div>
+      </div>
+    </div>
+
+    <!-- ACTION BUTTONS -->
+    <div class="action-row">
+      <button class="action-btn btn-primary" onclick="newJob()">➕ New Job</button>
+      <button class="action-btn btn-whatsapp" onclick="whatsapp()">💬 WhatsApp</button>
+      <button class="action-btn btn-secondary" onclick="toggleEdit()">✏️ Edit</button>
+    </div>
+
+    <!-- EDIT FORM -->
+    <div class="section">
+      <div class="edit-card" id="editCard">
+        <div class="section-heading">✏️ Edit Customer</div>
+        <div class="form-group">
+          <label class="form-label">Full Name</label>
+          <input class="form-input" type="text" id="edit-name" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Phone</label>
+          <input class="form-input" type="tel" id="edit-phone" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input class="form-input" type="email" id="edit-email" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Address</label>
+          <input class="form-input" type="text" id="edit-address" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Membership Tier</label>
+          <select class="form-select" id="edit-membership">
+            <option value="regular">Regular</option>
+            <option value="silver">Silver (5% discount)</option>
+            <option value="gold">Gold (10% discount)</option>
+          </select>
+        </div>
+        <div class="edit-actions">
+          <button class="btn-cancel-edit" onclick="toggleEdit()">Cancel</button>
+          <button class="btn-save-edit" onclick="saveEdit()">Save Changes</button>
+        </div>
+      </div>
+
+      <!-- CONTACT INFO -->
+      <div class="section-heading">📋 Contact Details</div>
+      <div class="info-card">
+        <div class="info-row"><span class="info-label">Address</span><span class="info-value" id="infoAddress">—</span></div>
+        <div class="info-row"><span class="info-label">Member since</span><span class="info-value" id="infoSince">—</span></div>
+        <div class="info-row"><span class="info-label">Added by</span><span class="info-value" id="infoAddedBy">—</span></div>
+      </div>
+
+      <!-- JOB HISTORY -->
+      <div class="section-heading">🗂️ Job History</div>
+      <div id="jobList">
+        <div class="spinner-wrap"><div class="spinner"></div></div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <div class="bottom-nav">
+    <a class="nav-item" href="dashboard.html"><span class="nav-icon">🏠</span>Home</a>
+    <a class="nav-item" href="tasks.html"><span class="nav-icon">✅</span>Tasks</a>
+    <a class="nav-item" href="chat.html"><span class="nav-icon">💬</span>Chat</a>
+    <a class="nav-item" href="attendance.html"><span class="nav-icon">🕐</span>Attend.</a>
+    <a class="nav-item active" href="crm-customers.html"><span class="nav-icon">💎</span>CRM</a>
+  </div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import { getFirestore, doc, getDoc, updateDoc, collection, query, where, getDocs, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDNwQYXcwZrAh4cTfRyhOVk_pRod9p4CRM",
+  authDomain: "sparkals-tasks-app.firebaseapp.com",
+  projectId: "sparkals-tasks-app",
+  storageBucket: "sparkals-tasks-app.firebasestorage.app",
+  messagingSenderId: "147179987231",
+  appId: "1:147179987231:web:c6ffa484f33a2ca420d02a"
+};
+
+const app  = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+
+const AVATAR_COLORS = ['#7c3aed','#059669','#dc2626','#d97706','#0284c7','#db2777'];
+const MEMBERSHIP_DISCOUNTS = { regular: 0, silver: 5, gold: 10 };
+
+let currentUser = null;
+let customerId  = null;
+let customerData = null;
+
+// ── GET CUSTOMER ID FROM URL ─────────────────────────────
+const params = new URLSearchParams(window.location.search);
+customerId = params.get('id');
+if (!customerId) window.location.href = 'crm-customers.html';
+
+// ── AUTH ─────────────────────────────────────────────────
+onAuthStateChanged(auth, async (user) => {
+  if (!user) { window.location.href = 'login.html'; return; }
+  currentUser = user;
+  await loadCustomer();
+  await loadJobs();
+  document.getElementById('loadingWrap').style.display = 'none';
+  document.getElementById('mainContent').style.display = 'block';
+});
+
+// ── LOAD CUSTOMER ────────────────────────────────────────
+async function loadCustomer() {
+  try {
+    const snap = await getDoc(doc(db, 'customers', customerId));
+    if (!snap.exists()) { window.location.href = 'crm-customers.html'; return; }
+    customerData = { id: snap.id, ...snap.data() };
+    renderProfile(customerData);
+  } catch(e) {
+    console.error(e);
+    showToast('❌ Could not load customer');
+  }
+}
+
+// ── RENDER PROFILE ───────────────────────────────────────
+function renderProfile(c) {
+  const initials = c.name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+  const color    = AVATAR_COLORS[c.name.charCodeAt(0) % AVATAR_COLORS.length];
+
+  document.getElementById('headerName').textContent   = c.name;
+  document.getElementById('avatarEl').textContent     = initials;
+  document.getElementById('avatarEl').style.background = color + '30';
+  document.getElementById('avatarEl').style.color      = color;
+  document.getElementById('custName').textContent      = c.name;
+  document.getElementById('custPhone').textContent     = '📞 ' + (c.phone || '—');
+  document.getElementById('custEmail').textContent     = c.email ? '✉️ ' + c.email : '';
+  document.getElementById('infoAddress').textContent   = c.address || '—';
+  document.getElementById('infoAddedBy').textContent   = c.createdByName || '—';
+  document.getElementById('statJobs').textContent      = c.totalJobsCount || 0;
+  document.getElementById('statDiscount').textContent  = (MEMBERSHIP_DISCOUNTS[c.membershipType] || 0) + '%';
+
+  const paid = c.totalAmountPaid || 0;
+  document.getElementById('statPaid').textContent = '₹' + paid.toLocaleString('en-IN');
+
+  if (c.createdAt?.toDate) {
+    document.getElementById('infoSince').textContent =
+      c.createdAt.toDate().toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' });
+  }
+
+  const tier = c.membershipType || 'regular';
+  const badgeClass = tier === 'gold' ? 'badge-gold' : tier === 'silver' ? 'badge-silver' : 'badge-regular';
+  const badgeIcon  = tier === 'gold' ? '⭐' : tier === 'silver' ? '🥈' : '👤';
+  document.getElementById('membershipBadge').className = `membership-badge ${badgeClass}`;
+  document.getElementById('membershipBadge').textContent = `${badgeIcon} ${tier.charAt(0).toUpperCase()+tier.slice(1)} Member`;
+}
+
+// ── LOAD JOBS ────────────────────────────────────────────
+async function loadJobs() {
+  const el = document.getElementById('jobList');
+  try {
+    const q = query(collection(db, 'jobs'), where('customerId','==',customerId));
+    const snap = await getDocs(q);
+    if (snap.empty) {
+      el.innerHTML = `<div class="empty-state"><div class="empty-icon">📭</div><div>No jobs yet for this customer</div></div>`;
+      return;
+    }
+    const jobs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    jobs.sort((a,b) => (b.receivedAt?.seconds||0) - (a.receivedAt?.seconds||0));
+    el.innerHTML = jobs.map(j => {
+      const statusClass = 'status-' + (j.status || 'received');
+      const statusLabel = (j.status||'received').replace('_',' ').replace(/\b\w/g,c=>c.toUpperCase());
+      const date = j.receivedAt?.toDate?.()?.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}) || '—';
+      return `
+      <div class="job-card" onclick="showToast('Job detail coming in Step 75')">
+        <div class="job-header">
+          <span class="job-number">${j.jobNumber || j.id.slice(0,8)}</span>
+          <span class="job-status ${statusClass}">${statusLabel}</span>
+        </div>
+        <div class="job-desc">${j.itemDescription || '—'}</div>
+        <div class="job-meta">${j.serviceType?.replace('_',' ') || '—'} · ${date}</div>
+      </div>`;
+    }).join('');
+  } catch(e) {
+    console.error(e);
+    el.innerHTML = `<div class="empty-state"><div>Could not load jobs</div></div>`;
+  }
+}
+
+// ── TOGGLE EDIT ──────────────────────────────────────────
+window.toggleEdit = function() {
+  const card = document.getElementById('editCard');
+  const show = !card.classList.contains('show');
+  card.classList.toggle('show', show);
+  if (show && customerData) {
+    document.getElementById('edit-name').value       = customerData.name       || '';
+    document.getElementById('edit-phone').value      = customerData.phone      || '';
+    document.getElementById('edit-email').value      = customerData.email      || '';
+    document.getElementById('edit-address').value    = customerData.address    || '';
+    document.getElementById('edit-membership').value = customerData.membershipType || 'regular';
+  }
+};
+
+// ── SAVE EDIT ────────────────────────────────────────────
+window.saveEdit = async function() {
+  const name  = document.getElementById('edit-name').value.trim();
+  const phone = document.getElementById('edit-phone').value.trim();
+  if (!name || !phone) { showToast('⚠️ Name and phone required'); return; }
+  const tier = document.getElementById('edit-membership').value;
+  try {
+    await updateDoc(doc(db, 'customers', customerId), {
+      name,
+      phone,
+      email:              document.getElementById('edit-email').value.trim(),
+      address:            document.getElementById('edit-address').value.trim(),
+      membershipType:     tier,
+      membershipDiscount: MEMBERSHIP_DISCOUNTS[tier],
+      updatedAt:          serverTimestamp(),
+      updatedBy:          currentUser.uid
+    });
+    showToast('✅ Customer updated!');
+    document.getElementById('editCard').classList.remove('show');
+    await loadCustomer();
+  } catch(e) {
+    console.error(e);
+    showToast('❌ Update failed');
+  }
+};
+
+// ── NEW JOB ──────────────────────────────────────────────
+window.newJob = function() {
+  window.location.href = `crm-job-intake.html?customerId=${customerId}&customerName=${encodeURIComponent(customerData?.name||'')}`;
+};
+
+// ── WHATSAPP ─────────────────────────────────────────────
+window.whatsapp = function() {
+  const phone = customerData?.phone?.replace(/\D/g,'');
+  if (!phone) { showToast('⚠️ No phone number saved'); return; }
+  window.open(`https://wa.me/91${phone}`, '_blank');
+};
+
+// ── TOAST ────────────────────────────────────────────────
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+</script>
+</body>
+</html>
