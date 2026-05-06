@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#1a1a2e" />
+  <title>Jobs — Sparkals CRM</title>
+  <link rel="manifest" href="/manifest.json" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', sans-serif; background: #1a1a2e; color: white; min-height: 100vh; padding-bottom: 80px; }
+
+    .header { background: linear-gradient(135deg, #1a1a2e, #2d2d5e); padding: 16px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid rgba(255,255,255,0.08); position: sticky; top: 0; z-index: 100; }
+    .header-title { font-size: 18px; font-weight: 700; color: #a78bfa; }
+    .header-sub { font-size: 12px; color: rgba(255,255,255,0.4); }
+    .back-btn { background: none; border: none; color: #a78bfa; font-size: 22px; cursor: pointer; padding: 4px; }
+
+    /* STATS */
+    .stats-row { display: flex; gap: 8px; padding: 14px 16px 0; overflow-x: auto; }
+    .stat-chip { flex-shrink: 0; background: rgba(255,255,255,0.05); border-radius: 12px; padding: 10px 14px; text-align: center; border: 1px solid rgba(255,255,255,0.08); min-width: 72px; }
+    .stat-num { font-size: 20px; font-weight: 700; color: #a78bfa; }
+    .stat-lbl { font-size: 10px; color: rgba(255,255,255,0.4); margin-top: 2px; }
+
+    /* FILTER TABS */
+    .filter-row { display: flex; gap: 8px; padding: 14px 16px 0; overflow-x: auto; }
+    .filter-btn { flex-shrink: 0; padding: 7px 14px; border-radius: 20px; font-size: 12px; font-weight: 600; cursor: pointer; border: 1px solid rgba(255,255,255,0.12); background: transparent; color: rgba(255,255,255,0.45); white-space: nowrap; }
+    .filter-btn.active { background: #7c3aed; color: white; border-color: #7c3aed; }
+
+    /* SEARCH */
+    .search-wrap { padding: 12px 16px 0; }
+    .search-box { width: 100%; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); border-radius: 12px; padding: 10px 14px; color: white; font-size: 14px; outline: none; }
+    .search-box::placeholder { color: rgba(255,255,255,0.3); }
+
+    /* JOB LIST */
+    .job-list { padding: 12px 16px; display: flex; flex-direction: column; gap: 10px; }
+
+    .job-card { background: rgba(255,255,255,0.05); border-radius: 16px; padding: 14px 16px; border: 1px solid rgba(255,255,255,0.08); cursor: pointer; transition: background 0.15s; }
+    .job-card:active { background: rgba(255,255,255,0.09); }
+
+    .job-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; }
+    .job-number { font-size: 14px; font-weight: 700; color: #a78bfa; }
+    .job-status { font-size: 11px; padding: 3px 10px; border-radius: 20px; font-weight: 600; }
+    .status-received    { background: rgba(59,130,246,0.15);  color: #60a5fa; border: 1px solid rgba(59,130,246,0.25); }
+    .status-in_progress { background: rgba(245,158,11,0.15);  color: #fbbf24; border: 1px solid rgba(245,158,11,0.25); }
+    .status-ready       { background: rgba(16,185,129,0.15);  color: #10b981; border: 1px solid rgba(16,185,129,0.25); }
+    .status-delivered   { background: rgba(107,114,128,0.15); color: #9ca3af; border: 1px solid rgba(107,114,128,0.25); }
+    .status-cancelled   { background: rgba(239,68,68,0.15);   color: #ef4444; border: 1px solid rgba(239,68,68,0.25); }
+
+    .job-desc { font-size: 14px; color: white; margin-bottom: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .job-customer { font-size: 13px; color: rgba(255,255,255,0.55); margin-bottom: 4px; }
+
+    .job-bottom { display: flex; justify-content: space-between; align-items: center; }
+    .job-meta { font-size: 11px; color: rgba(255,255,255,0.3); }
+    .priority-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .pri-normal   { background: #60a5fa; }
+    .pri-priority { background: #fbbf24; }
+    .pri-urgent   { background: #ef4444; }
+
+    .overdue-tag { font-size: 10px; color: #ef4444; font-weight: 600; }
+
+    /* EMPTY */
+    .empty-state { text-align: center; padding: 60px 20px; color: rgba(255,255,255,0.3); }
+    .empty-icon { font-size: 48px; margin-bottom: 12px; }
+    .empty-text { font-size: 15px; }
+    .empty-sub { font-size: 13px; margin-top: 6px; color: rgba(255,255,255,0.2); }
+
+    /* SPINNER */
+    .spinner-wrap { text-align: center; padding: 60px; }
+    .spinner { width: 32px; height: 32px; border: 3px solid rgba(167,139,250,0.2); border-top-color: #a78bfa; border-radius: 50%; animation: spin 0.8s linear infinite; display: inline-block; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* TOAST */
+    .toast { position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%); background: #1a1a2e; color: white; padding: 12px 20px; border-radius: 12px; font-size: 14px; display: none; z-index: 999; border: 1px solid rgba(255,255,255,0.1); white-space: nowrap; }
+    .toast.show { display: block; }
+
+    /* BOTTOM NAV */
+    .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top: 1px solid #f0f0f0; display: flex; justify-content: space-around; padding: 6px 0 8px; z-index: 150; }
+    .nav-item { display: flex; flex-direction: column; align-items: center; gap: 2px; text-decoration: none; padding: 4px 10px; color: #888; font-size: 10px; font-weight: 600; }
+    .nav-item.active { color: #1a1a2e; }
+    .nav-icon { font-size: 20px; }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <button class="back-btn" onclick="window.location.href='crm-customers.html'">←</button>
+    <div>
+      <div class="header-title">🗂️ All Jobs</div>
+      <div class="header-sub" id="headerSub">Loading...</div>
+    </div>
+  </div>
+
+  <!-- STATS -->
+  <div class="stats-row">
+    <div class="stat-chip"><div class="stat-num" id="statAll">—</div><div class="stat-lbl">Total</div></div>
+    <div class="stat-chip"><div class="stat-num" id="statReceived">—</div><div class="stat-lbl">Received</div></div>
+    <div class="stat-chip"><div class="stat-num" id="statProgress">—</div><div class="stat-lbl">In Progress</div></div>
+    <div class="stat-chip"><div class="stat-num" id="statReady">—</div><div class="stat-lbl">Ready</div></div>
+    <div class="stat-chip"><div class="stat-num" id="statOverdue">—</div><div class="stat-lbl">⚠️ Overdue</div></div>
+  </div>
+
+  <!-- FILTER TABS -->
+  <div class="filter-row">
+    <button class="filter-btn active" onclick="setFilter('all')">All</button>
+    <button class="filter-btn" onclick="setFilter('received')">📥 Received</button>
+    <button class="filter-btn" onclick="setFilter('in_progress')">⚙️ In Progress</button>
+    <button class="filter-btn" onclick="setFilter('ready')">✅ Ready</button>
+    <button class="filter-btn" onclick="setFilter('delivered')">📦 Delivered</button>
+    <button class="filter-btn" onclick="setFilter('urgent')">🔴 Urgent</button>
+  </div>
+
+  <!-- SEARCH -->
+  <div class="search-wrap">
+    <input class="search-box" type="text" id="searchInput" placeholder="🔍  Search job number or customer..." oninput="applyFilters()" />
+  </div>
+
+  <!-- JOB LIST -->
+  <div class="job-list" id="jobList">
+    <div class="spinner-wrap"><div class="spinner"></div></div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <div class="bottom-nav">
+    <a class="nav-item" href="dashboard.html"><span class="nav-icon">🏠</span>Home</a>
+    <a class="nav-item" href="tasks.html"><span class="nav-icon">✅</span>Tasks</a>
+    <a class="nav-item" href="chat.html"><span class="nav-icon">💬</span>Chat</a>
+    <a class="nav-item" href="attendance.html"><span class="nav-icon">🕐</span>Attend.</a>
+    <a class="nav-item active" href="crm-customers.html"><span class="nav-icon">💎</span>CRM</a>
+  </div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import { getFirestore, collection, getDocs, orderBy, query } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDNwQYXcwZrAh4cTfRyhOVk_pRod9p4CRM",
+  authDomain: "sparkals-tasks-app.firebaseapp.com",
+  projectId: "sparkals-tasks-app",
+  storageBucket: "sparkals-tasks-app.firebasestorage.app",
+  messagingSenderId: "147179987231",
+  appId: "1:147179987231:web:c6ffa484f33a2ca420d02a"
+};
+
+const app  = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+
+let allJobs     = [];
+let activeFilter = 'all';
+
+// ── AUTH ─────────────────────────────────────────────────
+onAuthStateChanged(auth, async (user) => {
+  if (!user) { window.location.href = 'login.html'; return; }
+  await loadJobs();
+});
+
+// ── LOAD ALL JOBS ────────────────────────────────────────
+async function loadJobs() {
+  try {
+    const snap = await getDocs(collection(db, 'jobs'));
+    allJobs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    allJobs.sort((a,b) => (b.receivedAt?.seconds||0) - (a.receivedAt?.seconds||0));
+    updateStats();
+    applyFilters();
+    document.getElementById('headerSub').textContent = `${allJobs.length} jobs total`;
+  } catch(e) {
+    console.error(e);
+    showToast('❌ Could not load jobs');
+  }
+}
+
+// ── STATS ────────────────────────────────────────────────
+function updateStats() {
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('statAll').textContent      = allJobs.length;
+  document.getElementById('statReceived').textContent = allJobs.filter(j=>j.status==='received').length;
+  document.getElementById('statProgress').textContent = allJobs.filter(j=>j.status==='in_progress').length;
+  document.getElementById('statReady').textContent    = allJobs.filter(j=>j.status==='ready').length;
+  document.getElementById('statOverdue').textContent  = allJobs.filter(j=>
+    ['received','in_progress'].includes(j.status) && j.promisedDate && j.promisedDate < today
+  ).length;
+}
+
+// ── FILTER ───────────────────────────────────────────────
+window.setFilter = function(filter) {
+  activeFilter = filter;
+  document.querySelectorAll('.filter-btn').forEach((btn, i) => {
+    btn.classList.toggle('active',
+      ['all','received','in_progress','ready','delivered','urgent'][i] === filter);
+  });
+  applyFilters();
+};
+
+window.applyFilters = function() {
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  const today = new Date().toISOString().split('T')[0];
+
+  let filtered = allJobs.filter(j => {
+    if (activeFilter === 'urgent')    return j.priority === 'urgent';
+    if (activeFilter !== 'all')       return j.status === activeFilter;
+    return true;
+  });
+
+  if (q) {
+    filtered = filtered.filter(j =>
+      j.jobNumber?.toLowerCase().includes(q) ||
+      j.customerName?.toLowerCase().includes(q) ||
+      j.itemDescription?.toLowerCase().includes(q)
+    );
+  }
+
+  renderJobs(filtered, today);
+};
+
+// ── RENDER ───────────────────────────────────────────────
+function renderJobs(jobs, today) {
+  const el = document.getElementById('jobList');
+  if (!jobs.length) {
+    el.innerHTML = `<div class="empty-state">
+      <div class="empty-icon">📭</div>
+      <div class="empty-text">No jobs found</div>
+      <div class="empty-sub">Try a different filter or search</div>
+    </div>`;
+    return;
+  }
+
+  el.innerHTML = jobs.map(j => {
+    const status      = j.status || 'received';
+    const statusLabel = status.replace('_',' ').replace(/\b\w/g,c=>c.toUpperCase());
+    const priority    = j.priority || 'normal';
+    const isOverdue   = ['received','in_progress'].includes(status) && j.promisedDate && j.promisedDate < today;
+    const date        = j.receivedAt?.toDate?.()?.toLocaleDateString('en-IN',{day:'numeric',month:'short'}) || '—';
+    const promised    = j.promisedDate ? new Date(j.promisedDate).toLocaleDateString('en-IN',{day:'numeric',month:'short'}) : '—';
+    const svcIcon     = j.serviceType==='diamond_cert' ? '💎' : j.serviceType==='gemstone_cert' ? '🪨' : '⚖️';
+
+    return `
+    <div class="job-card" onclick="window.location.href='crm-job-detail.html?id=${j.id}'">
+      <div class="job-top">
+        <span class="job-number">${j.jobNumber || j.id.slice(0,8)}</span>
+        <span class="job-status status-${status}">${statusLabel}</span>
+      </div>
+      <div class="job-desc">${svcIcon} ${j.itemDescription || '—'}</div>
+      <div class="job-customer">👤 ${j.customerName || '—'}</div>
+      <div class="job-bottom">
+        <div style="display:flex;align-items:center;gap:6px;">
+          <div class="priority-dot pri-${priority}"></div>
+          <span class="job-meta">In: ${date} · Ready by: ${promised}</span>
+        </div>
+        ${isOverdue ? '<span class="overdue-tag">⚠️ OVERDUE</span>' : ''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── TOAST ────────────────────────────────────────────────
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+</script>
+</body>
+</html>
