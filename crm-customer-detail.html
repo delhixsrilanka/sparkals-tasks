@@ -300,7 +300,7 @@ async function loadJobs() {
       const statusLabel = (j.status||'received').replace('_',' ').replace(/\b\w/g,c=>c.toUpperCase());
       const date = j.receivedAt?.toDate?.()?.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}) || '—';
       return `
-      <div class="job-card" onclick="showToast('Job detail coming in Step 75')">
+      <div class="job-card" onclick="window.location.href='crm-job-detail.html?id=${j.id}'">
         <div class="job-header">
           <span class="job-number">${j.jobNumber || j.id.slice(0,8)}</span>
           <span class="job-status ${statusClass}">${statusLabel}</span>
