@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#1a1a2e" />
+  <title>Invoice — Sparkals CRM</title>
+  <link rel="manifest" href="/manifest.json" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', sans-serif; background: #1a1a2e; color: white; min-height: 100vh; padding-bottom: 80px; }
+
+    .header { background: linear-gradient(135deg, #1a1a2e, #2d2d5e); padding: 16px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid rgba(255,255,255,0.08); position: sticky; top: 0; z-index: 100; }
+    .header-title { font-size: 18px; font-weight: 700; color: #a78bfa; }
+    .header-sub { font-size: 12px; color: rgba(255,255,255,0.4); }
+    .back-btn { background: none; border: none; color: #a78bfa; font-size: 22px; cursor: pointer; padding: 4px; }
+
+    .section { padding: 16px; }
+    .section-heading { font-size: 13px; font-weight: 700; color: #a78bfa; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 10px; }
+
+    /* INVOICE HEADER CARD */
+    .inv-header-card { margin: 16px; background: linear-gradient(135deg, rgba(124,58,237,0.2), rgba(124,58,237,0.05)); border-radius: 20px; padding: 18px; border: 1px solid rgba(124,58,237,0.25); }
+    .inv-number { font-size: 13px; color: rgba(255,255,255,0.4); margin-bottom: 4px; }
+    .inv-number span { color: #a78bfa; font-weight: 700; font-size: 16px; }
+    .inv-customer { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+    .inv-job { font-size: 13px; color: rgba(255,255,255,0.5); }
+    .inv-status-badge { display: inline-block; margin-top: 8px; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+    .badge-draft     { background: rgba(107,114,128,0.2); color: #9ca3af; border: 1px solid rgba(107,114,128,0.3); }
+    .badge-finalised { background: rgba(16,185,129,0.2);  color: #10b981; border: 1px solid rgba(16,185,129,0.3); }
+    .badge-cancelled { background: rgba(239,68,68,0.2);   color: #ef4444; border: 1px solid rgba(239,68,68,0.3); }
+
+    /* LINE ITEMS */
+    .line-item { background: rgba(255,255,255,0.05); border-radius: 14px; padding: 14px; border: 1px solid rgba(255,255,255,0.08); margin-bottom: 8px; }
+    .li-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; }
+    .li-name { font-size: 14px; font-weight: 600; color: white; flex: 1; }
+    .li-amount { font-size: 15px; font-weight: 700; color: #a78bfa; }
+    .li-desc { font-size: 12px; color: rgba(255,255,255,0.4); }
+    .li-override { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
+    .override-input { flex: 1; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 7px 10px; color: white; font-size: 13px; outline: none; text-align: right; }
+    .override-input:focus { border-color: #a78bfa; }
+    .override-label { font-size: 11px; color: rgba(255,255,255,0.35); }
+
+    /* TOTALS */
+    .totals-card { background: rgba(255,255,255,0.05); border-radius: 16px; padding: 16px; border: 1px solid rgba(255,255,255,0.08); margin-bottom: 12px; }
+    .total-row { display: flex; justify-content: space-between; padding: 7px 0; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 14px; }
+    .total-row:last-child { border-bottom: none; padding-bottom: 0; }
+    .total-row.grand { font-size: 18px; font-weight: 800; color: white; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.1); }
+    .total-label { color: rgba(255,255,255,0.55); }
+    .total-value { color: white; font-weight: 600; }
+    .discount-value { color: #10b981; }
+    .gst-value { color: rgba(255,255,255,0.6); }
+
+    /* DISCOUNT OVERRIDE */
+    .discount-card { background: rgba(255,255,255,0.05); border-radius: 16px; padding: 16px; border: 1px solid rgba(255,255,255,0.08); margin-bottom: 12px; }
+    .discount-row { display: flex; gap: 10px; align-items: center; margin-bottom: 8px; }
+    .discount-select { flex: 1; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12); border-radius: 10px; padding: 9px 12px; color: white; font-size: 14px; outline: none; }
+    .discount-select option { background: #1e1e3a; }
+    .discount-input { width: 80px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12); border-radius: 10px; padding: 9px 12px; color: white; font-size: 14px; outline: none; text-align: right; }
+    .reason-input { width: 100%; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12); border-radius: 10px; padding: 9px 12px; color: white; font-size: 13px; outline: none; }
+    .reason-input:focus { border-color: #a78bfa; }
+    .approval-warning { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.25); border-radius: 10px; padding: 10px 12px; font-size: 12px; color: #ef4444; margin-top: 8px; display: none; }
+
+    /* BUTTONS */
+    .btn-row { display: flex; gap: 10px; margin-bottom: 10px; }
+    .btn-finalise { flex: 2; background: #7c3aed; border: none; color: white; border-radius: 14px; padding: 15px; font-size: 16px; font-weight: 700; cursor: pointer; }
+    .btn-finalise:disabled { opacity: 0.4; cursor: not-allowed; }
+    .btn-payment { flex: 1; background: rgba(16,185,129,0.15); border: 1px solid rgba(16,185,129,0.3); color: #10b981; border-radius: 14px; padding: 15px; font-size: 14px; font-weight: 600; cursor: pointer; }
+    .btn-payment:disabled { opacity: 0.4; }
+    .btn-cancel-inv { width: 100%; background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.2); color: #ef4444; border-radius: 12px; padding: 12px; font-size: 14px; cursor: pointer; margin-bottom: 10px; }
+
+    /* FINALISED VIEW */
+    .finalised-banner { background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.25); border-radius: 14px; padding: 14px 16px; margin-bottom: 12px; display: flex; align-items: center; gap: 12px; }
+    .finalised-icon { font-size: 28px; }
+    .finalised-text { font-size: 14px; color: #10b981; font-weight: 600; }
+    .finalised-sub { font-size: 12px; color: rgba(255,255,255,0.4); margin-top: 2px; }
+
+    /* SPINNER */
+    .spinner-wrap { text-align: center; padding: 60px; }
+    .spinner { width: 32px; height: 32px; border: 3px solid rgba(167,139,250,0.2); border-top-color: #a78bfa; border-radius: 50%; animation: spin 0.8s linear infinite; display: inline-block; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* TOAST */
+    .toast { position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%); background: #1a1a2e; color: white; padding: 12px 20px; border-radius: 12px; font-size: 14px; display: none; z-index: 999; border: 1px solid rgba(255,255,255,0.1); white-space: nowrap; }
+    .toast.show { display: block; }
+
+    /* BOTTOM NAV */
+    .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top: 1px solid #f0f0f0; display: flex; justify-content: space-around; padding: 6px 0 8px; z-index: 150; }
+    .nav-item { display: flex; flex-direction: column; align-items: center; gap: 2px; text-decoration: none; padding: 4px 10px; color: #888; font-size: 10px; font-weight: 600; }
+    .nav-item.active { color: #1a1a2e; }
+    .nav-icon { font-size: 20px; }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <button class="back-btn" onclick="goBack()">←</button>
+    <div>
+      <div class="header-title">🧾 Invoice</div>
+      <div class="header-sub" id="headerSub">Loading...</div>
+    </div>
+  </div>
+
+  <div id="loadingWrap" class="spinner-wrap"><div class="spinner"></div></div>
+
+  <div id="mainContent" style="display:none;">
+
+    <!-- INVOICE HEADER -->
+    <div class="inv-header-card">
+      <div class="inv-number">Invoice: <span id="invNumber">Draft</span></div>
+      <div class="inv-customer" id="invCustomer">—</div>
+      <div class="inv-job" id="invJob">—</div>
+      <div class="inv-status-badge badge-draft" id="invStatusBadge">Draft</div>
+    </div>
+
+    <!-- FINALISED BANNER (hidden until finalised) -->
+    <div class="section" style="padding-bottom:0;">
+      <div class="finalised-banner" id="finalisedBanner" style="display:none;">
+        <div class="finalised-icon">✅</div>
+        <div>
+          <div class="finalised-text">Invoice Finalised</div>
+          <div class="finalised-sub" id="finalisedTime">—</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LINE ITEMS -->
+    <div class="section">
+      <div class="section-heading">📋 Line Items</div>
+      <div id="lineItemsList"></div>
+    </div>
+
+    <!-- DISCOUNT -->
+    <div class="section" style="padding-top:0;">
+      <div class="section-heading">🏷️ Discount</div>
+      <div class="discount-card">
+        <div class="discount-row">
+          <select class="discount-select" id="discountType" onchange="recalc()">
+            <option value="none">No discount</option>
+            <option value="membership">Membership discount</option>
+            <option value="general">General discount</option>
+            <option value="fixed">Fixed amount (₹)</option>
+          </select>
+          <input class="discount-input" type="number" id="discountValue" value="0" min="0" onchange="recalc()" placeholder="0" />
+        </div>
+        <input class="reason-input" type="text" id="discountReason" placeholder="Reason for discount (required if discounting)" />
+        <div class="approval-warning" id="approvalWarning">
+          ⚠️ This discount exceeds your limit. Admin approval required before finalising.
+        </div>
+      </div>
+    </div>
+
+    <!-- TOTALS -->
+    <div class="section" style="padding-top:0;">
+      <div class="section-heading">💰 Summary</div>
+      <div class="totals-card">
+        <div class="total-row"><span class="total-label">Subtotal</span><span class="total-value" id="totSubtotal">₹0</span></div>
+        <div class="total-row"><span class="total-label">Discount</span><span class="discount-value" id="totDiscount">—</span></div>
+        <div class="total-row"><span class="total-label">GST (<span id="gstPct">3</span>%)</span><span class="gst-value" id="totGST">₹0</span></div>
+        <div class="total-row grand"><span>Total</span><span id="totGrand">₹0</span></div>
+      </div>
+    </div>
+
+    <!-- ACTIONS -->
+    <div class="section" style="padding-top:0;" id="draftActions">
+      <div class="btn-row">
+        <button class="btn-finalise" id="btnFinalise" onclick="finaliseInvoice()">🔒 Finalise Invoice</button>
+        <button class="btn-payment" id="btnPayment" onclick="goPayment()" disabled>💳 Payment</button>
+      </div>
+      <button class="btn-cancel-inv" id="btnCancelInv" onclick="cancelInvoice()">✕ Cancel Invoice</button>
+    </div>
+
+    <!-- FINALISED ACTIONS -->
+    <div class="section" style="padding-top:0;" id="finalisedActions" style="display:none;">
+      <div class="btn-row">
+        <button class="btn-payment" style="flex:1;font-size:16px;" onclick="goPayment()">💳 Take Payment</button>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <div class="bottom-nav">
+    <a class="nav-item" href="dashboard.html"><span class="nav-icon">🏠</span>Home</a>
+    <a class="nav-item" href="tasks.html"><span class="nav-icon">✅</span>Tasks</a>
+    <a class="nav-item" href="chat.html"><span class="nav-icon">💬</span>Chat</a>
+    <a class="nav-item" href="attendance.html"><span class="nav-icon">🕐</span>Attend.</a>
+    <a class="nav-item active" href="crm-customers.html"><span class="nav-icon">💎</span>CRM</a>
+  </div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import { getFirestore, doc, getDoc, setDoc, updateDoc, collection, query, where, getDocs, serverTimestamp, runTransaction } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDNwQYXcwZrAh4cTfRyhOVk_pRod9p4CRM",
+  authDomain: "sparkals-tasks-app.firebaseapp.com",
+  projectId: "sparkals-tasks-app",
+  storageBucket: "sparkals-tasks-app.firebasestorage.app",
+  messagingSenderId: "147179987231",
+  appId: "1:147179987231:web:c6ffa484f33a2ca420d02a"
+};
+
+const app  = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+
+const ADMIN_EMAILS = ['sandeepgemologist@gmail.com','sparkals.design@gmail.com'];
+
+let currentUser   = null;
+let jobData       = null;
+let invoiceData   = null;
+let invoiceId     = null;
+let pricingRules  = [];
+let masterConfig  = null;
+let lineItems     = [];
+let subtotal      = 0;
+
+const params = new URLSearchParams(window.location.search);
+const jobId  = params.get('jobId');
+invoiceId    = params.get('invoiceId');
+if (!jobId && !invoiceId) window.location.href = 'crm-jobs.html';
+
+// ── AUTH ─────────────────────────────────────────────────
+onAuthStateChanged(auth, async (user) => {
+  if (!user) { window.location.href = 'login.html'; return; }
+  currentUser = user;
+  await Promise.all([loadMasters(), loadPricingRules()]);
+  if (invoiceId) {
+    await loadExistingInvoice();
+  } else {
+    await loadJobAndBuildInvoice();
+  }
+  document.getElementById('loadingWrap').style.display = 'none';
+  document.getElementById('mainContent').style.display = 'block';
+});
+
+// ── LOAD MASTERS ─────────────────────────────────────────
+async function loadMasters() {
+  try {
+    const snap = await getDoc(doc(db, 'adminMasters', 'config'));
+    masterConfig = snap.exists() ? snap.data() : { gstRate: 3, discountLimit: 10 };
+    document.getElementById('gstPct').textContent = masterConfig.gstRate || 3;
+  } catch(e) { masterConfig = { gstRate: 3, discountLimit: 10 }; }
+}
+
+// ── LOAD PRICING RULES ────────────────────────────────────
+async function loadPricingRules() {
+  try {
+    const snap = await getDocs(collection(db, 'pricingRules'));
+    pricingRules = snap.docs.map(d => ({ id: d.id, ...d.data() })).filter(r => r.isActive !== false);
+  } catch(e) { console.error(e); }
+}
+
+// ── LOAD JOB + BUILD INVOICE ──────────────────────────────
+async function loadJobAndBuildInvoice() {
+  try {
+    // Check if invoice already exists for this job
+    const q = query(collection(db, 'invoices'), where('jobId','==',jobId));
+    const existing = await getDocs(q);
+    if (!existing.empty) {
+      invoiceId = existing.docs[0].id;
+      invoiceData = { id: invoiceId, ...existing.docs[0].data() };
+      renderExistingInvoice();
+      return;
+    }
+
+    // Load job
+    const jobSnap = await getDoc(doc(db, 'jobs', jobId));
+    if (!jobSnap.exists()) { window.location.href = 'crm-jobs.html'; return; }
+    jobData = { id: jobSnap.id, ...jobSnap.data() };
+
+    // Load customer
+    const custSnap = await getDoc(doc(db, 'customers', jobData.customerId));
+    const custData = custSnap.exists() ? custSnap.data() : {};
+
+    document.getElementById('headerSub').textContent  = jobData.jobNumber || '—';
+    document.getElementById('invCustomer').textContent = jobData.customerName || '—';
+    document.getElementById('invJob').textContent      = `${jobData.jobNumber} · ${jobData.itemDescription?.slice(0,40) || '—'}`;
+
+    // Build line items from pricing rules
+    const tabKey = jobData.serviceType === 'diamond_cert' ? 'diamond'
+                 : jobData.serviceType === 'gemstone_cert' ? 'gemstone' : 'valuation';
+    const relevant = pricingRules.filter(r => r.serviceType === tabKey);
+
+    lineItems = relevant.map(r => {
+      let amount = 0;
+      let desc   = r.ruleType;
+      if (r.ruleType === 'flat')              { amount = r.fixedPrice||0; desc = 'Fixed fee'; }
+      if (r.ruleType === 'per_carat')         { amount = Math.max((r.pricePerUnit||0)*1, r.minCharge||0); desc = 'Per carat (1ct)'; }
+      if (r.ruleType === 'per_gram')          { amount = Math.max((r.pricePerUnit||0)*5, r.minCharge||0); desc = 'Per gram (5g)'; }
+      if (r.ruleType === 'weight_range')      { amount = r.fixedPrice||0; desc = `Weight ${r.minValue}–${r.maxValue}`; }
+      if (r.ruleType === 'cert_type')         { amount = r.priceStandard||0; desc = 'Standard cert'; }
+      if (r.ruleType === 'valuation_percent') {
+        const val = jobData.declaredValue || 50000;
+        amount = Math.max((r.percent||0)/100*val, r.minCharge||0);
+        desc = `${r.percent}% of ₹${val.toLocaleString('en-IN')}`;
+      }
+      // Priority surcharge
+      if (jobData.priority === 'urgent'   && r.urgentSurcharge)   amount *= (1 + r.urgentSurcharge/100);
+      if (jobData.priority === 'priority' && r.prioritySurcharge) amount *= (1 + r.prioritySurcharge/100);
+      return { name: r.name, amount: Math.round(amount), desc, ruleId: r.id, overrideAmount: null, overrideReason: '' };
+    });
+
+    // If no rules, add a manual line item
+    if (!lineItems.length) {
+      lineItems = [{ name: 'Service Fee', amount: 0, desc: 'Enter amount manually', overrideAmount: null, overrideReason: '' }];
+    }
+
+    // Pre-set membership discount
+    const disc = custData.membershipDiscount || 0;
+    if (disc > 0) {
+      document.getElementById('discountType').value  = 'membership';
+      document.getElementById('discountValue').value = disc;
+    }
+
+    renderLineItems();
+    recalc();
+  } catch(e) {
+    console.error(e);
+    showToast('❌ Could not build invoice');
+  }
+}
+
+// ── RENDER LINE ITEMS ────────────────────────────────────
+function renderLineItems() {
+  const el = document.getElementById('lineItemsList');
+  if (!lineItems.length) { el.innerHTML = '<div style="color:rgba(255,255,255,0.3);font-size:13px;text-align:center;padding:20px;">No pricing rules set — go to Pricing Rules to add them.</div>'; return; }
+  el.innerHTML = lineItems.map((item, i) => `
+    <div class="line-item">
+      <div class="li-top">
+        <div class="li-name">${item.name}</div>
+        <div class="li-amount">₹${(item.overrideAmount !== null ? item.overrideAmount : item.amount).toLocaleString('en-IN')}</div>
+      </div>
+      <div class="li-desc">${item.desc}</div>
+      <div class="li-override">
+        <span class="override-label">Override ₹:</span>
+        <input class="override-input" type="number" value="${item.overrideAmount !== null ? item.overrideAmount : ''}" placeholder="${item.amount}" onchange="overrideItem(${i}, this.value)" />
+      </div>
+    </div>`).join('');
+}
+
+// ── OVERRIDE ITEM ────────────────────────────────────────
+window.overrideItem = function(idx, val) {
+  lineItems[idx].overrideAmount = val === '' ? null : parseFloat(val) || 0;
+  recalc();
+};
+
+// ── RECALCULATE ──────────────────────────────────────────
+window.recalc = function() {
+  subtotal = lineItems.reduce((s, item) => s + (item.overrideAmount !== null ? item.overrideAmount : item.amount), 0);
+  const discType  = document.getElementById('discountType').value;
+  const discVal   = parseFloat(document.getElementById('discountValue').value) || 0;
+  const gstRate   = masterConfig?.gstRate || 3;
+  const discLimit = masterConfig?.discountLimit || 10;
+
+  let discAmount = 0;
+  let discLabel  = '—';
+  if (discType === 'membership' || discType === 'general') {
+    discAmount = Math.round(subtotal * discVal / 100);
+    discLabel  = `-₹${discAmount.toLocaleString('en-IN')} (${discVal}%)`;
+  } else if (discType === 'fixed') {
+    discAmount = discVal;
+    discLabel  = `-₹${discAmount.toLocaleString('en-IN')}`;
+  }
+
+  // Check approval needed
+  const discPct = subtotal > 0 ? (discAmount / subtotal * 100) : 0;
+  const needsApproval = discPct > discLimit && !ADMIN_EMAILS.includes(currentUser?.email);
+  document.getElementById('approvalWarning').style.display = needsApproval ? 'block' : 'none';
+  document.getElementById('btnFinalise').disabled = needsApproval;
+
+  const afterDisc = subtotal - discAmount;
+  const gstAmount = Math.round(afterDisc * gstRate / 100);
+  const grand     = afterDisc + gstAmount;
+
+  document.getElementById('totSubtotal').textContent = `₹${subtotal.toLocaleString('en-IN')}`;
+  document.getElementById('totDiscount').textContent = discType === 'none' ? '—' : discLabel;
+  document.getElementById('totGST').textContent      = `₹${gstAmount.toLocaleString('en-IN')}`;
+  document.getElementById('totGrand').textContent    = `₹${grand.toLocaleString('en-IN')}`;
+};
+
+// ── FINALISE INVOICE ──────────────────────────────────────
+window.finaliseInvoice = async function() {
+  if (!navigator.onLine) { showToast('❌ Internet required to finalise'); return; }
+  const reason = document.getElementById('discountReason').value.trim();
+  const discType = document.getElementById('discountType').value;
+  if (discType !== 'none' && !reason) { showToast('⚠️ Please enter discount reason'); return; }
+
+  const btn = document.getElementById('btnFinalise');
+  btn.textContent = 'Finalising...'; btn.disabled = true;
+
+  try {
+    const discVal   = parseFloat(document.getElementById('discountValue').value) || 0;
+    const gstRate   = masterConfig?.gstRate || 3;
+    let discAmount  = 0;
+    if (discType === 'membership' || discType === 'general') discAmount = Math.round(subtotal * discVal / 100);
+    else if (discType === 'fixed') discAmount = discVal;
+    const afterDisc = subtotal - discAmount;
+    const gstAmount = Math.round(afterDisc * gstRate / 100);
+    const grand     = afterDisc + gstAmount;
+
+    // Generate invoice number
+    let invNumber = '';
+    const counterRef = doc(db, 'appConfig', 'invoiceCounter');
+    await runTransaction(db, async (tx) => {
+      const snap = await tx.get(counterRef);
+      const year = new Date().getFullYear();
+      let seq = 1;
+      if (snap.exists()) {
+        const d = snap.data();
+        seq = (d.year === year ? (d.seq || 0) : 0) + 1;
+      }
+      tx.set(counterRef, { year, seq, updatedAt: serverTimestamp() });
+      invNumber = `INV-${year}-${String(seq).padStart(4,'0')}`;
+    });
+
+    // Save invoice
+    const invRef = doc(collection(db, 'invoices'));
+    invoiceId = invRef.id;
+    await setDoc(invRef, {
+      invoiceNumber:  invNumber,
+      jobId,
+      customerId:     jobData.customerId,
+      customerName:   jobData.customerName,
+      lineItems,
+      subtotal,
+      discountType:   discType,
+      discountValue:  discVal,
+      discountAmount: discAmount,
+      discountReason: reason,
+      taxRate:        gstRate,
+      taxAmount:      gstAmount,
+      total:          grand,
+      status:         'finalised',
+      finalisedAt:    serverTimestamp(),
+      finalisedBy:    currentUser.uid,
+      finalisedByName: currentUser.email,
+      createdAt:      serverTimestamp(),
+      createdBy:      currentUser.uid
+    });
+
+    // Link invoice to job
+    await updateDoc(doc(db, 'jobs', jobId), { invoiceId: invRef.id });
+
+    showToast(`✅ Invoice ${invNumber} finalised!`);
+    setTimeout(() => window.location.href = `crm-invoice.html?invoiceId=${invRef.id}`, 1200);
+  } catch(e) {
+    console.error(e);
+    showToast('❌ Finalise failed. Try again.');
+    btn.textContent = '🔒 Finalise Invoice'; btn.disabled = false;
+  }
+};
+
+// ── LOAD EXISTING INVOICE ────────────────────────────────
+async function loadExistingInvoice() {
+  try {
+    const snap = await getDoc(doc(db, 'invoices', invoiceId));
+    if (!snap.exists()) { window.location.href = 'crm-jobs.html'; return; }
+    invoiceData = { id: snap.id, ...snap.data() };
+    lineItems   = invoiceData.lineItems || [];
+    renderExistingInvoice();
+  } catch(e) { showToast('❌ Could not load invoice'); }
+}
+
+// ── RENDER EXISTING INVOICE ──────────────────────────────
+function renderExistingInvoice() {
+  const inv = invoiceData;
+  document.getElementById('headerSub').textContent   = inv.invoiceNumber || '—';
+  document.getElementById('invNumber').textContent   = inv.invoiceNumber || 'Draft';
+  document.getElementById('invCustomer').textContent = inv.customerName  || '—';
+  document.getElementById('invJob').textContent      = inv.jobId         || '—';
+
+  const badge = document.getElementById('invStatusBadge');
+  badge.textContent  = inv.status.charAt(0).toUpperCase() + inv.status.slice(1);
+  badge.className    = `inv-status-badge badge-${inv.status}`;
+
+  if (inv.status === 'finalised') {
+    document.getElementById('finalisedBanner').style.display = 'flex';
+    document.getElementById('finalisedTime').textContent =
+      inv.finalisedAt?.toDate?.()?.toLocaleString('en-IN') || '—';
+    document.getElementById('draftActions').style.display  = 'none';
+    document.getElementById('finalisedActions').style.display = 'block';
+  }
+
+  renderLineItems();
+
+  // Show totals
+  document.getElementById('totSubtotal').textContent = `₹${(inv.subtotal||0).toLocaleString('en-IN')}`;
+  document.getElementById('totDiscount').textContent = inv.discountAmount > 0 ? `-₹${inv.discountAmount.toLocaleString('en-IN')}` : '—';
+  document.getElementById('totGST').textContent      = `₹${(inv.taxAmount||0).toLocaleString('en-IN')}`;
+  document.getElementById('totGrand').textContent    = `₹${(inv.total||0).toLocaleString('en-IN')}`;
+  document.getElementById('gstPct').textContent      = inv.taxRate || 3;
+
+  // Hide discount editor for finalised
+  if (inv.status === 'finalised') {
+    document.querySelector('.discount-card').style.display = 'none';
+  }
+}
+
+// ── CANCEL INVOICE ────────────────────────────────────────
+window.cancelInvoice = async function() {
+  if (!confirm('Cancel this invoice? It will be marked cancelled but not deleted.')) return;
+  try {
+    await updateDoc(doc(db, 'invoices', invoiceId || 'draft'), { status: 'cancelled', cancelledAt: serverTimestamp(), cancelledBy: currentUser.uid });
+    showToast('Invoice cancelled');
+    setTimeout(() => goBack(), 1200);
+  } catch(e) { showToast('No invoice to cancel yet'); }
+};
+
+// ── NAVIGATION ────────────────────────────────────────────
+window.goBack = function() { history.back(); };
+window.goPayment = function() {
+  window.location.href = `crm-payment.html?invoiceId=${invoiceId}`;
+};
+
+// ── TOAST ────────────────────────────────────────────────
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+</script>
+</body>
+</html>
