@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#1a1a2e" />
+  <title>Price Calculator — BGTL</title>
+  <link rel="manifest" href="/manifest.json" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', sans-serif; background: #1a1a2e; color: white; min-height: 100vh; padding-bottom: 100px; }
+    .header { background: linear-gradient(135deg, #1a1a2e, #2d2d5e); padding: 16px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid rgba(255,255,255,0.08); position: sticky; top: 0; z-index: 100; }
+    .header-title { font-size: 18px; font-weight: 700; color: #a78bfa; }
+    .header-sub   { font-size: 12px; color: rgba(255,255,255,0.4); }
+    .back-btn { background: none; border: none; color: #a78bfa; font-size: 22px; cursor: pointer; padding: 4px; }
+    .customer-strip { margin: 16px; background: rgba(255,255,255,0.05); border-radius: 16px; padding: 14px 16px; border: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: space-between; }
+    .customer-name { font-size: 15px; font-weight: 700; color: white; }
+    .customer-sub  { font-size: 12px; color: rgba(255,255,255,0.35); margin-top: 2px; }
+    .member-badge  { font-size: 11px; padding: 4px 12px; border-radius: 20px; background: rgba(251,191,36,0.15); color: #fbbf24; border: 1px solid rgba(251,191,36,0.3); font-weight: 700; }
+    .price-source { margin: 0 16px 12px; font-size: 11px; color: rgba(255,255,255,0.25); text-align: right; }
+    .price-source.live { color: #10b981; }
+    .section { padding: 0 16px 12px; }
+    .section-heading { font-size: 13px; font-weight: 700; color: #a78bfa; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 10px; }
+    .line-item { background: rgba(255,255,255,0.05); border-radius: 14px; padding: 14px; margin-bottom: 8px; border: 1px solid rgba(255,255,255,0.07); position: relative; }
+    .line-top  { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+    .line-name { font-size: 14px; font-weight: 700; color: white; flex: 1; }
+    .line-amount { font-size: 18px; font-weight: 800; color: #10b981; white-space: nowrap; }
+    .line-calc   { font-size: 11px; color: rgba(255,255,255,0.25); margin-top: 3px; font-style: italic; }
+    .line-remove { position: absolute; top: 10px; right: 10px; background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.2); color: #ef4444; border-radius: 8px; padding: 3px 8px; font-size: 11px; cursor: pointer; }
+    .add-service-btn { width: 100%; padding: 14px; border-radius: 14px; border: 2px dashed rgba(124,58,237,0.35); background: rgba(124,58,237,0.07); color: #a78bfa; font-size: 15px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 12px; }
+    .empty-lines { text-align: center; padding: 24px; color: rgba(255,255,255,0.2); font-size: 13px; border: 2px dashed rgba(255,255,255,0.08); border-radius: 14px; margin-bottom: 12px; }
+    .totals-card { margin: 0 16px 16px; background: rgba(255,255,255,0.05); border-radius: 18px; padding: 18px; border: 1px solid rgba(255,255,255,0.08); }
+    .total-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 14px; }
+    .total-row:last-child { border-bottom: none; padding-bottom: 0; }
+    .total-label { color: rgba(255,255,255,0.5); }
+    .total-value { font-weight: 700; color: white; }
+    .total-row.grand { margin-top: 4px; padding-top: 12px; border-top: 2px solid rgba(255,255,255,0.1); border-bottom: none; }
+    .total-row.grand .total-label { font-size: 16px; font-weight: 700; color: white; }
+    .total-row.grand .total-value { font-size: 24px; font-weight: 800; color: #10b981; }
+    .total-row.discount .total-value { color: #fbbf24; }
+    .member-confirm { margin: 0 16px 12px; background: rgba(251,191,36,0.1); border: 1px solid rgba(251,191,36,0.3); border-radius: 14px; padding: 14px 16px; display: none; }
+    .member-confirm-title { font-size: 14px; font-weight: 700; color: #fbbf24; margin-bottom: 6px; }
+    .member-confirm-sub   { font-size: 12px; color: rgba(255,255,255,0.45); margin-bottom: 12px; }
+    .member-confirm-btns  { display: flex; gap: 8px; }
+    .member-yes { flex: 1; padding: 10px; border-radius: 10px; border: none; background: #fbbf24; color: #1a1a2e; font-size: 13px; font-weight: 700; cursor: pointer; }
+    .member-no  { flex: 1; padding: 10px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.15); background: transparent; color: rgba(255,255,255,0.4); font-size: 13px; cursor: pointer; }
+    .override-wrap { margin: 0 16px 12px; }
+    .override-toggle { font-size: 12px; color: rgba(255,255,255,0.3); cursor: pointer; text-align: right; }
+    .override-box { background: rgba(239,68,68,0.07); border: 1px solid rgba(239,68,68,0.2); border-radius: 12px; padding: 12px 14px; margin-top: 8px; display: none; }
+    .override-input { width: 100%; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12); border-radius: 10px; padding: 10px 12px; color: white; font-size: 14px; outline: none; margin-bottom: 8px; }
+    .override-apply { width: 100%; padding: 10px; border-radius: 10px; border: none; background: rgba(239,68,68,0.2); color: #ef4444; font-size: 13px; font-weight: 700; cursor: pointer; }
+    .create-invoice-btn { position: fixed; bottom: 0; left: 0; right: 0; padding: 16px; background: #1a1a2e; border-top: 1px solid rgba(255,255,255,0.08); z-index: 150; }
+    .create-btn { width: 100%; padding: 16px; border-radius: 16px; border: none; background: linear-gradient(135deg, #7c3aed, #10b981); color: white; font-size: 16px; font-weight: 800; cursor: pointer; }
+    .create-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 500; display: none; align-items: flex-end; justify-content: center; }
+    .overlay.open { display: flex; }
+    .sheet { background: #1e1e3f; border-radius: 28px 28px 0 0; width: 100%; max-width: 500px; max-height: 92vh; overflow-y: auto; border-top: 1px solid rgba(255,255,255,0.1); }
+    .sheet-header { padding: 20px 20px 12px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; background: #1e1e3f; z-index: 10; border-bottom: 1px solid rgba(255,255,255,0.06); }
+    .sheet-title { font-size: 17px; font-weight: 800; color: white; }
+    .sheet-close { background: none; border: none; color: rgba(255,255,255,0.35); font-size: 22px; cursor: pointer; }
+    .sheet-body  { padding: 16px 20px 32px; }
+    .step-indicator { font-size: 11px; color: rgba(255,255,255,0.3); margin-bottom: 16px; font-weight: 600; text-transform: uppercase; }
+    .step-indicator span { color: #a78bfa; }
+    .cat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .cat-btn { padding: 16px 12px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.04); cursor: pointer; text-align: center; }
+    .cat-btn:hover { border-color: rgba(124,58,237,0.4); background: rgba(124,58,237,0.1); }
+    .cat-icon  { font-size: 24px; margin-bottom: 6px; }
+    .cat-label { font-size: 13px; font-weight: 600; color: white; }
+    .cat-sub   { font-size: 11px; color: rgba(255,255,255,0.35); margin-top: 3px; }
+    .q-label  { font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.7); margin-bottom: 8px; display: block; }
+    .q-group  { margin-bottom: 16px; }
+    .q-options { display: flex; flex-direction: column; gap: 6px; }
+    .q-opt { padding: 12px 14px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.04); cursor: pointer; font-size: 14px; color: rgba(255,255,255,0.7); font-weight: 500; display: flex; justify-content: space-between; align-items: center; }
+    .q-opt:hover, .q-opt.selected { background: rgba(124,58,237,0.15); border-color: #a78bfa; color: white; }
+    .q-opt-price { font-size: 12px; color: rgba(255,255,255,0.35); }
+    .q-input { width: 100%; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12); border-radius: 12px; padding: 12px 14px; color: white; font-size: 16px; font-weight: 700; outline: none; }
+    .q-input:focus { border-color: #a78bfa; }
+    .q-hint { font-size: 11px; color: rgba(255,255,255,0.25); margin-top: 5px; }
+    .price-preview { background: linear-gradient(135deg,rgba(16,185,129,0.15),rgba(16,185,129,0.05)); border: 1px solid rgba(16,185,129,0.25); border-radius: 16px; padding: 16px; margin-bottom: 16px; text-align: center; }
+    .price-preview-label  { font-size: 12px; color: rgba(255,255,255,0.4); margin-bottom: 4px; }
+    .price-preview-amount { font-size: 32px; font-weight: 800; color: #10b981; }
+    .price-preview-calc   { font-size: 12px; color: rgba(255,255,255,0.3); margin-top: 4px; }
+    .price-preview.error  { background: rgba(239,68,68,0.1); border-color: rgba(239,68,68,0.3); }
+    .price-preview.error .price-preview-amount { color: #ef4444; font-size: 16px; }
+    .add-line-btn  { width: 100%; padding: 14px; border-radius: 14px; border: none; background: #7c3aed; color: white; font-size: 15px; font-weight: 700; cursor: pointer; }
+    .add-line-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .back-step-btn { width: 100%; padding: 11px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.1); background: transparent; color: rgba(255,255,255,0.4); font-size: 14px; cursor: pointer; margin-top: 8px; }
+    .spinner-wrap { text-align: center; padding: 50px 20px; }
+    .spinner { width: 28px; height: 28px; border: 3px solid rgba(167,139,250,0.2); border-top-color: #a78bfa; border-radius: 50%; animation: spin 0.8s linear infinite; display: inline-block; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); background: #1a1a2e; color: white; padding: 12px 20px; border-radius: 12px; font-size: 14px; display: none; z-index: 999; border: 1px solid rgba(255,255,255,0.1); white-space: nowrap; }
+    .toast.show { display: block; }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <button class="back-btn" onclick="goBack()">←</button>
+  <div>
+    <div class="header-title">💹 Price Calculator</div>
+    <div class="header-sub" id="headerSub">BGTL Billing</div>
+  </div>
+</div>
+
+<div id="loadingWrap" class="spinner-wrap">
+  <div class="spinner"></div>
+  <div style="margin-top:12px;font-size:13px;color:rgba(255,255,255,0.3);">Loading latest prices…</div>
+</div>
+
+<div id="mainContent" style="display:none;">
+  <div class="customer-strip">
+    <div>
+      <div class="customer-name" id="custName">—</div>
+      <div class="customer-sub"  id="custPhone">—</div>
+    </div>
+    <div id="memberBadgeWrap"></div>
+  </div>
+  <div class="price-source" id="priceSource">⏳ Loading prices…</div>
+
+  <div class="member-confirm" id="memberConfirm">
+    <div class="member-confirm-title">⭐ Membership Discount Available</div>
+    <div class="member-confirm-sub" id="memberConfirmSub">Apply membership discount on eligible services?</div>
+    <div class="member-confirm-btns">
+      <button class="member-yes" onclick="applyMembership(true)">✅ Yes — Apply Discount</button>
+      <button class="member-no"  onclick="applyMembership(false)">Skip This Time</button>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-heading">🧾 Service Lines</div>
+    <div id="linesList"></div>
+    <button class="add-service-btn" onclick="openPicker()">➕ Add Service / Item</button>
+  </div>
+
+  <div class="totals-card" id="totalsCard" style="display:none;">
+    <div class="total-row"><span class="total-label">Subtotal</span><span class="total-value" id="subtotalEl">₹0</span></div>
+    <div class="total-row discount" id="discountRow" style="display:none;">
+      <span class="total-label" id="discountLabel">⭐ Membership Discount</span>
+      <span class="total-value" id="discountEl">−₹0</span>
+    </div>
+    <div class="total-row grand"><span class="total-label">Total Payable</span><span class="total-value" id="grandTotalEl">₹0</span></div>
+  </div>
+
+  <div class="override-wrap" id="overrideWrap" style="display:none;">
+    <div class="override-toggle" onclick="toggleOverride()">⚠️ Admin Override — change total</div>
+    <div class="override-box" id="overrideBox">
+      <input type="number" class="override-input" id="overrideAmount" placeholder="Enter override total (₹)" />
+      <input type="text"   class="override-input" id="overrideReason" placeholder="Reason for override (required)" />
+      <button class="override-apply" onclick="applyOverride()">Apply Override</button>
+    </div>
+  </div>
+</div>
+
+<div class="create-invoice-btn">
+  <button class="create-btn" id="createInvoiceBtn" onclick="createInvoice()" disabled>🧾 Create Invoice</button>
+</div>
+
+<div class="overlay" id="overlay" onclick="handleOverlayClick(event)">
+  <div class="sheet">
+    <div class="sheet-header">
+      <div class="sheet-title" id="sheetTitle">Add Service</div>
+      <button class="sheet-close" onclick="closePicker()">✕</button>
+    </div>
+    <div class="sheet-body" id="sheetBody"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import { initializeApp }    from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import { getFirestore, doc, getDoc, addDoc, collection, serverTimestamp, runTransaction }
+  from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey:"AIzaSyDNwQYXcwZrAh4cTfRyhOVk_pRod9p4CRM",authDomain:"sparkals-tasks-app.firebaseapp.com",
+  projectId:"sparkals-tasks-app",storageBucket:"sparkals-tasks-app.firebasestorage.app",
+  messagingSenderId:"147179987231",appId:"1:147179987231:web:c6ffa484f33a2ca420d02a"
+};
+const app=initializeApp(firebaseConfig), auth=getAuth(app), db=getFirestore(app);
+const params=new URLSearchParams(window.location.search);
+const jobId=params.get('jobId'), customerId=params.get('customerId');
+
+let currentUser=null, customerData=null, jobData=null;
+let PRICES=null, memberDiscountPct=30;
+let invoiceLines=[], membershipApplied=false, membershipAsked=false;
+let overrideTotal=null, overrideReason='', pickerState={};
+
+const DP = { // Jan 2026 defaults
+  dlg:[200,280,320,420,500], dng:[250,350,400,525,625], dna:[500,700,800,1050,1250],
+  dmns:[135,350,1200], dmnv:[100,200,600], dmlg:[135,350], dmlgv:[100,200],
+  gs:{basic:200,prec_adv:3000,semi_adv:2000,special:500,verb_basic:200,verb_special:500},
+  bds:{sp_rand_s:100,sp_rand_m:150,sp_all_s:200,sp_all_m:300,p_rand_s:200,p_rand_m:400,p_all_s:300,p_all_m:600},
+  pearl:{basic:250,adv:750},
+  lot:{above_base:800,above_extra:50,below_base:1200,below_extra:120},
+  rudra:{t1_b:500,t1_a:1000,t2_b:400,t2_a:800,t3_b:800,t3_a:1600,t4_b:1800,t4_a:5000},
+  pkg:{pouch:15,gembox:25,acrylic:60}, mem:{fee:2500,discount:30}
+};
+
+onAuthStateChanged(auth, async user => {
+  if(!user){window.location.href='login.html';return;}
+  currentUser=user;
+  await Promise.all([loadPrices(), loadContext()]);
+  document.getElementById('loadingWrap').style.display='none';
+  document.getElementById('mainContent').style.display='block';
+  renderLines();
+});
+
+async function loadPrices() {
+  try {
+    const snap=await getDoc(doc(db,'adminMasters','servicePricing'));
+    if(snap.exists()){
+      PRICES=snap.data(); memberDiscountPct=PRICES.mem?.discount??30;
+      const d=snap.data().updatedAt?.toDate?.();
+      const src=document.getElementById('priceSource');
+      src.textContent=d?`✅ Live prices — updated ${d.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})}`:'✅ Live prices from Admin Masters';
+      src.className='price-source live';
+    } else {
+      PRICES=DP;
+      document.getElementById('priceSource').textContent='⚠️ Using Jan 2026 defaults — go to Admin Masters → Service Pricing to customise';
+    }
+  } catch(e){ PRICES=DP; document.getElementById('priceSource').textContent='⚠️ Using default prices (offline)'; }
+}
+
+async function loadContext() {
+  try {
+    if(jobId){ const j=await getDoc(doc(db,'jobs',jobId)); if(j.exists()){jobData={id:j.id,...j.data()};document.getElementById('headerSub').textContent=jobData.jobNumber||jobId;} }
+    const cid=customerId||jobData?.customerId;
+    if(cid){ const c=await getDoc(doc(db,'customers',cid)); if(c.exists()){customerData={id:c.id,...c.data()};renderCustomerStrip();} }
+  } catch(e){console.error(e);}
+}
+
+function renderCustomerStrip(){
+  document.getElementById('custName').textContent=customerData.name||'—';
+  document.getElementById('custPhone').textContent=customerData.phone||'—';
+  if(customerData.membershipType==='yearly')
+    document.getElementById('memberBadgeWrap').innerHTML=`<span class="member-badge">⭐ Member (${memberDiscountPct}% off)</span>`;
+}
+
+// ════ PRICING ENGINE ════
+function P(){ return PRICES||DP; }
+function pd(key,def){ return P()[key]??def; }
+
+function calcPrice(cfg){
+  const c=cfg, p=P();
+  if(c.category==='diamond_loose'){
+    const smap={lab_grown_analysis:dslab(p.dlg||DP.dlg),natural_grading:dslab(p.dng||DP.dng),natural_advanced:dslab(p.dna||DP.dna)};
+    const slabs=smap[c.serviceKey]; if(!slabs) return{error:'Service not found'};
+    const w=parseFloat(c.weight||0); if(!w||w<=0) return{error:'Enter weight in carats'};
+    const s=slabs.find(s=>w>=s.min&&(s.max===null||w<=s.max)); if(!s) return{error:'Weight out of range'};
+    const amt=s.pc?Math.round(s.rate*w*100)/100:s.rate;
+    return{amount:amt,calc:s.pc?`₹${s.rate}/ct × ${w}ct = ₹${amt}`:`₹${s.rate} per piece (${w}ct)`};
+  }
+  if(c.category==='diamond_mounted'){
+    const arr={natural_studded_jewelry:p.dmns||DP.dmns,natural_verbal:p.dmnv||DP.dmnv,lab_grown_jewelry:p.dmlg||DP.dmlg,lab_grown_verbal:p.dmlgv||DP.dmlgv}[c.serviceKey];
+    if(!arr) return{error:'Service not found'};
+    const w=parseFloat(c.weight||0); if(!w||w<=0) return{error:'Enter weight in carats'};
+    const slabs=mslabs(arr,c.serviceKey);
+    const s=slabs.find(s=>w>=s.min&&(s.max===null||w<=s.max)); if(!s) return{error:'Weight out of range'};
+    const amt=s.pc?Math.round(s.rate*w*100)/100:s.rate;
+    return{amount:amt,calc:s.pc?`₹${s.rate}/ct × ${w}ct = ₹${amt}`:`₹${s.rate} per piece`};
+  }
+  if(c.category==='gemstone'){
+    const gs=p.gs||DP.gs;
+    const rates={basic:gs.basic,precious_advanced:gs.prec_adv,semi_precious_adv:gs.semi_adv,special:gs.special,verbal_basic:gs.verb_basic,verbal_special:gs.verb_special};
+    const rate=rates[c.serviceKey]; if(!rate) return{error:'Service not found'};
+    const qty=parseInt(c.quantity||1); const amt=rate*qty;
+    return{amount:amt,calc:qty>1?`₹${rate} × ${qty} pcs = ₹${amt}`:`₹${rate} per piece`};
+  }
+  if(c.category==='beads'){
+    const bds=p.bds||DP.bds;
+    const rmap={semi_precious_random:{single:bds.sp_rand_s,multi:bds.sp_rand_m},semi_precious_all:{single:bds.sp_all_s,multi:bds.sp_all_m},precious_random:{single:bds.p_rand_s,multi:bds.p_rand_m},precious_all:{single:bds.p_all_s,multi:bds.p_all_m}};
+    const r=rmap[c.serviceKey]; if(!r) return{error:'Service not found'};
+    const rate=c.variety==='multi'?r.multi:r.single;
+    return{amount:rate,calc:`₹${rate} (${c.variety==='multi'?'Multi':'Single'} Variety)`};
+  }
+  if(c.category==='pearl'){
+    const pearl=p.pearl||DP.pearl;
+    const rate=c.serviceKey==='advanced'?pearl.adv:pearl.basic;
+    return{amount:rate,calc:`₹${rate} flat`};
+  }
+  if(c.category==='lot'){
+    const lot=p.lot||DP.lot;
+    if(c.serviceKey==='above_1ct'){
+      const pieces=parseInt(c.pieces||0); if(!pieces||pieces<10) return{error:'Minimum 10 pieces required'};
+      const add=Math.max(0,pieces-10), amt=lot.above_base+add*lot.above_extra;
+      return{amount:amt,calc:add>0?`₹${lot.above_base}+(${add}×₹${lot.above_extra})=₹${amt}`:`₹${lot.above_base} base`};
+    }
+    if(c.serviceKey==='below_1ct'){
+      const ct=parseFloat(c.carats||0); if(!ct||ct<10) return{error:'Minimum 10 carats required'};
+      const add=Math.max(0,ct-10), amt=Math.round(lot.below_base+add*lot.below_extra);
+      return{amount:amt,calc:add>0?`₹${lot.below_base}+(${add.toFixed(2)}ct×₹${lot.below_extra})=₹${amt}`:`₹${lot.below_base} base`};
+    }
+  }
+  if(c.category==='rudhraksha'){
+    const faces=parseInt(c.faces||0); if(!faces||faces<1||faces>21) return{error:'Enter faces 1–21'};
+    let tier=null;
+    if(faces===1||(faces>=8&&faces<=13))tier='t1';
+    if(faces>=2&&faces<=7)tier='t2';
+    if(faces>=14&&faces<=17)tier='t3';
+    if(faces>=18&&faces<=21)tier='t4';
+    if(!tier) return{error:'Invalid face count'};
+    const rudra=p.rudra||DP.rudra;
+    const key=tier+(c.reportType==='advanced'?'_a':'_b');
+    const rate=rudra[key];
+    return{amount:rate,calc:`${faces} faces · ${c.reportType==='advanced'?'Advanced':'Basic'} = ₹${rate}`};
+  }
+  if(c.category==='packaging'){
+    const pkg=p.pkg||DP.pkg;
+    const rates={pouch:pkg.pouch,gem_box:pkg.gembox,acrylic_box:pkg.acrylic};
+    const rate=rates[c.serviceKey]; if(!rate) return{error:'Item not found'};
+    const qty=parseInt(c.quantity||1), amt=rate*qty;
+    return{amount:amt,calc:qty>1?`₹${rate}×${qty}=₹${amt}`:`₹${rate}`};
+  }
+  return{error:'Unknown category'};
+}
+
+function dslab(a){ // diamond loose slab
+  if(!a||a.length<5) a=DP.dlg;
+  return [{min:0,max:0.29,rate:a[0],pc:false},{min:0.30,max:0.49,rate:a[1],pc:false},{min:0.50,max:0.69,rate:a[2],pc:false},{min:0.70,max:0.99,rate:a[3],pc:false},{min:1.00,max:null,rate:a[4],pc:true}];
+}
+function mslabs(a,key){ // mounted slabs
+  if(key==='natural_studded_jewelry'||key==='natural_verbal'){
+    if(!a||a.length<3) a=key==='natural_verbal'?DP.dmnv:DP.dmns;
+    return [{min:0,max:0.30,rate:a[0],pc:false},{min:0.31,max:0.99,rate:a[1],pc:true},{min:1.00,max:null,rate:a[2],pc:true}];
+  }
+  if(key==='lab_grown_jewelry'){ if(!a||a.length<2)a=DP.dmlg; return [{min:0,max:0.30,rate:a[0],pc:false},{min:0.31,max:null,rate:a[1],pc:true}]; }
+  if(key==='lab_grown_verbal'){  if(!a||a.length<2)a=DP.dmlgv;return [{min:0,max:0.30,rate:a[0],pc:false},{min:0.31,max:null,rate:a[1],pc:false}]; }
+  return [];
+}
+
+// ════ PICKER UI ════
+window.openPicker=function(){pickerState={};document.getElementById('overlay').classList.add('open');renderStep('category');};
+window.closePicker=function(){document.getElementById('overlay').classList.remove('open');pickerState={};};
+window.handleOverlayClick=function(e){if(e.target===document.getElementById('overlay'))closePicker();};
+
+function renderStep(step){
+  if(step==='category') renderCat();
+  else if(step==='service') renderSvc();
+  else if(step==='details') renderDet();
+}
+
+function renderCat(){
+  document.getElementById('sheetTitle').textContent='Add Service';
+  document.getElementById('sheetBody').innerHTML=`
+  <div class="step-indicator">Step <span>1</span> of 3 — Choose Category</div>
+  <div class="cat-grid">
+    <div class="cat-btn" onclick="pickCat('diamond_loose')"><div class="cat-icon">💎</div><div class="cat-label">Diamond Loose</div><div class="cat-sub">Grading / Analysis</div></div>
+    <div class="cat-btn" onclick="pickCat('diamond_mounted')"><div class="cat-icon">💍</div><div class="cat-label">Diamond Mounted</div><div class="cat-sub">Jewelry report</div></div>
+    <div class="cat-btn" onclick="pickCat('gemstone')"><div class="cat-icon">🪨</div><div class="cat-label">Gemstone</div><div class="cat-sub">Loose &amp; mounted</div></div>
+    <div class="cat-btn" onclick="pickCat('beads')"><div class="cat-icon">📿</div><div class="cat-label">Beads &amp; Mala</div><div class="cat-sub">Semi / precious</div></div>
+    <div class="cat-btn" onclick="pickCat('pearl')"><div class="cat-icon">🫧</div><div class="cat-label">Pearl</div><div class="cat-sub">Basic / Advanced</div></div>
+    <div class="cat-btn" onclick="pickCat('lot')"><div class="cat-icon">📦</div><div class="cat-label">Lot Certificate</div><div class="cat-sub">Single variety</div></div>
+    <div class="cat-btn" onclick="pickCat('rudhraksha')"><div class="cat-icon">🔴</div><div class="cat-label">Rudhraksha</div><div class="cat-sub">By faces</div></div>
+    <div class="cat-btn" onclick="pickCat('packaging')"><div class="cat-icon">📫</div><div class="cat-label">Packaging</div><div class="cat-sub">Pouch / Box</div></div>
+  </div>`;
+}
+window.pickCat=function(cat){pickerState.category=cat;renderStep('service');};
+
+function renderSvc(){
+  const p=P(), cat=pickerState.category;
+  const opts={
+    diamond_loose:[
+      {key:'lab_grown_analysis',label:'Lab Grown Analysis Report',sub:`From ₹${p.dlg?.[0]||200}/pc`},
+      {key:'natural_grading',label:'Natural Diamond Grading Report',sub:`From ₹${p.dng?.[0]||250}/pc`},
+      {key:'natural_advanced',label:'Natural Diamond Advanced Grading',sub:`From ₹${p.dna?.[0]||500}/pc`},
+    ],
+    diamond_mounted:[
+      {key:'natural_studded_jewelry',label:'Natural Diamond Studded Jewelry',sub:`Up to 0.30ct: ₹${p.dmns?.[0]||135}/pc`},
+      {key:'natural_verbal',label:'Natural Diamond Verbal Report',sub:`Up to 0.30ct: ₹${p.dmnv?.[0]||100}/pc`},
+      {key:'lab_grown_jewelry',label:'Lab Grown Diamond Jewelry Report',sub:`Up to 0.30ct: ₹${p.dmlg?.[0]||135}/pc`},
+      {key:'lab_grown_verbal',label:'Lab Grown Diamond Verbal Report',sub:`Up to 0.30ct: ₹${p.dmlgv?.[0]||100}/pc`},
+    ],
+    gemstone:[
+      {key:'basic',label:'Gemstone Basic Report',sub:`₹${p.gs?.basic||200}/pc`},
+      {key:'precious_advanced',label:'Precious Gemstone Advanced',sub:`₹${p.gs?.prec_adv||3000}/pc`},
+      {key:'semi_precious_adv',label:'Semi-Precious Advanced',sub:`₹${p.gs?.semi_adv||2000}/pc`},
+      {key:'special',label:'Special Gemstone (Amber etc.)',sub:`₹${p.gs?.special||500}/pc`},
+      {key:'verbal_basic',label:'Gemstone Verbal Basic',sub:`₹${p.gs?.verb_basic||200}/pc`},
+      {key:'verbal_special',label:'Gemstone Verbal Special',sub:`₹${p.gs?.verb_special||500}/pc`},
+    ],
+    beads:[
+      {key:'semi_precious_random',label:'Semi-Precious — 1 Random Bead',sub:`Single ₹${p.bds?.sp_rand_s||100} / Multi ₹${p.bds?.sp_rand_m||150}`},
+      {key:'semi_precious_all',label:'Semi-Precious — All Beads',sub:`Single ₹${p.bds?.sp_all_s||200} / Multi ₹${p.bds?.sp_all_m||300}`},
+      {key:'precious_random',label:'Precious — 1 Random Bead',sub:`Single ₹${p.bds?.p_rand_s||200} / Multi ₹${p.bds?.p_rand_m||400}`},
+      {key:'precious_all',label:'Precious — All Beads',sub:`Single ₹${p.bds?.p_all_s||300} / Multi ₹${p.bds?.p_all_m||600}`},
+    ],
+    pearl:[
+      {key:'basic',label:'Pearl Basic Report',sub:`₹${p.pearl?.basic||250} flat`},
+      {key:'advanced',label:'Pearl Advanced Report',sub:`₹${p.pearl?.adv||750} flat`},
+    ],
+    lot:[
+      {key:'above_1ct',label:'Lot Cert — Above 1 Carat Size',sub:`₹${p.lot?.above_base||800} base + ₹${p.lot?.above_extra||50}/extra pc`},
+      {key:'below_1ct',label:'Lot Cert — Below 1 Carat Size',sub:`₹${p.lot?.below_base||1200} base + ₹${p.lot?.below_extra||120}/extra ct`},
+    ],
+    rudhraksha:[{key:'single',label:'Rudhraksha Single Piece',sub:'Price by faces × report type'}],
+    packaging:[
+      {key:'pouch',label:'Pouch',sub:`₹${p.pkg?.pouch||15} each`},
+      {key:'gem_box',label:'Gem Box',sub:`₹${p.pkg?.gembox||25} each`},
+      {key:'acrylic_box',label:'Acrylic Gem Box',sub:`₹${p.pkg?.acrylic||60} each`},
+    ],
+  }[cat]||[];
+  document.getElementById('sheetBody').innerHTML=`
+    <div class="step-indicator">Step <span>2</span> of 3 — Select Service</div>
+    <div class="q-options">
+      ${opts.map(o=>`<div class="q-opt" onclick="pickSvc('${o.key}','${o.label}')"><span>${o.label}</span><span class="q-opt-price">${o.sub}</span></div>`).join('')}
+    </div>
+    <button class="back-step-btn" onclick="renderStep('category')">← Back</button>`;
+}
+window.pickSvc=function(key,label){pickerState.serviceKey=key;pickerState.serviceLabel=label;renderStep('details');};
+
+function renderDet(){
+  const cat=pickerState.category, key=pickerState.serviceKey;
+  let html=`<div class="step-indicator">Step <span>3</span> of 3 — Enter Details</div>`;
+  if(cat==='diamond_loose'||cat==='diamond_mounted')
+    html+=`<div class="q-group"><label class="q-label">Weight in Carats</label><input type="number" class="q-input" id="inp_weight" placeholder="e.g. 0.45" step="0.01" min="0.01" oninput="prevP()" /><div class="q-hint">Enter exact carat weight to 2 decimal places</div></div>`;
+  if(cat==='gemstone')
+    html+=`<div class="q-group"><label class="q-label">Number of Pieces</label><input type="number" class="q-input" id="inp_quantity" placeholder="1" min="1" value="1" oninput="prevP()" /></div>`;
+  if(cat==='beads')
+    html+=`<div class="q-group"><label class="q-label">Variety Type</label><div class="q-options"><div class="q-opt" id="opt_single" onclick="selOpt('variety','single','opt_single','opt_multi')">Single Variety<span class="q-opt-price">lower price</span></div><div class="q-opt" id="opt_multi" onclick="selOpt('variety','multi','opt_multi','opt_single')">Multi Variety<span class="q-opt-price">higher price</span></div></div></div>`;
+  if(cat==='lot'){
+    if(key==='above_1ct') html+=`<div class="q-group"><label class="q-label">Number of Pieces (minimum 10)</label><input type="number" class="q-input" id="inp_pieces" placeholder="e.g. 15" min="10" oninput="prevP()" /></div>`;
+    else html+=`<div class="q-group"><label class="q-label">Total Carats (minimum 10ct)</label><input type="number" class="q-input" id="inp_carats" placeholder="e.g. 12.5" step="0.01" min="10" oninput="prevP()" /></div>`;
+  }
+  if(cat==='rudhraksha')
+    html+=`<div class="q-group"><label class="q-label">Number of Faces (1–21)</label><input type="number" class="q-input" id="inp_faces" placeholder="e.g. 5" min="1" max="21" oninput="prevP()" /><div class="q-hint">Check the bead — faces determine the price tier</div></div><div class="q-group"><label class="q-label">Report Type</label><div class="q-options"><div class="q-opt" id="opt_basic" onclick="selOpt('reportType','basic','opt_basic','opt_advanced')">Basic</div><div class="q-opt" id="opt_advanced" onclick="selOpt('reportType','advanced','opt_advanced','opt_basic')">Advanced</div></div></div>`;
+  if(cat==='packaging')
+    html+=`<div class="q-group"><label class="q-label">Quantity</label><input type="number" class="q-input" id="inp_quantity" placeholder="1" min="1" value="1" oninput="prevP()" /></div>`;
+  html+=`<div class="price-preview" id="pricePreview"><div class="price-preview-label">Calculated Price</div><div class="price-preview-amount" id="previewAmt">Enter details above</div><div class="price-preview-calc" id="previewCalc"></div></div><button class="add-line-btn" id="addLineBtn" onclick="addLine()" disabled>✅ Add to Invoice</button><button class="back-step-btn" onclick="renderStep('service')">← Back</button>`;
+  document.getElementById('sheetBody').innerHTML=html;
+  if(cat==='pearl'||cat==='gemstone') prevP();
+}
+
+window.selOpt=function(f,v,aId,oId){pickerState[f]=v;document.getElementById(aId)?.classList.add('selected');document.getElementById(oId)?.classList.remove('selected');prevP();};
+
+window.prevP=function(){
+  const cfg={category:pickerState.category,serviceKey:pickerState.serviceKey,weight:document.getElementById('inp_weight')?.value,pieces:document.getElementById('inp_pieces')?.value,carats:document.getElementById('inp_carats')?.value,quantity:document.getElementById('inp_quantity')?.value||1,variety:pickerState.variety,faces:document.getElementById('inp_faces')?.value,reportType:pickerState.reportType};
+  const r=calcPrice(cfg);
+  const pe=document.getElementById('pricePreview'), ae=document.getElementById('previewAmt'), ce=document.getElementById('previewCalc'), ab=document.getElementById('addLineBtn');
+  if(r.error){pe.className='price-preview error';ae.textContent=r.error;ce.textContent='';ab.disabled=true;pickerState._r=null;}
+  else{pe.className='price-preview';ae.textContent='₹'+r.amount.toLocaleString('en-IN');ce.textContent=r.calc||'';ab.disabled=false;pickerState._r=r;}
+};
+
+window.addLine=function(){
+  if(!pickerState._r) return;
+  const line={id:Date.now(),category:pickerState.category,serviceKey:pickerState.serviceKey,serviceLabel:pickerState.serviceLabel,amount:pickerState._r.amount,calc:pickerState._r.calc,memberEligible:pickerState.category!=='packaging'};
+  invoiceLines.push(line); closePicker(); renderLines();
+  const isMember=customerData?.membershipType==='yearly';
+  if(isMember&&!membershipAsked&&line.memberEligible){
+    membershipAsked=true;
+    document.getElementById('memberConfirmSub').textContent=`This customer has an active yearly membership. Apply ${memberDiscountPct}% discount on eligible services?`;
+    document.getElementById('memberConfirm').style.display='block';
+  }
+};
+
+function renderLines(){
+  const wrap=document.getElementById('linesList');
+  if(!invoiceLines.length){
+    wrap.innerHTML=`<div class="empty-lines">No services added yet.<br>Tap "+ Add Service" to begin.</div>`;
+    document.getElementById('totalsCard').style.display='none';
+    document.getElementById('overrideWrap').style.display='none';
+    document.getElementById('createInvoiceBtn').disabled=true; return;
+  }
+  wrap.innerHTML=invoiceLines.map(l=>`<div class="line-item"><button class="line-remove" onclick="remLine(${l.id})">✕</button><div class="line-top"><div class="line-name">${l.serviceLabel}</div><div class="line-amount">₹${l.amount.toLocaleString('en-IN')}</div></div><div class="line-calc">${l.calc||''}</div></div>`).join('');
+  document.getElementById('totalsCard').style.display='block';
+  document.getElementById('overrideWrap').style.display='block';
+  document.getElementById('createInvoiceBtn').disabled=false;
+  updateTotals();
+}
+
+window.remLine=function(id){invoiceLines=invoiceLines.filter(l=>l.id!==id);if(!invoiceLines.length){membershipAsked=false;membershipApplied=false;}renderLines();};
+
+window.applyMembership=function(apply){
+  membershipApplied=apply;
+  document.getElementById('memberConfirm').style.display='none';
+  updateTotals();
+  if(apply) showToast(`⭐ ${memberDiscountPct}% membership discount applied!`);
+};
+
+function updateTotals(){
+  const sub=invoiceLines.reduce((s,l)=>s+l.amount,0);
+  const eligSub=invoiceLines.filter(l=>l.memberEligible).reduce((s,l)=>s+l.amount,0);
+  const disc=membershipApplied?Math.round(eligSub*memberDiscountPct/100):0;
+  const grand=overrideTotal!==null?overrideTotal:(sub-disc);
+  document.getElementById('subtotalEl').textContent='₹'+sub.toLocaleString('en-IN');
+  document.getElementById('grandTotalEl').textContent='₹'+grand.toLocaleString('en-IN');
+  const dr=document.getElementById('discountRow');
+  if(disc>0){dr.style.display='flex';document.getElementById('discountLabel').textContent=`⭐ Membership Discount (${memberDiscountPct}%)`;document.getElementById('discountEl').textContent='−₹'+disc.toLocaleString('en-IN');}
+  else dr.style.display='none';
+  document.getElementById('createInvoiceBtn').textContent=`🧾 Create Invoice — ₹${grand.toLocaleString('en-IN')}`;
+}
+
+window.toggleOverride=function(){const b=document.getElementById('overrideBox');b.style.display=b.style.display==='none'?'block':'none';};
+window.applyOverride=function(){
+  const amt=parseFloat(document.getElementById('overrideAmount').value);
+  const reason=document.getElementById('overrideReason').value.trim();
+  if(!amt||amt<=0){showToast('⚠️ Enter a valid override amount');return;}
+  if(!reason){showToast('⚠️ Override reason is required');return;}
+  overrideTotal=amt;overrideReason=reason;
+  document.getElementById('overrideBox').style.display='none';
+  updateTotals();showToast('⚠️ Override applied — will be audit logged');
+};
+
+window.createInvoice=async function(){
+  if(!invoiceLines.length){showToast('⚠️ Add at least one service');return;}
+  const btn=document.getElementById('createInvoiceBtn');
+  btn.disabled=true;btn.textContent='Creating…';
+  try{
+    const sub=invoiceLines.reduce((s,l)=>s+l.amount,0);
+    const eligSub=invoiceLines.filter(l=>l.memberEligible).reduce((s,l)=>s+l.amount,0);
+    const disc=membershipApplied?Math.round(eligSub*memberDiscountPct/100):0;
+    const grand=overrideTotal!==null?overrideTotal:(sub-disc);
+    const today=new Date().toISOString().split('T')[0];
+    let invNum='INV-'+new Date().getFullYear()+'-0001';
+    try{
+      await runTransaction(db,async tx=>{
+        const ref=doc(db,'appConfig','invoiceCounter'),snap=await tx.get(ref);
+        const next=(snap.exists()?snap.data().count:0)+1;
+        tx.set(ref,{count:next},{merge:true});
+        invNum=`INV-${new Date().getFullYear()}-${String(next).padStart(4,'0')}`;
+      });
+    }catch(e){console.warn('counter',e);}
+    const ref=await addDoc(collection(db,'invoices'),{
+      invoiceNumber:invNum,jobId:jobId||null,customerId:customerData?.id||null,customerName:customerData?.name||'',
+      lineItems:invoiceLines.map(l=>({serviceLabel:l.serviceLabel,category:l.category,amount:l.amount,calc:l.calc})),
+      subtotal:sub,discountType:membershipApplied?'membership':'none',discountPct:membershipApplied?memberDiscountPct:0,
+      discountAmount:disc,membershipApplied,total:grand,overrideTotal,overrideReason:overrideReason||null,
+      status:'finalised',dateStr:today,finalisedBy:currentUser.displayName||currentUser.email,
+      finalisedAt:serverTimestamp(),createdAt:serverTimestamp(),
+    });
+    if(overrideTotal!==null)
+      await addDoc(collection(db,'crmAudit'),{category:'discount',action:`Price Override on ${invNum}`,detail:`Original: ₹${sub} → Override: ₹${overrideTotal} · Reason: ${overrideReason}`,by:currentUser.displayName||currentUser.email,ref:invNum,dateStr:today,createdAt:serverTimestamp()});
+    showToast('✅ Invoice created — '+invNum);
+    setTimeout(()=>{window.location.href=`crm-payment.html?invoiceId=${ref.id}&jobId=${jobId||''}`;},1200);
+  }catch(e){
+    console.error(e);btn.disabled=false;btn.textContent='🧾 Create Invoice';showToast('❌ Could not create invoice. Try again.');
+  }
+};
+
+window.goBack=function(){history.back();};
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000);}
+</script>
+</body>
+</html>
