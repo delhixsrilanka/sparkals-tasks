@@ -947,10 +947,48 @@ window.toggleCard=function(id){
 };
 window.changeStage=async function(id,stage,el,e){
   e.stopPropagation();
-  await updateDoc(doc(db,"tasks",id),{stage,updatedAt:serverTimestamp()});
-  allTasks=allTasks.map(t=>t.id===id?{...t,stage}:t);
+  const task=allTasks.find(t=>t.id==id);
+  const isCompleted=COMPLETED_STAGES.includes(stage);
+  const updateData={
+    stage,
+    updatedAt:serverTimestamp(),
+    updatedBy:currentUser.uid,
+    updatedByName:currentUser.displayName||currentUser.email,
+    lastStageChangedAt:serverTimestamp(),
+    lastStageChangedBy:currentUser.displayName||currentUser.email,
+  };
+  if(isCompleted){
+    updateData.completedAt=serverTimestamp();
+    updateData.completedBy=currentUser.displayName||currentUser.email;
+  }
+  // Add to activity log
+  const logEntry={
+    action:`Stage changed to "${stage}"`,
+    by:currentUser.displayName||currentUser.email,
+    at:new Date().toISOString(),
+    timestamp:Date.now()
+  };
+  updateData.activityLog=arrayUnion(logEntry);
+  await updateDoc(doc(db,"tasks",id),updateData);
+  allTasks=allTasks.map(t=>t.id==id?{...t,stage,...updateData}:t);
   el.closest(".stage-track").querySelectorAll(".stage-btn").forEach(b=>b.classList.remove("active"));
-  el.classList.add("active");showToast("Stage → "+stage,"success");
+  el.classList.add("active");
+  updateStats();
+  showToast("Stage → "+stage,"success");
+  // Notify task creator and admin if completed
+  if(isCompleted&&task){
+    try{
+      await addDoc(collection(db,"notifications"),{
+        uid:task.createdBy,
+        title:"✅ Task Completed",
+        body:`"${task.name}" marked as ${stage} by ${currentUser.displayName||currentUser.email}`,
+        taskId:id,
+        read:false,
+        createdAt:serverTimestamp(),
+        type:"task_completed"
+      });
+    }catch(err){console.log("Notification error:",err);}
+  }
 };
 window.deleteOneTask=async function(id){
   if(!confirm("Delete this task permanently?"))return;
