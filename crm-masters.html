@@ -15,8 +15,18 @@
     .header-sub { font-size: 12px; color: rgba(255,255,255,0.4); }
     .back-btn { background: none; border: none; color: #a78bfa; font-size: 22px; cursor: pointer; padding: 4px; }
 
+    /* TAB BAR */
+    .tab-bar { display: flex; overflow-x: auto; padding: 12px 16px 0; gap: 8px; background: #1a1a2e; border-bottom: 1px solid rgba(255,255,255,0.06); }
+    .tab-btn { padding: 9px 16px; border-radius: 20px 20px 0 0; font-size: 13px; font-weight: 600; cursor: pointer; border: 1px solid rgba(255,255,255,0.1); border-bottom: none; background: rgba(255,255,255,0.03); color: rgba(255,255,255,0.4); white-space: nowrap; }
+    .tab-btn.active { background: rgba(124,58,237,0.2); color: #a78bfa; border-color: rgba(124,58,237,0.35); }
+
+    /* TAB PANELS */
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
     .section { padding: 16px; }
     .section-heading { font-size: 13px; font-weight: 700; color: #a78bfa; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+    .section-sub { font-size: 12px; color: rgba(255,255,255,0.3); margin-bottom: 14px; line-height: 1.5; }
 
     .card { background: rgba(255,255,255,0.05); border-radius: 16px; padding: 16px; border: 1px solid rgba(255,255,255,0.08); margin-bottom: 10px; }
 
@@ -27,7 +37,7 @@
     .rate-input:focus { border-color: #a78bfa; }
     .rate-unit { font-size: 12px; color: rgba(255,255,255,0.35); width: 28px; }
 
-    /* TAGS (service types, cert types) */
+    /* TAGS */
     .tags-wrap { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
     .tag { background: rgba(124,58,237,0.15); border: 1px solid rgba(124,58,237,0.35); color: #a78bfa; border-radius: 20px; padding: 5px 12px; font-size: 13px; display: flex; align-items: center; gap: 6px; }
     .tag-remove { cursor: pointer; color: rgba(255,255,255,0.4); font-size: 16px; line-height: 1; }
@@ -37,33 +47,54 @@
     .tag-input:focus { border-color: #a78bfa; }
     .tag-add-btn { background: #7c3aed; border: none; color: white; border-radius: 10px; padding: 9px 16px; font-size: 14px; cursor: pointer; font-weight: 600; }
 
-    /* DISCOUNT LIMIT */
     .discount-row { display: flex; align-items: center; gap: 10px; }
     .discount-desc { font-size: 12px; color: rgba(255,255,255,0.35); margin-top: 6px; line-height: 1.4; }
 
+    /* ═══════════════════════════════════════════════════ */
+    /* SERVICE PRICING TAB STYLES                          */
+    /* ═══════════════════════════════════════════════════ */
+    .price-category { margin-bottom: 20px; }
+    .price-cat-title { font-size: 14px; font-weight: 700; color: white; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; padding: 10px 14px; background: rgba(124,58,237,0.12); border-radius: 12px; border: 1px solid rgba(124,58,237,0.2); }
+    .price-cat-title span { font-size: 11px; color: rgba(255,255,255,0.35); font-weight: 400; margin-left: auto; }
+
+    .slab-table { width: 100%; border-collapse: collapse; margin-bottom: 4px; }
+    .slab-table th { font-size: 11px; color: rgba(255,255,255,0.35); text-align: left; padding: 6px 8px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+    .slab-table td { padding: 6px 4px; border-bottom: 1px solid rgba(255,255,255,0.04); }
+    .slab-table tr:last-child td { border-bottom: none; }
+    .slab-label { font-size: 12px; color: rgba(255,255,255,0.55); padding: 6px 8px !important; }
+    .slab-note  { font-size: 10px; color: rgba(255,255,255,0.25); padding-left: 8px; }
+
+    .price-input { width: 100%; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; padding: 8px 10px; color: white; font-size: 14px; font-weight: 700; text-align: right; outline: none; }
+    .price-input:focus { border-color: #10b981; background: rgba(16,185,129,0.08); }
+
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+    .two-col-label { font-size: 11px; color: rgba(255,255,255,0.35); margin-bottom: 4px; }
+
+    .flat-input-wrap { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+    .flat-input-label { font-size: 13px; color: rgba(255,255,255,0.6); flex: 1; }
+    .flat-input { width: 110px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; padding: 8px 10px; color: white; font-size: 14px; font-weight: 700; text-align: right; outline: none; }
+    .flat-input:focus { border-color: #10b981; }
+
+    .price-info { font-size: 11px; color: rgba(255,255,255,0.2); padding: 8px 0 4px; font-style: italic; }
+
     /* SAVE BUTTON */
     .save-btn { width: 100%; background: #7c3aed; border: none; color: white; border-radius: 14px; padding: 15px; font-size: 16px; font-weight: 700; cursor: pointer; margin-top: 8px; }
-    .save-btn:active { background: #6d28d9; }
+    .save-btn.green { background: #059669; }
+    .save-btn:active { opacity: 0.85; }
     .save-btn:disabled { opacity: 0.5; }
 
-    /* LAST UPDATED */
     .last-updated { font-size: 11px; color: rgba(255,255,255,0.25); text-align: center; margin-top: 10px; }
 
-    /* ACCESS DENIED */
     .access-denied { text-align: center; padding: 80px 20px; }
     .access-denied .icon { font-size: 48px; margin-bottom: 12px; }
-    .access-denied p { color: rgba(255,255,255,0.4); font-size: 15px; }
 
-    /* TOAST */
     .toast { position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%); background: #1a1a2e; color: white; padding: 12px 20px; border-radius: 12px; font-size: 14px; display: none; z-index: 999; border: 1px solid rgba(255,255,255,0.1); white-space: nowrap; }
     .toast.show { display: block; }
 
-    /* SPINNER */
     .spinner-wrap { text-align: center; padding: 60px; }
     .spinner { width: 32px; height: 32px; border: 3px solid rgba(167,139,250,0.2); border-top-color: #a78bfa; border-radius: 50%; animation: spin 0.8s linear infinite; display: inline-block; }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* BOTTOM NAV */
     .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top: 1px solid #f0f0f0; display: flex; justify-content: space-around; padding: 6px 0 8px; z-index: 150; }
     .nav-item { display: flex; flex-direction: column; align-items: center; gap: 2px; text-decoration: none; padding: 4px 10px; color: #888; font-size: 10px; font-weight: 600; }
     .nav-item.active { color: #1a1a2e; }
@@ -72,7 +103,6 @@
 </head>
 <body>
 
-  <!-- HEADER -->
   <div class="header">
     <button class="back-btn" onclick="window.location.href='crm-customers.html'">←</button>
     <div>
@@ -81,116 +111,308 @@
     </div>
   </div>
 
-  <!-- LOADING -->
   <div id="loadingWrap" class="spinner-wrap"><div class="spinner"></div></div>
 
-  <!-- ACCESS DENIED (shown if not admin) -->
   <div id="accessDenied" class="access-denied" style="display:none;">
     <div class="icon">🔒</div>
-    <p>Admin access only.<br/>Contact Sandeep to change these settings.</p>
+    <p style="color:rgba(255,255,255,0.4);">Admin access only.<br/>Contact Sandeep to change these settings.</p>
   </div>
 
-  <!-- MAIN CONTENT (shown only to admin) -->
   <div id="mainContent" style="display:none;">
 
-    <!-- METAL RATES -->
-    <div class="section">
-      <div class="section-heading">🥇 Metal Rates (₹ per gram)</div>
-      <div class="card">
-        <div class="rate-row">
-          <div class="rate-label">24K Gold</div>
-          <input class="rate-input" type="number" id="rate-gold24" placeholder="0" />
-          <div class="rate-unit">₹/g</div>
+    <!-- TAB BAR -->
+    <div class="tab-bar">
+      <div class="tab-btn active" onclick="switchTab('general')">⚙️ General</div>
+      <div class="tab-btn"        onclick="switchTab('pricing')">💹 Service Pricing</div>
+    </div>
+
+    <!-- ════════════ TAB: GENERAL ════════════ -->
+    <div class="tab-panel active" id="panel-general">
+
+      <div class="section">
+        <div class="section-heading">🥇 Metal Rates (₹ per gram)</div>
+        <div class="card">
+          <div class="rate-row"><div class="rate-label">24K Gold</div><input class="rate-input" type="number" id="rate-gold24" placeholder="0" /><div class="rate-unit">₹/g</div></div>
+          <div class="rate-row"><div class="rate-label">22K Gold</div><input class="rate-input" type="number" id="rate-gold22" placeholder="0" /><div class="rate-unit">₹/g</div></div>
+          <div class="rate-row"><div class="rate-label">18K Gold</div><input class="rate-input" type="number" id="rate-gold18" placeholder="0" /><div class="rate-unit">₹/g</div></div>
+          <div class="rate-row"><div class="rate-label">Silver 925</div><input class="rate-input" type="number" id="rate-silver" placeholder="0" /><div class="rate-unit">₹/g</div></div>
+          <div class="rate-row"><div class="rate-label">Platinum 950</div><input class="rate-input" type="number" id="rate-platinum" placeholder="0" /><div class="rate-unit">₹/g</div></div>
         </div>
-        <div class="rate-row">
-          <div class="rate-label">22K Gold</div>
-          <input class="rate-input" type="number" id="rate-gold22" placeholder="0" />
-          <div class="rate-unit">₹/g</div>
+      </div>
+
+      <div class="section" style="padding-top:0;">
+        <div class="section-heading">💼 Service Types</div>
+        <div class="card">
+          <div class="tags-wrap" id="serviceTypesTags"></div>
+          <div class="add-tag-row">
+            <input class="tag-input" type="text" id="newServiceType" placeholder="Add service type..." />
+            <button class="tag-add-btn" onclick="addTag('serviceTypes','newServiceType')">+ Add</button>
+          </div>
         </div>
-        <div class="rate-row">
-          <div class="rate-label">18K Gold</div>
-          <input class="rate-input" type="number" id="rate-gold18" placeholder="0" />
-          <div class="rate-unit">₹/g</div>
+      </div>
+
+      <div class="section" style="padding-top:0;">
+        <div class="section-heading">📜 Certificate Types</div>
+        <div class="card">
+          <div class="tags-wrap" id="certTypesTags"></div>
+          <div class="add-tag-row">
+            <input class="tag-input" type="text" id="newCertType" placeholder="Add certificate type..." />
+            <button class="tag-add-btn" onclick="addTag('certTypes','newCertType')">+ Add</button>
+          </div>
         </div>
-        <div class="rate-row">
-          <div class="rate-label">Silver 925</div>
-          <input class="rate-input" type="number" id="rate-silver" placeholder="0" />
-          <div class="rate-unit">₹/g</div>
+      </div>
+
+      <div class="section" style="padding-top:0;">
+        <div class="section-heading">🔒 Discount Approval Limit</div>
+        <div class="card">
+          <div class="discount-row">
+            <div class="rate-label">Max discount without approval</div>
+            <input class="rate-input" type="number" id="discountLimit" placeholder="10" min="0" max="100" />
+            <div class="rate-unit">%</div>
+          </div>
+          <div class="discount-desc">Receptionist can give discounts up to this % on their own. Above this → your approval required.</div>
         </div>
-        <div class="rate-row">
-          <div class="rate-label">Platinum 950</div>
-          <input class="rate-input" type="number" id="rate-platinum" placeholder="0" />
-          <div class="rate-unit">₹/g</div>
+      </div>
+
+      <div class="section" style="padding-top:0;">
+        <div class="section-heading">🧾 GST Rate</div>
+        <div class="card">
+          <div class="discount-row">
+            <div class="rate-label">GST percentage on invoices</div>
+            <input class="rate-input" type="number" id="gstRate" placeholder="3" min="0" max="28" />
+            <div class="rate-unit">%</div>
+          </div>
+          <div class="discount-desc">Standard GST for jewellery is 3%. Change only if your CA advises.</div>
         </div>
+      </div>
+
+      <div class="section" style="padding-top:0;">
+        <button class="save-btn green" style="margin-bottom:10px;" onclick="window.location.href='crm-pricing.html'">💰 Manage Pricing Rules</button>
+        <button class="save-btn" id="saveBtn" onclick="saveMasters()">💾 Save General Settings</button>
+        <div class="last-updated" id="lastUpdated"></div>
       </div>
     </div>
 
-    <!-- SERVICE TYPES -->
-    <div class="section" style="padding-top:0;">
-      <div class="section-heading">💼 Service Types</div>
-      <div class="card">
-        <div class="tags-wrap" id="serviceTypesTags"></div>
-        <div class="add-tag-row">
-          <input class="tag-input" type="text" id="newServiceType" placeholder="Add service type..." />
-          <button class="tag-add-btn" onclick="addTag('serviceTypes','newServiceType')">+ Add</button>
+    <!-- ════════════ TAB: SERVICE PRICING ════════════ -->
+    <div class="tab-panel" id="panel-pricing">
+      <div class="section">
+        <div class="section-sub">
+          Change any price below and tap <strong style="color:#10b981;">Save All Prices</strong> at the bottom. All invoices will use the new prices immediately. Revised: <strong style="color:#a78bfa;" id="priceLastUpdated">not saved yet</strong>
         </div>
-      </div>
-    </div>
 
-    <!-- CERTIFICATE TYPES -->
-    <div class="section" style="padding-top:0;">
-      <div class="section-heading">📜 Certificate Types</div>
-      <div class="card">
-        <div class="tags-wrap" id="certTypesTags"></div>
-        <div class="add-tag-row">
-          <input class="tag-input" type="text" id="newCertType" placeholder="Add certificate type..." />
-          <button class="tag-add-btn" onclick="addTag('certTypes','newCertType')">+ Add</button>
+        <!-- ── DIAMOND LOOSE ── -->
+        <div class="price-category">
+          <div class="price-cat-title">💎 Diamond Loose — Lab Grown Analysis Report <span>per piece / per carat above 1ct</span></div>
+          <div class="card">
+            <table class="slab-table">
+              <tr><th>Weight Range</th><th>Price (₹)</th><th>Basis</th></tr>
+              <tr><td class="slab-label">Up to 0.29 ct</td><td><input class="price-input" type="number" id="p_dlg_1" /></td><td class="slab-note">per piece</td></tr>
+              <tr><td class="slab-label">0.30 – 0.49 ct</td><td><input class="price-input" type="number" id="p_dlg_2" /></td><td class="slab-note">per piece</td></tr>
+              <tr><td class="slab-label">0.50 – 0.69 ct</td><td><input class="price-input" type="number" id="p_dlg_3" /></td><td class="slab-note">per piece</td></tr>
+              <tr><td class="slab-label">0.70 – 0.99 ct</td><td><input class="price-input" type="number" id="p_dlg_4" /></td><td class="slab-note">per piece</td></tr>
+              <tr><td class="slab-label">1.00 ct &amp; above</td><td><input class="price-input" type="number" id="p_dlg_5" /></td><td class="slab-note">per carat</td></tr>
+            </table>
+          </div>
         </div>
-      </div>
-    </div>
 
-    <!-- DISCOUNT LIMIT -->
-    <div class="section" style="padding-top:0;">
-      <div class="section-heading">🔒 Discount Approval Limit</div>
-      <div class="card">
-        <div class="discount-row">
-          <div class="rate-label">Max discount without approval</div>
-          <input class="rate-input" type="number" id="discountLimit" placeholder="10" min="0" max="100" />
-          <div class="rate-unit">%</div>
+        <div class="price-category">
+          <div class="price-cat-title">💎 Diamond Loose — Natural Grading Report <span>per piece / per carat above 1ct</span></div>
+          <div class="card">
+            <table class="slab-table">
+              <tr><th>Weight Range</th><th>Price (₹)</th><th>Basis</th></tr>
+              <tr><td class="slab-label">Up to 0.29 ct</td><td><input class="price-input" type="number" id="p_dng_1" /></td><td class="slab-note">per piece</td></tr>
+              <tr><td class="slab-label">0.30 – 0.49 ct</td><td><input class="price-input" type="number" id="p_dng_2" /></td><td class="slab-note">per piece</td></tr>
+              <tr><td class="slab-label">0.50 – 0.69 ct</td><td><input class="price-input" type="number" id="p_dng_3" /></td><td class="slab-note">per piece</td></tr>
+              <tr><td class="slab-label">0.70 – 0.99 ct</td><td><input class="price-input" type="number" id="p_dng_4" /></td><td class="slab-note">per piece</td></tr>
+              <tr><td class="slab-label">1.00 ct &amp; above</td><td><input class="price-input" type="number" id="p_dng_5" /></td><td class="slab-note">per carat</td></tr>
+            </table>
+          </div>
         </div>
-        <div class="discount-desc">
-          Receptionist can give discounts up to this % on their own.<br/>
-          Above this limit → your approval is required automatically.
-        </div>
-      </div>
-    </div>
 
-    <!-- GST RATE -->
-    <div class="section" style="padding-top:0;">
-      <div class="section-heading">🧾 GST Rate</div>
-      <div class="card">
-        <div class="discount-row">
-          <div class="rate-label">GST percentage on invoices</div>
-          <input class="rate-input" type="number" id="gstRate" placeholder="3" min="0" max="28" />
-          <div class="rate-unit">%</div>
+        <div class="price-category">
+          <div class="price-cat-title">💎 Diamond Loose — Natural Advanced Grading <span>per piece / per carat above 1ct</span></div>
+          <div class="card">
+            <table class="slab-table">
+              <tr><th>Weight Range</th><th>Price (₹)</th><th>Basis</th></tr>
+              <tr><td class="slab-label">Up to 0.29 ct</td><td><input class="price-input" type="number" id="p_dna_1" /></td><td class="slab-note">per piece</td></tr>
+              <tr><td class="slab-label">0.30 – 0.49 ct</td><td><input class="price-input" type="number" id="p_dna_2" /></td><td class="slab-note">per piece</td></tr>
+              <tr><td class="slab-label">0.50 – 0.69 ct</td><td><input class="price-input" type="number" id="p_dna_3" /></td><td class="slab-note">per piece</td></tr>
+              <tr><td class="slab-label">0.70 – 0.99 ct</td><td><input class="price-input" type="number" id="p_dna_4" /></td><td class="slab-note">per piece</td></tr>
+              <tr><td class="slab-label">1.00 ct &amp; above</td><td><input class="price-input" type="number" id="p_dna_5" /></td><td class="slab-note">per carat</td></tr>
+            </table>
+          </div>
         </div>
-        <div class="discount-desc">Standard GST for jewellery is 3%. Change only if your CA advises.</div>
-      </div>
-    </div>
 
-    <!-- SAVE -->
-    <div class="section" style="padding-top:0;">
-      <button class="save-btn" style="background:#059669;margin-bottom:10px;" onclick="window.location.href='crm-pricing.html'">💰 Manage Pricing Rules</button>
-      <button class="save-btn" id="saveBtn" onclick="saveMasters()">💾 Save All Settings</button>
-      <div class="last-updated" id="lastUpdated"></div>
+        <!-- ── DIAMOND MOUNTED ── -->
+        <div class="price-category">
+          <div class="price-cat-title">💍 Diamond Mounted — Natural Studded Jewelry Report</div>
+          <div class="card">
+            <table class="slab-table">
+              <tr><th>Weight Range</th><th>Price (₹)</th><th>Basis</th></tr>
+              <tr><td class="slab-label">Up to 0.30 ct</td><td><input class="price-input" type="number" id="p_dmns_1" /></td><td class="slab-note">per piece</td></tr>
+              <tr><td class="slab-label">0.31 ct &amp; above</td><td><input class="price-input" type="number" id="p_dmns_2" /></td><td class="slab-note">per carat</td></tr>
+              <tr><td class="slab-label">1.00 ct &amp; above</td><td><input class="price-input" type="number" id="p_dmns_3" /></td><td class="slab-note">per carat</td></tr>
+            </table>
+          </div>
+        </div>
+
+        <div class="price-category">
+          <div class="price-cat-title">💍 Diamond Mounted — Natural Verbal Report</div>
+          <div class="card">
+            <table class="slab-table">
+              <tr><th>Weight Range</th><th>Price (₹)</th><th>Basis</th></tr>
+              <tr><td class="slab-label">Up to 0.30 ct</td><td><input class="price-input" type="number" id="p_dmnv_1" /></td><td class="slab-note">per piece</td></tr>
+              <tr><td class="slab-label">0.31 – 0.99 ct</td><td><input class="price-input" type="number" id="p_dmnv_2" /></td><td class="slab-note">per carat</td></tr>
+              <tr><td class="slab-label">1.00 ct &amp; above</td><td><input class="price-input" type="number" id="p_dmnv_3" /></td><td class="slab-note">per carat</td></tr>
+            </table>
+          </div>
+        </div>
+
+        <div class="price-category">
+          <div class="price-cat-title">💍 Diamond Mounted — Lab Grown Jewelry Report</div>
+          <div class="card">
+            <table class="slab-table">
+              <tr><th>Weight Range</th><th>Price (₹)</th><th>Basis</th></tr>
+              <tr><td class="slab-label">Up to 0.30 ct</td><td><input class="price-input" type="number" id="p_dmlg_1" /></td><td class="slab-note">per piece</td></tr>
+              <tr><td class="slab-label">0.31 – 0.99 ct</td><td><input class="price-input" type="number" id="p_dmlg_2" /></td><td class="slab-note">per carat</td></tr>
+            </table>
+          </div>
+        </div>
+
+        <div class="price-category">
+          <div class="price-cat-title">💍 Diamond Mounted — Lab Grown Verbal Report</div>
+          <div class="card">
+            <table class="slab-table">
+              <tr><th>Weight Range</th><th>Price (₹)</th><th>Basis</th></tr>
+              <tr><td class="slab-label">Up to 0.30 ct</td><td><input class="price-input" type="number" id="p_dmlgv_1" /></td><td class="slab-note">per piece</td></tr>
+              <tr><td class="slab-label">0.31 – 0.99 ct</td><td><input class="price-input" type="number" id="p_dmlgv_2" /></td><td class="slab-note">per piece</td></tr>
+            </table>
+          </div>
+        </div>
+
+        <!-- ── GEMSTONE ── -->
+        <div class="price-category">
+          <div class="price-cat-title">🪨 Gemstone Testing Report <span>per piece, flat rate</span></div>
+          <div class="card">
+            <div class="flat-input-wrap"><div class="flat-input-label">Gemstone Basic Report</div><input class="flat-input" type="number" id="p_gs_basic" /></div>
+            <div class="flat-input-wrap"><div class="flat-input-label">Precious Gemstone Advanced</div><input class="flat-input" type="number" id="p_gs_prec_adv" /></div>
+            <div class="flat-input-wrap"><div class="flat-input-label">Semi-Precious Gemstone Advanced</div><input class="flat-input" type="number" id="p_gs_semi_adv" /></div>
+            <div class="flat-input-wrap"><div class="flat-input-label">Special Gemstone (Amber etc.)</div><input class="flat-input" type="number" id="p_gs_special" /></div>
+            <div class="flat-input-wrap"><div class="flat-input-label">Gemstone Verbal Basic</div><input class="flat-input" type="number" id="p_gs_verb_basic" /></div>
+            <div class="flat-input-wrap"><div class="flat-input-label">Gemstone Verbal Special</div><input class="flat-input" type="number" id="p_gs_verb_special" /></div>
+          </div>
+        </div>
+
+        <!-- ── BEADS ── -->
+        <div class="price-category">
+          <div class="price-cat-title">📿 Beads &amp; Mala <span>Single Variety vs Multi Variety</span></div>
+          <div class="card">
+            <table class="slab-table">
+              <tr><th>Service</th><th>Single (₹)</th><th>Multi (₹)</th></tr>
+              <tr>
+                <td class="slab-label">Semi-Precious — 1 Random Bead</td>
+                <td><input class="price-input" type="number" id="p_bds_sp_rand_s" /></td>
+                <td><input class="price-input" type="number" id="p_bds_sp_rand_m" /></td>
+              </tr>
+              <tr>
+                <td class="slab-label">Semi-Precious — All Beads</td>
+                <td><input class="price-input" type="number" id="p_bds_sp_all_s" /></td>
+                <td><input class="price-input" type="number" id="p_bds_sp_all_m" /></td>
+              </tr>
+              <tr>
+                <td class="slab-label">Precious — 1 Random Bead</td>
+                <td><input class="price-input" type="number" id="p_bds_p_rand_s" /></td>
+                <td><input class="price-input" type="number" id="p_bds_p_rand_m" /></td>
+              </tr>
+              <tr>
+                <td class="slab-label">Precious — All Beads</td>
+                <td><input class="price-input" type="number" id="p_bds_p_all_s" /></td>
+                <td><input class="price-input" type="number" id="p_bds_p_all_m" /></td>
+              </tr>
+            </table>
+          </div>
+        </div>
+
+        <!-- ── PEARL ── -->
+        <div class="price-category">
+          <div class="price-cat-title">🫧 Pearl <span>flat rate</span></div>
+          <div class="card">
+            <div class="flat-input-wrap"><div class="flat-input-label">Pearl Basic Report</div><input class="flat-input" type="number" id="p_pearl_basic" /></div>
+            <div class="flat-input-wrap"><div class="flat-input-label">Pearl Advanced Report</div><input class="flat-input" type="number" id="p_pearl_adv" /></div>
+          </div>
+        </div>
+
+        <!-- ── LOT CERTIFICATE ── -->
+        <div class="price-category">
+          <div class="price-cat-title">📦 Lot Certificate — Single Variety</div>
+          <div class="card">
+            <div class="flat-input-wrap"><div class="flat-input-label">Above 1ct size — base (up to 10 pcs)</div><input class="flat-input" type="number" id="p_lot_above_base" /></div>
+            <div class="flat-input-wrap"><div class="flat-input-label">Above 1ct size — per extra piece</div><input class="flat-input" type="number" id="p_lot_above_extra" /></div>
+            <div class="flat-input-wrap"><div class="flat-input-label">Below 1ct size — base (up to 10ct)</div><input class="flat-input" type="number" id="p_lot_below_base" /></div>
+            <div class="flat-input-wrap"><div class="flat-input-label">Below 1ct size — per extra carat</div><input class="flat-input" type="number" id="p_lot_below_extra" /></div>
+          </div>
+        </div>
+
+        <!-- ── RUDHRAKSHA ── -->
+        <div class="price-category">
+          <div class="price-cat-title">🔴 Rudhraksha Single Piece <span>Basic vs Advanced per face group</span></div>
+          <div class="card">
+            <table class="slab-table">
+              <tr><th>Faces</th><th>Basic (₹)</th><th>Advanced (₹)</th></tr>
+              <tr>
+                <td class="slab-label">1, 8–13 Faces</td>
+                <td><input class="price-input" type="number" id="p_rudra_t1_b" /></td>
+                <td><input class="price-input" type="number" id="p_rudra_t1_a" /></td>
+              </tr>
+              <tr>
+                <td class="slab-label">2–7 Faces</td>
+                <td><input class="price-input" type="number" id="p_rudra_t2_b" /></td>
+                <td><input class="price-input" type="number" id="p_rudra_t2_a" /></td>
+              </tr>
+              <tr>
+                <td class="slab-label">14–17 Faces</td>
+                <td><input class="price-input" type="number" id="p_rudra_t3_b" /></td>
+                <td><input class="price-input" type="number" id="p_rudra_t3_a" /></td>
+              </tr>
+              <tr>
+                <td class="slab-label">18–21 Faces</td>
+                <td><input class="price-input" type="number" id="p_rudra_t4_b" /></td>
+                <td><input class="price-input" type="number" id="p_rudra_t4_a" /></td>
+              </tr>
+            </table>
+          </div>
+        </div>
+
+        <!-- ── PACKAGING ── -->
+        <div class="price-category">
+          <div class="price-cat-title">📫 Packaging <span>per piece</span></div>
+          <div class="card">
+            <div class="flat-input-wrap"><div class="flat-input-label">Pouch</div><input class="flat-input" type="number" id="p_pkg_pouch" /></div>
+            <div class="flat-input-wrap"><div class="flat-input-label">Gem Box</div><input class="flat-input" type="number" id="p_pkg_gembox" /></div>
+            <div class="flat-input-wrap"><div class="flat-input-label">Acrylic Gem Box</div><input class="flat-input" type="number" id="p_pkg_acrylic" /></div>
+          </div>
+        </div>
+
+        <!-- ── MEMBERSHIP ── -->
+        <div class="price-category">
+          <div class="price-cat-title">⭐ Membership <span>yearly fee + discount %</span></div>
+          <div class="card">
+            <div class="flat-input-wrap"><div class="flat-input-label">Yearly Membership Fee (₹)</div><input class="flat-input" type="number" id="p_mem_fee" /></div>
+            <div class="flat-input-wrap"><div class="flat-input-label">Member Discount on Premium Services (%)</div><input class="flat-input" type="number" id="p_mem_discount" /></div>
+          </div>
+        </div>
+
+        <div class="price-info">* Prices are in Indian Rupees (₹). GST extra as applicable. Min 50% charge for returned lots — handled manually.</div>
+
+        <button class="save-btn" id="savePriceBtn" onclick="savePrices()" style="margin-top:16px;">💾 Save All Prices</button>
+        <div class="last-updated" id="priceLastSaved"></div>
+      </div>
     </div>
 
   </div>
 
-  <!-- TOAST -->
   <div class="toast" id="toast"></div>
 
-  <!-- BOTTOM NAV -->
   <div class="bottom-nav">
     <a class="nav-item" href="dashboard.html"><span class="nav-icon">🏠</span>Home</a>
     <a class="nav-item" href="tasks.html"><span class="nav-icon">✅</span>Tasks</a>
@@ -219,104 +441,226 @@ const db   = getFirestore(app);
 
 const ADMIN_EMAILS = ['sandeepgemologist@gmail.com','sparkals.design@gmail.com'];
 
-// Local state for tags
-const tags = {
-  serviceTypes: [],
-  certTypes: []
+const tags = { serviceTypes: [], certTypes: [] };
+
+const DEFAULTS = {
+  serviceTypes:  ['Diamond Certification','Gemstone Certification','Jewellery Valuation'],
+  certTypes:     ['Standard','Premium','Express','IGI Format','GIA Format'],
+  metalRates:    { gold24:0, gold22:0, gold18:0, silver:0, platinum:0 },
+  discountLimit: 10,
+  gstRate:       3
 };
 
-// Default values
-const DEFAULTS = {
-  serviceTypes: ['Diamond Certification','Gemstone Certification','Jewellery Valuation'],
-  certTypes: ['Standard','Premium','Express','IGI Format','GIA Format'],
-  metalRates: { gold24: 0, gold22: 0, gold18: 0, silver: 0, platinum: 0 },
-  discountLimit: 10,
-  gstRate: 3
+// ── DEFAULT PRICES (Jan 2026 BGTL Price List) ────────────
+const DEFAULT_PRICES = {
+  dlg:  [200,280,320,420,500],
+  dng:  [250,350,400,525,625],
+  dna:  [500,700,800,1050,1250],
+  dmns: [135,350,1200],
+  dmnv: [100,200,600],
+  dmlg: [135,350],
+  dmlgv:[100,200],
+  gs:   { basic:200, prec_adv:3000, semi_adv:2000, special:500, verb_basic:200, verb_special:500 },
+  bds:  { sp_rand_s:100, sp_rand_m:150, sp_all_s:200, sp_all_m:300, p_rand_s:200, p_rand_m:400, p_all_s:300, p_all_m:600 },
+  pearl:{ basic:250, adv:750 },
+  lot:  { above_base:800, above_extra:50, below_base:1200, below_extra:120 },
+  rudra:{ t1_b:500,t1_a:1000, t2_b:400,t2_a:800, t3_b:800,t3_a:1600, t4_b:1800,t4_a:5000 },
+  pkg:  { pouch:15, gembox:25, acrylic:60 },
+  mem:  { fee:2500, discount:30 }
 };
 
 let currentUser = null;
+
+// ── TAB SWITCH ───────────────────────────────────────────
+window.switchTab = function(tab) {
+  document.querySelectorAll('.tab-btn').forEach((b,i) => {
+    b.classList.toggle('active', ['general','pricing'][i] === tab);
+  });
+  document.querySelectorAll('.tab-panel').forEach((p,i) => {
+    p.classList.toggle('active', ['panel-general','panel-pricing'][i] === 'panel-'+tab);
+  });
+};
 
 // ── AUTH ─────────────────────────────────────────────────
 onAuthStateChanged(auth, async (user) => {
   if (!user) { window.location.href = 'login.html'; return; }
   currentUser = user;
-  const isAdmin = ADMIN_EMAILS.includes(user.email);
   document.getElementById('loadingWrap').style.display = 'none';
-  if (!isAdmin) {
+  if (!ADMIN_EMAILS.includes(user.email)) {
     document.getElementById('accessDenied').style.display = 'block';
     return;
   }
   document.getElementById('mainContent').style.display = 'block';
-  await loadMasters();
+  await Promise.all([loadMasters(), loadPrices()]);
 });
 
-// ── LOAD ─────────────────────────────────────────────────
+// ── LOAD GENERAL MASTERS ─────────────────────────────────
 async function loadMasters() {
   try {
     const snap = await getDoc(doc(db, 'adminMasters', 'config'));
     const data = snap.exists() ? snap.data() : DEFAULTS;
-
-    // Metal rates
     const rates = data.metalRates || DEFAULTS.metalRates;
     document.getElementById('rate-gold24').value   = rates.gold24   || '';
     document.getElementById('rate-gold22').value   = rates.gold22   || '';
     document.getElementById('rate-gold18').value   = rates.gold18   || '';
     document.getElementById('rate-silver').value   = rates.silver   || '';
     document.getElementById('rate-platinum').value = rates.platinum || '';
-
-    // Tags
     tags.serviceTypes = data.serviceTypes || DEFAULTS.serviceTypes;
     tags.certTypes    = data.certTypes    || DEFAULTS.certTypes;
-    renderTags('serviceTypes');
-    renderTags('certTypes');
-
-    // Discount + GST
+    renderTags('serviceTypes'); renderTags('certTypes');
     document.getElementById('discountLimit').value = data.discountLimit ?? DEFAULTS.discountLimit;
     document.getElementById('gstRate').value       = data.gstRate       ?? DEFAULTS.gstRate;
-
-    // Last updated
     if (data.updatedAt?.toDate) {
       document.getElementById('lastUpdated').textContent =
         'Last saved: ' + data.updatedAt.toDate().toLocaleString('en-IN');
     }
+  } catch(e) { console.error(e); showToast('❌ Could not load settings'); }
+}
+
+// ── LOAD PRICES ──────────────────────────────────────────
+async function loadPrices() {
+  try {
+    const snap = await getDoc(doc(db, 'adminMasters', 'servicePricing'));
+    const p    = snap.exists() ? snap.data() : DEFAULT_PRICES;
+    const get  = (key, def) => p[key] ?? def;
+
+    // Diamond Loose
+    const dlg = get('dlg', DEFAULT_PRICES.dlg);
+    [1,2,3,4,5].forEach(i => setVal(`p_dlg_${i}`, dlg[i-1]));
+    const dng = get('dng', DEFAULT_PRICES.dng);
+    [1,2,3,4,5].forEach(i => setVal(`p_dng_${i}`, dng[i-1]));
+    const dna = get('dna', DEFAULT_PRICES.dna);
+    [1,2,3,4,5].forEach(i => setVal(`p_dna_${i}`, dna[i-1]));
+
+    // Diamond Mounted
+    const dmns = get('dmns', DEFAULT_PRICES.dmns);
+    [1,2,3].forEach(i => setVal(`p_dmns_${i}`, dmns[i-1]));
+    const dmnv = get('dmnv', DEFAULT_PRICES.dmnv);
+    [1,2,3].forEach(i => setVal(`p_dmnv_${i}`, dmnv[i-1]));
+    const dmlg = get('dmlg', DEFAULT_PRICES.dmlg);
+    [1,2].forEach(i => setVal(`p_dmlg_${i}`, dmlg[i-1]));
+    const dmlgv = get('dmlgv', DEFAULT_PRICES.dmlgv);
+    [1,2].forEach(i => setVal(`p_dmlgv_${i}`, dmlgv[i-1]));
+
+    // Gemstone
+    const gs = get('gs', DEFAULT_PRICES.gs);
+    setVal('p_gs_basic',      gs.basic);
+    setVal('p_gs_prec_adv',   gs.prec_adv);
+    setVal('p_gs_semi_adv',   gs.semi_adv);
+    setVal('p_gs_special',    gs.special);
+    setVal('p_gs_verb_basic', gs.verb_basic);
+    setVal('p_gs_verb_special',gs.verb_special);
+
+    // Beads
+    const bds = get('bds', DEFAULT_PRICES.bds);
+    Object.entries(bds).forEach(([k,v]) => setVal(`p_bds_${k}`, v));
+
+    // Pearl
+    const pearl = get('pearl', DEFAULT_PRICES.pearl);
+    setVal('p_pearl_basic', pearl.basic);
+    setVal('p_pearl_adv',   pearl.adv);
+
+    // Lot
+    const lot = get('lot', DEFAULT_PRICES.lot);
+    setVal('p_lot_above_base',  lot.above_base);
+    setVal('p_lot_above_extra', lot.above_extra);
+    setVal('p_lot_below_base',  lot.below_base);
+    setVal('p_lot_below_extra', lot.below_extra);
+
+    // Rudhraksha
+    const rudra = get('rudra', DEFAULT_PRICES.rudra);
+    Object.entries(rudra).forEach(([k,v]) => setVal(`p_rudra_${k}`, v));
+
+    // Packaging
+    const pkg = get('pkg', DEFAULT_PRICES.pkg);
+    setVal('p_pkg_pouch',   pkg.pouch);
+    setVal('p_pkg_gembox',  pkg.gembox);
+    setVal('p_pkg_acrylic', pkg.acrylic);
+
+    // Membership
+    const mem = get('mem', DEFAULT_PRICES.mem);
+    setVal('p_mem_fee',      mem.fee);
+    setVal('p_mem_discount', mem.discount);
+
+    if (snap.exists() && snap.data().updatedAt?.toDate) {
+      const d = snap.data().updatedAt.toDate().toLocaleString('en-IN');
+      document.getElementById('priceLastUpdated').textContent = d;
+      document.getElementById('priceLastSaved').textContent   = 'Last saved: ' + d;
+    } else {
+      document.getElementById('priceLastUpdated').textContent = 'using Jan 2026 defaults';
+    }
+  } catch(e) { console.error('loadPrices', e); }
+}
+
+function setVal(id, val) {
+  const el = document.getElementById(id);
+  if (el && val !== undefined) el.value = val;
+}
+
+function getVal(id) { return parseFloat(document.getElementById(id)?.value || 0) || 0; }
+
+// ── SAVE PRICES ──────────────────────────────────────────
+window.savePrices = async function() {
+  const btn = document.getElementById('savePriceBtn');
+  btn.textContent = 'Saving…'; btn.disabled = true;
+  try {
+    const data = {
+      dlg:   [1,2,3,4,5].map(i => getVal(`p_dlg_${i}`)),
+      dng:   [1,2,3,4,5].map(i => getVal(`p_dng_${i}`)),
+      dna:   [1,2,3,4,5].map(i => getVal(`p_dna_${i}`)),
+      dmns:  [1,2,3].map(i => getVal(`p_dmns_${i}`)),
+      dmnv:  [1,2,3].map(i => getVal(`p_dmnv_${i}`)),
+      dmlg:  [1,2].map(i => getVal(`p_dmlg_${i}`)),
+      dmlgv: [1,2].map(i => getVal(`p_dmlgv_${i}`)),
+      gs: {
+        basic:       getVal('p_gs_basic'),
+        prec_adv:    getVal('p_gs_prec_adv'),
+        semi_adv:    getVal('p_gs_semi_adv'),
+        special:     getVal('p_gs_special'),
+        verb_basic:  getVal('p_gs_verb_basic'),
+        verb_special:getVal('p_gs_verb_special'),
+      },
+      bds: {
+        sp_rand_s: getVal('p_bds_sp_rand_s'), sp_rand_m: getVal('p_bds_sp_rand_m'),
+        sp_all_s:  getVal('p_bds_sp_all_s'),  sp_all_m:  getVal('p_bds_sp_all_m'),
+        p_rand_s:  getVal('p_bds_p_rand_s'),  p_rand_m:  getVal('p_bds_p_rand_m'),
+        p_all_s:   getVal('p_bds_p_all_s'),   p_all_m:   getVal('p_bds_p_all_m'),
+      },
+      pearl: { basic: getVal('p_pearl_basic'), adv: getVal('p_pearl_adv') },
+      lot: {
+        above_base:  getVal('p_lot_above_base'),
+        above_extra: getVal('p_lot_above_extra'),
+        below_base:  getVal('p_lot_below_base'),
+        below_extra: getVal('p_lot_below_extra'),
+      },
+      rudra: {
+        t1_b: getVal('p_rudra_t1_b'), t1_a: getVal('p_rudra_t1_a'),
+        t2_b: getVal('p_rudra_t2_b'), t2_a: getVal('p_rudra_t2_a'),
+        t3_b: getVal('p_rudra_t3_b'), t3_a: getVal('p_rudra_t3_a'),
+        t4_b: getVal('p_rudra_t4_b'), t4_a: getVal('p_rudra_t4_a'),
+      },
+      pkg:  { pouch: getVal('p_pkg_pouch'), gembox: getVal('p_pkg_gembox'), acrylic: getVal('p_pkg_acrylic') },
+      mem:  { fee: getVal('p_mem_fee'), discount: getVal('p_mem_discount') },
+      updatedAt: serverTimestamp(),
+      updatedBy: currentUser.email,
+    };
+
+    await setDoc(doc(db, 'adminMasters', 'servicePricing'), data);
+    showToast('✅ All prices saved! New invoices will use these prices.');
+    const now = new Date().toLocaleString('en-IN');
+    document.getElementById('priceLastUpdated').textContent = now;
+    document.getElementById('priceLastSaved').textContent   = 'Last saved: ' + now;
   } catch(e) {
-    console.error(e);
-    showToast('❌ Could not load settings');
+    console.error(e); showToast('❌ Save failed. Check internet.');
+  } finally {
+    btn.textContent = '💾 Save All Prices'; btn.disabled = false;
   }
-}
-
-// ── RENDER TAGS ──────────────────────────────────────────
-function renderTags(key) {
-  const wrap = document.getElementById(key + 'Tags');
-  wrap.innerHTML = tags[key].map((t, i) => `
-    <div class="tag">
-      ${t}
-      <span class="tag-remove" onclick="removeTag('${key}',${i})">×</span>
-    </div>`).join('');
-}
-
-// ── ADD TAG ──────────────────────────────────────────────
-window.addTag = function(key, inputId) {
-  const inp = document.getElementById(inputId);
-  const val = inp.value.trim();
-  if (!val) return;
-  if (tags[key].includes(val)) { showToast('⚠️ Already exists'); return; }
-  tags[key].push(val);
-  renderTags(key);
-  inp.value = '';
 };
 
-// ── REMOVE TAG ───────────────────────────────────────────
-window.removeTag = function(key, idx) {
-  tags[key].splice(idx, 1);
-  renderTags(key);
-};
-
-// ── SAVE ─────────────────────────────────────────────────
+// ── SAVE GENERAL ─────────────────────────────────────────
 window.saveMasters = async function() {
   const btn = document.getElementById('saveBtn');
   btn.textContent = 'Saving...'; btn.disabled = true;
-
   try {
     const data = {
       metalRates: {
@@ -326,28 +670,43 @@ window.saveMasters = async function() {
         silver:   parseFloat(document.getElementById('rate-silver').value)   || 0,
         platinum: parseFloat(document.getElementById('rate-platinum').value) || 0,
       },
-      serviceTypes:  tags.serviceTypes,
-      certTypes:     tags.certTypes,
-      discountLimit: parseFloat(document.getElementById('discountLimit').value) || 10,
-      gstRate:       parseFloat(document.getElementById('gstRate').value)       || 3,
-      updatedAt:     serverTimestamp(),
-      updatedBy:     currentUser.uid,
+      serviceTypes:   tags.serviceTypes,
+      certTypes:      tags.certTypes,
+      discountLimit:  parseFloat(document.getElementById('discountLimit').value) || 10,
+      gstRate:        parseFloat(document.getElementById('gstRate').value)       || 3,
+      updatedAt:      serverTimestamp(),
+      updatedBy:      currentUser.uid,
       updatedByEmail: currentUser.email
     };
-
     await setDoc(doc(db, 'adminMasters', 'config'), data);
     showToast('✅ Settings saved!');
-    document.getElementById('lastUpdated').textContent =
-      'Last saved: ' + new Date().toLocaleString('en-IN');
+    document.getElementById('lastUpdated').textContent = 'Last saved: ' + new Date().toLocaleString('en-IN');
   } catch(e) {
-    console.error(e);
-    showToast('❌ Save failed. Check internet.');
+    console.error(e); showToast('❌ Save failed. Check internet.');
   } finally {
-    btn.textContent = '💾 Save All Settings'; btn.disabled = false;
+    btn.textContent = '💾 Save General Settings'; btn.disabled = false;
   }
 };
 
-// ── TOAST ────────────────────────────────────────────────
+// ── TAGS ─────────────────────────────────────────────────
+function renderTags(key) {
+  const wrap = document.getElementById(key + 'Tags');
+  wrap.innerHTML = tags[key].map((t, i) =>
+    `<div class="tag">${t}<span class="tag-remove" onclick="removeTag('${key}',${i})">×</span></div>`
+  ).join('');
+}
+window.addTag = function(key, inputId) {
+  const inp = document.getElementById(inputId);
+  const val = inp.value.trim();
+  if (!val) return;
+  if (tags[key].includes(val)) { showToast('⚠️ Already exists'); return; }
+  tags[key].push(val); renderTags(key); inp.value = '';
+};
+window.removeTag = function(key, idx) {
+  tags[key].splice(idx, 1); renderTags(key);
+};
+
+// ── TOAST ─────────────────────────────────────────────────
 function showToast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg; t.classList.add('show');
