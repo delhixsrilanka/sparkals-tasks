@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#1a1a2e" />
+  <title>Audit Log — BGTL CRM</title>
+  <link rel="manifest" href="/manifest.json" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', sans-serif; background: #1a1a2e; color: white; min-height: 100vh; padding-bottom: 90px; }
+
+    .header { background: linear-gradient(135deg, #1a1a2e, #2d2d5e); padding: 16px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid rgba(255,255,255,0.08); position: sticky; top: 0; z-index: 100; }
+    .header-title { font-size: 18px; font-weight: 700; color: #a78bfa; }
+    .header-sub   { font-size: 12px; color: rgba(255,255,255,0.4); }
+    .back-btn { background: none; border: none; color: #a78bfa; font-size: 22px; cursor: pointer; padding: 4px; }
+    .export-btn { margin-left: auto; background: rgba(16,185,129,0.15); border: 1px solid rgba(16,185,129,0.3); color: #10b981; border-radius: 10px; padding: 8px 14px; font-size: 13px; font-weight: 700; cursor: pointer; white-space: nowrap; }
+
+    /* FILTER CARD */
+    .filter-card { margin: 16px; background: rgba(255,255,255,0.05); border-radius: 18px; padding: 16px; border: 1px solid rgba(255,255,255,0.08); }
+    .filter-title { font-size: 13px; font-weight: 700; color: #a78bfa; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 12px; }
+    .filter-row { display: flex; gap: 8px; margin-bottom: 8px; }
+    .filter-row:last-child { margin-bottom: 0; }
+    .field-group { flex: 1; }
+    .field-label { font-size: 11px; color: rgba(255,255,255,0.4); margin-bottom: 5px; display: block; }
+    .select-input, .date-input { width: 100%; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12); border-radius: 10px; padding: 10px 12px; color: white; font-size: 13px; outline: none; }
+    .select-input { appearance: none; cursor: pointer; }
+    .select-input option { background: #1a1a2e; }
+    .select-input:focus, .date-input:focus { border-color: #a78bfa; }
+    .apply-btn { width: 100%; padding: 11px; border-radius: 12px; border: none; background: #7c3aed; color: white; font-size: 14px; font-weight: 700; cursor: pointer; margin-top: 10px; }
+
+    /* SUMMARY STRIP */
+    .summary-strip { margin: 0 16px 12px; display: flex; gap: 8px; }
+    .strip-card { flex: 1; background: rgba(255,255,255,0.04); border-radius: 12px; padding: 10px; text-align: center; border: 1px solid rgba(255,255,255,0.06); }
+    .strip-val   { font-size: 18px; font-weight: 800; color: white; }
+    .strip-label { font-size: 10px; color: rgba(255,255,255,0.3); margin-top: 3px; text-transform: uppercase; letter-spacing: 0.4px; }
+
+    /* AUDIT TIMELINE */
+    .section { padding: 0 16px; }
+    .section-heading { font-size: 13px; font-weight: 700; color: #a78bfa; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
+    .count-badge { font-size: 11px; color: rgba(255,255,255,0.3); font-weight: 400; text-transform: none; }
+
+    .audit-item { display: flex; gap: 12px; margin-bottom: 12px; }
+    .audit-line { display: flex; flex-direction: column; align-items: center; flex-shrink: 0; }
+    .audit-dot { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; border: 2px solid; }
+    .audit-connector { flex: 1; width: 2px; background: rgba(255,255,255,0.06); margin: 4px 0; min-height: 12px; }
+    .audit-body { flex: 1; background: rgba(255,255,255,0.04); border-radius: 14px; padding: 12px 14px; border: 1px solid rgba(255,255,255,0.06); margin-bottom: 0; }
+    .audit-action { font-size: 13px; font-weight: 700; color: white; margin-bottom: 4px; }
+    .audit-detail { font-size: 12px; color: rgba(255,255,255,0.45); line-height: 1.4; margin-bottom: 6px; }
+    .audit-meta { display: flex; justify-content: space-between; align-items: center; }
+    .audit-by   { font-size: 11px; color: rgba(255,255,255,0.3); }
+    .audit-time { font-size: 11px; color: rgba(255,255,255,0.25); }
+    .audit-ref  { font-size: 10px; padding: 2px 8px; border-radius: 20px; background: rgba(167,139,250,0.12); color: #a78bfa; cursor: pointer; }
+
+    /* CATEGORY COLOURS */
+    .cat-invoice    { background: rgba(124,58,237,0.15);  border-color: rgba(124,58,237,0.4);  }
+    .cat-payment    { background: rgba(16,185,129,0.15);  border-color: rgba(16,185,129,0.4);  }
+    .cat-cancel     { background: rgba(239,68,68,0.15);   border-color: rgba(239,68,68,0.4);   }
+    .cat-role       { background: rgba(251,191,36,0.15);  border-color: rgba(251,191,36,0.4);  }
+    .cat-status     { background: rgba(59,130,246,0.15);  border-color: rgba(59,130,246,0.4);  }
+    .cat-discount   { background: rgba(245,158,11,0.15);  border-color: rgba(245,158,11,0.4);  }
+    .cat-dayclose   { background: rgba(107,114,128,0.15); border-color: rgba(107,114,128,0.4); }
+
+    /* EMPTY / LOADING */
+    .spinner-wrap { text-align: center; padding: 50px; }
+    .spinner { width: 28px; height: 28px; border: 3px solid rgba(167,139,250,0.2); border-top-color: #a78bfa; border-radius: 50%; animation: spin 0.8s linear infinite; display: inline-block; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .empty-state { text-align: center; padding: 40px 20px; color: rgba(255,255,255,0.2); font-size: 14px; line-height: 1.6; }
+
+    /* TOAST */
+    .toast { position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%); background: #1a1a2e; color: white; padding: 12px 20px; border-radius: 12px; font-size: 14px; display: none; z-index: 999; border: 1px solid rgba(255,255,255,0.1); white-space: nowrap; }
+    .toast.show { display: block; }
+
+    /* BOTTOM NAV */
+    .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top: 1px solid #f0f0f0; display: flex; justify-content: space-around; padding: 6px 0 8px; z-index: 150; }
+    .nav-item { display: flex; flex-direction: column; align-items: center; gap: 2px; text-decoration: none; padding: 4px 10px; color: #888; font-size: 10px; font-weight: 600; }
+    .nav-item.active { color: #1a1a2e; }
+    .nav-icon { font-size: 20px; }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <button class="back-btn" onclick="window.location.href='crm-dashboard.html'">←</button>
+    <div>
+      <div class="header-title">🔍 Audit Log</div>
+      <div class="header-sub">BGTL — Admin Only</div>
+    </div>
+    <button class="export-btn" onclick="exportCSV()">📥 Export CSV</button>
+  </div>
+
+  <div id="accessDenied" style="display:none;text-align:center;padding:60px 20px;">
+    <div style="font-size:48px;margin-bottom:16px;">⛔</div>
+    <div style="font-size:16px;font-weight:700;color:#ef4444;">Access Restricted</div>
+    <div style="font-size:13px;color:rgba(255,255,255,0.35);margin-top:8px;">Only Admin can view the audit log.</div>
+  </div>
+
+  <div id="mainContent" style="display:none;">
+
+    <!-- FILTERS -->
+    <div class="filter-card">
+      <div class="filter-title">🔎 Filter Audit Log</div>
+      <div class="filter-row">
+        <div class="field-group">
+          <label class="field-label">From Date</label>
+          <input type="date" class="date-input" id="fromDate" />
+        </div>
+        <div class="field-group">
+          <label class="field-label">To Date</label>
+          <input type="date" class="date-input" id="toDate" />
+        </div>
+      </div>
+      <div class="filter-row">
+        <div class="field-group">
+          <label class="field-label">Action Type</label>
+          <select class="select-input" id="filterType">
+            <option value="">All Actions</option>
+            <option value="invoice">🧾 Invoice</option>
+            <option value="payment">💰 Payment</option>
+            <option value="cancel">❌ Cancellation</option>
+            <option value="role">🔐 Role Change</option>
+            <option value="status">🔄 Status Change</option>
+            <option value="discount">💸 Discount / Override</option>
+            <option value="dayclose">🔒 Day Close</option>
+          </select>
+        </div>
+        <div class="field-group">
+          <label class="field-label">Staff Member</label>
+          <select class="select-input" id="filterStaff">
+            <option value="">All Staff</option>
+          </select>
+        </div>
+      </div>
+      <button class="apply-btn" onclick="applyFilters()">🔍 Apply Filters</button>
+    </div>
+
+    <!-- SUMMARY STRIP -->
+    <div class="summary-strip">
+      <div class="strip-card">
+        <div class="strip-val" id="stripTotal">0</div>
+        <div class="strip-label">Total Entries</div>
+      </div>
+      <div class="strip-card">
+        <div class="strip-val" id="stripInvoices">0</div>
+        <div class="strip-label">Invoices</div>
+      </div>
+      <div class="strip-card">
+        <div class="strip-val" id="stripPayments">0</div>
+        <div class="strip-label">Payments</div>
+      </div>
+      <div class="strip-card">
+        <div class="strip-val" id="stripCancels">0</div>
+        <div class="strip-label">Cancels</div>
+      </div>
+    </div>
+
+    <!-- AUDIT TIMELINE -->
+    <div class="section">
+      <div class="section-heading">
+        📋 Audit Entries
+        <span class="count-badge" id="countBadge">Showing all</span>
+      </div>
+      <div id="auditWrap">
+        <div class="spinner-wrap"><div class="spinner"></div></div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <div class="bottom-nav">
+    <a class="nav-item" href="dashboard.html"><span class="nav-icon">🏠</span>Home</a>
+    <a class="nav-item" href="tasks.html"><span class="nav-icon">✅</span>Tasks</a>
+    <a class="nav-item" href="chat.html"><span class="nav-icon">💬</span>Chat</a>
+    <a class="nav-item" href="attendance.html"><span class="nav-icon">🕐</span>Attend.</a>
+    <a class="nav-item active" href="crm-dashboard.html"><span class="nav-icon">💎</span>CRM</a>
+  </div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import {
+  getFirestore, collection, query, where,
+  orderBy, getDocs, addDoc, serverTimestamp, limit
+} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDNwQYXcwZrAh4cTfRyhOVk_pRod9p4CRM",
+  authDomain: "sparkals-tasks-app.firebaseapp.com",
+  projectId: "sparkals-tasks-app",
+  storageBucket: "sparkals-tasks-app.firebasestorage.app",
+  messagingSenderId: "147179987231",
+  appId: "1:147179987231:web:c6ffa484f33a2ca420d02a"
+};
+
+const app  = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+
+const ADMIN_EMAILS = ['sandeepgemologist@gmail.com','sparkals.design@gmail.com'];
+
+// Default date range — last 30 days
+const today    = new Date();
+const todayStr = today.toISOString().split('T')[0];
+const ago30    = new Date(today); ago30.setDate(ago30.getDate() - 30);
+const ago30Str = ago30.toISOString().split('T')[0];
+
+document.getElementById('fromDate').value = ago30Str;
+document.getElementById('toDate').value   = todayStr;
+
+let allEntries    = []; // all loaded from Firestore
+let filteredEntries = [];
+let currentUser   = null;
+
+// ── AUTH ─────────────────────────────────────────────────
+onAuthStateChanged(auth, async (user) => {
+  if (!user) { window.location.href = 'login.html'; return; }
+  currentUser = user;
+
+  if (!ADMIN_EMAILS.includes(user.email)) {
+    document.getElementById('accessDenied').style.display = 'block';
+    return;
+  }
+
+  document.getElementById('mainContent').style.display = 'block';
+  await loadAuditLog();
+});
+
+// ══════════════════════════════════════════════════════════
+// AUDIT LOG SOURCES
+// We pull from 4 collections and merge into one timeline:
+// 1. crmAudit    — explicit audit entries (role changes etc)
+// 2. invoices    — created / cancelled
+// 3. payments    — received
+// 4. dayClosures — day close events
+// ══════════════════════════════════════════════════════════
+async function loadAuditLog() {
+  try {
+    const from = document.getElementById('fromDate').value;
+    const to   = document.getElementById('toDate').value;
+
+    const entries = [];
+
+    // ── 1. Explicit audit entries (crmAudit collection) ──
+    try {
+      const auditSnap = await getDocs(query(
+        collection(db, 'crmAudit'),
+        where('dateStr', '>=', from),
+        where('dateStr', '<=', to),
+        orderBy('dateStr', 'desc'),
+        limit(200)
+      ));
+      auditSnap.docs.forEach(d => {
+        const a = d.data();
+        entries.push({
+          id:        d.id,
+          category:  a.category || 'status',
+          action:    a.action   || '—',
+          detail:    a.detail   || '',
+          by:        a.by       || '—',
+          ref:       a.ref      || '',
+          refId:     a.refId    || '',
+          dateStr:   a.dateStr  || '',
+          ts:        a.createdAt?.toDate?.() || new Date(a.dateStr || Date.now()),
+        });
+      });
+    } catch(e) { console.warn('crmAudit load', e); }
+
+    // ── 2. Invoices created & cancelled ──
+    try {
+      const invSnap = await getDocs(query(
+        collection(db, 'invoices'),
+        where('dateStr', '>=', from),
+        where('dateStr', '<=', to),
+        orderBy('dateStr', 'desc'),
+        limit(200)
+      ));
+      invSnap.docs.forEach(d => {
+        const inv = d.data();
+        entries.push({
+          id:       d.id + '_inv',
+          category: 'invoice',
+          action:   `Invoice ${inv.invoiceNumber || '—'} Created`,
+          detail:   `Total ₹${(inv.total||0).toLocaleString('en-IN')} · Job ${inv.jobNumber||'—'} · Customer: ${inv.customerName||'—'}`,
+          by:       inv.finalisedBy || inv.createdBy || '—',
+          ref:      inv.invoiceNumber || '',
+          refId:    d.id,
+          dateStr:  inv.dateStr || '',
+          ts:       inv.finalisedAt?.toDate?.() || inv.createdAt?.toDate?.() || new Date(),
+        });
+        if (inv.status === 'cancelled') {
+          entries.push({
+            id:       d.id + '_inv_cancel',
+            category: 'cancel',
+            action:   `Invoice ${inv.invoiceNumber || '—'} Cancelled`,
+            detail:   `Originally ₹${(inv.total||0).toLocaleString('en-IN')} · ${inv.cancelReason || 'No reason given'}`,
+            by:       inv.cancelledBy || '—',
+            ref:      inv.invoiceNumber || '',
+            refId:    d.id,
+            dateStr:  inv.dateStr || '',
+            ts:       inv.cancelledAt?.toDate?.() || new Date(),
+          });
+        }
+      });
+    } catch(e) { console.warn('invoices load', e); }
+
+    // ── 3. Payments received ──
+    try {
+      const paySnap = await getDocs(query(
+        collection(db, 'payments'),
+        where('dateStr', '>=', from),
+        where('dateStr', '<=', to),
+        orderBy('dateStr', 'desc'),
+        limit(200)
+      ));
+      paySnap.docs.forEach(d => {
+        const p = d.data();
+        const modeStr = (p.splitPayments || []).map(s => `${s.mode} ₹${s.amount}`).join(' + ')
+          || `${p.paymentMode || 'Cash'} ₹${(p.totalPaid||0).toLocaleString('en-IN')}`;
+        entries.push({
+          id:       d.id + '_pay',
+          category: 'payment',
+          action:   `Payment Received — ${p.receiptNumber || '—'}`,
+          detail:   `${modeStr} · Customer: ${p.customerName||'—'} · Invoice: ${p.invoiceNumber||'—'}`,
+          by:       p.receivedBy || '—',
+          ref:      p.receiptNumber || '',
+          refId:    d.id,
+          dateStr:  p.dateStr || '',
+          ts:       p.paidAt?.toDate?.() || new Date(),
+        });
+      });
+    } catch(e) { console.warn('payments load', e); }
+
+    // ── 4. Day Closures ──
+    try {
+      const dcSnap = await getDocs(query(
+        collection(db, 'dayClosures'),
+        orderBy('closedAt', 'desc'),
+        limit(100)
+      ));
+      dcSnap.docs.forEach(d => {
+        const dc = d.data();
+        // Only include if within range
+        if (dc.fromDate < from || dc.toDate > to) return;
+        entries.push({
+          id:       d.id + '_dc',
+          category: 'dayclose',
+          action:   `Day Closed — ${dc.fromDate === dc.toDate ? dc.fromDate : dc.fromDate + ' → ' + dc.toDate}`,
+          detail:   `Total Revenue ₹${(dc.grandTotal||0).toLocaleString('en-IN')} · Cash ₹${(dc.cashTotal||0).toLocaleString('en-IN')} · GPay ₹${(dc.gpayTotal||0).toLocaleString('en-IN')} · Bank ₹${(dc.bankTotal||0).toLocaleString('en-IN')} · Petty Cash ₹${(dc.pettyTotal||0).toLocaleString('en-IN')}`,
+          by:       dc.closedBy || '—',
+          ref:      dc.fromDate || '',
+          refId:    d.id,
+          dateStr:  dc.fromDate || '',
+          ts:       dc.closedAt?.toDate?.() || new Date(),
+        });
+      });
+    } catch(e) { console.warn('dayClosures load', e); }
+
+    // Sort all by timestamp descending
+    allEntries = entries.sort((a, b) => b.ts - a.ts);
+
+    // Populate staff filter
+    const staffSet = new Set(allEntries.map(e => e.by).filter(Boolean));
+    const staffSel = document.getElementById('filterStaff');
+    staffSel.innerHTML = '<option value="">All Staff</option>';
+    staffSet.forEach(s => {
+      const opt = document.createElement('option');
+      opt.value = s; opt.textContent = s;
+      staffSel.appendChild(opt);
+    });
+
+    filteredEntries = [...allEntries];
+    renderAudit(filteredEntries);
+
+  } catch(e) {
+    console.error('loadAuditLog', e);
+    document.getElementById('auditWrap').innerHTML =
+      `<div class="empty-state">⚠️ Could not load audit log.<br>Check your internet connection.</div>`;
+  }
+}
+
+// ── APPLY FILTERS ────────────────────────────────────────
+window.applyFilters = async function() {
+  document.getElementById('auditWrap').innerHTML =
+    `<div class="spinner-wrap"><div class="spinner"></div></div>`;
+  await loadAuditLog();
+
+  const typeFilter  = document.getElementById('filterType').value;
+  const staffFilter = document.getElementById('filterStaff').value;
+
+  filteredEntries = allEntries.filter(e => {
+    if (typeFilter  && e.category !== typeFilter)       return false;
+    if (staffFilter && e.by       !== staffFilter)      return false;
+    return true;
+  });
+
+  renderAudit(filteredEntries);
+};
+
+// ── RENDER AUDIT TIMELINE ────────────────────────────────
+function renderAudit(entries) {
+  const wrap = document.getElementById('auditWrap');
+
+  // Summary strip
+  document.getElementById('stripTotal').textContent    = entries.length;
+  document.getElementById('stripInvoices').textContent = entries.filter(e => e.category === 'invoice').length;
+  document.getElementById('stripPayments').textContent = entries.filter(e => e.category === 'payment').length;
+  document.getElementById('stripCancels').textContent  = entries.filter(e => e.category === 'cancel').length;
+  document.getElementById('countBadge').textContent    = `${entries.length} entries`;
+
+  if (!entries.length) {
+    wrap.innerHTML = `<div class="empty-state">
+      📋 No audit entries found for this period.<br>
+      Try adjusting your filters or date range.
+    </div>`;
+    return;
+  }
+
+  const CAT_META = {
+    invoice:  { icon: '🧾', cls: 'cat-invoice',  label: 'Invoice'    },
+    payment:  { icon: '💰', cls: 'cat-payment',  label: 'Payment'    },
+    cancel:   { icon: '❌', cls: 'cat-cancel',   label: 'Cancel'     },
+    role:     { icon: '🔐', cls: 'cat-role',     label: 'Role'       },
+    status:   { icon: '🔄', cls: 'cat-status',   label: 'Status'     },
+    discount: { icon: '💸', cls: 'cat-discount', label: 'Discount'   },
+    dayclose: { icon: '🔒', cls: 'cat-dayclose', label: 'Day Close'  },
+  };
+
+  // Group by date for date dividers
+  let lastDate = '';
+  let html = '';
+
+  entries.forEach((e, idx) => {
+    const meta    = CAT_META[e.category] || CAT_META.status;
+    const dateStr = e.ts.toLocaleDateString('en-IN', { weekday:'short', day:'numeric', month:'short', year:'numeric' });
+    const timeStr = e.ts.toLocaleTimeString('en-IN', { hour:'2-digit', minute:'2-digit' });
+    const isLast  = idx === entries.length - 1;
+
+    // Date divider
+    if (dateStr !== lastDate) {
+      html += `<div style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.25);text-transform:uppercase;letter-spacing:0.8px;padding:8px 0 6px;">${dateStr}</div>`;
+      lastDate = dateStr;
+    }
+
+    html += `
+    <div class="audit-item">
+      <div class="audit-line">
+        <div class="audit-dot ${meta.cls}">${meta.icon}</div>
+        ${!isLast ? '<div class="audit-connector"></div>' : ''}
+      </div>
+      <div class="audit-body">
+        <div class="audit-action">${e.action}</div>
+        ${e.detail ? `<div class="audit-detail">${e.detail}</div>` : ''}
+        <div class="audit-meta">
+          <span class="audit-by">👤 ${e.by}</span>
+          <span class="audit-time">${timeStr}</span>
+          ${e.ref ? `<span class="audit-ref">${e.ref}</span>` : ''}
+        </div>
+      </div>
+    </div>`;
+  });
+
+  wrap.innerHTML = html;
+}
+
+// ── EXPORT TO CSV ────────────────────────────────────────
+window.exportCSV = function() {
+  if (!filteredEntries.length) { showToast('⚠️ No entries to export'); return; }
+
+  const headers = ['Date', 'Time', 'Category', 'Action', 'Detail', 'By', 'Reference'];
+  const rows = filteredEntries.map(e => [
+    e.ts.toLocaleDateString('en-IN'),
+    e.ts.toLocaleTimeString('en-IN', { hour:'2-digit', minute:'2-digit' }),
+    e.category,
+    `"${e.action.replace(/"/g,'""')}"`,
+    `"${(e.detail||'').replace(/"/g,'""')}"`,
+    e.by,
+    e.ref || ''
+  ]);
+
+  const csv = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+  const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' }); // BOM for Excel
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+
+  const from = document.getElementById('fromDate').value;
+  const to   = document.getElementById('toDate').value;
+  a.href     = url;
+  a.download = `BGTL_Audit_${from}_to_${to}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('📥 CSV downloaded — open in Excel');
+};
+
+// ── TOAST ────────────────────────────────────────────────
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+</script>
+</body>
+</html>
