@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#1a1a2e" />
+  <title>Day Close — BGTL CRM</title>
+  <link rel="manifest" href="/manifest.json" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', sans-serif; background: #1a1a2e; color: white; min-height: 100vh; padding-bottom: 90px; }
+
+    .header { background: linear-gradient(135deg, #1a1a2e, #2d2d5e); padding: 16px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid rgba(255,255,255,0.08); position: sticky; top: 0; z-index: 100; }
+    .header-title { font-size: 18px; font-weight: 700; color: #a78bfa; }
+    .header-sub   { font-size: 12px; color: rgba(255,255,255,0.4); }
+    .back-btn { background: none; border: none; color: #a78bfa; font-size: 22px; cursor: pointer; padding: 4px; }
+
+    /* DATE PICKER CARD */
+    .picker-card { margin: 16px; background: rgba(255,255,255,0.05); border-radius: 18px; padding: 18px; border: 1px solid rgba(255,255,255,0.08); }
+    .picker-title { font-size: 13px; font-weight: 700; color: #a78bfa; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 14px; }
+
+    .mode-toggle { display: flex; gap: 0; margin-bottom: 16px; border-radius: 10px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); }
+    .mode-btn { flex: 1; padding: 10px; border: none; background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.4); font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+    .mode-btn.active { background: #7c3aed; color: white; }
+
+    .field-label { font-size: 12px; color: rgba(255,255,255,0.45); margin-bottom: 6px; display: block; }
+    .field-group { margin-bottom: 14px; }
+    .date-input { width: 100%; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12); border-radius: 12px; padding: 12px 14px; color: white; font-size: 15px; outline: none; }
+    .date-input:focus { border-color: #a78bfa; }
+    .date-row { display: flex; gap: 10px; }
+    .date-row .field-group { flex: 1; }
+
+    .generate-btn { width: 100%; padding: 14px; border-radius: 14px; border: none; background: #7c3aed; color: white; font-size: 15px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
+    .generate-btn:active { opacity: 0.85; }
+
+    /* PAST CLOSURES LIST */
+    .section { padding: 0 16px 8px; }
+    .section-heading { font-size: 13px; font-weight: 700; color: #a78bfa; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 10px; }
+
+    .closure-item { background: rgba(255,255,255,0.04); border-radius: 14px; padding: 14px 16px; margin-bottom: 10px; border: 1px solid rgba(255,255,255,0.07); display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+    .closure-item:hover { border-color: rgba(124,58,237,0.3); }
+    .closure-label { font-size: 14px; font-weight: 600; color: white; }
+    .closure-sub   { font-size: 12px; color: rgba(255,255,255,0.35); margin-top: 3px; }
+    .closure-right { text-align: right; }
+    .closure-amount { font-size: 16px; font-weight: 800; color: #10b981; }
+    .closure-badge  { font-size: 10px; padding: 3px 10px; border-radius: 20px; background: rgba(16,185,129,0.15); color: #10b981; border: 1px solid rgba(16,185,129,0.3); margin-top: 4px; display: inline-block; }
+
+    .empty-state { text-align: center; padding: 30px 20px; color: rgba(255,255,255,0.2); font-size: 14px; }
+
+    /* ═══════════════════════════════════════════════════ */
+    /* POPUP OVERLAY                                       */
+    /* ═══════════════════════════════════════════════════ */
+    .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 500; display: none; align-items: flex-end; justify-content: center; }
+    .overlay.open { display: flex; }
+
+    .popup { background: #1e1e3f; border-radius: 28px 28px 0 0; padding: 24px 20px 36px; width: 100%; max-width: 500px; border-top: 1px solid rgba(255,255,255,0.1); max-height: 90vh; overflow-y: auto; }
+
+    .popup-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; }
+    .popup-title  { font-size: 18px; font-weight: 800; color: white; }
+    .popup-close  { background: none; border: none; color: rgba(255,255,255,0.35); font-size: 22px; cursor: pointer; }
+    .popup-period { font-size: 13px; color: #a78bfa; margin-bottom: 20px; font-weight: 600; }
+
+    /* LOCKED BANNER */
+    .locked-banner { background: rgba(16,185,129,0.12); border: 1px solid rgba(16,185,129,0.3); border-radius: 12px; padding: 10px 14px; margin-bottom: 16px; font-size: 13px; color: #10b981; font-weight: 600; display: none; }
+
+    /* SUMMARY ROWS */
+    .summary-section { margin-bottom: 16px; }
+    .summary-section-title { font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.35); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 8px; }
+
+    .sum-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+    .sum-row:last-child { border-bottom: none; }
+    .sum-label { font-size: 14px; color: rgba(255,255,255,0.65); display: flex; align-items: center; gap: 8px; }
+    .sum-value { font-size: 15px; font-weight: 700; color: white; }
+    .sum-value.green  { color: #10b981; }
+    .sum-value.yellow { color: #fbbf24; }
+    .sum-value.red    { color: #ef4444; }
+    .sum-value.purple { color: #a78bfa; }
+
+    .divider { height: 1px; background: rgba(255,255,255,0.08); margin: 14px 0; }
+
+    /* NET IN HAND */
+    .net-card { background: linear-gradient(135deg, rgba(16,185,129,0.15), rgba(16,185,129,0.05)); border-radius: 16px; padding: 16px; border: 1px solid rgba(16,185,129,0.25); margin-bottom: 20px; text-align: center; }
+    .net-label  { font-size: 13px; color: rgba(255,255,255,0.45); margin-bottom: 4px; }
+    .net-amount { font-size: 32px; font-weight: 800; color: #10b981; }
+    .net-sub    { font-size: 12px; color: rgba(255,255,255,0.3); margin-top: 4px; }
+
+    /* PAYMENT BREAKDOWN */
+    .mode-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 16px; }
+    .mode-card { background: rgba(255,255,255,0.05); border-radius: 12px; padding: 12px 8px; text-align: center; border: 1px solid rgba(255,255,255,0.07); }
+    .mode-icon  { font-size: 20px; margin-bottom: 4px; }
+    .mode-name  { font-size: 10px; color: rgba(255,255,255,0.4); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .mode-val   { font-size: 15px; font-weight: 800; color: white; }
+
+    /* JOBS TABLE */
+    .jobs-list { margin-bottom: 16px; }
+    .job-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.04); font-size: 13px; }
+    .job-row:last-child { border-bottom: none; }
+    .job-num  { color: #a78bfa; font-weight: 600; }
+    .job-cust { color: rgba(255,255,255,0.55); flex: 1; padding: 0 8px; }
+    .job-amt  { color: white; font-weight: 700; }
+
+    /* PETTY CASH LIST */
+    .petty-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.04); font-size: 13px; }
+    .petty-row:last-child { border-bottom: none; }
+    .petty-cat  { color: rgba(255,255,255,0.65); }
+    .petty-by   { color: rgba(255,255,255,0.3); font-size: 11px; }
+    .petty-amt  { color: #ef4444; font-weight: 700; }
+
+    /* CLOSE DAY BUTTON */
+    .close-day-btn { width: 100%; padding: 15px; border-radius: 14px; border: none; background: linear-gradient(135deg, #dc2626, #b91c1c); color: white; font-size: 16px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 4px; }
+    .close-day-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .print-btn { width: 100%; padding: 13px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.15); background: transparent; color: rgba(255,255,255,0.6); font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 10px; }
+
+    /* SPINNER */
+    .spinner-wrap { text-align: center; padding: 30px; }
+    .spinner { width: 28px; height: 28px; border: 3px solid rgba(167,139,250,0.2); border-top-color: #a78bfa; border-radius: 50%; animation: spin 0.8s linear infinite; display: inline-block; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* TOAST */
+    .toast { position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%); background: #1a1a2e; color: white; padding: 12px 20px; border-radius: 12px; font-size: 14px; display: none; z-index: 999; border: 1px solid rgba(255,255,255,0.1); white-space: nowrap; }
+    .toast.show { display: block; }
+
+    /* BOTTOM NAV */
+    .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top: 1px solid #f0f0f0; display: flex; justify-content: space-around; padding: 6px 0 8px; z-index: 150; }
+    .nav-item { display: flex; flex-direction: column; align-items: center; gap: 2px; text-decoration: none; padding: 4px 10px; color: #888; font-size: 10px; font-weight: 600; }
+    .nav-item.active { color: #1a1a2e; }
+    .nav-icon { font-size: 20px; }
+
+    @media print {
+      .header, .picker-card, .section, .bottom-nav, .close-day-btn, .print-btn, .popup-close, .overlay { display: none !important; }
+      .popup { border-radius: 0; max-height: none; overflow: visible; background: white; color: black; padding: 20px; }
+      .popup-title, .popup-period, .sum-label, .sum-value, .net-label, .mode-name, .job-num, .job-cust, .petty-cat, .petty-by { color: black !important; }
+      .net-amount { color: #10b981 !important; }
+      body { background: white; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <button class="back-btn" onclick="window.location.href='dashboard.html'">←</button>
+    <div>
+      <div class="header-title">🔒 Day Close</div>
+      <div class="header-sub">BGTL — Reconciliation</div>
+    </div>
+  </div>
+
+  <!-- DATE PICKER CARD -->
+  <div class="picker-card">
+    <div class="picker-title">📅 Select Period</div>
+
+    <div class="mode-toggle">
+      <button class="mode-btn active" id="btnSingleMode" onclick="setMode('single')">Single Day</button>
+      <button class="mode-btn"        id="btnRangeMode"  onclick="setMode('range')">Date Range</button>
+    </div>
+
+    <!-- Single day -->
+    <div id="singlePicker">
+      <div class="field-group">
+        <label class="field-label">Date</label>
+        <input type="date" class="date-input" id="singleDate" />
+      </div>
+    </div>
+
+    <!-- Date range -->
+    <div id="rangePicker" style="display:none;">
+      <div class="date-row">
+        <div class="field-group">
+          <label class="field-label">From</label>
+          <input type="date" class="date-input" id="fromDate" />
+        </div>
+        <div class="field-group">
+          <label class="field-label">To</label>
+          <input type="date" class="date-input" id="toDate" />
+        </div>
+      </div>
+    </div>
+
+    <button class="generate-btn" onclick="generateSummary()">📊 Generate Summary</button>
+  </div>
+
+  <!-- PAST CLOSURES -->
+  <div class="section">
+    <div class="section-heading">📋 Past Closures</div>
+    <div id="pastClosures">
+      <div class="spinner-wrap"><div class="spinner"></div></div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- SUMMARY POPUP                                       -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <div class="overlay" id="overlay" onclick="handleOverlayClick(event)">
+    <div class="popup" id="popup">
+
+      <div class="popup-header">
+        <div>
+          <div class="popup-title">📊 Day Close Summary</div>
+          <div class="popup-period" id="popupPeriod">—</div>
+        </div>
+        <button class="popup-close" onclick="closePopup()">✕</button>
+      </div>
+
+      <div class="locked-banner" id="lockedBanner">✅ This period has been closed and locked.</div>
+
+      <!-- LOADING inside popup -->
+      <div id="popupLoading" class="spinner-wrap"><div class="spinner"></div></div>
+
+      <!-- POPUP CONTENT (hidden until loaded) -->
+      <div id="popupContent" style="display:none;">
+
+        <!-- PAYMENT MODE BREAKDOWN -->
+        <div class="summary-section">
+          <div class="summary-section-title">💳 Collections by Payment Mode</div>
+          <div class="mode-grid">
+            <div class="mode-card">
+              <div class="mode-icon">💵</div>
+              <div class="mode-name">Cash</div>
+              <div class="mode-val" id="modeCash">₹0</div>
+            </div>
+            <div class="mode-card">
+              <div class="mode-icon">📱</div>
+              <div class="mode-name">GPay/UPI</div>
+              <div class="mode-val" id="modeGpay">₹0</div>
+            </div>
+            <div class="mode-card">
+              <div class="mode-icon">🏦</div>
+              <div class="mode-name">Bank</div>
+              <div class="mode-val" id="modeBank">₹0</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- REVENUE SUMMARY -->
+        <div class="summary-section">
+          <div class="summary-section-title">📈 Revenue Summary</div>
+          <div class="sum-row">
+            <span class="sum-label">💰 Total Collected</span>
+            <span class="sum-value green" id="sumTotal">₹0</span>
+          </div>
+          <div class="sum-row">
+            <span class="sum-label">🧾 No. of Payments</span>
+            <span class="sum-value" id="sumPayCount">0</span>
+          </div>
+          <div class="sum-row">
+            <span class="sum-label">📋 Jobs Paid</span>
+            <span class="sum-value" id="sumJobCount">0</span>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- PETTY CASH -->
+        <div class="summary-section">
+          <div class="summary-section-title">🧾 Petty Cash Expenses</div>
+          <div class="sum-row">
+            <span class="sum-label">💸 Total Expenses</span>
+            <span class="sum-value red" id="sumPetty">₹0</span>
+          </div>
+          <div class="sum-row">
+            <span class="sum-label">📌 No. of Entries</span>
+            <span class="sum-value" id="sumPettyCount">0</span>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- NET CASH IN HAND -->
+        <div class="net-card">
+          <div class="net-label">Net Cash in Hand (Cash − Expenses)</div>
+          <div class="net-amount" id="netCash">₹0</div>
+          <div class="net-sub">Cash collected minus petty cash spent</div>
+        </div>
+
+        <!-- JOBS DETAIL -->
+        <div class="summary-section" id="jobsSection">
+          <div class="summary-section-title">📦 Payments Received</div>
+          <div class="jobs-list" id="jobsList"></div>
+        </div>
+
+        <!-- PETTY CASH DETAIL -->
+        <div class="summary-section" id="pettySection">
+          <div class="summary-section-title">🧾 Expense Entries</div>
+          <div id="pettyList"></div>
+        </div>
+
+        <!-- BUTTONS -->
+        <button class="print-btn" onclick="window.print()">🖨️ Print / Save as PDF</button>
+        <button class="close-day-btn" id="closeDayBtn" onclick="closeDay()">🔒 Close Day — Lock This Period</button>
+        <div style="font-size:11px;color:rgba(255,255,255,0.25);text-align:center;margin-top:10px;">
+          Once locked, this period cannot be edited or re-closed.
+        </div>
+
+      </div><!-- /popupContent -->
+    </div><!-- /popup -->
+  </div><!-- /overlay -->
+
+  <div class="toast" id="toast"></div>
+
+  <div class="bottom-nav">
+    <a class="nav-item" href="dashboard.html"><span class="nav-icon">🏠</span>Home</a>
+    <a class="nav-item" href="tasks.html"><span class="nav-icon">✅</span>Tasks</a>
+    <a class="nav-item" href="chat.html"><span class="nav-icon">💬</span>Chat</a>
+    <a class="nav-item" href="attendance.html"><span class="nav-icon">🕐</span>Attend.</a>
+    <a class="nav-item active" href="crm-customers.html"><span class="nav-icon">💎</span>CRM</a>
+  </div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import {
+  getFirestore, collection, query, where, orderBy,
+  getDocs, addDoc, serverTimestamp, Timestamp
+} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDNwQYXcwZrAh4cTfRyhOVk_pRod9p4CRM",
+  authDomain: "sparkals-tasks-app.firebaseapp.com",
+  projectId: "sparkals-tasks-app",
+  storageBucket: "sparkals-tasks-app.firebasestorage.app",
+  messagingSenderId: "147179987231",
+  appId: "1:147179987231:web:c6ffa484f33a2ca420d02a"
+};
+
+const app  = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+
+const ADMIN_EMAILS = ['sandeepgemologist@gmail.com', 'sparkals.design@gmail.com'];
+
+let currentUser   = null;
+let currentMode   = 'single';   // 'single' or 'range'
+let currentFromDate = null;
+let currentToDate   = null;
+let summaryData   = null;       // holds loaded data for closing
+let isLocked      = false;
+
+// Default date inputs to today
+const todayStr = new Date().toISOString().split('T')[0];
+document.getElementById('singleDate').value = todayStr;
+document.getElementById('fromDate').value   = todayStr;
+document.getElementById('toDate').value     = todayStr;
+
+// ── AUTH ─────────────────────────────────────────────────
+onAuthStateChanged(auth, async (user) => {
+  if (!user) { window.location.href = 'login.html'; return; }
+  currentUser = user;
+
+  // Only Admin and Manager can access
+  const isAdmin   = ADMIN_EMAILS.includes(user.email);
+  const isManager = false; // extend later via Firestore role check if needed
+  if (!isAdmin) {
+    document.querySelector('.picker-card').innerHTML =
+      `<div style="text-align:center;padding:30px;color:#ef4444;font-size:14px;">
+        ⛔ Access restricted to Admin only.
+      </div>`;
+    document.getElementById('pastClosures').innerHTML = '';
+    return;
+  }
+
+  await loadPastClosures();
+});
+
+// ── MODE TOGGLE ──────────────────────────────────────────
+window.setMode = function(mode) {
+  currentMode = mode;
+  document.getElementById('btnSingleMode').classList.toggle('active', mode === 'single');
+  document.getElementById('btnRangeMode').classList.toggle('active',  mode === 'range');
+  document.getElementById('singlePicker').style.display = mode === 'single' ? 'block' : 'none';
+  document.getElementById('rangePicker').style.display  = mode === 'range'  ? 'block' : 'none';
+};
+
+// ── GENERATE SUMMARY ─────────────────────────────────────
+window.generateSummary = async function() {
+  let fromDate, toDate;
+
+  if (currentMode === 'single') {
+    const d = document.getElementById('singleDate').value;
+    if (!d) { showToast('⚠️ Please select a date'); return; }
+    fromDate = d; toDate = d;
+  } else {
+    fromDate = document.getElementById('fromDate').value;
+    toDate   = document.getElementById('toDate').value;
+    if (!fromDate || !toDate) { showToast('⚠️ Please select both dates'); return; }
+    if (fromDate > toDate) { showToast('⚠️ "From" date must be before "To" date'); return; }
+  }
+
+  currentFromDate = fromDate;
+  currentToDate   = toDate;
+
+  // Set popup period label
+  const fmt = (d) => new Date(d + 'T00:00:00').toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' });
+  document.getElementById('popupPeriod').textContent =
+    fromDate === toDate ? fmt(fromDate) : `${fmt(fromDate)} → ${fmt(toDate)}`;
+
+  // Show overlay and loading
+  document.getElementById('overlay').classList.add('open');
+  document.getElementById('popupLoading').style.display  = 'block';
+  document.getElementById('popupContent').style.display  = 'none';
+  document.getElementById('lockedBanner').style.display  = 'none';
+
+  await loadSummaryData(fromDate, toDate);
+};
+
+// ── LOAD SUMMARY DATA ────────────────────────────────────
+async function loadSummaryData(fromDate, toDate) {
+  try {
+    // ── 1. Check if period is already locked ──
+    const lockSnap = await getDocs(query(
+      collection(db, 'dayClosures'),
+      where('fromDate', '==', fromDate),
+      where('toDate',   '==', toDate)
+    ));
+    isLocked = !lockSnap.empty;
+
+    // ── 2. Load payments in this date range ──
+    const paySnap = await getDocs(query(
+      collection(db, 'payments'),
+      where('dateStr', '>=', fromDate),
+      where('dateStr', '<=', toDate),
+      orderBy('dateStr', 'desc')
+    ));
+    const payments = paySnap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+    // ── 3. Load petty cash in this date range ──
+    const pettySnap = await getDocs(query(
+      collection(db, 'pettyCash'),
+      where('dateStr', '>=', fromDate),
+      where('dateStr', '<=', toDate),
+      orderBy('dateStr', 'desc')
+    ));
+    const pettyEntries = pettySnap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+    // ── 4. Tally payment modes ──
+    let cashTotal = 0, gpayTotal = 0, bankTotal = 0, grandTotal = 0;
+
+    payments.forEach(p => {
+      const splits = p.splitPayments || [];
+      if (splits.length) {
+        splits.forEach(s => {
+          const amt = s.amount || 0;
+          grandTotal += amt;
+          if (s.mode === 'cash')        cashTotal += amt;
+          else if (s.mode === 'gpay')   gpayTotal += amt;
+          else if (s.mode === 'bank')   bankTotal += amt;
+        });
+      } else {
+        const amt = p.totalPaid || 0;
+        grandTotal += amt;
+        if (p.paymentMode === 'cash')      cashTotal += amt;
+        else if (p.paymentMode === 'gpay') gpayTotal += amt;
+        else if (p.paymentMode === 'bank') bankTotal += amt;
+      }
+    });
+
+    // ── 5. Tally petty cash ──
+    const pettyTotal = pettyEntries.reduce((s, e) => s + (e.amount || 0), 0);
+
+    // ── 6. Net cash in hand = cash collected − petty cash ──
+    const netCash = cashTotal - pettyTotal;
+
+    // Save for close-day action
+    summaryData = { fromDate, toDate, cashTotal, gpayTotal, bankTotal, grandTotal, pettyTotal, netCash, payments, pettyEntries };
+
+    renderPopup(summaryData);
+
+  } catch(e) {
+    console.error(e);
+    document.getElementById('popupLoading').style.display = 'none';
+    showToast('❌ Could not load data. Check console.');
+  }
+}
+
+// ── RENDER POPUP ─────────────────────────────────────────
+function renderPopup(d) {
+  const fmt = (n) => '₹' + (n || 0).toLocaleString('en-IN');
+
+  // Mode cards
+  document.getElementById('modeCash').textContent = fmt(d.cashTotal);
+  document.getElementById('modeGpay').textContent = fmt(d.gpayTotal);
+  document.getElementById('modeBank').textContent = fmt(d.bankTotal);
+
+  // Summary rows
+  document.getElementById('sumTotal').textContent    = fmt(d.grandTotal);
+  document.getElementById('sumPayCount').textContent = d.payments.length;
+  document.getElementById('sumJobCount').textContent = [...new Set(d.payments.map(p => p.jobId))].filter(Boolean).length;
+  document.getElementById('sumPetty').textContent    = fmt(d.pettyTotal);
+  document.getElementById('sumPettyCount').textContent = d.pettyEntries.length;
+
+  // Net cash
+  const netEl = document.getElementById('netCash');
+  netEl.textContent = fmt(d.netCash);
+  netEl.style.color = d.netCash >= 0 ? '#10b981' : '#ef4444';
+
+  // Payments list
+  const jobsList = document.getElementById('jobsList');
+  if (d.payments.length) {
+    jobsList.innerHTML = d.payments.map(p => {
+      const time = p.paidAt?.toDate
+        ? p.paidAt.toDate().toLocaleString('en-IN',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})
+        : p.dateStr || '—';
+      return `<div class="job-row">
+        <span class="job-num">${p.receiptNumber || '—'}</span>
+        <span class="job-cust">${p.customerName || '—'}</span>
+        <span class="job-amt">₹${(p.totalPaid||0).toLocaleString('en-IN')}</span>
+      </div>`;
+    }).join('');
+  } else {
+    jobsList.innerHTML = `<div style="color:rgba(255,255,255,0.25);font-size:13px;padding:8px 0;">No payments in this period.</div>`;
+  }
+
+  // Petty cash list
+  const pettyList = document.getElementById('pettyList');
+  if (d.pettyEntries.length) {
+    pettyList.innerHTML = d.pettyEntries.map(e =>
+      `<div class="petty-row">
+        <div><div class="petty-cat">${e.category || '—'}</div><div class="petty-by">${e.addedByName || '—'}</div></div>
+        <div class="petty-amt">−₹${(e.amount||0).toLocaleString('en-IN')}</div>
+      </div>`
+    ).join('');
+  } else {
+    pettyList.innerHTML = `<div style="color:rgba(255,255,255,0.25);font-size:13px;padding:8px 0;">No petty cash entries in this period.</div>`;
+  }
+
+  // Locked state
+  const closeDayBtn = document.getElementById('closeDayBtn');
+  const lockedBanner = document.getElementById('lockedBanner');
+  if (isLocked) {
+    lockedBanner.style.display = 'block';
+    closeDayBtn.disabled = true;
+    closeDayBtn.textContent = '✅ Already Closed & Locked';
+  } else {
+    lockedBanner.style.display = 'none';
+    closeDayBtn.disabled = false;
+    closeDayBtn.textContent = '🔒 Close Day — Lock This Period';
+  }
+
+  // Show content
+  document.getElementById('popupLoading').style.display = 'none';
+  document.getElementById('popupContent').style.display = 'block';
+}
+
+// ── CLOSE DAY (LOCK) ─────────────────────────────────────
+window.closeDay = async function() {
+  if (!summaryData || isLocked) return;
+  if (!confirm(`Lock the period ${summaryData.fromDate === summaryData.toDate ? summaryData.fromDate : summaryData.fromDate + ' to ' + summaryData.toDate}?\n\nThis cannot be undone.`)) return;
+
+  try {
+    await addDoc(collection(db, 'dayClosures'), {
+      fromDate:    summaryData.fromDate,
+      toDate:      summaryData.toDate,
+      cashTotal:   summaryData.cashTotal,
+      gpayTotal:   summaryData.gpayTotal,
+      bankTotal:   summaryData.bankTotal,
+      grandTotal:  summaryData.grandTotal,
+      pettyTotal:  summaryData.pettyTotal,
+      netCash:     summaryData.netCash,
+      paymentCount: summaryData.payments.length,
+      pettyCount:  summaryData.pettyEntries.length,
+      closedBy:    currentUser.displayName || currentUser.email,
+      closedByUid: currentUser.uid,
+      closedAt:    serverTimestamp()
+    });
+
+    isLocked = true;
+    const lockedBanner = document.getElementById('lockedBanner');
+    lockedBanner.style.display = 'block';
+    const closeDayBtn = document.getElementById('closeDayBtn');
+    closeDayBtn.disabled = true;
+    closeDayBtn.textContent = '✅ Closed & Locked';
+    showToast('✅ Day closed and locked successfully');
+    await loadPastClosures();
+  } catch(e) {
+    console.error(e);
+    showToast('❌ Could not lock. Try again.');
+  }
+};
+
+// ── LOAD PAST CLOSURES ───────────────────────────────────
+async function loadPastClosures() {
+  try {
+    const snap = await getDocs(query(
+      collection(db, 'dayClosures'),
+      orderBy('closedAt', 'desc')
+    ));
+    const closures = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    renderPastClosures(closures);
+  } catch(e) {
+    document.getElementById('pastClosures').innerHTML =
+      `<div class="empty-state">Could not load past closures.</div>`;
+  }
+}
+
+function renderPastClosures(closures) {
+  const wrap = document.getElementById('pastClosures');
+  if (!closures.length) {
+    wrap.innerHTML = `<div class="empty-state">No closed periods yet.<br>Generate a summary above and close your first day.</div>`;
+    return;
+  }
+  wrap.innerHTML = closures.map(c => {
+    const fmt = (d) => new Date(d + 'T00:00:00').toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
+    const label = c.fromDate === c.toDate ? fmt(c.fromDate) : `${fmt(c.fromDate)} → ${fmt(c.toDate)}`;
+    const closedTime = c.closedAt?.toDate
+      ? c.closedAt.toDate().toLocaleString('en-IN',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})
+      : '—';
+    return `<div class="closure-item" onclick="viewClosure('${c.fromDate}','${c.toDate}')">
+      <div>
+        <div class="closure-label">📅 ${label}</div>
+        <div class="closure-sub">Closed by ${c.closedBy || '—'} · ${closedTime}</div>
+      </div>
+      <div class="closure-right">
+        <div class="closure-amount">₹${(c.grandTotal||0).toLocaleString('en-IN')}</div>
+        <span class="closure-badge">✅ Locked</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// View a past locked closure
+window.viewClosure = function(fromDate, toDate) {
+  // Pre-fill date pickers
+  if (fromDate === toDate) {
+    setMode('single');
+    document.getElementById('singleDate').value = fromDate;
+  } else {
+    setMode('range');
+    document.getElementById('fromDate').value = fromDate;
+    document.getElementById('toDate').value   = toDate;
+  }
+  generateSummary();
+};
+
+// ── OVERLAY & POPUP ──────────────────────────────────────
+window.closePopup = function() {
+  document.getElementById('overlay').classList.remove('open');
+};
+window.handleOverlayClick = function(e) {
+  if (e.target === document.getElementById('overlay')) closePopup();
+};
+
+// ── TOAST ────────────────────────────────────────────────
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3500);
+}
+</script>
+</body>
+</html>
