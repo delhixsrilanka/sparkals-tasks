@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#1a1a2e" />
+  <title>CRM Dashboard — BGTL</title>
+  <link rel="manifest" href="/manifest.json" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', sans-serif; background: #1a1a2e; color: white; min-height: 100vh; padding-bottom: 90px; }
+
+    /* HEADER */
+    .header { background: linear-gradient(135deg, #1a1a2e, #2d2d5e); padding: 16px 16px 14px; border-bottom: 1px solid rgba(255,255,255,0.08); position: sticky; top: 0; z-index: 100; }
+    .header-top { display: flex; justify-content: space-between; align-items: center; }
+    .header-title { font-size: 20px; font-weight: 800; color: #a78bfa; }
+    .header-sub { font-size: 12px; color: rgba(255,255,255,0.35); margin-top: 2px; }
+    .header-date { font-size: 12px; color: rgba(255,255,255,0.4); text-align: right; }
+
+    /* TODAY STAT CARDS */
+    .today-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 16px 16px 8px; }
+    .stat-card { border-radius: 18px; padding: 16px; border: 1px solid; position: relative; overflow: hidden; }
+    .stat-card::before { content: ''; position: absolute; top: -20px; right: -20px; width: 80px; height: 80px; border-radius: 50%; opacity: 0.08; }
+    .stat-card.revenue  { background: rgba(16,185,129,0.1);  border-color: rgba(16,185,129,0.25); }
+    .stat-card.revenue::before  { background: #10b981; }
+    .stat-card.jobs     { background: rgba(124,58,237,0.1);  border-color: rgba(124,58,237,0.25); }
+    .stat-card.jobs::before     { background: #7c3aed; }
+    .stat-card.ready    { background: rgba(59,130,246,0.1);  border-color: rgba(59,130,246,0.25); }
+    .stat-card.ready::before    { background: #3b82f6; }
+    .stat-card.unpaid   { background: rgba(245,158,11,0.1);  border-color: rgba(245,158,11,0.25); }
+    .stat-card.unpaid::before   { background: #f59e0b; }
+    .stat-icon  { font-size: 22px; margin-bottom: 8px; }
+    .stat-value { font-size: 26px; font-weight: 800; color: white; line-height: 1; }
+    .stat-label { font-size: 11px; color: rgba(255,255,255,0.45); margin-top: 5px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .stat-sub   { font-size: 11px; color: rgba(255,255,255,0.3); margin-top: 3px; }
+
+    /* ALERT BANNERS */
+    .alerts { padding: 8px 16px; display: flex; flex-direction: column; gap: 8px; }
+    .alert-banner { border-radius: 14px; padding: 12px 14px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; border: 1px solid; }
+    .alert-banner.green  { background: rgba(16,185,129,0.1);  border-color: rgba(16,185,129,0.25); }
+    .alert-banner.red    { background: rgba(239,68,68,0.1);   border-color: rgba(239,68,68,0.25); }
+    .alert-banner.yellow { background: rgba(245,158,11,0.1);  border-color: rgba(245,158,11,0.25); }
+    .alert-left { display: flex; align-items: center; gap: 10px; }
+    .alert-icon { font-size: 18px; }
+    .alert-text { font-size: 13px; font-weight: 600; }
+    .alert-text.green  { color: #10b981; }
+    .alert-text.red    { color: #ef4444; }
+    .alert-text.yellow { color: #fbbf24; }
+    .alert-sub { font-size: 11px; color: rgba(255,255,255,0.35); margin-top: 2px; }
+    .alert-count { font-size: 22px; font-weight: 800; }
+    .alert-count.green  { color: #10b981; }
+    .alert-count.red    { color: #ef4444; }
+    .alert-count.yellow { color: #fbbf24; }
+
+    /* SECTION */
+    .section { padding: 16px 16px 8px; }
+    .section-heading { font-size: 13px; font-weight: 700; color: #a78bfa; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; }
+    .section-tag { font-size: 11px; color: rgba(255,255,255,0.3); font-weight: 400; text-transform: none; letter-spacing: 0; }
+
+    /* BAR CHART */
+    .chart-card { background: rgba(255,255,255,0.04); border-radius: 18px; padding: 16px; border: 1px solid rgba(255,255,255,0.07); margin-bottom: 14px; }
+    .chart-wrap { position: relative; }
+    .bar-chart-canvas { width: 100%; height: 160px; display: block; }
+
+    /* DONUT CHART */
+    .donut-row { display: flex; align-items: center; gap: 16px; }
+    .donut-wrap { position: relative; width: 130px; height: 130px; flex-shrink: 0; }
+    .donut-canvas { width: 130px; height: 130px; }
+    .donut-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); text-align: center; }
+    .donut-center-val { font-size: 20px; font-weight: 800; color: white; }
+    .donut-center-label { font-size: 10px; color: rgba(255,255,255,0.35); }
+    .donut-legend { flex: 1; }
+    .legend-item { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+    .legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+    .legend-label { font-size: 12px; color: rgba(255,255,255,0.6); flex: 1; }
+    .legend-val { font-size: 13px; font-weight: 700; color: white; }
+    .legend-pct { font-size: 11px; color: rgba(255,255,255,0.3); margin-left: 4px; }
+
+    /* MONTH TOTALS */
+    .month-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+    .month-card { background: rgba(255,255,255,0.05); border-radius: 14px; padding: 14px 10px; text-align: center; border: 1px solid rgba(255,255,255,0.07); }
+    .month-val   { font-size: 20px; font-weight: 800; color: white; }
+    .month-label { font-size: 10px; color: rgba(255,255,255,0.35); margin-top: 5px; text-transform: uppercase; letter-spacing: 0.4px; }
+
+    /* CRM NAV SHORTCUTS */
+    .nav-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+    .nav-card { background: rgba(255,255,255,0.05); border-radius: 14px; padding: 14px 8px; text-align: center; border: 1px solid rgba(255,255,255,0.07); cursor: pointer; text-decoration: none; display: block; transition: background 0.15s; }
+    .nav-card:hover { background: rgba(124,58,237,0.15); border-color: rgba(124,58,237,0.3); }
+    .nav-card-icon  { font-size: 22px; margin-bottom: 6px; }
+    .nav-card-label { font-size: 11px; color: rgba(255,255,255,0.55); font-weight: 600; }
+
+    /* RECENT JOBS */
+    .job-item { background: rgba(255,255,255,0.04); border-radius: 14px; padding: 13px 14px; margin-bottom: 8px; border: 1px solid rgba(255,255,255,0.06); display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+    .job-item:hover { border-color: rgba(124,58,237,0.3); }
+    .job-num   { font-size: 13px; font-weight: 700; color: #a78bfa; }
+    .job-cust  { font-size: 12px; color: rgba(255,255,255,0.5); margin-top: 2px; }
+    .job-badge { font-size: 10px; padding: 3px 10px; border-radius: 20px; font-weight: 600; }
+    .badge-received    { background: rgba(59,130,246,0.2);  color: #60a5fa; }
+    .badge-in_progress { background: rgba(245,158,11,0.2);  color: #fbbf24; }
+    .badge-ready       { background: rgba(16,185,129,0.2);  color: #10b981; }
+    .badge-delivered   { background: rgba(107,114,128,0.2); color: #9ca3af; }
+
+    /* SPINNER */
+    .spinner-wrap { text-align: center; padding: 30px; }
+    .spinner { width: 28px; height: 28px; border: 3px solid rgba(167,139,250,0.2); border-top-color: #a78bfa; border-radius: 50%; animation: spin 0.8s linear infinite; display: inline-block; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* BOTTOM NAV */
+    .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top: 1px solid #f0f0f0; display: flex; justify-content: space-around; padding: 6px 0 8px; z-index: 150; }
+    .nav-item { display: flex; flex-direction: column; align-items: center; gap: 2px; text-decoration: none; padding: 4px 10px; color: #888; font-size: 10px; font-weight: 600; }
+    .nav-item.active { color: #1a1a2e; }
+    .nav-icon { font-size: 20px; }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <div class="header-top">
+      <div>
+        <div class="header-title">💎 BGTL Dashboard</div>
+        <div class="header-sub">Bharrat Gem Testing Lab</div>
+      </div>
+      <div class="header-date" id="headerDate">—</div>
+    </div>
+  </div>
+
+  <div id="loadingWrap" class="spinner-wrap" style="padding:60px;"><div class="spinner"></div></div>
+
+  <div id="mainContent" style="display:none;">
+
+    <!-- TODAY STAT CARDS -->
+    <div class="today-grid">
+      <div class="stat-card revenue">
+        <div class="stat-icon">💰</div>
+        <div class="stat-value" id="todayRevenue">₹0</div>
+        <div class="stat-label">Today's Revenue</div>
+        <div class="stat-sub" id="todayPayCount">0 payments</div>
+      </div>
+      <div class="stat-card jobs">
+        <div class="stat-icon">📋</div>
+        <div class="stat-value" id="todayJobs">0</div>
+        <div class="stat-label">Jobs Today</div>
+        <div class="stat-sub" id="todayJobSub">received today</div>
+      </div>
+      <div class="stat-card ready">
+        <div class="stat-icon">✅</div>
+        <div class="stat-value" id="readyCount">0</div>
+        <div class="stat-label">Ready to Collect</div>
+        <div class="stat-sub">awaiting pickup</div>
+      </div>
+      <div class="stat-card unpaid">
+        <div class="stat-icon">🧾</div>
+        <div class="stat-value" id="unpaidCount">0</div>
+        <div class="stat-label">Unpaid Invoices</div>
+        <div class="stat-sub" id="unpaidAmt">₹0 pending</div>
+      </div>
+    </div>
+
+    <!-- ALERT BANNERS -->
+    <div class="alerts">
+      <div class="alert-banner green" onclick="window.location.href='crm-jobs.html?filter=ready'">
+        <div class="alert-left">
+          <span class="alert-icon">📦</span>
+          <div>
+            <div class="alert-text green">Jobs Ready for Collection</div>
+            <div class="alert-sub">Tap to view — call customers</div>
+          </div>
+        </div>
+        <div class="alert-count green" id="alertReady">0</div>
+      </div>
+      <div class="alert-banner red" onclick="window.location.href='crm-jobs.html?filter=overdue'">
+        <div class="alert-left">
+          <span class="alert-icon">⚠️</span>
+          <div>
+            <div class="alert-text red">Overdue Jobs</div>
+            <div class="alert-sub">Past promised date</div>
+          </div>
+        </div>
+        <div class="alert-count red" id="alertOverdue">0</div>
+      </div>
+      <div class="alert-banner yellow" onclick="window.location.href='crm-jobs.html?filter=unpaid'">
+        <div class="alert-left">
+          <span class="alert-icon">💸</span>
+          <div>
+            <div class="alert-text yellow">Unpaid Invoices</div>
+            <div class="alert-sub">Finalised but not paid</div>
+          </div>
+        </div>
+        <div class="alert-count yellow" id="alertUnpaid">0</div>
+      </div>
+    </div>
+
+    <!-- MONTHLY REVENUE BAR CHART -->
+    <div class="section">
+      <div class="section-heading">
+        📊 Revenue This Month
+        <span class="section-tag" id="monthName">—</span>
+      </div>
+      <div class="chart-card">
+        <canvas class="bar-chart-canvas" id="barChart"></canvas>
+        <div style="text-align:center;font-size:11px;color:rgba(255,255,255,0.2);margin-top:8px;" id="barChartLabel">Daily revenue in ₹</div>
+      </div>
+    </div>
+
+    <!-- JOBS BY SERVICE DONUT -->
+    <div class="section" style="padding-top:0;">
+      <div class="section-heading">
+        🍩 Jobs by Service Type
+        <span class="section-tag">This month</span>
+      </div>
+      <div class="chart-card">
+        <div class="donut-row">
+          <div class="donut-wrap">
+            <canvas class="donut-canvas" id="donutChart" width="130" height="130"></canvas>
+            <div class="donut-center">
+              <div class="donut-center-val" id="donutTotal">0</div>
+              <div class="donut-center-label">Total Jobs</div>
+            </div>
+          </div>
+          <div class="donut-legend" id="donutLegend"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- THIS MONTH TOTALS -->
+    <div class="section" style="padding-top:0;">
+      <div class="section-heading">📅 Month Summary</div>
+      <div class="month-grid">
+        <div class="month-card">
+          <div class="month-val" id="monthRevenue">₹0</div>
+          <div class="month-label">Revenue</div>
+        </div>
+        <div class="month-card">
+          <div class="month-val" id="monthJobs">0</div>
+          <div class="month-label">Jobs</div>
+        </div>
+        <div class="month-card">
+          <div class="month-val" id="monthCustomers">0</div>
+          <div class="month-label">New Customers</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CRM QUICK NAVIGATION -->
+    <div class="section" style="padding-top:8px;">
+      <div class="section-heading">🔗 Quick Navigation</div>
+      <div class="nav-grid">
+        <a class="nav-card" href="crm-customers.html">
+          <div class="nav-card-icon">👤</div>
+          <div class="nav-card-label">Customers</div>
+        </a>
+        <a class="nav-card" href="crm-job-intake.html">
+          <div class="nav-card-icon">➕</div>
+          <div class="nav-card-label">New Job</div>
+        </a>
+        <a class="nav-card" href="crm-jobs.html">
+          <div class="nav-card-icon">📋</div>
+          <div class="nav-card-label">All Jobs</div>
+        </a>
+        <a class="nav-card" href="crm-invoice.html">
+          <div class="nav-card-icon">🧾</div>
+          <div class="nav-card-label">Invoices</div>
+        </a>
+        <a class="nav-card" href="crm-petty-cash.html">
+          <div class="nav-card-icon">💰</div>
+          <div class="nav-card-label">Petty Cash</div>
+        </a>
+        <a class="nav-card" href="crm-day-close.html">
+          <div class="nav-card-icon">🔒</div>
+          <div class="nav-card-label">Day Close</div>
+        </a>
+        <a class="nav-card" href="crm-masters.html">
+          <div class="nav-card-icon">⚙️</div>
+          <div class="nav-card-label">Masters</div>
+        </a>
+        <a class="nav-card" href="crm-pricing.html">
+          <div class="nav-card-icon">💹</div>
+          <div class="nav-card-label">Pricing</div>
+        </a>
+        <a class="nav-card" href="dashboard.html">
+          <div class="nav-card-icon">🏠</div>
+          <div class="nav-card-label">Main App</div>
+        </a>
+      </div>
+    </div>
+
+    <!-- RECENT JOBS -->
+    <div class="section" style="padding-top:8px;">
+      <div class="section-heading">🕐 Recent Jobs</div>
+      <div id="recentJobs"></div>
+    </div>
+
+  </div><!-- /mainContent -->
+
+  <div class="bottom-nav">
+    <a class="nav-item" href="dashboard.html"><span class="nav-icon">🏠</span>Home</a>
+    <a class="nav-item" href="tasks.html"><span class="nav-icon">✅</span>Tasks</a>
+    <a class="nav-item" href="chat.html"><span class="nav-icon">💬</span>Chat</a>
+    <a class="nav-item" href="attendance.html"><span class="nav-icon">🕐</span>Attend.</a>
+    <a class="nav-item active" href="crm-customers.html"><span class="nav-icon">💎</span>CRM</a>
+  </div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import {
+  getFirestore, collection, query, where,
+  orderBy, limit, getDocs
+} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDNwQYXcwZrAh4cTfRyhOVk_pRod9p4CRM",
+  authDomain: "sparkals-tasks-app.firebaseapp.com",
+  projectId: "sparkals-tasks-app",
+  storageBucket: "sparkals-tasks-app.firebasestorage.app",
+  messagingSenderId: "147179987231",
+  appId: "1:147179987231:web:c6ffa484f33a2ca420d02a"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+
+const now       = new Date();
+const todayStr  = now.toISOString().split('T')[0];
+const monthStr  = todayStr.slice(0, 7); // YYYY-MM
+const monthStart = `${monthStr}-01`;
+const monthEnd   = `${monthStr}-31`;
+
+// Header date
+document.getElementById('headerDate').textContent =
+  now.toLocaleDateString('en-IN', { weekday:'short', day:'numeric', month:'short', year:'numeric' });
+document.getElementById('monthName').textContent =
+  now.toLocaleDateString('en-IN', { month:'long', year:'numeric' });
+
+// ── AUTH ─────────────────────────────────────────────────
+onAuthStateChanged(auth, async (user) => {
+  if (!user) { window.location.href = 'login.html'; return; }
+  await loadAll();
+  document.getElementById('loadingWrap').style.display = 'none';
+  document.getElementById('mainContent').style.display = 'block';
+});
+
+// ── LOAD ALL DATA ────────────────────────────────────────
+async function loadAll() {
+  await Promise.all([
+    loadTodayStats(),
+    loadMonthStats(),
+    loadAlerts(),
+    loadRecentJobs()
+  ]);
+}
+
+// ── TODAY STATS ──────────────────────────────────────────
+async function loadTodayStats() {
+  try {
+    // Today's payments
+    const paySnap = await getDocs(query(
+      collection(db, 'payments'),
+      where('dateStr', '==', todayStr)
+    ));
+    const payments = paySnap.docs.map(d => d.data());
+    const todayRevenue = payments.reduce((s, p) => s + (p.totalPaid || 0), 0);
+    document.getElementById('todayRevenue').textContent = '₹' + todayRevenue.toLocaleString('en-IN');
+    document.getElementById('todayPayCount').textContent = `${payments.length} payment${payments.length !== 1 ? 's' : ''}`;
+
+    // Today's jobs received
+    const jobSnap = await getDocs(query(
+      collection(db, 'jobs'),
+      where('dateStr', '==', todayStr)
+    ));
+    document.getElementById('todayJobs').textContent = jobSnap.size;
+
+    // Jobs ready to collect (all time)
+    const readySnap = await getDocs(query(
+      collection(db, 'jobs'),
+      where('status', '==', 'ready')
+    ));
+    document.getElementById('readyCount').textContent = readySnap.size;
+    document.getElementById('alertReady').textContent = readySnap.size;
+
+    // Unpaid finalised invoices
+    const invSnap = await getDocs(query(
+      collection(db, 'invoices'),
+      where('status', '==', 'finalised')
+    ));
+    // Check which have no payment
+    const paidInvoiceIds = new Set(paySnap.docs.map(d => d.data().invoiceId).filter(Boolean));
+    const unpaidInvoices = invSnap.docs.filter(d => !paidInvoiceIds.has(d.id));
+    const unpaidTotal = unpaidInvoices.reduce((s, d) => s + (d.data().total || 0), 0);
+    document.getElementById('unpaidCount').textContent = unpaidInvoices.length;
+    document.getElementById('unpaidAmt').textContent   = '₹' + unpaidTotal.toLocaleString('en-IN') + ' pending';
+    document.getElementById('alertUnpaid').textContent = unpaidInvoices.length;
+
+  } catch(e) { console.error('todayStats', e); }
+}
+
+// ── MONTH STATS + CHARTS ─────────────────────────────────
+async function loadMonthStats() {
+  try {
+    // Month payments
+    const paySnap = await getDocs(query(
+      collection(db, 'payments'),
+      where('dateStr', '>=', monthStart),
+      where('dateStr', '<=', monthEnd),
+      orderBy('dateStr')
+    ));
+    const payments = paySnap.docs.map(d => d.data());
+    const monthRevenue = payments.reduce((s, p) => s + (p.totalPaid || 0), 0);
+    document.getElementById('monthRevenue').textContent = '₹' + (monthRevenue >= 1000
+      ? (monthRevenue / 1000).toFixed(1) + 'K'
+      : monthRevenue.toLocaleString('en-IN'));
+
+    // Month jobs
+    const jobSnap = await getDocs(query(
+      collection(db, 'jobs'),
+      where('dateStr', '>=', monthStart),
+      where('dateStr', '<=', monthEnd)
+    ));
+    const jobs = jobSnap.docs.map(d => d.data());
+    document.getElementById('monthJobs').textContent = jobs.length;
+
+    // New customers this month
+    const custSnap = await getDocs(query(
+      collection(db, 'customers'),
+      where('dateStr', '>=', monthStart),
+      where('dateStr', '<=', monthEnd)
+    ));
+    document.getElementById('monthCustomers').textContent = custSnap.size;
+
+    // Build daily revenue map for bar chart
+    const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+    const dailyRevenue = Array(daysInMonth).fill(0);
+    payments.forEach(p => {
+      const day = parseInt(p.dateStr?.split('-')[2] || '1') - 1;
+      if (day >= 0 && day < daysInMonth) dailyRevenue[day] += (p.totalPaid || 0);
+    });
+    drawBarChart(dailyRevenue, daysInMonth);
+
+    // Service type breakdown for donut
+    const svcCount = { diamond_cert: 0, gemstone_cert: 0, jewellery_valuation: 0 };
+    jobs.forEach(j => { if (svcCount[j.serviceType] !== undefined) svcCount[j.serviceType]++; else svcCount['jewellery_valuation']++; });
+    drawDonut(svcCount, jobs.length);
+
+  } catch(e) { console.error('monthStats', e); }
+}
+
+// ── ALERTS (OVERDUE) ─────────────────────────────────────
+async function loadAlerts() {
+  try {
+    const snap = await getDocs(query(
+      collection(db, 'jobs'),
+      where('status', 'in', ['received', 'in_progress'])
+    ));
+    const overdue = snap.docs.filter(d => {
+      const pd = d.data().promisedDate;
+      return pd && pd < todayStr;
+    });
+    document.getElementById('alertOverdue').textContent = overdue.length;
+  } catch(e) { console.error('alerts', e); }
+}
+
+// ── RECENT JOBS ──────────────────────────────────────────
+async function loadRecentJobs() {
+  try {
+    const snap = await getDocs(query(
+      collection(db, 'jobs'),
+      orderBy('receivedAt', 'desc'),
+      limit(6)
+    ));
+    const wrap = document.getElementById('recentJobs');
+    if (snap.empty) {
+      wrap.innerHTML = `<div style="text-align:center;padding:20px;color:rgba(255,255,255,0.2);font-size:13px;">No jobs yet.</div>`;
+      return;
+    }
+    wrap.innerHTML = snap.docs.map(d => {
+      const j = d.data();
+      const badgeClass = `badge-${j.status || 'received'}`;
+      const statusLabel = { received:'Received', in_progress:'In Progress', ready:'Ready ✅', delivered:'Delivered' }[j.status] || j.status;
+      return `<div class="job-item" onclick="window.location.href='crm-job-detail.html?id=${d.id}'">
+        <div>
+          <div class="job-num">${j.jobNumber || '—'}</div>
+          <div class="job-cust">${j.customerName || '—'} · ${j.itemDescription || '—'}</div>
+        </div>
+        <span class="job-badge ${badgeClass}">${statusLabel}</span>
+      </div>`;
+    }).join('');
+  } catch(e) { console.error('recentJobs', e); }
+}
+
+// ══════════════════════════════════════════════════════════
+// BAR CHART — plain canvas, no library
+// ══════════════════════════════════════════════════════════
+function drawBarChart(data, daysInMonth) {
+  const canvas  = document.getElementById('barChart');
+  const dpr     = window.devicePixelRatio || 1;
+  const W       = canvas.offsetWidth  || 320;
+  const H       = 160;
+  canvas.width  = W * dpr;
+  canvas.height = H * dpr;
+  canvas.style.width  = W + 'px';
+  canvas.style.height = H + 'px';
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+
+  const padL = 10, padR = 10, padT = 20, padB = 28;
+  const chartW = W - padL - padR;
+  const chartH = H - padT - padB;
+  const maxVal = Math.max(...data, 1);
+  const today  = now.getDate();
+
+  // Grid lines
+  ctx.strokeStyle = 'rgba(255,255,255,0.05)';
+  ctx.lineWidth   = 1;
+  for (let i = 0; i <= 4; i++) {
+    const y = padT + chartH - (chartH / 4) * i;
+    ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(W - padR, y); ctx.stroke();
+  }
+
+  // Bars
+  const barW    = Math.max(2, (chartW / daysInMonth) - 3);
+  const spacing = chartW / daysInMonth;
+
+  data.forEach((val, i) => {
+    const x   = padL + i * spacing + (spacing - barW) / 2;
+    const h   = (val / maxVal) * chartH;
+    const y   = padT + chartH - h;
+    const day = i + 1;
+
+    // Colour: today = bright purple, past = teal, future = dim
+    if (day === today) {
+      ctx.fillStyle = '#a78bfa';
+    } else if (day < today) {
+      ctx.fillStyle = val > 0 ? '#10b981' : 'rgba(255,255,255,0.08)';
+    } else {
+      ctx.fillStyle = 'rgba(255,255,255,0.06)';
+    }
+
+    const radius = Math.min(4, barW / 2);
+    ctx.beginPath();
+    ctx.moveTo(x + radius, y);
+    ctx.lineTo(x + barW - radius, y);
+    ctx.quadraticCurveTo(x + barW, y, x + barW, y + radius);
+    ctx.lineTo(x + barW, padT + chartH);
+    ctx.lineTo(x, padT + chartH);
+    ctx.lineTo(x, y + radius);
+    ctx.quadraticCurveTo(x, y, x + radius, y);
+    ctx.closePath();
+    ctx.fill();
+
+    // Day label (every 5 days + today)
+    if (day % 5 === 0 || day === 1 || day === today || day === daysInMonth) {
+      ctx.fillStyle = day === today ? '#a78bfa' : 'rgba(255,255,255,0.25)';
+      ctx.font      = `${day === today ? 600 : 400} 9px Segoe UI`;
+      ctx.textAlign = 'center';
+      ctx.fillText(day, x + barW / 2, H - padB + 12);
+    }
+  });
+
+  // Today marker line
+  const todayX = padL + (today - 1) * spacing + spacing / 2;
+  ctx.strokeStyle = 'rgba(167,139,250,0.4)';
+  ctx.setLineDash([3, 3]);
+  ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(todayX, padT); ctx.lineTo(todayX, padT + chartH); ctx.stroke();
+  ctx.setLineDash([]);
+}
+
+// ══════════════════════════════════════════════════════════
+// DONUT CHART — plain canvas
+// ══════════════════════════════════════════════════════════
+function drawDonut(svcCount, total) {
+  const canvas = document.getElementById('donutChart');
+  const dpr    = window.devicePixelRatio || 1;
+  canvas.width  = 130 * dpr;
+  canvas.height = 130 * dpr;
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+
+  const cx = 65, cy = 65, outerR = 55, innerR = 35;
+  const colors  = ['#7c3aed', '#10b981', '#f59e0b'];
+  const labels  = ['Diamond Cert', 'Gemstone Cert', 'Valuation'];
+  const icons   = ['💎', '🪨', '⚖️'];
+  const keys    = ['diamond_cert', 'gemstone_cert', 'jewellery_valuation'];
+  const values  = keys.map(k => svcCount[k] || 0);
+  const safeTotal = total || 1;
+
+  let startAngle = -Math.PI / 2;
+
+  if (total === 0) {
+    // Empty state circle
+    ctx.beginPath();
+    ctx.arc(cx, cy, outerR, 0, Math.PI * 2);
+    ctx.arc(cx, cy, innerR, Math.PI * 2, 0, true);
+    ctx.fillStyle = 'rgba(255,255,255,0.06)';
+    ctx.fill();
+  } else {
+    values.forEach((val, i) => {
+      if (!val) return;
+      const sweep = (val / safeTotal) * Math.PI * 2;
+      ctx.beginPath();
+      ctx.moveTo(cx, cy);
+      ctx.arc(cx, cy, outerR, startAngle, startAngle + sweep);
+      ctx.arc(cx, cy, innerR, startAngle + sweep, startAngle, true);
+      ctx.closePath();
+      ctx.fillStyle = colors[i];
+      ctx.fill();
+      // Small gap
+      ctx.strokeStyle = '#1e1e3f';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      startAngle += sweep;
+    });
+  }
+
+  // Centre total
+  document.getElementById('donutTotal').textContent = total;
+
+  // Legend
+  const legend = document.getElementById('donutLegend');
+  legend.innerHTML = values.map((val, i) => {
+    const pct = total ? Math.round((val / total) * 100) : 0;
+    return `<div class="legend-item">
+      <div class="legend-dot" style="background:${colors[i]}"></div>
+      <div class="legend-label">${icons[i]} ${labels[i]}</div>
+      <div class="legend-val">${val}<span class="legend-pct">${pct}%</span></div>
+    </div>`;
+  }).join('');
+}
+</script>
+</body>
+</html>
