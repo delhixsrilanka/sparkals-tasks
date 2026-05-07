@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Receipt — Sparkals</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Courier New', monospace;
+      background: #f5f5f5;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+      min-height: 100vh;
+    }
+
+    /* SCREEN CONTROLS (hidden when printing) */
+    .screen-controls {
+      width: 100%;
+      max-width: 320px;
+      margin-bottom: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .ctrl-btn {
+      width: 100%;
+      padding: 13px;
+      border-radius: 12px;
+      border: none;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-print { background: #1a1a2e; color: white; }
+    .btn-whatsapp { background: #25d366; color: white; }
+    .btn-back { background: #e5e7eb; color: #374151; }
+
+    /* RECEIPT PAPER */
+    .receipt {
+      width: 100%;
+      max-width: 300px;
+      background: white;
+      padding: 16px 14px;
+      font-size: 12px;
+      line-height: 1.5;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.12);
+    }
+
+    .receipt-center { text-align: center; }
+    .receipt-logo { font-size: 20px; font-weight: 900; letter-spacing: 2px; margin-bottom: 2px; }
+    .receipt-tagline { font-size: 10px; color: #666; margin-bottom: 2px; }
+    .receipt-address { font-size: 10px; color: #666; margin-bottom: 8px; }
+
+    .divider { border: none; border-top: 1px dashed #999; margin: 8px 0; }
+    .divider-solid { border: none; border-top: 1px solid #333; margin: 8px 0; }
+    .divider-double { border: none; border-top: 3px double #333; margin: 8px 0; }
+
+    .receipt-row { display: flex; justify-content: space-between; margin-bottom: 2px; }
+    .receipt-label { color: #555; }
+    .receipt-value { font-weight: 600; text-align: right; }
+
+    .item-row { margin-bottom: 4px; }
+    .item-name { font-weight: 600; }
+    .item-desc { font-size: 10px; color: #666; padding-left: 8px; }
+    .item-amount { text-align: right; font-weight: 700; }
+
+    .total-row { display: flex; justify-content: space-between; font-weight: 700; font-size: 13px; }
+    .grand-total { display: flex; justify-content: space-between; font-weight: 900; font-size: 16px; margin: 4px 0; }
+
+    .payment-method { font-size: 11px; color: #555; }
+    .change-row { display: flex; justify-content: space-between; font-size: 11px; color: #555; }
+
+    .receipt-footer { text-align: center; font-size: 10px; color: #888; margin-top: 6px; line-height: 1.6; }
+    .thank-you { font-size: 13px; font-weight: 700; text-align: center; margin: 8px 0 4px; }
+
+    .receipt-num { font-size: 10px; color: #999; text-align: center; margin-bottom: 4px; }
+
+    /* BARCODE PLACEHOLDER */
+    .barcode { text-align: center; margin: 8px 0; font-size: 10px; color: #aaa; letter-spacing: 4px; }
+
+    /* PRINT STYLES */
+    @media print {
+      body { background: white; padding: 0; }
+      .screen-controls { display: none; }
+      .receipt {
+        box-shadow: none;
+        max-width: 58mm;
+        font-size: 11px;
+        padding: 4mm;
+      }
+      @page { size: 58mm auto; margin: 0; }
+    }
+
+    /* SPINNER */
+    .spinner-wrap { text-align: center; padding: 60px; }
+    .spinner { width: 32px; height: 32px; border: 3px solid rgba(0,0,0,0.1); border-top-color: #1a1a2e; border-radius: 50%; animation: spin 0.8s linear infinite; display: inline-block; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+
+  <div id="loadingWrap" class="spinner-wrap"><div class="spinner"></div></div>
+
+  <div id="pageContent" style="display:none; width:100%; max-width:320px; display:none; flex-direction:column; align-items:center;">
+
+    <!-- SCREEN CONTROLS -->
+    <div class="screen-controls">
+      <button class="ctrl-btn btn-print" onclick="window.print()">🖨️ Print Receipt</button>
+      <button class="ctrl-btn btn-whatsapp" id="btnWhatsApp" onclick="shareWhatsApp()">💬 Share via WhatsApp</button>
+      <button class="ctrl-btn btn-back" onclick="window.location.href='crm-jobs.html'">← Back to Jobs</button>
+    </div>
+
+    <!-- RECEIPT -->
+    <div class="receipt" id="receipt">
+
+      <!-- HEADER -->
+      <div class="receipt-center">
+        <div class="receipt-logo">✦ SPARKALS ✦</div>
+        <div class="receipt-tagline">Diamond · Gemstone · Jewellery</div>
+        <div class="receipt-address">Chennai, Tamil Nadu | sparkals.com</div>
+        <div class="receipt-address">Ph: +91 XXXXXXXXXX</div>
+      </div>
+
+      <hr class="divider-solid" />
+
+      <!-- RECEIPT INFO -->
+      <div class="receipt-row"><span class="receipt-label">Receipt No:</span><span class="receipt-value" id="rcptNumber">—</span></div>
+      <div class="receipt-row"><span class="receipt-label">Invoice No:</span><span class="receipt-value" id="rcptInvNumber">—</span></div>
+      <div class="receipt-row"><span class="receipt-label">Date:</span><span class="receipt-value" id="rcptDate">—</span></div>
+      <div class="receipt-row"><span class="receipt-label">Time:</span><span class="receipt-value" id="rcptTime">—</span></div>
+
+      <hr class="divider" />
+
+      <!-- CUSTOMER -->
+      <div class="receipt-row"><span class="receipt-label">Customer:</span><span class="receipt-value" id="rcptCustomer">—</span></div>
+      <div class="receipt-row"><span class="receipt-label">Job No:</span><span class="receipt-value" id="rcptJobNum">—</span></div>
+      <div class="receipt-row"><span class="receipt-label">Service:</span><span class="receipt-value" id="rcptService">—</span></div>
+
+      <hr class="divider" />
+
+      <!-- LINE ITEMS -->
+      <div id="rcptItems"></div>
+
+      <hr class="divider" />
+
+      <!-- TOTALS -->
+      <div class="receipt-row"><span class="receipt-label">Subtotal</span><span class="receipt-value" id="rcptSubtotal">—</span></div>
+      <div class="receipt-row" id="rcptDiscountRow" style="display:none;"><span class="receipt-label">Discount</span><span class="receipt-value" id="rcptDiscount" style="color:#059669;">—</span></div>
+      <div class="receipt-row"><span class="receipt-label">GST (<span id="rcptGstPct">3</span>%)</span><span class="receipt-value" id="rcptGst">—</span></div>
+
+      <hr class="divider-double" />
+
+      <div class="grand-total"><span>TOTAL</span><span id="rcptTotal">—</span></div>
+
+      <hr class="divider" />
+
+      <!-- PAYMENT -->
+      <div id="rcptPayments"></div>
+      <div class="receipt-row" id="rcptChangeRow" style="display:none;"><span class="receipt-label">Change returned</span><span class="receipt-value" id="rcptChange">—</span></div>
+
+      <hr class="divider" />
+
+      <!-- FOOTER -->
+      <div class="barcode" id="rcptBarcode">|||||||||||||||||||||||||||</div>
+      <div class="receipt-num" id="rcptBarcodeNum">—</div>
+      <div class="thank-you">Thank You! 🙏</div>
+      <div class="receipt-footer">
+        All certificates issued are subject to<br/>
+        Sparkals terms and conditions.<br/>
+        Goods once sold will not be returned.<br/>
+        For queries: sparkals.design@gmail.com
+      </div>
+
+    </div>
+  </div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import { getFirestore, doc, getDoc, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDNwQYXcwZrAh4cTfRyhOVk_pRod9p4CRM",
+  authDomain: "sparkals-tasks-app.firebaseapp.com",
+  projectId: "sparkals-tasks-app",
+  storageBucket: "sparkals-tasks-app.firebasestorage.app",
+  messagingSenderId: "147179987231",
+  appId: "1:147179987231:web:c6ffa484f33a2ca420d02a"
+};
+
+const app  = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+
+const SVC_LABELS = {
+  diamond_cert:       'Diamond Certification',
+  gemstone_cert:      'Gemstone Certification',
+  jewellery_valuation:'Jewellery Valuation'
+};
+
+const METHOD_LABELS = { cash: 'Cash', gpay: 'GPay / UPI', bank: 'Bank Transfer' };
+
+let paymentData  = null;
+let invoiceData  = null;
+let jobData      = null;
+let customerPhone = '';
+
+const params    = new URLSearchParams(window.location.search);
+const paymentId = params.get('paymentId');
+const invoiceId = params.get('invoiceId');
+
+// ── AUTH ─────────────────────────────────────────────────
+onAuthStateChanged(auth, async (user) => {
+  if (!user) { window.location.href = 'login.html'; return; }
+  await loadData();
+  document.getElementById('loadingWrap').style.display = 'none';
+  document.getElementById('pageContent').style.display = 'flex';
+});
+
+// ── LOAD DATA ────────────────────────────────────────────
+async function loadData() {
+  try {
+    // Load payment
+    if (paymentId) {
+      const pSnap = await getDoc(doc(db, 'payments', paymentId));
+      if (pSnap.exists()) paymentData = { id: pSnap.id, ...pSnap.data() };
+    } else if (invoiceId) {
+      // Find payment by invoiceId
+      const q = query(collection(db, 'payments'), where('invoiceId','==',invoiceId));
+      const pSnap = await getDocs(q);
+      if (!pSnap.empty) paymentData = { id: pSnap.docs[0].id, ...pSnap.docs[0].data() };
+    }
+
+    // Load invoice
+    const invId = paymentData?.invoiceId || invoiceId;
+    if (invId) {
+      const iSnap = await getDoc(doc(db, 'invoices', invId));
+      if (iSnap.exists()) invoiceData = { id: iSnap.id, ...iSnap.data() };
+    }
+
+    // Load job
+    if (invoiceData?.jobId) {
+      const jSnap = await getDoc(doc(db, 'jobs', invoiceData.jobId));
+      if (jSnap.exists()) jobData = { id: jSnap.id, ...jSnap.data() };
+    }
+
+    // Load customer phone
+    if (invoiceData?.customerId) {
+      const cSnap = await getDoc(doc(db, 'customers', invoiceData.customerId));
+      if (cSnap.exists()) customerPhone = cSnap.data().phone || '';
+    }
+
+    renderReceipt();
+  } catch(e) {
+    console.error(e);
+  }
+}
+
+// ── RENDER RECEIPT ───────────────────────────────────────
+function renderReceipt() {
+  const inv = invoiceData || {};
+  const pay = paymentData || {};
+  const job = jobData     || {};
+
+  // Date/time
+  const now = pay.paidAt?.toDate?.() || new Date();
+  document.getElementById('rcptDate').textContent = now.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
+  document.getElementById('rcptTime').textContent = now.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+
+  // Numbers
+  document.getElementById('rcptNumber').textContent    = pay.receiptNumber   || '—';
+  document.getElementById('rcptInvNumber').textContent = inv.invoiceNumber    || '—';
+  document.getElementById('rcptBarcodeNum').textContent = pay.receiptNumber   || inv.invoiceNumber || '—';
+  document.getElementById('rcptCustomer').textContent  = inv.customerName     || '—';
+  document.getElementById('rcptJobNum').textContent    = job.jobNumber        || inv.jobId?.slice(0,8) || '—';
+  document.getElementById('rcptService').textContent   = SVC_LABELS[job.serviceType] || '—';
+
+  // Line items
+  const items = inv.lineItems || [];
+  document.getElementById('rcptItems').innerHTML = items.map(item => {
+    const amt = item.overrideAmount !== null && item.overrideAmount !== undefined ? item.overrideAmount : item.amount;
+    return `<div class="item-row">
+      <div class="receipt-row">
+        <span class="item-name">${item.name}</span>
+        <span class="item-amount">₹${(amt||0).toLocaleString('en-IN')}</span>
+      </div>
+      ${item.desc ? `<div class="item-desc">${item.desc}</div>` : ''}
+    </div>`;
+  }).join('');
+
+  // Totals
+  document.getElementById('rcptSubtotal').textContent = '₹' + (inv.subtotal||0).toLocaleString('en-IN');
+  document.getElementById('rcptGstPct').textContent   = inv.taxRate || 3;
+  document.getElementById('rcptGst').textContent      = '₹' + (inv.taxAmount||0).toLocaleString('en-IN');
+  document.getElementById('rcptTotal').textContent    = '₹' + (inv.total||0).toLocaleString('en-IN');
+
+  if (inv.discountAmount > 0) {
+    document.getElementById('rcptDiscountRow').style.display = 'flex';
+    document.getElementById('rcptDiscount').textContent = '-₹' + inv.discountAmount.toLocaleString('en-IN');
+  }
+
+  // Payments
+  const splits = pay.splitPayments || [];
+  document.getElementById('rcptPayments').innerHTML = splits.map(s =>
+    `<div class="receipt-row payment-method">
+      <span>${METHOD_LABELS[s.method] || s.method}</span>
+      <span>₹${(s.amount||0).toLocaleString('en-IN')}</span>
+    </div>`
+  ).join('');
+
+  if (pay.changeGiven > 0) {
+    document.getElementById('rcptChangeRow').style.display = 'flex';
+    document.getElementById('rcptChange').textContent = '₹' + pay.changeGiven.toLocaleString('en-IN');
+  }
+}
+
+// ── WHATSAPP SHARE ────────────────────────────────────────
+window.shareWhatsApp = function() {
+  const inv  = invoiceData || {};
+  const pay  = paymentData || {};
+  const phone = customerPhone.replace(/\D/g,'');
+
+  const msg = `Dear ${inv.customerName},\n\nPayment Receipt — Sparkals\nReceipt: ${pay.receiptNumber||'—'}\nInvoice: ${inv.invoiceNumber||'—'}\nAmount: ₹${(inv.total||0).toLocaleString('en-IN')}\nStatus: PAID ✅\n\nThank you for choosing Sparkals!\n— Team Sparkals`;
+
+  if (phone) {
+    window.open(`https://wa.me/91${phone}?text=${encodeURIComponent(msg)}`, '_blank');
+  } else {
+    window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
+  }
+};
+</script>
+</body>
+</html>
