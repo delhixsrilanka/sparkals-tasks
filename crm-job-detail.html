@@ -63,6 +63,26 @@
     .btn-delivered   { background: rgba(107,114,128,0.15); color: #9ca3af; border: 1px solid rgba(107,114,128,0.3); }
     .btn-cancel-job  { background: rgba(239,68,68,0.1);    color: #ef4444; border: 1px solid rgba(239,68,68,0.2); }
 
+    /* WHATSAPP SECTION */
+    .wa-section { margin: 0 16px 16px; background: rgba(37,211,102,0.06); border: 1px solid rgba(37,211,102,0.2); border-radius: 18px; padding: 16px; }
+    .wa-section-title { font-size: 13px; font-weight: 700; color: #25d366; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 12px; display: flex; align-items: center; gap: 6px; }
+    .wa-btns { display: flex; flex-direction: column; gap: 8px; }
+    .wa-btn { width: 100%; padding: 13px 16px; border-radius: 12px; border: none; font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 10px; background: rgba(37,211,102,0.12); color: #25d366; border: 1px solid rgba(37,211,102,0.25); transition: background 0.15s; }
+    .wa-btn:hover { background: rgba(37,211,102,0.2); }
+    .wa-btn-sub { font-size: 11px; color: rgba(37,211,102,0.6); font-weight: 400; margin-left: auto; }
+
+    /* WHATSAPP POPUP OVERLAY */
+    .wa-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 500; display: none; align-items: flex-end; justify-content: center; }
+    .wa-overlay.open { display: flex; }
+    .wa-popup { background: #1e1e3f; border-radius: 24px 24px 0 0; padding: 24px 20px 32px; width: 100%; max-width: 480px; border-top: 1px solid rgba(255,255,255,0.1); }
+    .wa-popup-title { font-size: 16px; font-weight: 700; color: white; margin-bottom: 6px; }
+    .wa-popup-preview { font-size: 13px; color: rgba(255,255,255,0.45); line-height: 1.5; margin-bottom: 20px; padding: 10px 12px; background: rgba(255,255,255,0.05); border-radius: 10px; border-left: 3px solid #25d366; }
+    .wa-popup-btns { display: flex; flex-direction: column; gap: 10px; }
+    .wa-open-btn { width: 100%; padding: 14px; border-radius: 14px; border: none; font-size: 15px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
+    .wa-open-app { background: #25d366; color: white; }
+    .wa-open-web { background: rgba(37,211,102,0.12); color: #25d366; border: 1px solid rgba(37,211,102,0.3); }
+    .wa-cancel-btn { width: 100%; padding: 12px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.1); background: transparent; color: rgba(255,255,255,0.4); font-size: 14px; cursor: pointer; margin-top: 4px; }
+
     /* NOTES */
     .note-input { width: 100%; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12); border-radius: 10px; padding: 11px 14px; color: white; font-size: 14px; outline: none; resize: none; min-height: 80px; margin-bottom: 8px; }
     .note-input:focus { border-color: #a78bfa; }
@@ -70,6 +90,7 @@
 
     /* NOTES LIST */
     .note-item { background: rgba(255,255,255,0.04); border-radius: 10px; padding: 10px 12px; margin-bottom: 8px; border-left: 3px solid #7c3aed; }
+    .note-item.wa-log { border-left-color: #25d366; }
     .note-text { font-size: 13px; color: rgba(255,255,255,0.8); line-height: 1.4; }
     .note-meta { font-size: 11px; color: rgba(255,255,255,0.3); margin-top: 4px; }
 
@@ -77,7 +98,6 @@
     .action-row { display: flex; gap: 10px; margin: 0 16px 16px; }
     .action-btn { flex: 1; padding: 12px; border-radius: 14px; border: none; font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; }
     .btn-invoice  { background: #7c3aed; color: white; }
-    .btn-whatsapp { background: rgba(37,211,102,0.15); color: #25d366; border: 1px solid rgba(37,211,102,0.25); }
     .btn-cert     { background: rgba(251,191,36,0.15); color: #fbbf24; border: 1px solid rgba(251,191,36,0.25); }
 
     /* SPINNER */
@@ -123,12 +143,32 @@
     <!-- STATUS STEPPER -->
     <div class="stepper" id="stepper"></div>
 
-    <!-- ACTION BUTTONS -->
+    <!-- ACTION BUTTONS (Invoice + Cert only — WA moved to its own section) -->
     <div class="action-row">
       <button class="action-btn btn-invoice" onclick="goInvoice()">🧾 Invoice</button>
-      <button class="action-btn btn-whatsapp" onclick="sendWhatsApp()">💬 WA</button>
-      <button class="action-btn btn-cert" onclick="goCert()">📜 Cert</button>
+      <button class="action-btn btn-cert" onclick="goCert()">📜 Cert / Valuation</button>
     </div>
+
+    <!-- ══════════════════════════════════════════════════════ -->
+    <!-- WHATSAPP SECTION                                       -->
+    <!-- ══════════════════════════════════════════════════════ -->
+    <div class="wa-section">
+      <div class="wa-section-title">💚 WhatsApp Customer</div>
+      <div class="wa-btns">
+
+        <button class="wa-btn" onclick="openWAPopup('received')">
+          📬 Job Received — Send Acknowledgement
+          <span class="wa-btn-sub">Tap to preview &amp; send</span>
+        </button>
+
+        <button class="wa-btn" onclick="openWAPopup('ready')">
+          ✅ Job Ready — Notify for Collection
+          <span class="wa-btn-sub">Tap to preview &amp; send</span>
+        </button>
+
+      </div>
+    </div>
+    <!-- ══════════════════════════════════════════════════════ -->
 
     <!-- JOB DETAILS -->
     <div class="section">
@@ -172,7 +212,27 @@
       <div id="notesList"></div>
     </div>
 
+  </div><!-- /mainContent -->
+
+  <!-- ══════════════════════════════════════════════════════ -->
+  <!-- WHATSAPP POPUP OVERLAY                                 -->
+  <!-- ══════════════════════════════════════════════════════ -->
+  <div class="wa-overlay" id="waOverlay" onclick="closeWAPopup(event)">
+    <div class="wa-popup">
+      <div class="wa-popup-title" id="waPopupTitle">Send WhatsApp</div>
+      <div class="wa-popup-preview" id="waPopupPreview"></div>
+      <div class="wa-popup-btns">
+        <button class="wa-open-btn wa-open-app" onclick="sendWA('app')">
+          📱 Open in WhatsApp App
+        </button>
+        <button class="wa-open-btn wa-open-web" onclick="sendWA('web')">
+          🌐 Open in WhatsApp Web
+        </button>
+        <button class="wa-cancel-btn" onclick="closeWAPopup()">Cancel</button>
+      </div>
+    </div>
   </div>
+  <!-- ══════════════════════════════════════════════════════ -->
 
   <div class="toast" id="toast"></div>
 
@@ -202,13 +262,14 @@ const app  = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db   = getFirestore(app);
 
-const STATUS_ORDER = ['received','in_progress','ready','delivered'];
+const STATUS_ORDER  = ['received','in_progress','ready','delivered'];
 const STATUS_LABELS = { received:'Received', in_progress:'In Progress', ready:'Ready ✅', delivered:'Delivered' };
-const SVC_LABELS = { diamond_cert:'💎 Diamond Certification', gemstone_cert:'🪨 Gemstone Certification', jewellery_valuation:'⚖️ Jewellery Valuation' };
+const SVC_LABELS    = { diamond_cert:'💎 Diamond Certification', gemstone_cert:'🪨 Gemstone Certification', jewellery_valuation:'⚖️ Jewellery Valuation' };
 
-let currentUser = null;
-let jobId       = null;
-let jobData     = null;
+let currentUser  = null;
+let jobId        = null;
+let jobData      = null;
+let waMessageType = null; // tracks which WA message is pending
 
 const params = new URLSearchParams(window.location.search);
 jobId = params.get('id');
@@ -292,7 +353,7 @@ function renderJob(j) {
 
 // ── STEPPER ──────────────────────────────────────────────
 function renderStepper(currentStatus) {
-  const steps = ['received','in_progress','ready','delivered'];
+  const steps  = ['received','in_progress','ready','delivered'];
   const labels = ['Received','In Progress','Ready','Delivered'];
   const currentIdx = steps.indexOf(currentStatus);
   let html = '';
@@ -397,12 +458,94 @@ function renderNotes(log) {
   const sorted = [...log].sort((a,b) => (b.timestamp||0) - (a.timestamp||0));
   el.innerHTML = sorted.map(entry => {
     const date = entry.at ? new Date(entry.at).toLocaleString('en-IN',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}) : '—';
-    return `<div class="note-item">
-      <div class="note-text">${entry.isNote ? '📝 ' : '⚡ '}${entry.action}</div>
+    const isWA = entry.isWhatsApp;
+    return `<div class="note-item ${isWA ? 'wa-log' : ''}">
+      <div class="note-text">${isWA ? '💚 ' : entry.isNote ? '📝 ' : '⚡ '}${entry.action}</div>
       <div class="note-meta">${entry.by} · ${date}</div>
     </div>`;
   }).join('');
 }
+
+// ════════════════════════════════════════════════════════
+// WHATSAPP FUNCTIONS
+// ════════════════════════════════════════════════════════
+
+// Build the message text based on type
+function buildWAMessage(type) {
+  const name      = jobData?.customerName || 'Customer';
+  const item      = jobData?.itemDescription || 'item';
+  const service   = (SVC_LABELS[jobData?.serviceType] || jobData?.serviceType || 'service').replace(/💎|🪨|⚖️/g,'').trim();
+  const jobNumber = jobData?.jobNumber || '—';
+  const date      = jobData?.promisedDate
+    ? new Date(jobData.promisedDate).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})
+    : '—';
+
+  if (type === 'received') {
+    return `Dear ${name}, we have received your ${item} for ${service}. Job No: ${jobNumber}. Ready by: ${date}. — BGTL`;
+  }
+  if (type === 'ready') {
+    return `Dear ${name}, your ${item} is ready for collection. Please bring your job card. Job No: ${jobNumber}. — BGTL`;
+  }
+  return '';
+}
+
+// Open the popup with message preview
+window.openWAPopup = function(type) {
+  const phone = jobData?.customerPhone?.replace(/\D/g,'');
+  if (!phone) { showToast('⚠️ No phone number on file'); return; }
+
+  waMessageType = type;
+  const titles = { received: '📬 Job Received Acknowledgement', ready: '✅ Job Ready Notification' };
+  document.getElementById('waPopupTitle').textContent   = titles[type] || 'Send WhatsApp';
+  document.getElementById('waPopupPreview').textContent = buildWAMessage(type);
+  document.getElementById('waOverlay').classList.add('open');
+};
+
+// Close popup
+window.closeWAPopup = function(event) {
+  // If clicking outside the popup box, close it
+  if (event && event.target !== document.getElementById('waOverlay')) return;
+  document.getElementById('waOverlay').classList.remove('open');
+  waMessageType = null;
+};
+
+// Actually send — open WhatsApp app or web
+window.sendWA = async function(mode) {
+  const phone = jobData?.customerPhone?.replace(/\D/g,'');
+  if (!phone || !waMessageType) return;
+
+  const msg     = buildWAMessage(waMessageType);
+  const encoded = encodeURIComponent(msg);
+  const url     = mode === 'app'
+    ? `whatsapp://send?phone=91${phone}&text=${encoded}`
+    : `https://web.whatsapp.com/send?phone=91${phone}&text=${encoded}`;
+
+  // Log the send in activity log
+  const typeLabels = { received: 'Job Received acknowledgement', ready: 'Job Ready notification' };
+  try {
+    const logEntry = {
+      action:      `💚 WhatsApp sent — ${typeLabels[waMessageType] || waMessageType} (via ${mode === 'app' ? 'WhatsApp App' : 'WhatsApp Web'})`,
+      by:          currentUser.displayName || currentUser.email,
+      at:          new Date().toISOString(),
+      timestamp:   Date.now(),
+      isWhatsApp:  true
+    };
+    await updateDoc(doc(db, 'jobs', jobId), {
+      activityLog: arrayUnion(logEntry)
+    });
+  } catch(e) {
+    console.error('WA log failed', e);
+  }
+
+  // Close popup and open WhatsApp
+  document.getElementById('waOverlay').classList.remove('open');
+  waMessageType = null;
+  window.open(url, '_blank');
+  showToast('💚 Opening WhatsApp…');
+  await loadJob(); // refresh activity log
+};
+
+// ════════════════════════════════════════════════════════
 
 // ── NAVIGATION ───────────────────────────────────────────
 window.goBack = function() {
@@ -421,13 +564,6 @@ window.goInvoice = function() {
 window.goCert = function() {
   const certPage = jobData?.serviceType === 'jewellery_valuation' ? 'crm-valuation.html' : 'crm-certificate.html';
   window.location.href = `${certPage}?jobId=${jobId}`;
-};
-
-window.sendWhatsApp = function() {
-  const phone = jobData?.customerPhone?.replace(/\D/g,'');
-  if (!phone) { showToast('⚠️ No phone number on file'); return; }
-  const msg = `Dear ${jobData.customerName}, your job ${jobData.jobNumber} status: ${STATUS_LABELS[jobData.status||'received']}. — Sparkals`;
-  window.open(`https://wa.me/91${phone}?text=${encodeURIComponent(msg)}`, '_blank');
 };
 
 // ── TOAST ────────────────────────────────────────────────
