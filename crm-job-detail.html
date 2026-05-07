@@ -558,7 +558,7 @@ window.goBack = function() {
 };
 
 window.goInvoice = function() {
-  window.location.href = `crm-invoice.html?jobId=${jobId}`;
+  window.location.href = `crm-price-calculator.html?jobId=${jobId}&customerId=${jobData?.customerId||''}`;
 };
 
 window.goCert = function() {
