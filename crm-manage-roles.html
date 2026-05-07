@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#1a1a2e" />
+  <title>Manage Roles — BGTL CRM</title>
+  <link rel="manifest" href="/manifest.json" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', sans-serif; background: #1a1a2e; color: white; min-height: 100vh; padding-bottom: 90px; }
+
+    .header { background: linear-gradient(135deg, #1a1a2e, #2d2d5e); padding: 16px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid rgba(255,255,255,0.08); position: sticky; top: 0; z-index: 100; }
+    .header-title { font-size: 18px; font-weight: 700; color: #a78bfa; }
+    .header-sub   { font-size: 12px; color: rgba(255,255,255,0.4); }
+    .back-btn { background: none; border: none; color: #a78bfa; font-size: 22px; cursor: pointer; padding: 4px; }
+
+    /* INFO BANNER */
+    .info-banner { margin: 16px; background: rgba(124,58,237,0.1); border: 1px solid rgba(124,58,237,0.25); border-radius: 14px; padding: 12px 14px; font-size: 13px; color: rgba(255,255,255,0.55); line-height: 1.5; }
+    .info-banner strong { color: #a78bfa; }
+
+    /* SEARCH */
+    .search-wrap { margin: 0 16px 12px; position: relative; }
+    .search-input { width: 100%; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12); border-radius: 12px; padding: 12px 14px 12px 40px; color: white; font-size: 14px; outline: none; }
+    .search-input:focus { border-color: #a78bfa; }
+    .search-input::placeholder { color: rgba(255,255,255,0.25); }
+    .search-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); font-size: 16px; color: rgba(255,255,255,0.3); }
+
+    /* STAFF LIST */
+    .section { padding: 0 16px; }
+    .section-heading { font-size: 13px; font-weight: 700; color: #a78bfa; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 10px; }
+
+    .staff-card { background: rgba(255,255,255,0.05); border-radius: 16px; padding: 14px 16px; margin-bottom: 10px; border: 1px solid rgba(255,255,255,0.07); }
+    .staff-top { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+    .staff-avatar { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 700; flex-shrink: 0; }
+    .staff-name  { font-size: 15px; font-weight: 700; color: white; }
+    .staff-email { font-size: 12px; color: rgba(255,255,255,0.35); margin-top: 2px; }
+    .staff-dept  { font-size: 11px; color: rgba(255,255,255,0.25); margin-top: 1px; }
+
+    /* ROLE SELECTOR */
+    .role-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .role-btn { padding: 10px 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.04); color: rgba(255,255,255,0.45); font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.15s; }
+    .role-btn.selected { border-width: 2px; }
+    .role-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .role-btn.role-receptionist.selected { background: rgba(96,165,250,0.15); border-color: #60a5fa; color: #60a5fa; }
+    .role-btn.role-gemologist.selected   { background: rgba(16,185,129,0.15); border-color: #10b981; color: #10b981; }
+    .role-btn.role-manager.selected      { background: rgba(251,191,36,0.15); border-color: #fbbf24; color: #fbbf24; }
+    .role-btn.role-staff.selected        { background: rgba(156,163,175,0.15); border-color: #9ca3af; color: #9ca3af; }
+
+    .save-row { margin-top: 12px; display: flex; align-items: center; gap: 10px; }
+    .save-btn { flex: 1; padding: 11px; border-radius: 12px; border: none; background: #7c3aed; color: white; font-size: 14px; font-weight: 700; cursor: pointer; }
+    .save-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .saved-badge { font-size: 12px; color: #10b981; font-weight: 600; display: none; }
+
+    /* PERMISSION PREVIEW */
+    .perm-preview { margin-top: 12px; padding: 10px 12px; background: rgba(255,255,255,0.03); border-radius: 10px; border: 1px solid rgba(255,255,255,0.05); }
+    .perm-preview-title { font-size: 11px; color: rgba(255,255,255,0.3); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .perm-chips { display: flex; flex-wrap: wrap; gap: 5px; }
+    .perm-chip { font-size: 10px; padding: 3px 8px; border-radius: 20px; font-weight: 600; }
+    .perm-chip.yes { background: rgba(16,185,129,0.15); color: #10b981; }
+    .perm-chip.no  { background: rgba(239,68,68,0.1);   color: rgba(239,68,68,0.5); text-decoration: line-through; }
+
+    /* ADMIN CARD */
+    .admin-card { background: rgba(167,139,250,0.08); border: 1px solid rgba(167,139,250,0.2); border-radius: 16px; padding: 14px 16px; margin-bottom: 10px; display: flex; align-items: center; gap: 12px; }
+    .admin-badge { font-size: 11px; padding: 3px 10px; border-radius: 20px; background: rgba(167,139,250,0.2); color: #a78bfa; border: 1px solid rgba(167,139,250,0.3); font-weight: 700; }
+
+    /* EMPTY / LOADING */
+    .spinner-wrap { text-align: center; padding: 40px; }
+    .spinner { width: 28px; height: 28px; border: 3px solid rgba(167,139,250,0.2); border-top-color: #a78bfa; border-radius: 50%; animation: spin 0.8s linear infinite; display: inline-block; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .empty-state { text-align: center; padding: 30px 20px; color: rgba(255,255,255,0.2); font-size: 13px; line-height: 1.6; }
+
+    /* TOAST */
+    .toast { position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%); background: #1a1a2e; color: white; padding: 12px 20px; border-radius: 12px; font-size: 14px; display: none; z-index: 999; border: 1px solid rgba(255,255,255,0.1); white-space: nowrap; }
+    .toast.show { display: block; }
+
+    /* BOTTOM NAV */
+    .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top: 1px solid #f0f0f0; display: flex; justify-content: space-around; padding: 6px 0 8px; z-index: 150; }
+    .nav-item { display: flex; flex-direction: column; align-items: center; gap: 2px; text-decoration: none; padding: 4px 10px; color: #888; font-size: 10px; font-weight: 600; }
+    .nav-item.active { color: #1a1a2e; }
+    .nav-icon { font-size: 20px; }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <button class="back-btn" onclick="window.location.href='crm-dashboard.html'">←</button>
+    <div>
+      <div class="header-title">🔐 Manage Roles</div>
+      <div class="header-sub">BGTL — Admin Only</div>
+    </div>
+  </div>
+
+  <div id="accessDenied" style="display:none;text-align:center;padding:60px 20px;">
+    <div style="font-size:48px;margin-bottom:16px;">⛔</div>
+    <div style="font-size:16px;font-weight:700;color:#ef4444;">Access Restricted</div>
+    <div style="font-size:13px;color:rgba(255,255,255,0.35);margin-top:8px;">Only Admin can manage roles.</div>
+  </div>
+
+  <div id="mainContent" style="display:none;">
+
+    <div class="info-banner">
+      <strong>How this works:</strong> Find a staff member below, tap their role, then tap Save. They will have the new permissions the next time they open any CRM screen. Admin accounts are always fixed.
+    </div>
+
+    <!-- SEARCH -->
+    <div class="search-wrap">
+      <span class="search-icon">🔍</span>
+      <input type="text" class="search-input" id="searchInput" placeholder="Search staff by name or email…" oninput="filterStaff()" />
+    </div>
+
+    <!-- ADMIN ACCOUNTS (fixed, not editable) -->
+    <div class="section" style="margin-bottom:16px;">
+      <div class="section-heading">👑 Admin Accounts (Fixed)</div>
+      <div class="admin-card">
+        <div style="font-size:28px;">👑</div>
+        <div style="flex:1;">
+          <div style="font-size:14px;font-weight:700;">Sandeep</div>
+          <div style="font-size:12px;color:rgba(255,255,255,0.35);">sandeepgemologist@gmail.com</div>
+        </div>
+        <span class="admin-badge">Admin</span>
+      </div>
+      <div class="admin-card">
+        <div style="font-size:28px;">👑</div>
+        <div style="flex:1;">
+          <div style="font-size:14px;font-weight:700;">Backup Admin</div>
+          <div style="font-size:12px;color:rgba(255,255,255,0.35);">sparkals.design@gmail.com</div>
+        </div>
+        <span class="admin-badge">Admin</span>
+      </div>
+    </div>
+
+    <!-- STAFF LIST -->
+    <div class="section">
+      <div class="section-heading">👥 Staff Members</div>
+      <div id="staffWrap">
+        <div class="spinner-wrap"><div class="spinner"></div></div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <div class="bottom-nav">
+    <a class="nav-item" href="dashboard.html"><span class="nav-icon">🏠</span>Home</a>
+    <a class="nav-item" href="tasks.html"><span class="nav-icon">✅</span>Tasks</a>
+    <a class="nav-item" href="chat.html"><span class="nav-icon">💬</span>Chat</a>
+    <a class="nav-item" href="attendance.html"><span class="nav-icon">🕐</span>Attend.</a>
+    <a class="nav-item active" href="crm-dashboard.html"><span class="nav-icon">💎</span>CRM</a>
+  </div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import {
+  getFirestore, collection, getDocs, doc,
+  getDoc, setDoc, serverTimestamp, orderBy, query
+} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDNwQYXcwZrAh4cTfRyhOVk_pRod9p4CRM",
+  authDomain: "sparkals-tasks-app.firebaseapp.com",
+  projectId: "sparkals-tasks-app",
+  storageBucket: "sparkals-tasks-app.firebasestorage.app",
+  messagingSenderId: "147179987231",
+  appId: "1:147179987231:web:c6ffa484f33a2ca420d02a"
+};
+
+const app  = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+
+const ADMIN_EMAILS = ['sandeepgemologist@gmail.com','sparkals.design@gmail.com'];
+
+const ROLE_META = {
+  receptionist: { label:'Receptionist', icon:'🖥️', colour:'#60a5fa' },
+  gemologist:   { label:'Gemologist',   icon:'💎', colour:'#10b981' },
+  manager:      { label:'Manager',      icon:'📊', colour:'#fbbf24' },
+  staff:        { label:'Staff (Basic)',icon:'👤', colour:'#9ca3af' },
+};
+
+// What each role can do — for the preview chips
+const PERM_LABELS = {
+  addCustomer:    'Add Customer',
+  createJob:      'Create Job',
+  updateJobStatus:'Update Status',
+  createInvoice:  'Create Invoice',
+  cancelInvoice:  'Cancel Invoice',
+  takePayment:    'Take Payment',
+  sendWhatsApp:   'WhatsApp',
+  pettyCash:      'Petty Cash',
+  dayClose:       'Day Close',
+  viewMasters:    'View Masters',
+};
+
+const ROLE_PERMS = {
+  receptionist: { addCustomer:true,  createJob:true,  updateJobStatus:true,  createInvoice:true,  cancelInvoice:false, takePayment:true,  sendWhatsApp:true,  pettyCash:true,  dayClose:false, viewMasters:false },
+  gemologist:   { addCustomer:true,  createJob:true,  updateJobStatus:true,  createInvoice:false, cancelInvoice:false, takePayment:true,  sendWhatsApp:false, pettyCash:false, dayClose:false, viewMasters:false },
+  manager:      { addCustomer:true,  createJob:true,  updateJobStatus:false, createInvoice:false, cancelInvoice:false, takePayment:true,  sendWhatsApp:false, pettyCash:false, dayClose:true,  viewMasters:false },
+  staff:        { addCustomer:false, createJob:false, updateJobStatus:false, createInvoice:false, cancelInvoice:false, takePayment:false, sendWhatsApp:false, pettyCash:false, dayClose:false, viewMasters:false },
+};
+
+let allStaff   = [];
+let currentUser = null;
+
+// ── AUTH ─────────────────────────────────────────────────
+onAuthStateChanged(auth, async (user) => {
+  if (!user) { window.location.href = 'login.html'; return; }
+  currentUser = user;
+
+  if (!ADMIN_EMAILS.includes(user.email)) {
+    document.getElementById('accessDenied').style.display = 'block';
+    return;
+  }
+
+  document.getElementById('mainContent').style.display = 'block';
+  await loadStaff();
+});
+
+// ── LOAD STAFF FROM FIRESTORE (users collection) ─────────
+async function loadStaff() {
+  try {
+    // Load all users from the 'users' collection (created by System A login)
+    const snap = await getDocs(collection(db, 'users'));
+    allStaff = snap.docs
+      .map(d => ({ uid: d.id, ...d.data() }))
+      .filter(u => !ADMIN_EMAILS.includes(u.email)); // exclude admins
+
+    renderStaff(allStaff);
+  } catch(e) {
+    console.error(e);
+    document.getElementById('staffWrap').innerHTML =
+      `<div class="empty-state">⚠️ Could not load staff.<br>Make sure staff have logged in at least once.</div>`;
+  }
+}
+
+// ── RENDER STAFF CARDS ───────────────────────────────────
+function renderStaff(staff) {
+  const wrap = document.getElementById('staffWrap');
+
+  if (!staff.length) {
+    wrap.innerHTML = `<div class="empty-state">
+      No staff found yet.<br><br>
+      Staff must log into the app at least once before they appear here.<br>
+      Share the app link and ask them to log in.
+    </div>`;
+    return;
+  }
+
+  wrap.innerHTML = staff.map(s => {
+    const role    = s.crmRole || 'staff';
+    const meta    = ROLE_META[role] || ROLE_META.staff;
+    const initials = (s.displayName || s.name || s.email || '?').slice(0,2).toUpperCase();
+    const avatarBg = ['#7c3aed','#0ea5e9','#10b981','#f59e0b','#ef4444'][
+      (s.displayName || s.email || '').charCodeAt(0) % 5
+    ];
+
+    return `
+    <div class="staff-card" id="card-${s.uid}" data-name="${(s.displayName||s.name||'').toLowerCase()}" data-email="${(s.email||'').toLowerCase()}">
+      <div class="staff-top">
+        <div class="staff-avatar" style="background:${avatarBg}22;color:${avatarBg};border:2px solid ${avatarBg}44;">
+          ${initials}
+        </div>
+        <div style="flex:1;">
+          <div class="staff-name">${s.displayName || s.name || 'Staff Member'}</div>
+          <div class="staff-email">${s.email || '—'}</div>
+          ${s.department ? `<div class="staff-dept">📁 ${s.department}</div>` : ''}
+        </div>
+        <span style="font-size:11px;padding:3px 10px;border-radius:20px;font-weight:700;background:${meta.colour}22;color:${meta.colour};border:1px solid ${meta.colour}44;">
+          ${meta.icon} ${meta.label}
+        </span>
+      </div>
+
+      <!-- ROLE SELECTOR -->
+      <div class="role-grid">
+        ${Object.entries(ROLE_META).map(([r, m]) =>
+          `<button
+            class="role-btn role-${r} ${role === r ? 'selected' : ''}"
+            id="rolebtn-${s.uid}-${r}"
+            onclick="selectRole('${s.uid}', '${r}')"
+            ${ADMIN_EMAILS.includes(s.email) ? 'disabled' : ''}
+          >${m.icon} ${m.label}</button>`
+        ).join('')}
+      </div>
+
+      <!-- PERMISSION PREVIEW -->
+      <div class="perm-preview" id="permprev-${s.uid}">
+        <div class="perm-preview-title">Permissions for this role</div>
+        <div class="perm-chips">
+          ${buildPermChips(role)}
+        </div>
+      </div>
+
+      <!-- SAVE ROW -->
+      <div class="save-row">
+        <button class="save-btn" id="savebtn-${s.uid}" onclick="saveRole('${s.uid}')">💾 Save Role</button>
+        <span class="saved-badge" id="savedbadge-${s.uid}">✅ Saved!</span>
+      </div>
+    </div>`;
+  }).join('');
+
+  // Store selected role state per uid
+  window._selectedRoles = {};
+  staff.forEach(s => { window._selectedRoles[s.uid] = s.crmRole || 'staff'; });
+}
+
+// ── BUILD PERMISSION CHIPS ───────────────────────────────
+function buildPermChips(role) {
+  const perms = ROLE_PERMS[role] || ROLE_PERMS.staff;
+  return Object.entries(PERM_LABELS).map(([key, label]) =>
+    `<span class="perm-chip ${perms[key] ? 'yes' : 'no'}">${perms[key] ? '✓' : '✗'} ${label}</span>`
+  ).join('');
+}
+
+// ── SELECT ROLE (UI update) ──────────────────────────────
+window.selectRole = function(uid, role) {
+  window._selectedRoles[uid] = role;
+
+  // Update button highlights
+  Object.keys(ROLE_META).forEach(r => {
+    const btn = document.getElementById(`rolebtn-${uid}-${r}`);
+    if (!btn) return;
+    btn.classList.toggle('selected', r === role);
+  });
+
+  // Update permission preview
+  document.getElementById(`permprev-${uid}`).querySelector('.perm-chips').innerHTML = buildPermChips(role);
+
+  // Update badge on staff card
+  const card = document.getElementById(`card-${uid}`);
+  const meta = ROLE_META[role] || ROLE_META.staff;
+  const badgeEl = card.querySelector('.staff-top span');
+  if (badgeEl) {
+    badgeEl.style.background = meta.colour + '22';
+    badgeEl.style.color      = meta.colour;
+    badgeEl.style.borderColor= meta.colour + '44';
+    badgeEl.textContent      = `${meta.icon} ${meta.label}`;
+  }
+};
+
+// ── SAVE ROLE TO FIRESTORE ───────────────────────────────
+window.saveRole = async function(uid) {
+  const role    = window._selectedRoles[uid] || 'staff';
+  const saveBtn = document.getElementById(`savebtn-${uid}`);
+  const badge   = document.getElementById(`savedbadge-${uid}`);
+
+  saveBtn.disabled    = true;
+  saveBtn.textContent = 'Saving…';
+
+  try {
+    await setDoc(doc(db, 'users', uid), {
+      crmRole:   role,
+      updatedAt: serverTimestamp(),
+      updatedBy: currentUser.email
+    }, { merge: true });
+
+    saveBtn.textContent = '💾 Save Role';
+    saveBtn.disabled    = false;
+    badge.style.display = 'inline';
+    setTimeout(() => { badge.style.display = 'none'; }, 3000);
+    showToast(`✅ Role saved — ${ROLE_META[role]?.label || role}`);
+  } catch(e) {
+    console.error(e);
+    saveBtn.textContent = '💾 Save Role';
+    saveBtn.disabled    = false;
+    showToast('❌ Could not save. Try again.');
+  }
+};
+
+// ── SEARCH FILTER ────────────────────────────────────────
+window.filterStaff = function() {
+  const q = document.getElementById('searchInput').value.toLowerCase().trim();
+  document.querySelectorAll('.staff-card').forEach(card => {
+    const name  = card.getAttribute('data-name')  || '';
+    const email = card.getAttribute('data-email') || '';
+    card.style.display = (!q || name.includes(q) || email.includes(q)) ? 'block' : 'none';
+  });
+};
+
+// ── TOAST ────────────────────────────────────────────────
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+</script>
+</body>
+</html>
