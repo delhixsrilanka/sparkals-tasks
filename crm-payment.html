@@ -411,7 +411,7 @@ function showSuccess(paid, change, invNum) {
 
 // ── PRINT RECEIPT ─────────────────────────────────────────
 window.printReceipt = function() {
-  showToast('🖨️ Receipt printing coming in Step 78!');
+  window.location.href = `crm-receipt.html?invoiceId=${invoiceId}`;
 };
 
 // ── TOAST ─────────────────────────────────────────────────
