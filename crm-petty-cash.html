@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#1a1a2e" />
+  <title>Petty Cash — BGTL CRM</title>
+  <link rel="manifest" href="/manifest.json" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', sans-serif; background: #1a1a2e; color: white; min-height: 100vh; padding-bottom: 90px; }
+
+    .header { background: linear-gradient(135deg, #1a1a2e, #2d2d5e); padding: 16px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid rgba(255,255,255,0.08); position: sticky; top: 0; z-index: 100; }
+    .header-title { font-size: 18px; font-weight: 700; color: #a78bfa; }
+    .header-sub { font-size: 12px; color: rgba(255,255,255,0.4); }
+    .back-btn { background: none; border: none; color: #a78bfa; font-size: 22px; cursor: pointer; padding: 4px; }
+
+    /* TODAY SUMMARY CARD */
+    .summary-card { margin: 16px; background: linear-gradient(135deg, rgba(124,58,237,0.25), rgba(124,58,237,0.08)); border-radius: 20px; padding: 20px; border: 1px solid rgba(124,58,237,0.3); text-align: center; }
+    .summary-label { font-size: 13px; color: rgba(255,255,255,0.45); margin-bottom: 6px; }
+    .summary-amount { font-size: 38px; font-weight: 800; color: white; letter-spacing: -1px; }
+    .summary-amount span { font-size: 22px; color: rgba(255,255,255,0.5); }
+    .summary-count { font-size: 12px; color: rgba(255,255,255,0.35); margin-top: 6px; }
+    .summary-date { font-size: 12px; color: #a78bfa; margin-top: 4px; font-weight: 600; }
+
+    /* FORM CARD */
+    .form-card { margin: 0 16px 16px; background: rgba(255,255,255,0.05); border-radius: 18px; padding: 18px; border: 1px solid rgba(255,255,255,0.08); }
+    .form-title { font-size: 13px; font-weight: 700; color: #a78bfa; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 14px; }
+
+    .field-label { font-size: 12px; color: rgba(255,255,255,0.45); margin-bottom: 6px; display: block; }
+    .field-group { margin-bottom: 14px; }
+
+    .amount-wrap { position: relative; }
+    .amount-prefix { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); font-size: 18px; font-weight: 700; color: rgba(255,255,255,0.4); }
+    .amount-input { width: 100%; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12); border-radius: 12px; padding: 13px 14px 13px 34px; color: white; font-size: 22px; font-weight: 700; outline: none; }
+    .amount-input:focus { border-color: #a78bfa; }
+    .amount-input::placeholder { color: rgba(255,255,255,0.2); font-size: 18px; }
+
+    .select-input, .text-input, .textarea-input {
+      width: 100%; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 12px; padding: 12px 14px; color: white; font-size: 14px; outline: none;
+    }
+    .select-input { appearance: none; cursor: pointer; }
+    .select-input option { background: #1a1a2e; }
+    .text-input:focus, .select-input:focus, .textarea-input:focus { border-color: #a78bfa; }
+    .textarea-input { resize: none; min-height: 70px; }
+    .text-input::placeholder, .textarea-input::placeholder { color: rgba(255,255,255,0.25); }
+
+    .add-btn { width: 100%; padding: 14px; border-radius: 14px; border: none; background: #7c3aed; color: white; font-size: 15px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 4px; }
+    .add-btn:active { opacity: 0.85; }
+
+    /* ENTRIES LIST */
+    .section { padding: 0 16px 8px; }
+    .section-heading { font-size: 13px; font-weight: 700; color: #a78bfa; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 10px; }
+
+    .entry-item { background: rgba(255,255,255,0.05); border-radius: 14px; padding: 14px; margin-bottom: 10px; border: 1px solid rgba(255,255,255,0.07); display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+    .entry-left { flex: 1; }
+    .entry-category { font-size: 13px; font-weight: 700; color: white; margin-bottom: 3px; }
+    .entry-desc { font-size: 12px; color: rgba(255,255,255,0.45); line-height: 1.4; }
+    .entry-meta { font-size: 11px; color: rgba(255,255,255,0.28); margin-top: 5px; }
+    .entry-amount { font-size: 18px; font-weight: 800; color: #fbbf24; white-space: nowrap; }
+
+    .empty-state { text-align: center; padding: 40px 20px; color: rgba(255,255,255,0.2); font-size: 14px; }
+
+    /* SPINNER */
+    .spinner-wrap { text-align: center; padding: 40px; }
+    .spinner { width: 28px; height: 28px; border: 3px solid rgba(167,139,250,0.2); border-top-color: #a78bfa; border-radius: 50%; animation: spin 0.8s linear infinite; display: inline-block; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* TOAST */
+    .toast { position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%); background: #1a1a2e; color: white; padding: 12px 20px; border-radius: 12px; font-size: 14px; display: none; z-index: 999; border: 1px solid rgba(255,255,255,0.1); white-space: nowrap; }
+    .toast.show { display: block; }
+
+    /* BOTTOM NAV */
+    .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top: 1px solid #f0f0f0; display: flex; justify-content: space-around; padding: 6px 0 8px; z-index: 150; }
+    .nav-item { display: flex; flex-direction: column; align-items: center; gap: 2px; text-decoration: none; padding: 4px 10px; color: #888; font-size: 10px; font-weight: 600; }
+    .nav-item.active { color: #1a1a2e; }
+    .nav-icon { font-size: 20px; }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <button class="back-btn" onclick="window.location.href='dashboard.html'">←</button>
+    <div>
+      <div class="header-title">💰 Petty Cash</div>
+      <div class="header-sub">BGTL — Daily Expenses</div>
+    </div>
+  </div>
+
+  <!-- TODAY SUMMARY -->
+  <div class="summary-card">
+    <div class="summary-label">Total Spent Today</div>
+    <div class="summary-amount"><span>₹</span><span id="totalToday">0</span></div>
+    <div class="summary-count" id="entryCount">0 entries</div>
+    <div class="summary-date" id="todayDate">—</div>
+  </div>
+
+  <!-- ADD ENTRY FORM -->
+  <div class="form-card">
+    <div class="form-title">➕ Add Expense</div>
+
+    <div class="field-group">
+      <label class="field-label">Amount (₹)</label>
+      <div class="amount-wrap">
+        <span class="amount-prefix">₹</span>
+        <input type="number" class="amount-input" id="amountInput" placeholder="0" min="1" />
+      </div>
+    </div>
+
+    <div class="field-group">
+      <label class="field-label">Category</label>
+      <select class="select-input" id="categorySelect" onchange="handleCategoryChange()">
+        <option value="">— Select category —</option>
+        <option value="Tea & Refreshments">☕ Tea & Refreshments</option>
+        <option value="Courier & Delivery">📦 Courier & Delivery</option>
+        <option value="Stationery">📋 Stationery</option>
+        <option value="Cleaning & Housekeeping">🧹 Cleaning & Housekeeping</option>
+        <option value="Auto / Cab Fare">🚕 Auto / Cab Fare</option>
+        <option value="Electricity / Utilities">💡 Electricity / Utilities</option>
+        <option value="Staff Welfare">👥 Staff Welfare</option>
+        <option value="Miscellaneous">📌 Miscellaneous</option>
+        <option value="__custom__">✏️ Other — type your own</option>
+      </select>
+    </div>
+
+    <div class="field-group" id="customCategoryGroup" style="display:none;">
+      <label class="field-label">Custom Category</label>
+      <input type="text" class="text-input" id="customCategoryInput" placeholder="e.g. Plumber visit" />
+    </div>
+
+    <div class="field-group">
+      <label class="field-label">Description <span style="color:rgba(255,255,255,0.25)">(optional)</span></label>
+      <textarea class="textarea-input" id="descInput" placeholder="e.g. 3 teas for staff, bought from Murugan café"></textarea>
+    </div>
+
+    <button class="add-btn" onclick="addEntry()">➕ Add Entry</button>
+  </div>
+
+  <!-- ENTRIES LIST -->
+  <div class="section">
+    <div class="section-heading">📋 Today's Entries</div>
+    <div id="entriesWrap">
+      <div class="spinner-wrap"><div class="spinner"></div></div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <div class="bottom-nav">
+    <a class="nav-item" href="dashboard.html"><span class="nav-icon">🏠</span>Home</a>
+    <a class="nav-item" href="tasks.html"><span class="nav-icon">✅</span>Tasks</a>
+    <a class="nav-item" href="chat.html"><span class="nav-icon">💬</span>Chat</a>
+    <a class="nav-item" href="attendance.html"><span class="nav-icon">🕐</span>Attend.</a>
+    <a class="nav-item active" href="crm-customers.html"><span class="nav-icon">💎</span>CRM</a>
+  </div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import {
+  getFirestore, collection, addDoc, query, where,
+  orderBy, getDocs, serverTimestamp
+} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDNwQYXcwZrAh4cTfRyhOVk_pRod9p4CRM",
+  authDomain: "sparkals-tasks-app.firebaseapp.com",
+  projectId: "sparkals-tasks-app",
+  storageBucket: "sparkals-tasks-app.firebasestorage.app",
+  messagingSenderId: "147179987231",
+  appId: "1:147179987231:web:c6ffa484f33a2ca420d02a"
+};
+
+const app  = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+
+let currentUser = null;
+
+// Today's date string — YYYY-MM-DD — used to filter entries
+const todayStr = new Date().toISOString().split('T')[0];
+
+// Show today's date nicely in header
+document.getElementById('todayDate').textContent =
+  new Date().toLocaleDateString('en-IN', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+
+// ── AUTH ─────────────────────────────────────────────────
+onAuthStateChanged(auth, async (user) => {
+  if (!user) { window.location.href = 'login.html'; return; }
+  currentUser = user;
+  await loadEntries();
+});
+
+// ── LOAD TODAY'S ENTRIES ─────────────────────────────────
+async function loadEntries() {
+  try {
+    const q = query(
+      collection(db, 'pettyCash'),
+      where('dateStr', '==', todayStr),
+      orderBy('createdAt', 'desc')
+    );
+    const snap = await getDocs(q);
+    const entries = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    renderEntries(entries);
+  } catch(e) {
+    console.error(e);
+    document.getElementById('entriesWrap').innerHTML =
+      `<div class="empty-state">⚠️ Could not load entries.<br>Check your internet connection.</div>`;
+  }
+}
+
+// ── RENDER ENTRIES ───────────────────────────────────────
+function renderEntries(entries) {
+  const wrap = document.getElementById('entriesWrap');
+
+  // Update summary
+  const total = entries.reduce((sum, e) => sum + (e.amount || 0), 0);
+  document.getElementById('totalToday').textContent = total.toLocaleString('en-IN');
+  document.getElementById('entryCount').textContent =
+    `${entries.length} ${entries.length === 1 ? 'entry' : 'entries'}`;
+
+  if (!entries.length) {
+    wrap.innerHTML = `<div class="empty-state">💰 No expenses recorded today yet.<br>Add your first entry above.</div>`;
+    return;
+  }
+
+  wrap.innerHTML = entries.map(e => {
+    const time = e.createdAt?.toDate
+      ? e.createdAt.toDate().toLocaleTimeString('en-IN', { hour:'2-digit', minute:'2-digit' })
+      : '—';
+    return `
+      <div class="entry-item">
+        <div class="entry-left">
+          <div class="entry-category">${e.category || '—'}</div>
+          ${e.description ? `<div class="entry-desc">${e.description}</div>` : ''}
+          <div class="entry-meta">By ${e.addedByName || '—'} · ${time}</div>
+        </div>
+        <div class="entry-amount">₹${(e.amount || 0).toLocaleString('en-IN')}</div>
+      </div>`;
+  }).join('');
+}
+
+// ── HANDLE CUSTOM CATEGORY ───────────────────────────────
+window.handleCategoryChange = function() {
+  const val = document.getElementById('categorySelect').value;
+  document.getElementById('customCategoryGroup').style.display =
+    val === '__custom__' ? 'block' : 'none';
+};
+
+// ── ADD ENTRY ────────────────────────────────────────────
+window.addEntry = async function() {
+  const amountRaw = parseFloat(document.getElementById('amountInput').value);
+  const catSelect = document.getElementById('categorySelect').value;
+  const customCat = document.getElementById('customCategoryInput').value.trim();
+  const desc      = document.getElementById('descInput').value.trim();
+
+  // Validation
+  if (!amountRaw || amountRaw <= 0) { showToast('⚠️ Please enter a valid amount'); return; }
+  if (!catSelect) { showToast('⚠️ Please select a category'); return; }
+  if (catSelect === '__custom__' && !customCat) { showToast('⚠️ Please type your custom category'); return; }
+
+  const category = catSelect === '__custom__' ? customCat : catSelect;
+
+  try {
+    await addDoc(collection(db, 'pettyCash'), {
+      amount:      amountRaw,
+      category:    category,
+      description: desc || '',
+      dateStr:     todayStr,
+      addedBy:     currentUser.uid,
+      addedByName: currentUser.displayName || currentUser.email,
+      createdAt:   serverTimestamp()
+    });
+
+    // Clear form
+    document.getElementById('amountInput').value       = '';
+    document.getElementById('categorySelect').value    = '';
+    document.getElementById('customCategoryInput').value = '';
+    document.getElementById('descInput').value         = '';
+    document.getElementById('customCategoryGroup').style.display = 'none';
+
+    showToast('✅ Entry added');
+    await loadEntries();
+  } catch(e) {
+    console.error(e);
+    showToast('❌ Could not save entry');
+  }
+};
+
+// ── TOAST ────────────────────────────────────────────────
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+</script>
+</body>
+</html>
